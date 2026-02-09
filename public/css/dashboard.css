@@ -92,9 +92,8 @@ body {
 }
 
 .nav-icon {
-    width: 20px;
-    height: 20px;
-    object-fit: contain;
+    font-size: 24px;
+    /* width & height dihapus karena ini font */
     flex-shrink: 0;
     /* DITAMBAHKAN: Mencegah ikon menyusut */
 }
@@ -137,9 +136,8 @@ body {
 }
 
 .sync-img {
-    width: 16px;
-    height: 16px;
-    object-fit: contain;
+    font-size: 24px;
+    /* width & height dihapus */
 }
 
 .sync-icon {
@@ -449,6 +447,13 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
+}
+
+
+
+.card-icon-box i {
+    font-size: 24px;
+    color: #fbbf24;
 }
 
 /* --- Task List Section --- */

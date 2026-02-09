@@ -1,0 +1,499 @@
+/* =========================================
+   1. GLOBAL & SIDEBAR (Konsisten)
+   ========================================= */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    background-color: #f0f4f8;
+    color: #333;
+    display: flex;
+    min-height: 100vh;
+}
+
+/* ===== SIDEBAR ===== */
+.sidebar {
+    width: 240px;
+    background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%);
+    color: white;
+    padding: 24px 16px;
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    left: 0;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+    z-index: 100;
+}
+
+.sidebar-header {
+    margin-bottom: 40px;
+    text-align: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.logo {
+    font-size: 20px;
+    font-weight: 700;
+}
+
+.logo-highlight {
+    color: #fbbf24;
+}
+
+.sidebar-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    flex: 1;
+}
+
+.nav-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 12px;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    color: white;
+    cursor: pointer;
+    font-size: 14px;
+    white-space: nowrap;
+}
+
+.nav-item:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.nav-item.active {
+    background-color: rgba(59, 130, 246, 0.3);
+    border-left: 3px solid #fbbf24;
+    padding-left: 9px;
+}
+
+.nav-icon {
+    font-size: 24px; /* Standardized Size */
+    flex-shrink: 0;
+}
+
+.nav-text {
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.sidebar-footer {
+    margin-top: auto;
+    padding-top: 20px;
+}
+
+.sync-btn {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px 16px;
+    background-color: white;
+    color: #1e3a8a;
+    border: none;
+    border-radius: 30px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 14px;
+    font-family: 'Poppins', sans-serif;
+    transition: all 0.3s ease;
+}
+
+.sync-btn:hover {
+    background-color: #f3f4f6;
+}
+
+.sync-img {
+    font-size: 24px; /* Standardized Size */
+}
+
+.sync-icon {
+    font-size: 14px;
+}
+
+/* =========================================
+   2. MAIN CONTENT LAYOUT
+   ========================================= */
+.main-content {
+    flex: 1;
+    margin-left: 240px;
+    padding: 32px 40px;
+    background-color: #f0f4f8;
+    width: calc(100% - 240px);
+}
+
+.content-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 32px;
+}
+
+.page-title {
+    font-size: 32px;
+    font-weight: 700;
+    color: #1e3a8a;
+}
+
+.header-actions {
+    display: flex;
+    gap: 12px;
+}
+
+.select-filter {
+    padding: 10px 16px;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    font-family: 'Poppins', sans-serif;
+    font-size: 14px;
+    background-color: white;
+    color: #374151;
+    outline: none;
+    cursor: pointer;
+}
+
+.btn-tambah {
+    background-color: #354777;
+    color: white;
+    border: none;
+    padding: 8px 24px;
+    border-radius: 6px;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 500;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.btn-tambah:hover {
+    background-color: #1e40af;
+}
+
+/* =========================================
+   3. CONFIG CONTAINER & CARDS
+   ========================================= */
+.config-container {
+    background-color: white;
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    min-height: 600px;
+}
+
+.config-grid {
+    display: grid;
+    grid-template-columns: 1.2fr 3fr 1fr 0.8fr;
+    gap: 24px;
+    align-items: start;
+}
+
+.table-header {
+    font-weight: 600;
+    color: #374151;
+    font-size: 14px;
+    padding-bottom: 16px;
+    margin-bottom: 16px;
+    border-bottom: 2px solid #e5e7eb;
+    padding-left: 24px;
+}
+
+.header-center {
+    text-align: center;
+}
+
+.message-card {
+    background-color: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05); 
+    border: 1px solid #e5e7eb;
+    margin-bottom: 20px;
+    padding: 24px;
+    border-left: 5px solid #fbbf24;
+    
+    display: grid;
+    grid-template-columns: 1.2fr 3fr 1fr 0.8fr;
+    gap: 24px;
+    align-items: center;
+    transition: transform 0.2s;
+}
+
+.message-card:hover {
+    background-color: #f9fafb;
+}
+
+.notif-name {
+    color: #1f2937;
+    font-weight: 700;
+    font-size: 14px;
+}
+
+.message-content {
+    color: #4b5563;
+    font-size: 13px; /* Slightly adjusted for readability */
+    line-height: 1.6;
+}
+
+.schedule-col {
+    display: flex;
+    justify-content: center;
+}
+
+.badge-schedule {
+    background-color: #F3F1FF;
+    color: #846CF9;
+    padding: 6px 16px;
+    border-radius: 50px;
+    font-weight: 600;
+    font-size: 13px;
+    display: inline-block;
+    min-width: 90px;
+    text-align: center;
+}
+
+.badge-dash {
+    color: #9ca3af;
+    font-weight: 700;
+}
+
+.action-col {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+}
+
+.btn-icon {
+    border: none;
+    background-color: transparent;
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 6px;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+}
+
+.btn-edit {
+    background-color: #dbeafe;
+    color: #0284c7;
+}
+
+.btn-edit:hover {
+    background-color: #bae6fd;
+}
+
+.btn-delete {
+    background-color: #fee2e2;
+    color: #ef4444;
+}
+
+.btn-delete:hover {
+    background-color: #fecaca;
+}
+
+.btn-icon i {
+    font-size: 18px;
+}
+
+/* =========================================
+   4. MODALS
+   ========================================= */
+.modal-overlay {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(2px);
+}
+
+.modal-box {
+    background: white;
+    width: 500px;
+    max-width: 90%;
+    padding: 30px;
+    border-radius: 12px;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+}
+
+.modal-header h2 {
+    font-size: 24px;
+    font-weight: 700;
+    color: #1e3a8a;
+    text-align: left;
+    margin-bottom: 10px;
+}
+
+.input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 16px;
+}
+
+.info-label {
+    font-weight: 600;
+    color: #1f2937;
+    font-size: 14px;
+}
+
+.form-input, .form-select {
+    width: 100%;
+    padding: 12px 16px;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    font-family: 'Poppins', sans-serif;
+    font-size: 14px;
+    color: #374151;
+    outline: none;
+    background-color: white;
+}
+
+.text-area-pesan {
+    resize: vertical;
+    min-height: 120px;
+    line-height: 1.5;
+}
+
+.form-select:disabled {
+    background-color: #f3f4f6;
+    color: #9ca3af;
+    cursor: not-allowed;
+}
+
+.modal-footer {
+    display: flex;
+    gap: 16px;
+    justify-content: flex-end;
+    margin-top: 10px;
+}
+
+.btn-modal-cancel {
+    padding: 10px 24px;
+    border: none;
+    border-radius: 8px;
+    background-color: #fee2e2;
+    color: #ef4444;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.btn-modal-save {
+    padding: 10px 24px;
+    border: none;
+    border-radius: 8px;
+    background-color: #354777;
+    color: white;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.btn-modal-save:hover {
+    background-color: #1e40af;
+}
+
+/* Modal Delete */
+.modal-delete-size {
+    width: auto;
+    min-width: 300px;
+    text-align: center;
+}
+
+.delete-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+}
+
+.delete-title {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    font-size: 18px;
+    font-weight: 600;
+    color: #1f2937;
+    margin: 0;
+}
+
+.delete-actions {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    width: 100%;
+}
+
+.btn-pill {
+    padding: 8px 32px;
+    border-radius: 50px;
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+    border: 1px solid #d1d5db;
+    background-color: white;
+    transition: all 0.2s;
+}
+
+.confirm-delete {
+    background-color: #ef4444;
+    color: white;
+    border-color: #ef4444;
+}
+
+/* Toast */
+.toast-notification {
+    visibility: hidden;
+    min-width: 250px;
+    background-color: #10B981;
+    color: #fff;
+    text-align: center;
+    border-radius: 8px;
+    padding: 16px;
+    position: fixed;
+    z-index: 3000;
+    left: 50%;
+    top: 30px;
+    transform: translateX(-50%);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    font-size: 14px;
+    font-weight: 600;
+    opacity: 0;
+    transition: opacity 0.5s, top 0.5s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.toast-notification.show {
+    visibility: visible;
+    opacity: 1;
+    top: 50px;
+}

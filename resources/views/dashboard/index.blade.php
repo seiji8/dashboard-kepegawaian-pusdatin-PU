@@ -7,7 +7,9 @@
     <link rel="stylesheet" href="{{ asset('css/dashboard.css') }}">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <!-- Bootstrap Icons for fallback since assets are missing -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <!-- Phosphor Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css"> -->
 </head>
 <body>
     <div class="container">
@@ -17,30 +19,30 @@
             </div>
             <nav class="sidebar-nav">
                 <a href="{{ route('dashboard') }}" class="nav-item {{ request()->routeIs('dashboard') ? 'active' : '' }}">
-                    <i class="bi bi-grid-1x2-fill nav-icon"></i>
+                    <i class="ph-fill ph-squares-four nav-icon"></i>
                     <span class="nav-text">Dashboard</span>
                 </a>
-                <a href="#" class="nav-item">
-                    <i class="bi bi-people-fill nav-icon"></i>
+                <a href="{{ route('data-pegawai') }}" class="nav-item {{ request()->routeIs('data-pegawai') ? 'active' : '' }}">
+                    <i class="ph-fill ph-users nav-icon"></i>
                     <span class="nav-text">Data Pegawai</span>
                 </a>
-                <a href="#" class="nav-item">
-                    <i class="bi bi-chat-dots-fill nav-icon"></i>
+                <a href="{{ route('konfigurasi-pesan') }}" class="nav-item {{ request()->routeIs('konfigurasi-pesan') ? 'active' : '' }}">
+                    <i class="ph-fill ph-chat-dots nav-icon"></i>
                     <span class="nav-text">Konfigurasi Pesan</span>
                 </a>
-                <a href="#" class="nav-item">
-                    <i class="bi bi-clock-history nav-icon"></i>
+                <a href="{{ route('log-aktivitas') }}" class="nav-item {{ request()->routeIs('log-aktivitas') ? 'active' : '' }}">
+                    <i class="ph-fill ph-clock-counter-clockwise nav-icon"></i>
                     <span class="nav-text">Log Aktivitas</span>
                 </a>
-                <a href="#" class="nav-item">
-                    <i class="bi bi-shield-lock-fill nav-icon"></i>
+                <a href="{{ route('daftar-admin') }}" class="nav-item {{ request()->routeIs('daftar-admin') ? 'active' : '' }}">
+                    <i class="ph-fill ph-shield-check nav-icon"></i>
                     <span class="nav-text">Daftar Admin</span>
                 </a>
             </nav>
             <div class="sidebar-footer">
                 <form action="{{ url('/sync-now') }}" method="POST" id="syncForm" style="display:none;">@csrf</form>
                 <button class="sync-btn" onclick="showSyncToast()">
-                    <i class="bi bi-arrow-repeat sync-img"></i>
+                    <i class="ph-bold ph-arrows-clockwise sync-img"></i>
                     <span class="sync-icon">Sinkronisasi</span>
                 </button>
             </div>
@@ -57,10 +59,7 @@
                 <div class="user-actions">
                     <div class="notif-wrapper">
                         <button class="btn-icon-header">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#1e3a8a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
-                                <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
-                            </svg>
+                            <i class="ph-fill ph-bell" style="font-size: 24px; color: #1e3a8a;"></i>
                             <span class="badge">{{ $tenggatMendesak }}</span>
                         </button>
                     </div>
@@ -76,18 +75,18 @@
                                     {{ (auth()->user() && auth()->user()->isSuperAdmin()) ? 'Super Admin' : 'Admin Pegawai' }}
                                 </span>
                             </div>
-                            <svg class="chevron-down" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#666" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+                            <i class="ph-bold ph-caret-down" style="font-size: 16px; color: #666;"></i>
                         </button>
 
                         <div id="profileDropdown" class="dropdown-menu">
                             <a href="#" class="dropdown-item">
-                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                                <i class="ph-fill ph-lock-key" style="font-size: 18px; margin-right: 8px;"></i>
                                 Ganti Kata Sandi
                             </a>
                             <form action="{{ route('logout') }}" method="POST">
                                 @csrf
                                 <button type="submit" class="dropdown-item text-red" style="width:100%; border:none; background:none; cursor:pointer;">
-                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+                                    <i class="ph-fill ph-sign-out" style="font-size: 18px; margin-right: 8px;"></i>
                                     Keluar
                                 </button>
                             </form>
@@ -110,7 +109,7 @@
                             <span class="card-tag">Aktif</span>
                         </div>
                         <div class="card-icon-box">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fbbf24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                            <i class="ph-fill ph-users-three" style="font-size: 24px; color: #fbbf24;"></i>
                         </div>
                     </div>
 
@@ -123,7 +122,7 @@
                             <span class="card-tag">Bulan ini</span>
                         </div>
                         <div class="card-icon-box">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fbbf24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+                            <i class="ph-fill ph-chart-bar" style="font-size: 24px; color: #fbbf24;"></i>
                         </div>
                     </div>
 
@@ -136,7 +135,7 @@
                             <span class="card-tag">Perlu Atensi</span>
                         </div>
                         <div class="card-icon-box">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fbbf24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                            <i class="ph-fill ph-warning-circle" style="font-size: 24px; color: #fbbf24;"></i>
                         </div>
                     </div>
 
@@ -149,7 +148,7 @@
                             <span class="card-tag">Sedang Proses</span>
                         </div>
                         <div class="card-icon-box">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fbbf24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="12" y1="18" x2="12" y2="12"></line><line x1="9" y1="15" x2="15" y2="15"></line></svg>
+                            <i class="ph-fill ph-file-text" style="font-size: 24px; color: #fbbf24;"></i>
                         </div>
                     </div>
                 </div>
@@ -197,7 +196,7 @@
                                                     <td><span class="status-badge status-warning">{{ $item->status_saat_ini }}</span></td>
                                                     <td>
                                                         <button class="btn-action-view" onclick="openDetailModal('{{ $item->pegawai->nip }}')">
-                                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                                                            <i class="ph-bold ph-eye"></i>
                                                         </button>
                                                     </td>
                                                 </tr>
@@ -243,7 +242,7 @@
                                                     </td>
                                                     <td>
                                                         <button class="btn-action-view" onclick="openDetailModal('{{ $item->pegawai->nip }}')">
-                                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                                                            <i class="ph-bold ph-eye"></i>
                                                         </button>
                                                     </td>
                                                 </tr>

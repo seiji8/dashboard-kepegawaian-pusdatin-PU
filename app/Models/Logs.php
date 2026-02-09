@@ -11,6 +11,9 @@ class Logs extends Model
 
     protected $table = 'logs';
     protected $guarded = [];
+    
+    // Disable timestamps karena table pakai kolom 'waktu' bukan 'created_at/updated_at'
+    public $timestamps = false;
 
     // Relasi 1: Siapa admin yang melakukan aksi? (Bisa null jika sistem)
     public function admin()

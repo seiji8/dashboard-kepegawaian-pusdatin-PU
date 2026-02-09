@@ -1,143 +1,108 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login Masuk - Sistem Kepegawaian</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
-    
-    <style>
-        body {
-            background-color: #f4f6f9;
-            height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-        .login-container {
-            width: 100%;
-            max-width: 400px;
-            padding: 15px;
-        }
-        .card-login {
-            border: none;
-            border-radius: 12px;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
-        }
-        .brand-logo {
-            width: 60px;
-            height: 60px;
-            background: #0d6efd;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 1.5rem;
-            color: white;
-            font-size: 24px;
-        }
-        .form-control:focus {
-            box-shadow: none;
-            border-color: #0d6efd;
-        }
-        .btn-primary {
-            padding: 12px;
-            font-weight: 600;
-            letter-spacing: 0.5px;
-        }
-        .spinner-border { display: none; }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login - DashboardAlert</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="login.css">
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+  <style>
+      body { font-family: 'Poppins', sans-serif; }
+      .hidden { display: none; }
+      .icon-input {
+          position: absolute;
+          left: 12px;
+          top: 50%;
+          transform: translateY(-50%);
+          font-size: 24px;
+          color: #94a3b8; /* Slate-400 */
+      }
+      .icon-toggle {
+          position: absolute;
+          right: 12px;
+          top: 50%;
+          transform: translateY(-50%);
+          font-size: 24px;
+          color: #64748B;
+          cursor: pointer;
+      }
+  </style>
 </head>
-<body>
+<body class="bg-gray-50 overflow-hidden">
+  <div class="flex h-screen justify-center items-center bg-gray-50">
+    <div class="flex bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden" style="width: 800px; height: 500px;">
+      
+      <div class="w-1/4 bg-cover bg-center" style="width: 100%; background-image: url('assets/login_sebelah.png'); background-size: contain; background-repeat: no-repeat; background-position: left;">
+      </div>
 
-    <div class="login-container">
-        <div class="card card-login bg-white p-4 p-md-5">
-            
-            <div class="text-center mb-4">
-                <div class="brand-logo">
-                    <i class="bi bi-building-fill"></i>
-                </div>
-                <h4 class="fw-bold text-dark">Sistem Kepegawaian</h4>
-                <p class="text-muted small">Silakan login dengan email dinas</p>
-            </div>
-
-            @error('email')
-                <div class="alert alert-danger d-flex align-items-center mb-4" role="alert">
-                    <i class="bi bi-exclamation-triangle-fill me-2"></i>
-                    <div>{{ $message }}</div>
-                </div>
-            @enderror
-
-            <form action="{{ route('login') }}" method="POST" id="loginForm">
-                @csrf
-                
-                <div class="mb-3">
-                    <label class="form-label text-secondary small fw-bold">ALAMAT EMAIL</label>
-                    <div class="input-group">
-                        <span class="input-group-text bg-light border-end-0"><i class="bi bi-envelope"></i></span>
-                        <input type="email" name="email" class="form-control bg-light border-start-0 ps-0" 
-                               value="{{ old('email') }}" placeholder="nama@pu.go.id" required autofocus>
-                    </div>
-                </div>
-
-                <div class="mb-3">
-                    <label class="form-label text-secondary small fw-bold">PASSWORD</label>
-                    <div class="input-group">
-                        <span class="input-group-text bg-light border-end-0"><i class="bi bi-lock"></i></span>
-                        <input type="password" name="password" id="passwordInput" 
-                               class="form-control bg-light border-start-0 border-end-0 ps-0" 
-                               placeholder="Masukan Password" required>
-                        <span class="input-group-text bg-light border-start-0 cursor-pointer" style="cursor: pointer;" onclick="togglePassword()">
-                            <i class="bi bi-eye-slash" id="toggleIcon"></i>
-                        </span>
-                    </div>
-                </div>
-
-                <div class="d-flex justify-content-between align-items-center mb-4">
-                    <div class="form-check">
-                        <input type="checkbox" class="form-check-input" id="remember" name="remember">
-                        <label class="form-check-label text-muted small" for="remember">Ingat Saya</label>
-                    </div>
-                    <a href="#" class="text-decoration-none small">Lupa Password?</a>
-                </div>
-
-                <button type="submit" class="btn btn-primary w-100 mb-3" id="btnLogin">
-                    <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-                    <span id="btnText">MASUK SISTEM</span>
-                </button>
-            </form>
-
-            <div class="text-center mt-3">
-                <small class="text-muted" style="font-size: 0.75rem;">&copy; 2026 Biro Kepegawaian & Teknologi Informasi</small>
-            </div>
+      <div class="flex flex-col items-center justify-center p-8" style="margin-left: -100px; margin-right: 70px; width: 400px; flex-shrink: 0;">
+        <div class="flex justify-center mb-8">
+          <img src="assets/Logo_PU.png" alt="Logo" class="h-20">
         </div>
+        <div class="text-center mb-6">
+          <h2 class="text-2xl" style="font-weight: 700; letter-spacing: -0.5px;"><span style="color: #FFC928;">Dashboard</span> <span style="color: #142B6F;">Alert</span></h2>
+          
+        </div>
+
+        <form action="{{ route('login') }}" method="POST" class="space-y-4 w-full max-w-[340px] mx-auto">
+          @csrf
+          
+          <div>
+            <label for="email" class="block text-sm font-bold text-gray-800 mb-2 text-left">Email</label>
+            <div style="position: relative;">
+                <i class="ph-bold ph-envelope-simple icon-input"></i>
+                <input type="email" id="email" name="email" 
+                       placeholder="Masukkan Email" 
+                       value="{{ old('email') }}"
+                       class="w-full py-2.5 px-3 border border-[#CBD5E1] rounded-md focus:outline-none focus:ring-2 focus:ring-[#FFC928] text-sm" 
+                       style="padding-left: 48px;"
+                       required autofocus>
+            </div>
+          </div>
+
+          <div>
+            <label for="password" class="block text-sm font-bold text-gray-800 mb-2 text-left">Kata Sandi</label>
+            <div style="position: relative;">
+                <i class="ph-bold ph-lock-key icon-input"></i>
+                <input type="password" id="password" name="password" 
+                       placeholder="Masukkan Kata Sandi" 
+                       class="w-full py-2.5 px-3 border border-[#CBD5E1] rounded-md focus:outline-none focus:ring-2 focus:ring-[#FFC928] text-sm" 
+                       style="padding-left: 48px; padding-right: 48px;"
+                       required>
+                <i class="ph-bold ph-eye-slash icon-toggle" id="toggleIcon"></i>
+            </div>
+          </div>
+
+          <div class="text-right">
+            <a href="{{ route('password.request') }}" class="text-sm font-semibold hover:underline transition-all" style="color: #142B6F;">Lupa Kata Sandi?</a>
+          </div>
+
+          <div>
+            <button type="submit" class="w-full py-3 font-semibold rounded-full shadow-md hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-200" style="background-color: #FFC928; color: #142B6F;" onmouseover="this.style.backgroundColor='#FFB700'" onmouseout="this.style.backgroundColor='#FFC928'">LOGIN</button>
+          </div>
+        </form>
+      </div>
     </div>
+  </div>
 
-    <script>
-        function togglePassword() {
-            const passwordInput = document.getElementById('passwordInput');
-            const toggleIcon = document.getElementById('toggleIcon');
-            if (passwordInput.type === 'password') {
-                passwordInput.type = 'text';
-                toggleIcon.classList.remove('bi-eye-slash');
-                toggleIcon.classList.add('bi-eye');
-            } else {
-                passwordInput.type = 'password';
-                toggleIcon.classList.remove('bi-eye');
-                toggleIcon.classList.add('bi-eye-slash');
-            }
+  <script>
+    const toggleIcon = document.getElementById('toggleIcon');
+    const passwordInput = document.getElementById('password');
+
+    toggleIcon.addEventListener('click', function () {
+        const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+        passwordInput.setAttribute('type', type);
+        
+        if (type === 'text') {
+            toggleIcon.classList.remove('ph-eye-slash');
+            toggleIcon.classList.add('ph-eye');
+        } else {
+            toggleIcon.classList.remove('ph-eye');
+            toggleIcon.classList.add('ph-eye-slash');
         }
-
-        document.getElementById('loginForm').addEventListener('submit', function() {
-            const btn = document.getElementById('btnLogin');
-            const spinner = btn.querySelector('.spinner-border');
-            const text = document.getElementById('btnText');
-            btn.disabled = true;
-            spinner.style.display = 'inline-block';
-            text.innerText = 'MEMPROSES...';
-        });
-    </script>
+    });
+  </script>
 </body>
 </html>

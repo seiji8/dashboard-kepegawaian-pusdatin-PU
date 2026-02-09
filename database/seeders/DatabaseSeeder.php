@@ -42,17 +42,7 @@ class DatabaseSeeder extends Seeder
             'is_naik_jenjang' => false,
         ]);
 
-        NotifikasiRules::create([
-            'kategori' => 'KGB',
-            'template_pesan' => 'Yth. {nama}, TMT KGB Anda jatuh pada {tanggal_target}. Segera proses berkas.',
-            'interval_hari' => 1,
-        ]);
 
-        NotifikasiRules::create([
-            'kategori' => 'KP_Jafung',
-            'template_pesan' => 'Selamat {nama}, Angka Kredit Anda ({poin}) sudah mencukupi untuk naik pangkat ke {next_pangkat}.',
-            'interval_hari' => 1,
-        ]);
 
         // 3. DATA PEGAWAI DUMMY
         // Kasus KGB (H-1 Bulan)
@@ -89,5 +79,8 @@ class DatabaseSeeder extends Seeder
             'nilai_konversi' => 55, // Langsung tembak 55 biar lolos
             'keterangan_skp' => 'SKP 2022-2023',
         ]);
+
+        // 4. Seeder Notifikasi (Professional Wording)
+        $this->call(NotifikasiSeeder::class);
     }
 }
