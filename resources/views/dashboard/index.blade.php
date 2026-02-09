@@ -298,19 +298,39 @@
                                         <table class="custom-table">
                                             <thead>
                                                 <tr>
-                                                    <th>NIP</th>
+                                                    <th>Mulai Notifikasi</th>
                                                     <th>Nama</th>
-                                                    <th>TMT KGB</th>
+                                                    <th>TMT KGB Terakhir</th>
                                                     <th>Status</th>
+                                                    <th>Dokumen</th>
+                                                    <th>Aksi</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
                                                 @foreach($listKGB as $kgb)
                                                 <tr>
-                                                    <td>{{ $kgb->pegawai->nip }}</td>
+                                                    <td>{{ \Carbon\Carbon::parse($kgb->tanggal_target)->format('d M Y') }}</td>
                                                     <td>{{ $kgb->pegawai->nama }}</td>
-                                                    <td>{{ $kgb->tanggal_target }}</td>
-                                                    <td><span class="status-badge status-warning">{{ $kgb->status_saat_ini }}</span></td>
+                                                    <td>{{ optional($kgb->pegawai->tmt_kgb_terakhir)->format('d M Y') ?? '-' }}</td>
+                                                    <td>
+                                                        @if($kgb->status_saat_ini == 'Mendekati')
+                                                            <span class="status-badge status-warning">Mendekati</span>
+                                                        @elseif($kgb->status_saat_ini == 'Usulan')
+                                                            <span class="status-badge status-ok">Usulan</span>
+                                                        @else
+                                                            <span class="status-badge status-missing">{{ $kgb->status_saat_ini }}</span>
+                                                        @endif
+                                                    </td>
+                                                    <td>
+                                                        <span style="color: #dc2626; font-weight: 600;">
+                                                            {{ $kgb->dokumen_total - $kgb->dokumen_terupload }} Belum
+                                                        </span>
+                                                    </td>
+                                                    <td>
+                                                        <button class="btn-action-view" onclick="openDetailModal('{{ $kgb->pegawai->nip }}')">
+                                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                                                        </button>
+                                                    </td>
                                                 </tr>
                                                 @endforeach
                                             </tbody>

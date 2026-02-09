@@ -59,35 +59,41 @@ class DatabaseSeeder extends Seeder
         $tmt_kgb = now()->subYears(2)->addMonth(1);
         
         Pegawai::create([
+            'id_pegawai_api' => \Illuminate\Support\Str::uuid()->toString(), // Dummy UUID
             'nip' => '199001012022011001',
-            'nama' => 'Budi Santoso (Target KGB)',
-            'email' => 'budi@pu.go.id',
+            'nama' => 'Hilmi Jim',
+            'email' => 'hilmiasardan@gmail.com',
             'no_hp' => '08123456789',
             'jabatan_saat_ini' => 'Pranata Komputer Ahli Pertama',
-            'pangkat_saat_ini' => 'III/a',
-            'tmt_cpns' => $tmt_kgb,
-            'tmt_kgb_terakhir' => null,
+            'pangkat_golongan' => 'III/a',
+            'tmt_cpns' => null,
+            'tmt_kgb_terakhir' => '2024-02-01',
         ]);
 
         // Kasus KP (Poin Cukup)
         $nip_siti = '199505052020012001';
         
         Pegawai::create([
+            'id_pegawai_api' => \Illuminate\Support\Str::uuid()->toString(), // Dummy UUID
             'nip' => $nip_siti,
-            'nama' => 'Siti Aminah (Target KP)',
-            'email' => 'siti@pu.go.id',
+            'nama' => 'Raissa Cantik',
+            'email' => 'raissaakhdiyan@gmail.com',
             'no_hp' => '08987654321',
             'jabatan_saat_ini' => 'Pranata Komputer Ahli Pertama',
-            'pangkat_saat_ini' => 'III/a',
+            'pangkat_golongan' => 'III/a',
             'tmt_pangkat_terakhir' => '2022-01-01',
+            'tmt_kgb_terakhir' => '2024-03-01',
         ]);
 
         RiwayatAngkaKredit::create([
             'nip' => $nip_siti,
-            'tahun' => 2022,
-            'triwulan' => '4',
-            'nilai_konversi' => 55, // Langsung tembak 55 biar lolos
-            'keterangan_skp' => 'SKP 2022-2023',
+            'nomor_sk' => 'SK-DUMMY-001',
+            'tanggal_sk' => '2022-12-01',
+            'total_kredit' => 55, // Langsung tembak 55 biar lolos
+            'jabatan_saat_penilaian' => 'Pranata Komputer Ahli Pertama',
         ]);
+
+        // 4. Update TMT Manual (jika pegawai ada)
+        $this->call(UpdateTmtManualSeeder::class);
     }
 }

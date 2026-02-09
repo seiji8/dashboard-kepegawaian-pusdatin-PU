@@ -9,16 +9,29 @@ class Pegawai extends Model
 {
     use HasFactory;
 
-    // 1. Konfigurasi Primary Key (Wajib karena pakai NIP)
+    // 1. Konfigurasi Primary Key (Menggunakan ID dari API)
     protected $table = 'pegawai';
-    protected $primaryKey = 'nip';
-    public $incrementing = false; // Karena NIP bukan angka urut (1,2,3)
-    protected $keyType = 'string'; // Tipe data NIP adalah string
+    protected $primaryKey = 'id_pegawai_api'; // Primary Key baru
+    public $incrementing = false; // Bukan Auto Increment
+    protected $keyType = 'string'; // Tipe data String/UUID
 
     // 2. Mass Assignment (Biar bisa langsung simpan data banyak dari API)
     protected $guarded = []; // Artinya: Semua kolom BOLEH diisi
 
+    // 2b. Casting Tipe Data (Agar otomatis jadi Carbon / Date)
+    protected $casts = [
+        'tmt_cpns' => 'date',
+        'tmt_pangkat_terakhir' => 'date',
+        'tmt_kgb_terakhir' => 'date',
+    ];
+
     // 3. Relasi ke Tabel Lain
+
+    // Satu Pegawai punya BANYAK Riwayat Jabatan
+    public function riwayat_jabatan()
+    {
+        return $this->hasMany(RiwayatJabatan::class, 'nip', 'nip');
+    }
 
     // Satu Pegawai punya BANYAK Riwayat Diklat
     public function riwayat_diklat()
@@ -35,7 +48,7 @@ class Pegawai extends Model
     // Satu Pegawai punya BANYAK Status di Dashboard (KGB, JF, dll)
     public function dashboard_tracker()
     {
-        return $this->hasMany(DashboardTracker::class, 'nip', 'nip');
+        return $this->hasMany(DashboardTracker::class, 'pegawai_id', 'id_pegawai_api');
     }
 
     // Satu Pegawai punya BANYAK Log
