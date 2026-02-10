@@ -6,6 +6,7 @@ use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Http;
 use App\Models\Pegawai;
 use Carbon\Carbon;
+use App\Helpers\ActivityLogger;
 
 class SyncEhrmData extends Command
 {
@@ -15,6 +16,7 @@ class SyncEhrmData extends Command
     public function handle()
     {
         $this->info('🚀 Memulai proses sinkronisasi Lengkap...');
+        ActivityLogger::logApiSync('Memulai sinkronisasi data pegawai dari API e-HRM');
 
         // 1. Ambil Kredensial dari .env
         $baseUrl = env('EHRM_BASE_URL');
@@ -231,6 +233,7 @@ class SyncEhrmData extends Command
 
         $this->newLine();
         $this->info('🎉 Sinkronisasi LENGKAP Selesai!');
+        ActivityLogger::logApiSync('Sinkronisasi data pegawai dari API e-HRM selesai');
     }
 
     private function parseDate($dateString)

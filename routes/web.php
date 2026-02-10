@@ -33,7 +33,6 @@ Route::middleware(['auth'])->group(function () {
     
     // Log Aktivitas
     Route::get('/log-aktivitas', [LogAktivitasController::class, 'index'])->name('log-aktivitas');
-    Route::delete('/log-aktivitas/{id}', [LogAktivitasController::class, 'destroy'])->name('log-aktivitas.destroy');
 
     // Daftar Admin
     Route::get('/daftar-admin', [AdminController::class, 'index'])->name('daftar-admin');
@@ -54,5 +53,6 @@ Route::middleware(['auth'])->group(function () {
     // Notifikasi
     Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
     Route::post('/notifications/mark-read', [NotificationController::class, 'markAllRead'])->name('notifications.mark-read');
+    Route::post('/notifications/{id}/read', [NotificationController::class, 'markAsRead'])->name('notifications.read');
 
 });

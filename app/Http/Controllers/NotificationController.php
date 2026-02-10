@@ -47,4 +47,17 @@ class NotificationController extends Controller
             'message' => 'Semua notifikasi telah ditandai dibaca.',
         ]);
     }
+
+    /**
+     * Tandai satu notifikasi sebagai sudah dibaca.
+     */
+    public function markAsRead($id)
+    {
+        $notif = Auth::user()->notifications()->where('id', $id)->first();
+        if ($notif) {
+            $notif->markAsRead();
+        }
+
+        return response()->json(['success' => true]);
+    }
 }

@@ -56,21 +56,20 @@
             <form id="filterForm" method="GET" action="{{ route('log-aktivitas') }}">
                 <div class="filter-row">
                     <div class="filter-group">
-                        <label>Tipe Log</label>
-                        <select name="tipe" class="filter-input" style="color: {{ request('tipe') ? '#374151' : '#A9ACB1' }};">
+                        <label>Jenis Pengguna</label>
+                        <select name="jenis_pengguna" class="filter-input" style="color: {{ request('jenis_pengguna') ? '#374151' : '#A9ACB1' }};">
                             <option value="">Semua</option>
-                            <option value="ADMIN_ACTION" {{ request('tipe') == 'ADMIN_ACTION' ? 'selected' : '' }}>Admin Action</option>
-                            <option value="NOTIF_SENT" {{ request('tipe') == 'NOTIF_SENT' ? 'selected' : '' }}>Notifikasi Terkirim</option>
-                            <option value="API_SYNC" {{ request('tipe') == 'API_SYNC' ? 'selected' : '' }}>Sinkronisasi API</option>
-                            <option value="SYSTEM_LOG" {{ request('tipe') == 'SYSTEM_LOG' ? 'selected' : '' }}>Log Sistem</option>
+                            <option value="super_admin" {{ request('jenis_pengguna') == 'super_admin' ? 'selected' : '' }}>Admin Super</option>
+                            <option value="admin_pegawai" {{ request('jenis_pengguna') == 'admin_pegawai' ? 'selected' : '' }}>Admin Kepegawaian</option>
+                            <option value="sistem" {{ request('jenis_pengguna') == 'sistem' ? 'selected' : '' }}>Sistem</option>
                         </select>
                     </div>
 
                     <div class="filter-group">
-                        <label>Cari Deskripsi</label>
+                        <label>Aksi</label>
                         <div class="input-with-icon-left">
                             <i class="ph-bold ph-magnifying-glass icon-input-left"></i>
-                            <input type="text" name="search" placeholder="Cari di deskripsi..." class="filter-input pl-icon" value="{{ request('search') }}">
+                            <input type="text" name="aksi" placeholder="Cari Aksi" class="filter-input pl-icon" value="{{ request('aksi') }}">
                         </div>
                     </div>
 
@@ -81,7 +80,7 @@
                         </div>
                     </div>
 
-                    <div class=" filter-group">
+                    <div class="filter-group">
                         <label>Sampai Tanggal</label>
                         <div class="date-wrapper">
                             <input type="date" name="sampai_tanggal" class="filter-input date-input" value="{{ request('sampai_tanggal') }}">
@@ -107,12 +106,10 @@
                 <table class="data-table">
                     <thead>
                         <tr>
-                            <th style="width: 18%;">Waktu</th>
-                            <th style="width: 15%;">Tipe</th>
-                            <th style="width: 15%;">Admin</th>
-                            <th style="width: 15%;">Target Pegawai</th>
-                            <th style="width: 27%;">Deskripsi</th>
-                            <th style="width: 10%;">Hapus</th>
+                            <th style="width: 20%;">Waktu</th>
+                            <th style="width: 18%;">Jenis Pengguna</th>
+                            <th style="width: 17%;">Aksi</th>
+                            <th style="width: 45%;">Deskripsi</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -126,44 +123,40 @@
                                 <span class="time-ago">{{ \Carbon\Carbon::parse($log->waktu)->diffForHumans() }}</span>
                             </td>
                             <td>
-                                <span class="badge 
-                                    @if($log->tipe == 'ADMIN_ACTION') badge-admin-super
-                                    @elseif($log->tipe == 'NOTIF_SENT') badge-pegawai
-                                    @elseif($log->tipe == 'API_SYNC') badge-sistem
-                                    @else badge-sistem
-                                    @endif
-                                ">
-                                    @if($log->tipe == 'ADMIN_ACTION') Admin Action
-                                    @elseif($log->tipe == 'NOTIF_SENT') Notifikasi
-                                    @elseif($log->tipe == 'API_SYNC') API Sync
-                                    @else System
-                                    @endif
-                                </span>
-                            </td>
-                            <td>
                                 @if($log->admin)
-                                    <span style="font-size: 13px;">{{ $log->admin->nama_lengkap }}</span>
+                                    @if($log->admin->role === 'super_admin')
+                                        <span class="badge badge-admin-super">Admin Super</span>
+                                    @else
+                                        <span class="badge badge-pegawai">Admin Kepegawaian</span>
+                                    @endif
                                 @else
-                                    <span style="font-size: 12px; color: #9ca3af;">-</span>
+                                    <span class="badge badge-sistem">Sistem</span>
                                 @endif
                             </td>
                             <td>
-                                @if($log->pegawai)
-                                    <span style="font-size: 13px;">{{ $log->pegawai->nama }}</span>
+                                @if($log->tipe == 'ADMIN_ACTION')
+                                    @if(str_contains($log->deskripsi, 'Login'))
+                                        Login
+                                    @elseif(str_contains($log->deskripsi, 'Mengkonfirmasi'))
+                                        Konfirmasi Tugas
+                                    @elseif(str_contains($log->deskripsi, 'Verifikasi'))
+                                        Verifikasi Data
+                                    @else
+                                        {{ Str::limit($log->deskripsi, 25) }}
+                                    @endif
+                                @elseif($log->tipe == 'NOTIF_SENT')
+                                    Mengirim Notifikasi
+                                @elseif($log->tipe == 'API_SYNC')
+                                    Sinkronisasi API
                                 @else
-                                    <span style="font-size: 12px; color: #9ca3af;">-</span>
+                                    Log Sistem
                                 @endif
                             </td>
                             <td>{{ $log->deskripsi }}</td>
-                            <td>
-                                <button class="btn-delete" onclick="deleteLog({{ $log->id }})">
-                                    <i class="ph-fill ph-trash" style="color: #ef4444; font-size: 18px;"></i>
-                                </button>
-                            </td>
                         </tr>
                         @empty
                         <tr>
-                            <td colspan="6" style="text-align: center; padding: 40px; color: #9ca3af;">
+                            <td colspan="4" style="text-align: center; padding: 40px; color: #9ca3af;">
                                 Tidak ada data log aktivitas
                             </td>
                         </tr>
@@ -220,33 +213,6 @@
             window.location.href = "{{ route('log-aktivitas') }}";
         }
 
-        // DELETE LOG
-        function deleteLog(id) {
-            if (!confirm('Apakah Anda yakin ingin menghapus log ini?')) {
-                return;
-            }
-
-            fetch(`/log-aktivitas/${id}`, {
-                method: 'DELETE',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    alert('Log berhasil dihapus!');
-                    location.reload();
-                } else {
-                    alert('Gagal menghapus log!');
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('Terjadi kesalahan!');
-            });
-        }
     </script>
 </body>
 </html>

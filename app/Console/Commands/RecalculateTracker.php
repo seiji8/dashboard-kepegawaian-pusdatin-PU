@@ -11,6 +11,7 @@ use App\Notifications\KgbMendekatiNotification;
 use App\Notifications\KgbUsulanNotification;
 
 use Carbon\Carbon;
+use App\Helpers\ActivityLogger;
 
 class RecalculateTracker extends Command
 {
@@ -20,6 +21,7 @@ class RecalculateTracker extends Command
     public function handle()
     {
         $this->info('⚙️  Memulai perhitungan tracker & notifikasi...');
+        ActivityLogger::logSystem('Memulai perhitungan tracker & pengiriman notifikasi');
         
         // --- PERUBAHAN 1: HAPUS TRUNCATE ---
         // Kita JANGAN kosongkan tabel, supaya history 'notified_at' tidak hilang.
@@ -90,7 +92,7 @@ class RecalculateTracker extends Command
                             if ($admins->count() > 0) {
                                 Notification::send($admins, new KgbMendekatiNotification($pegawai));
                                 $tracker->update(['notified_at' => now()]);
-                                // $this->info("  📩 Notif Admin dikirim untuk {$pegawai->nama}");
+                                ActivityLogger::logSystem("Mengirim notifikasi KGB Mendekati ke admin untuk pegawai {$pegawai->nama}", $pegawai->nip);
                             }
                         }
 
@@ -107,7 +109,7 @@ class RecalculateTracker extends Command
                             if ($notifiable) {
                                 $notifiable->notify(new KgbUsulanNotification($tracker));
                                 $tracker->update(['notified_at' => now()]);
-                                // $this->info("  📩 Notif Pegawai dikirim ke {$pegawai->email}");
+                                ActivityLogger::logSystem("Mengirim notifikasi KGB Usulan ke pegawai {$pegawai->nama} ({$pegawai->email})", $pegawai->nip);
                             }
                         }
                     }
@@ -126,5 +128,6 @@ class RecalculateTracker extends Command
         $bar->finish();
         $this->newLine();
         $this->info('✅ Tracker update & Notifikasi terkirim!');
+        ActivityLogger::logSystem('Perhitungan tracker selesai untuk ' . $pegawais->count() . ' pegawai');
     }
 }

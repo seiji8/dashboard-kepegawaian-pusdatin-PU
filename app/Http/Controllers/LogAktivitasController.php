@@ -12,14 +12,21 @@ class LogAktivitasController extends Controller
     {
         $query = Logs::with(['admin', 'pegawai'])->orderBy('waktu', 'desc');
 
-        // Filter: Tipe Log
-        if ($request->filled('tipe')) {
-            $query->where('tipe', $request->tipe);
+        // Filter: Jenis Pengguna (berdasarkan role admin atau sistem)
+        if ($request->filled('jenis_pengguna')) {
+            $jenis = $request->jenis_pengguna;
+            if ($jenis === 'sistem') {
+                $query->whereNull('user_id');
+            } else {
+                $query->whereHas('admin', function($q) use ($jenis) {
+                    $q->where('role', $jenis);
+                });
+            }
         }
 
-        // Filter: Deskripsi (Search)
-        if ($request->filled('search')) {
-            $query->where('deskripsi', 'LIKE', '%' . $request->search . '%');
+        // Filter: Aksi (Cari di deskripsi)
+        if ($request->filled('aksi')) {
+            $query->where('deskripsi', 'LIKE', '%' . $request->aksi . '%');
         }
 
         // Filter: Dari Tanggal
@@ -32,27 +39,10 @@ class LogAktivitasController extends Controller
             $query->whereDate('waktu', '<=', $request->sampai_tanggal);
         }
 
-        // Pagination
-        $logs = $query->paginate(10);
+        // Pagination (simpan query params agar filter tetap aktif saat paginasi)
+        $logs = $query->paginate(10)->appends($request->all());
 
         return view('log_aktivitas.index', compact('logs'));
     }
 
-    public function destroy($id)
-    {
-        try {
-            $log = Logs::findOrFail($id);
-            $log->delete();
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Log berhasil dihapus'
-            ]);
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Gagal menghapus log'
-            ], 500);
-        }
-    }
 }

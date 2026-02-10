@@ -344,22 +344,22 @@ body {
     display: inline-block;
 }
 
-/* BADGE: Admin Super (Merah Muda - Konsisten) */
+/* BADGE: Admin Super (Orange/Coral) */
 .badge-admin-super {
-    background-color: #fee2e2;
-    color: #ef4444;
+    background-color: #fff0e0;
+    color: #e67e22;
 }
 
-/* BADGE: Admin Kepegawaian (Hijau #26BF94 opacity 0.1) */
+/* BADGE: Admin Kepegawaian (Amber/Yellow) */
 .badge-pegawai {
+    background-color: #fef9e7;
+    color: #d4a017;
+}
+
+/* BADGE: Sistem (Teal/Green) */
+.badge-sistem {
     background-color: rgba(38, 191, 148, 0.1);
     color: #26BF94;
-}
-
-/* BADGE: Sistem (Ungu #846CF9 opacity 0.1) */
-.badge-sistem {
-    background-color: rgba(132, 108, 249, 0.1);
-    color: #846CF9;
 }
 
 /* Tombol Hapus */

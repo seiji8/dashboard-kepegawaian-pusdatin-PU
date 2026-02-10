@@ -624,11 +624,8 @@
             var html = '';
             notifications.forEach(function(n) {
                 var unreadClass = n.read ? '' : ' unread';
-                var iconColor = n.type === 'warning' ? '#d97706' : '#1e3a8a';
-                html += '<div class="notif-item' + unreadClass + '" onclick="window.location.href=\'' + n.url + '\'">' +
-                    '<div class="notif-icon" style="color: ' + iconColor + ';">' +
-                        '<i class="' + n.icon + '" style="font-size: 20px;"></i>' +
-                    '</div>' +
+                var clickAction = n.read ? '' : ' onclick="markNotifRead(\'' + n.id + '\')"';
+                html += '<div class="notif-item' + unreadClass + '"' + clickAction + '>' +
                     '<div class="notif-content">' +
                         '<p class="notif-title">' + n.title + '</p>' +
                         '<p class="notif-message">' + n.message + '</p>' +
@@ -666,6 +663,25 @@
                 }
             })
             .catch(err => console.error('Gagal mark read:', err));
+        }
+
+        function markNotifRead(notifId) {
+            fetch('/notifications/' + notifId + '/read', {
+                method: 'POST',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    fetchNotifications();
+                }
+            })
+            .catch(err => console.error('Gagal mark notif:', err));
         }
 
         // Auto-fetch saat halaman dimuat
