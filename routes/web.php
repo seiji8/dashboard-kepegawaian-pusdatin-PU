@@ -36,6 +36,7 @@ Route::middleware(['auth'])->group(function () {
 
     // Daftar Admin
     Route::get('/daftar-admin', [AdminController::class, 'index'])->name('daftar-admin');
+    Route::post('/daftar-admin', [AdminController::class, 'store'])->name('daftar-admin.store'); // Tambah ini
     Route::put('/daftar-admin/{id}/update-role', [AdminController::class, 'updateRole'])->name('daftar-admin.update-role');
     Route::delete('/daftar-admin/{id}', [AdminController::class, 'destroy'])->name('daftar-admin.destroy');
 
