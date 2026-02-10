@@ -174,7 +174,13 @@
                     <a href="{{ $logs->previousPageUrl() }}" class="pagination-text">Prev</a>
                 @endif
 
-                @foreach($logs->getUrlRange(1, $logs->lastPage()) as $page => $url)
+                @php
+                    $start = max(1, $logs->currentPage() - 2);
+                    $end = min($start + 4, $logs->lastPage());
+                    $start = max(1, $end - 4);
+                @endphp
+
+                @foreach($logs->getUrlRange($start, $end) as $page => $url)
                     <a href="{{ $url }}" class="pagination-btn {{ $page == $logs->currentPage() ? 'active' : '' }}">{{ $page }}</a>
                 @endforeach
 

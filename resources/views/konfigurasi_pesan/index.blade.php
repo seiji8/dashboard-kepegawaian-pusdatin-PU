@@ -97,10 +97,28 @@
                     {!! nl2br(e($rule->template_pesan)) !!}
                 </div>
                 <div class="schedule-col">
-                    @if($rule->interval_hari > 0)
-                        <span class="badge-schedule">{{ $rule->interval_hari }} Hari</span>
+                    @php
+                        $interval = $rule->interval_hari;
+                        $format = '';
+                        if ($interval <= 0) {
+                            $format = 'Manual';
+                        } elseif ($interval >= 365 && $interval % 365 == 0) {
+                            $format = ($interval / 365) . ' Tahun';
+                        } elseif ($interval >= 30 && $interval % 30 == 0) {
+                            $format = ($interval / 30) . ' Bulan';
+                        } elseif ($interval >= 7 && $interval % 7 == 0) {
+                            $format = ($interval / 7) . ' Minggu';
+                        } else {
+                            $format = $interval . ' Hari';
+                        }
+                    @endphp
+
+                    @if($rule->kategori == 'KGB Penjadwalan')
+                        <span class="badge-schedule" style="background-color: #fef3c7; color: #d97706;">H-{{ $rule->interval_hari }} Hari</span>
+                    @elseif($interval <= 0)
+                        <span class="badge-schedule" style="background-color: #f3f4f6; color: #6b7280;">Manual</span>
                     @else
-                        <span class="badge-dash">-</span>
+                        <span class="badge-schedule" style="background-color: #f3e8ff; color: #7e22ce;">{{ $format }}</span>
                     @endif
                 </div>
                 <div class="action-col">
@@ -117,6 +135,35 @@
                 Belum ada konfigurasi pesan.
             </div>
             @endforelse
+
+            <!-- PAGINATION -->
+            <div style="grid-column: 1 / -1;">
+                @if($rules->hasPages())
+                <div class="pagination">
+                    @if($rules->onFirstPage())
+                        <span class="pagination-text" style="opacity: 0.5;">Prev</span>
+                    @else
+                        <a href="{{ $rules->previousPageUrl() }}" class="pagination-text">Prev</a>
+                    @endif
+
+                    @php
+                        $start = max(1, $rules->currentPage() - 2);
+                        $end = min($start + 4, $rules->lastPage());
+                        $start = max(1, $end - 4);
+                    @endphp
+
+                    @foreach($rules->getUrlRange($start, $end) as $page => $url)
+                        <a href="{{ $url }}" class="pagination-btn {{ $page == $rules->currentPage() ? 'active' : '' }}">{{ $page }}</a>
+                    @endforeach
+
+                    @if($rules->hasMorePages())
+                        <a href="{{ $rules->nextPageUrl() }}" class="pagination-text">Next</a>
+                    @else
+                        <span class="pagination-text" style="opacity: 0.5;">Next</span>
+                    @endif
+                </div>
+                @endif
+            </div>
 
         </div>
     </main>
@@ -145,19 +192,19 @@
                 </div>
 
                 <div class="input-group">
-                    <label class="info-label">Frekuensi Jadwal</label>
-                    <select id="pilihJadwal" name="interval_hari" class="form-select" disabled>
-                        <option value="" selected>-- Pilih Waktu --</option>
-                        <option value="30">1 Bulan Sekali</option>
-                        <option value="90">3 Bulan Sekali (Triwulan)</option>
-                        <option value="180">6 Bulan Sekali (Semester)</option>
-                        <option value="365">1 Tahun Sekali</option>
-                    </select>
+                    <label class="info-label">Interval / Jeda Waktu (Hari)</label>
+                    <input type="number" name="interval_hari" class="form-input" placeholder="Contoh: 1, 30, 60" required>
+                    <p class="text-xs text-gray-500 mt-1" style="font-size: 11px; color: #6b7280; margin-top: 4px;">
+                       * <b>Jadwal:</b> Masukkan dalam hari (Contoh: 1 = Harian, 7 = Mingguan, 30 = Bulanan).
+                    </p>
                 </div>
 
                 <div class="input-group">
                     <label class="info-label">Isi Pesan</label>
                     <textarea name="template_pesan" class="form-input text-area-pesan" placeholder="Tulis template pesan di sini..." required></textarea>
+                    <p class="text-xs text-gray-500 mt-1" style="font-size: 12px; color: #6b7280; margin-top: 4px;">
+                        Gunakan placeholder: <b>{nama}</b>, <b>{nip}</b>, <b>{deadline}</b>, <b>{poin}</b>, <b>{next_pangkat}</b>
+                    </p>
                 </div>
 
             </div>
@@ -184,24 +231,27 @@
                 </div>
 
                 <div class="input-group">
-                    <label class="info-label">Jenis & Jadwal</label>
+                <div class="input-group">
+                    <label class="info-label">Jenis & Interval (Hari)</label>
                     <div style="display: flex; gap: 10px;">
-                        <select id="editJenis" class="form-select" onchange="toggleJadwalEdit()">
-                            <option value="Penjadwalan">Penjadwalan</option>
+                        <select id="editJenis" name="jenis" class="form-select" style="width: 130px;" onchange="toggleJadwalEdit()">
+                            <option value="Jadwal">Jadwal Rutin</option>
                             <option value="Template">Template</option>
                         </select>
-                        <select id="editJadwal" name="interval_hari" class="form-select">
-                            <option value="30">1 Bulan</option>
-                            <option value="90">3 Bulan</option>
-                            <option value="180">6 Bulan</option>
-                            <option value="365">1 Tahun</option>
-                        </select>
+                        <input type="number" id="editJadwal" name="interval_hari" class="form-input" placeholder="Jml Hari" required>
                     </div>
+                    <p class="text-xs text-gray-500 mt-1" style="font-size: 11px; color: #6b7280; margin-top: 4px;">
+                        Set ke 0 jika Tipe = Template. (Tips: 7 = 1 Minggu, 30 = 1 Bulan).
+                    </p>
+                </div>
                 </div>
 
                 <div class="input-group">
                     <label class="info-label">Isi Pesan</label>
                     <textarea id="editIsi" name="template_pesan" class="form-input text-area-pesan" required></textarea>
+                     <p class="text-xs text-gray-500 mt-1" style="font-size: 12px; color: #6b7280; margin-top: 4px;">
+                        Gunakan placeholder: <b>{nama}</b>, <b>{nip}</b>, <b>{deadline}</b>, <b>{poin}</b>, <b>{next_pangkat}</b>
+                    </p>
                 </div>
             </div>
 

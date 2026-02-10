@@ -107,9 +107,36 @@
             </div>
 
             <!-- Pagination -->
+            @if($pegawais->hasPages())
             <div class="pagination">
-                {{ $pegawais->withQueryString()->links('pagination::simple-default') }}
+                @if($pegawais->onFirstPage())
+                    <span class="pagination-text" style="opacity: 0.5;">Prev</span>
+                @else
+                    <a href="{{ $pegawais->previousPageUrl() }}" class="pagination-text">Prev</a>
+                @endif
+
+                {{-- Numbers (Max 5 items sliding) --}}
+                @php
+                    $start = max(1, $pegawais->currentPage() - 2);
+                    $end = min($start + 4, $pegawais->lastPage());
+                    $start = max(1, $end - 4);
+                @endphp
+
+                @foreach($pegawais->getUrlRange($start, $end) as $page => $url)
+                    @if ($page == $pegawais->currentPage())
+                        <span class="pagination-btn active">{{ $page }}</span>
+                    @else
+                        <a href="{{ $url }}" class="pagination-btn">{{ $page }}</a>
+                    @endif
+                @endforeach
+
+                @if($pegawais->hasMorePages())
+                    <a href="{{ $pegawais->nextPageUrl() }}" class="pagination-text">Next</a>
+                @else
+                    <span class="pagination-text" style="opacity: 0.5;">Next</span>
+                @endif
             </div>
+            @endif
         </div>
     </main>
 

@@ -230,7 +230,15 @@ class SyncEhrmData extends Command
             $bar4->advance();
         }
         $bar4->finish();
+        $this->newLine();
 
+        // ============================================================
+        // TAHAP 5: CEK KELENGKAPAN DOKUMEN KGB (PLACEHOLDER)
+        // ============================================================
+        // Todo: Implementasi pengecekan status dokumen ke API e-HRM
+        // Jika dokumen sudah lengkap di e-HRM, update status tracker:
+        // $tracker->update(['dokumen_terupload' => 1]);
+        // $this->info('ℹ️  [5/5] Cek Dokumen KGB (Menunggu Integrasi API)...');
         $this->newLine();
         $this->info('🎉 Sinkronisasi LENGKAP Selesai!');
         ActivityLogger::logApiSync('Sinkronisasi data pegawai dari API e-HRM selesai');

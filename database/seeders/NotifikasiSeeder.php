@@ -51,5 +51,25 @@ class NotifikasiSeeder extends Seeder
                 'is_active' => true,
             ]
         );
+
+        // 5. KGB Penjadwalan (Status: Mendekati → Notif ke Admin)
+        NotifikasiRules::updateOrCreate(
+            ['kategori' => 'KGB Penjadwalan'],
+            [
+                'template_pesan' => "⚠️ Peringatan KGB\n\nPegawai a.n {nama} (NIP: {nip}) akan memasuki masa KGB pada tanggal {deadline}.\n\nMohon segera mempersiapkan proses administrasi KGB yang diperlukan.\n\nPesan ini dikirimkan secara otomatis oleh Sistem Notifikasi Pusdatin.",
+                'interval_hari' => 60, // H-2 Bulan sebelum KGB
+                'is_active' => true,
+            ]
+        );
+
+        // 6. KGB Upload Dokumen (Status: Usulan → Notif ke Pegawai, setelah notif Mendekati)
+        NotifikasiRules::updateOrCreate(
+            ['kategori' => 'KGB Upload Dokumen'],
+            [
+                'template_pesan' => "Yth. Bapak/Ibu {nama},\n\nBerdasarkan data pada sistem E-HRM, masa KGB Anda telah tiba per tanggal {deadline}.\n\nMohon segera mengunggah dokumen yang diperlukan:\n- SK Terakhir\n- SKP Periode Berjalan\n\nNIP: {nip}\n\nSilakan unggah dokumen melalui tautan pada sistem E-HRM.\n\nTerima kasih.\nAdmin Kepegawaian Pusdatin",
+                'interval_hari' => 1, // Default: Setiap 1 Hari (Sampai dokumen lengkap)
+                'is_active' => true,
+            ]
+        );
     }
 }

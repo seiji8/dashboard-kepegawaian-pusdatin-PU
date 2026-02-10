@@ -9,6 +9,7 @@ use App\Models\User; // Butuh User untuk kirim notif
 use Illuminate\Support\Facades\Notification;
 use App\Notifications\KgbMendekatiNotification;
 use App\Notifications\KgbUsulanNotification;
+use App\Models\NotifikasiRules;
 
 use Carbon\Carbon;
 use App\Helpers\ActivityLogger;
@@ -23,6 +24,14 @@ class RecalculateTracker extends Command
         $this->info('⚙️  Memulai perhitungan tracker & notifikasi...');
         ActivityLogger::logSystem('Memulai perhitungan tracker & pengiriman notifikasi');
         
+        // --- AMBIL CONFIG RULE DARI DB ---
+        $rulePenjadwalan = NotifikasiRules::where('kategori', 'KGB Penjadwalan')->first();
+        $ruleUpload      = NotifikasiRules::where('kategori', 'KGB Upload Dokumen')->first();
+
+        // Default: 60 hari (2 bulan) untuk lead time, 1 hari untuk frekuensi
+        $leadCheckDays = $rulePenjadwalan ? $rulePenjadwalan->interval_hari : 60;
+        $freqUploadDays = $ruleUpload ? ($ruleUpload->interval_hari > 0 ? $ruleUpload->interval_hari : 1) : 1; 
+
         // --- PERUBAHAN 1: HAPUS TRUNCATE ---
         // Kita JANGAN kosongkan tabel, supaya history 'notified_at' tidak hilang.
         // Schema::disableForeignKeyConstraints();
@@ -42,7 +51,8 @@ class RecalculateTracker extends Command
                 // Rumus: TMT Terakhir + 2 Tahun
                 $nextKGB = Carbon::parse($pegawai->tmt_kgb_terakhir)->addYears(2);
                 $today = Carbon::now();
-                $startNotify = $nextKGB->copy()->subMonths(2); // H-2 Bulan
+                // Gunakan interval dari DB untuk menentukan kapan mulai notif (Lead Time)
+                $startNotify = $nextKGB->copy()->subDays($leadCheckDays);
 
                 $status = 'Aman';
                 $keterangan = 'Masih dalam masa aman';
@@ -83,21 +93,46 @@ class RecalculateTracker extends Command
                         $tracker->update(['notified_at' => null]); // Reset agar dikirim ulang
                     }
 
-                    // 3. LOGIKA KIRIM NOTIFIKASI (Cek kolom notified_at)
-                    if (!$tracker->notified_at) {
-                        
-                        // KASUS A: MENDEKATI -> KIRIM KE ADMIN
-                        if ($status == 'Mendekati') {
-                            $admins = User::whereIn('role', ['super_admin', 'admin_pegawai'])->get();
-                            if ($admins->count() > 0) {
-                                Notification::send($admins, new KgbMendekatiNotification($pegawai));
-                                $tracker->update(['notified_at' => now()]);
-                                ActivityLogger::logSystem("Mengirim notifikasi KGB Mendekati ke admin untuk pegawai {$pegawai->nama}", $pegawai->nip);
-                            }
-                        }
+                    // 3. LOGIKA KIRIM NOTIFIKASI
+                    
+                    // Cek kapan terakhir dikirim
+                    $lastNotifDate = $tracker->notified_at ? Carbon::parse($tracker->notified_at) : null;
+                    
+                    // Hitung selisih hari dari terakhir kirim sampai hari ini
+                    // Jika belum pernah dikirim, anggap sudah memenuhi syarat (diff = infinite/sufficient)
+                    $daysSinceLast = $lastNotifDate ? $lastNotifDate->diffInDays($today) : 9999;
+                    
+                    // Cek apakah hari ini "Jadwalnya Kirim" berdasarkan frekuensi ($freqUploadDays)
+                    // Logic: Jika selisih hari >= frekuensi, maka kirim.
+                    // Contoh: Freq 2 hari. Last: Kemarin (1 hari lalu). 1 >= 2 False.
+                    // Last: 2 hari lalu. 2 >= 2 True.
+                    // Khusus Freq 1 hari: Pastikan tidak kirim 2x di hari yang sama.
+                    $isDueForUploadNotif = ($daysSinceLast >= $freqUploadDays);
+                    
+                    // Pastikan tidak double kirim di hari yang sama (meski freq=1)
+                    if ($lastNotifDate && $lastNotifDate->isToday()) {
+                        $isDueForUploadNotif = false;
+                    }
 
-                        // KASUS B: USULAN -> KIRIM KE PEGAWAI (EMAIL & DB)
-                        elseif ($status == 'Usulan') {
+
+                    // KASUS A: MENDEKATI -> KIRIM KE ADMIN (Cukup Sekali Saja)
+                    if ($status == 'Mendekati' && !$tracker->notified_at) {
+                        $admins = User::whereIn('role', ['super_admin', 'admin_pegawai'])->get();
+                        if ($admins->count() > 0) {
+                            Notification::send($admins, new KgbMendekatiNotification($pegawai));
+                            $tracker->update(['notified_at' => now()]);
+                            ActivityLogger::logSystem("Mengirim notifikasi KGB Mendekati ke admin untuk pegawai {$pegawai->nama}", $pegawai->nip);
+                        }
+                    }
+
+                    // KASUS B: USULAN -> KIRIM KE PEGAWAI (Sesuai Frekuensi)
+                    elseif ($status == 'Usulan') {
+                        // Cek kelengkapan dokumen
+                        $dokumenLengkap = $tracker->dokumen_terupload >= $tracker->dokumen_total;
+
+                        // Jika BELUM lengkap DAN Masuk Jadwal Kirim -> Kirim Notif
+                        if (!$dokumenLengkap && $isDueForUploadNotif) {
+                            
                             // 1. Coba cari User yang punya email ini (agar bisa notif ke DB Dashboard juga)
                             $notifiable = User::where('email', $pegawai->email)->first();
                             
@@ -108,8 +143,8 @@ class RecalculateTracker extends Command
 
                             if ($notifiable) {
                                 $notifiable->notify(new KgbUsulanNotification($tracker));
-                                $tracker->update(['notified_at' => now()]);
-                                ActivityLogger::logSystem("Mengirim notifikasi KGB Usulan ke pegawai {$pegawai->nama} ({$pegawai->email})", $pegawai->nip);
+                                $tracker->update(['notified_at' => now()]); // Update waktu notif terakhir
+                                ActivityLogger::logSystem("Mengirim notifikasi Berkala (Setiap {$freqUploadDays} hari) KGB Usulan ke pegawai {$pegawai->nama}", $pegawai->nip);
                             }
                         }
                     }

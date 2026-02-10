@@ -15,7 +15,10 @@
         <!-- Greeting -->
         <h2 style="color: #004085;">Halo, {{ $tracker->pegawai->nama }}</h2>
 
-        <!-- Content -->
+        <!-- Content dari Template Konfigurasi Pesan -->
+        @if(isset($pesanTemplate))
+        <div style="font-size: 16px; line-height: 1.6; white-space: pre-line;">{{ $pesanTemplate }}</div>
+        @else
         <p style="font-size: 16px; line-height: 1.5;">
             Masa <strong>Kenaikan Gaji Berkala (KGB)</strong> Anda sudah tiba atau mendekati batas waktu.
         </p>
@@ -32,6 +35,7 @@
                 Silakan kirimkan dokumen tersebut ke Admin Kepegawaian secepatnya.
             </p>
         </div>
+        @endif
 
         <!-- Footer -->
         <p style="margin-top: 30px; font-size: 14px; color: #6c757d;">
