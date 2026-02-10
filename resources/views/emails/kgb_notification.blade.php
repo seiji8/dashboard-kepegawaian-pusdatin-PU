@@ -23,8 +23,7 @@
         <p style="font-size: 16px; line-height: 1.5;">
             Mohon segera melengkapi dokumen persyaratan berikut:
             <ul>
-                <li>SK Pangkat Terakhir</li>
-                <li>SKP (Sasaran Kinerja Pegawai)</li>
+                <li>Dokumen Arsip KGB yang sudah ditandatangani</li>
             </ul>
         </p>
 

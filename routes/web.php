@@ -7,6 +7,7 @@ use App\Http\Controllers\LogAktivitasController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\DataPegawaiController;
 use App\Http\Controllers\KonfigurasiPesanController;
+use App\Http\Controllers\NotificationController;
 
 // 1. Halaman Depan (Redirect ke Login aja)
 Route::get('/', function () {
@@ -28,6 +29,7 @@ Route::post('/reset-password', [AuthController::class, 'resetPassword'])->name('
 Route::middleware(['auth'])->group(function () {
     
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::post('/tracker/{id}/confirm', [DashboardController::class, 'confirmTracker'])->name('tracker.confirm');
     
     // Log Aktivitas
     Route::get('/log-aktivitas', [LogAktivitasController::class, 'index'])->name('log-aktivitas');
@@ -48,5 +50,9 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/konfigurasi-pesan', [KonfigurasiPesanController::class, 'store'])->name('konfigurasi-pesan.store');
     Route::put('/konfigurasi-pesan/{id}', [KonfigurasiPesanController::class, 'update'])->name('konfigurasi-pesan.update');
     Route::delete('/konfigurasi-pesan/{id}', [KonfigurasiPesanController::class, 'destroy'])->name('konfigurasi-pesan.destroy');
+
+    // Notifikasi
+    Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
+    Route::post('/notifications/mark-read', [NotificationController::class, 'markAllRead'])->name('notifications.mark-read');
 
 });

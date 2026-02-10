@@ -58,10 +58,23 @@
 
                 <div class="user-actions">
                     <div class="notif-wrapper">
-                        <button class="btn-icon-header">
+                        <button class="btn-icon-header" onclick="toggleNotifDropdown()">
                             <i class="ph-fill ph-bell" style="font-size: 24px; color: #1e3a8a;"></i>
-                            <span class="badge">{{ $tenggatMendesak }}</span>
+                            <span class="badge" id="notifBadge" style="display: none;">0</span>
                         </button>
+
+                        <div id="notifDropdown" class="notif-dropdown">
+                            <div class="notif-header">
+                                <span class="notif-header-title">Notifikasi</span>
+                                <button class="notif-mark-read" onclick="markAllRead()">Tandai Semua Dibaca</button>
+                            </div>
+                            <div id="notifList" class="notif-list">
+                                <div class="notif-empty">
+                                    <i class="ph-light ph-bell-slash" style="font-size: 32px; color: #9ca3af;"></i>
+                                    <p>Belum ada notifikasi</p>
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
                     <div class="profile-wrapper">
@@ -325,10 +338,15 @@
                                                             {{ $kgb->dokumen_total - $kgb->dokumen_terupload }} Belum
                                                         </span>
                                                     </td>
-                                                    <td>
+                                                    <td style="display: flex; gap: 6px;">
                                                         <button class="btn-action-view" onclick="openDetailModal('{{ $kgb->pegawai->nip }}')">
                                                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
                                                         </button>
+                                                        @if($kgb->status_saat_ini == 'Mendekati')
+                                                        <button class="btn-action-confirm" onclick="openConfirmModal({{ $kgb->id }}, '{{ $kgb->pegawai->nama }}')" title="Konfirmasi sudah diproses">
+                                                            <i class="ph-bold ph-check" style="font-size: 16px;"></i>
+                                                        </button>
+                                                        @endif
                                                     </td>
                                                 </tr>
                                                 @endforeach
@@ -447,6 +465,22 @@
         </div>
     </div>
 
+    <!-- CONFIRM MODAL -->
+    <div id="confirmModal" class="modal-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2200; justify-content: center; align-items: center;">
+        <div class="confirm-modal-content">
+            <div class="confirm-modal-icon">
+                <i class="ph-fill ph-check-circle" style="font-size: 48px; color: #10b981;"></i>
+            </div>
+            <h3 class="confirm-modal-title">Konfirmasi Tugas</h3>
+            <p class="confirm-modal-text">Apakah Anda yakin sudah mengajukan KGB untuk:</p>
+            <p class="confirm-modal-name" id="confirmPegawaiName">-</p>
+            <div class="confirm-modal-actions">
+                <button class="confirm-btn-cancel" onclick="closeConfirmModal()">Batal</button>
+                <button class="confirm-btn-yes" id="confirmYesBtn" onclick="submitConfirm()">Ya, Sudah Diproses</button>
+            </div>
+        </div>
+    </div>
+
     <div id="syncToast" class="toast-notification">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
@@ -527,6 +561,12 @@
                 }
             }
 
+            // Logika Notif Dropdown (tutup jika klik di luar)
+            if (!event.target.closest('.notif-wrapper')) {
+                var notifDropdown = document.getElementById('notifDropdown');
+                if (notifDropdown) notifDropdown.classList.remove('active');
+            }
+
             // Logika Menutup Modal jika klik di area gelap (overlay)
             if (event.target == detailModal) {
                 closeDetailModal();
@@ -548,6 +588,143 @@
                 toast.className = toast.className.replace("show", ""); 
             }, 3000);
         }
+        // --- 5. NOTIFIKASI DROPDOWN ---
+        function toggleNotifDropdown() {
+            var dropdown = document.getElementById('notifDropdown');
+            if (dropdown.classList.contains('active')) {
+                dropdown.classList.remove('active');
+            } else {
+                dropdown.classList.add('active');
+                fetchNotifications();
+            }
+        }
+
+        function fetchNotifications() {
+            fetch('/notifications', {
+                headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }
+            })
+            .then(res => res.json())
+            .then(data => {
+                renderNotifications(data.notifications);
+                updateBadge(data.unread_count);
+            })
+            .catch(err => console.error('Gagal fetch notifikasi:', err));
+        }
+
+        function renderNotifications(notifications) {
+            var list = document.getElementById('notifList');
+
+            if (!notifications || notifications.length === 0) {
+                list.innerHTML = '<div class="notif-empty">' +
+                    '<i class="ph-light ph-bell-slash" style="font-size: 32px; color: #9ca3af;"></i>' +
+                    '<p>Belum ada notifikasi</p></div>';
+                return;
+            }
+
+            var html = '';
+            notifications.forEach(function(n) {
+                var unreadClass = n.read ? '' : ' unread';
+                var iconColor = n.type === 'warning' ? '#d97706' : '#1e3a8a';
+                html += '<div class="notif-item' + unreadClass + '" onclick="window.location.href=\'' + n.url + '\'">' +
+                    '<div class="notif-icon" style="color: ' + iconColor + ';">' +
+                        '<i class="' + n.icon + '" style="font-size: 20px;"></i>' +
+                    '</div>' +
+                    '<div class="notif-content">' +
+                        '<p class="notif-title">' + n.title + '</p>' +
+                        '<p class="notif-message">' + n.message + '</p>' +
+                        '<span class="notif-time">' + n.time + '</span>' +
+                    '</div>' +
+                '</div>';
+            });
+            list.innerHTML = html;
+        }
+
+        function updateBadge(count) {
+            var badge = document.getElementById('notifBadge');
+            if (count > 0) {
+                badge.textContent = count > 99 ? '99+' : count;
+                badge.style.display = 'flex';
+            } else {
+                badge.style.display = 'none';
+            }
+        }
+
+        function markAllRead() {
+            fetch('/notifications/mark-read', {
+                method: 'POST',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    fetchNotifications();
+                }
+            })
+            .catch(err => console.error('Gagal mark read:', err));
+        }
+
+        // Auto-fetch saat halaman dimuat
+        document.addEventListener('DOMContentLoaded', function() {
+            fetchNotifications();
+        });
+
+        // --- 6. KONFIRMASI TUGAS ---
+        var confirmTrackerId = null;
+        var confirmModal = document.getElementById('confirmModal');
+
+        function openConfirmModal(trackerId, pegawaiName) {
+            confirmTrackerId = trackerId;
+            document.getElementById('confirmPegawaiName').textContent = pegawaiName;
+            confirmModal.style.display = 'flex';
+        }
+
+        function closeConfirmModal() {
+            confirmModal.style.display = 'none';
+            confirmTrackerId = null;
+        }
+
+        function submitConfirm() {
+            if (!confirmTrackerId) return;
+
+            var btn = document.getElementById('confirmYesBtn');
+            btn.textContent = 'Memproses...';
+            btn.disabled = true;
+
+            fetch('/tracker/' + confirmTrackerId + '/confirm', {
+                method: 'POST',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    closeConfirmModal();
+                    // Reload halaman agar list terupdate
+                    window.location.reload();
+                }
+            })
+            .catch(err => {
+                console.error('Gagal konfirmasi:', err);
+                btn.textContent = 'Ya, Sudah Diproses';
+                btn.disabled = false;
+            });
+        }
+
+        // Tutup confirm modal jika klik overlay
+        window.addEventListener('click', function(event) {
+            if (event.target == confirmModal) {
+                closeConfirmModal();
+            }
+        });
     </script>
 </body>
 </html>

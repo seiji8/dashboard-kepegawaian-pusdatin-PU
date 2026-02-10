@@ -69,7 +69,7 @@ class DatabaseSeeder extends Seeder
             'id_pegawai_api' => \Illuminate\Support\Str::uuid()->toString(), // Dummy UUID
             'nip' => $nip_siti,
             'nama' => 'CEO Pusdatin',
-            'email' => 'hasan.inf1re7@gmail.com',
+            'email' => 'akhdiyanraissa@gmail.com',
             'no_hp' => '08987654321',
             'jabatan_saat_ini' => 'Pranata Komputer Ahli Pertama',
             'pangkat_golongan' => 'III/a',
