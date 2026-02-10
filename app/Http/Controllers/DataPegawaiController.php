@@ -36,7 +36,7 @@ class DataPegawaiController extends Controller
         }
 
         // Hitung total angka kredit (contoh sederhana, bisa disesuaikan logicnya)
-        $totalKredit = $pegawai->riwayat_angka_kredit->sum('nilai_konversi');
+        $totalKredit = $pegawai->riwayat_angka_kredit->sum('total_kredit');
 
         return response()->json([
             'success' => true,

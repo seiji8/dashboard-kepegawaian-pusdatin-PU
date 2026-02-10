@@ -5,6 +5,8 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\LogAktivitasController;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\DataPegawaiController;
+use App\Http\Controllers\KonfigurasiPesanController;
 
 // 1. Halaman Depan (Redirect ke Login aja)
 Route::get('/', function () {
@@ -37,14 +39,14 @@ Route::middleware(['auth'])->group(function () {
     Route::delete('/daftar-admin/{id}', [AdminController::class, 'destroy'])->name('daftar-admin.destroy');
 
     // Data Pegawai
-    Route::get('/data-pegawai', [\App\Http\Controllers\DataPegawaiController::class, 'index'])->name('data-pegawai');
-    Route::get('/data-pegawai/{nip}', [\App\Http\Controllers\DataPegawaiController::class, 'show'])->name('data-pegawai.show');
-    Route::delete('/data-pegawai/{nip}', [\App\Http\Controllers\DataPegawaiController::class, 'destroy'])->name('data-pegawai.destroy');
+    Route::get('/data-pegawai', [DataPegawaiController::class, 'index'])->name('data-pegawai');
+    Route::get('/data-pegawai/{nip}', [DataPegawaiController::class, 'show'])->name('data-pegawai.show');
+    Route::delete('/data-pegawai/{nip}', [DataPegawaiController::class, 'destroy'])->name('data-pegawai.destroy');
 
     // Konfigurasi Pesan
-    Route::get('/konfigurasi-pesan', [\App\Http\Controllers\KonfigurasiPesanController::class, 'index'])->name('konfigurasi-pesan');
-    Route::post('/konfigurasi-pesan', [\App\Http\Controllers\KonfigurasiPesanController::class, 'store'])->name('konfigurasi-pesan.store');
-    Route::put('/konfigurasi-pesan/{id}', [\App\Http\Controllers\KonfigurasiPesanController::class, 'update'])->name('konfigurasi-pesan.update');
-    Route::delete('/konfigurasi-pesan/{id}', [\App\Http\Controllers\KonfigurasiPesanController::class, 'destroy'])->name('konfigurasi-pesan.destroy');
+    Route::get('/konfigurasi-pesan', [KonfigurasiPesanController::class, 'index'])->name('konfigurasi-pesan');
+    Route::post('/konfigurasi-pesan', [KonfigurasiPesanController::class, 'store'])->name('konfigurasi-pesan.store');
+    Route::put('/konfigurasi-pesan/{id}', [KonfigurasiPesanController::class, 'update'])->name('konfigurasi-pesan.update');
+    Route::delete('/konfigurasi-pesan/{id}', [KonfigurasiPesanController::class, 'destroy'])->name('konfigurasi-pesan.destroy');
 
 });

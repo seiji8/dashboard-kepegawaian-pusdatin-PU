@@ -9,7 +9,7 @@ use App\Models\User; // Butuh User untuk kirim notif
 use Illuminate\Support\Facades\Notification;
 use App\Notifications\KgbMendekatiNotification;
 use App\Notifications\KgbUsulanNotification;
-use Illuminate\Support\Facades\Schema; 
+
 use Carbon\Carbon;
 
 class RecalculateTracker extends Command
@@ -86,7 +86,7 @@ class RecalculateTracker extends Command
                         
                         // KASUS A: MENDEKATI -> KIRIM KE ADMIN
                         if ($status == 'Mendekati') {
-                            $admins = User::where('role', 'admin')->get(); // Pastikan ada kolom role/level
+                            $admins = User::whereIn('role', ['super_admin', 'admin_pegawai'])->get();
                             if ($admins->count() > 0) {
                                 Notification::send($admins, new KgbMendekatiNotification($pegawai));
                                 $tracker->update(['notified_at' => now()]);

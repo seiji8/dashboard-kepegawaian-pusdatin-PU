@@ -47,7 +47,7 @@ class AdminController extends Controller
         $admin = User::findOrFail($id);
         $oldRole = $admin->isSuperAdmin() ? 'Admin Super' : 'Admin Kepegawaian';
         
-        $admin->is_super_admin = $request->is_super_admin;
+        $admin->role = $request->is_super_admin ? 'super_admin' : 'admin_pegawai';
         $admin->save();
 
         $newRole = $admin->isSuperAdmin() ? 'Admin Super' : 'Admin Kepegawaian';
