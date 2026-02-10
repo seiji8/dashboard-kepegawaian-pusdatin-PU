@@ -14,11 +14,14 @@ return new class extends Migration
         Schema::create('riwayat_diklat', function (Blueprint $table) {
             $table->id();
             $table->string('nip', 20); // Foreign Key
-            $table->string('nama_diklat');
+            $table->text('nama_diklat'); // Changed to text
+            $table->text('penyelenggara')->nullable(); // Changed to text
             $table->date('tanggal_mulai')->nullable();
             $table->date('tanggal_selesai')->nullable();
+            $table->integer('jumlah_jam')->nullable();
             $table->string('nomor_sertifikat')->nullable();
             $table->date('tanggal_sertifikat')->nullable();
+            $table->string('file_sertifikat')->nullable();
             
             // Relasi
             $table->foreign('nip')->references('nip')->on('pegawai')->onDelete('cascade');

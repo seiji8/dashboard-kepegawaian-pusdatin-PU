@@ -15,7 +15,7 @@ class DashboardTracker extends Model
     // Relasi 1: Status ini milik pegawai siapa?
     public function pegawai()
     {
-        return $this->belongsTo(Pegawai::class, 'nip', 'nip');
+        return $this->belongsTo(Pegawai::class, 'pegawai_id', 'id_pegawai_api');
     }
 
     // Relasi 2: Status ini punya dokumen apa saja yang harus diupload?

@@ -15,7 +15,10 @@ return new class extends Migration
             $table->id();
             $table->string('nip', 20);
             $table->enum('kategori', ['KGB', 'KP_Jafung', 'KP_Struktural']);
-            $table->enum('status_saat_ini', ['Normal', 'Mendekati', 'Menunggu SKP', 'Menunggu Upload', 'Mencukupi', 'Usulan'])->default('Normal');
+            $table->enum('status_saat_ini', [
+                'Normal', 'Mendekati', 'Menunggu SKP', 'Menunggu Upload', 
+                'Mencukupi', 'Usulan', 'Terlewat', 'Data Tidak Lengkap'
+            ])->default('Normal');
             $table->date('tanggal_target')->nullable();
             $table->integer('dokumen_terupload')->default(0);
             $table->integer('dokumen_total')->default(0);
