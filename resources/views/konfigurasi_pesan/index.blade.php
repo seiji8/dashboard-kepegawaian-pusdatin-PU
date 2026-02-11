@@ -295,7 +295,7 @@
                     <label class="info-label">Jenis & Interval (Hari)</label>
                     <div style="display: flex; gap: 10px;">
                         <select id="editJenis" name="jenis" class="form-select" style="width: 130px;" onchange="toggleJadwalEdit()">
-                            <option value="Jadwal">Jadwal Rutin</option>
+                            <option value="Penjadwalan">Jadwal Rutin</option>
                             <option value="Template">Template</option>
                         </select>
                         <input type="number" id="editJadwal" name="interval_hari" class="form-input" placeholder="Jml Hari" required>
