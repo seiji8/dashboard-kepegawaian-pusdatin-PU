@@ -114,7 +114,7 @@
                     <i class="ph-bold ph-magnifying-glass search-icon"></i>
                     <input type="text" name="search" placeholder="Cari Admin" class="search-input" value="{{ request('search') }}">
                 </form>
-                <a href="#" class="btn-tambah">Tambah</a>
+                <a href="#" class="btn-tambah" onclick="openAddModal()">Tambah</a>
             </div>
         </div>
 
@@ -226,6 +226,42 @@
         </div>
     </div>
 
+    <!-- MODAL TAMBAH ADMIN -->
+    <div id="modalTambahAdmin" class="modal-overlay">
+        <div class="modal-box">
+            <div class="modal-header">
+                <h2>Tambah Admin Baru</h2>
+            </div>
+            
+            <div class="modal-body">
+                <div class="info-group">
+                    <p style="font-size: 14px; color: #6b7280; margin-bottom: 15px;">
+                        Pilih pegawai untuk dijadikan admin. <br>
+                        <strong>Username:</strong> NIP Pegawai <br>
+                        <strong>Password Default:</strong> NIP Pegawai
+                    </p>
+                    
+                    <div class="select-wrapper">
+                        <label for="selectPegawai" style="display:block; margin-bottom:5px; font-weight:500;">Pilih Pegawai:</label>
+                        <select id="selectPegawai" class="form-select" style="width: 100%;">
+                            <option value="">-- Cari Pegawai --</option>
+                            @foreach($candidates as $candidate)
+                                <option value="{{ $candidate->nip }}">
+                                    {{ $candidate->nama }} ({{ $candidate->nip }})
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button class="btn-modal-cancel" onclick="closeAddModal()">Batal</button>
+                <button class="btn-modal-save" onclick="saveNewAdmin()">Simpan</button>
+            </div>
+        </div>
+    </div>
+    
     <!-- MODAL HAPUS ADMIN -->
     <div id="modalHapusAdmin" class="modal-overlay">
         <div class="modal-box modal-delete-size">
@@ -303,6 +339,49 @@
             });
         }
 
+        // === LOGIKA TAMBAH ADMIN ===
+        function openAddModal() {
+            document.getElementById('modalTambahAdmin').style.display = 'flex';
+        }
+
+        function closeAddModal() {
+            document.getElementById('modalTambahAdmin').style.display = 'none';
+        }
+
+        function saveNewAdmin() {
+            const nipPegawai = document.getElementById('selectPegawai').value;
+
+            if (!nipPegawai) {
+                showToast('Silakan pilih pegawai terlebih dahulu!', 'error');
+                return;
+            }
+
+            fetch("{{ route('daftar-admin.store') }}", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                },
+                body: JSON.stringify({
+                    nip_pegawai: nipPegawai
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    closeAddModal();
+                    showToast(data.message, 'success');
+                    setTimeout(() => location.reload(), 2000); // Reload setelah toast muncul
+                } else {
+                    showToast(data.message || 'Gagal menambahkan admin!', 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showToast('Terjadi kesalahan! Pastikan Anda Super Admin.', 'error');
+            });
+        }
+
         // === LOGIKA HAPUS ADMIN ===
         function openDeleteModal(adminId, adminName) {
             currentDeleteAdminId = adminId;
@@ -327,15 +406,16 @@
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    alert('Admin berhasil dihapus!');
-                    location.reload();
+                    closeDeleteModal();
+                    showToast('Admin berhasil dihapus!', 'success');
+                    setTimeout(() => location.reload(), 1500);
                 } else {
-                    alert(data.message || 'Gagal menghapus admin!');
+                    showToast(data.message || 'Gagal menghapus admin!', 'error');
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
-                alert('Terjadi kesalahan!');
+                showToast('Terjadi kesalahan server!', 'error');
             });
         }
 
@@ -343,6 +423,7 @@
         window.onclick = function(event) {
             var editModal = document.getElementById('modalEditAdmin');
             var deleteModal = document.getElementById('modalHapusAdmin');
+            var addModal = document.getElementById('modalTambahAdmin');
 
             if (event.target == editModal) {
                 editModal.style.display = "none";
@@ -350,14 +431,40 @@
             if (event.target == deleteModal) {
                 deleteModal.style.display = "none";
             }
+            if (event.target == addModal) {
+                addModal.style.display = "none";
+            }
         }
 
-        // SINKRONISASI TOAST
-        function showSyncToast() {
+        // SINKRONISASI & GENERAL TOAST
+        function showToast(message, type = 'success') {
             var toast = document.getElementById("syncToast");
-            toast.className = "toast-notification show";
+            var icon = toast.querySelector("i");
+            var text = toast.querySelector("span");
+
+            text.innerText = message;
+            
+            // Reset class
+            toast.className = "toast-notification";
+            
+            if (type === 'error') {
+                toast.classList.add('error'); // Perlu tambah CSS .toast-notification.error jika mau warna merah
+                icon.className = "ph-bold ph-warning-circle";
+                toast.style.backgroundColor = "#fee2e2"; // Merah muda
+                toast.style.color = "#ef4444"; // Merah
+                toast.style.border = "1px solid #fca5a5";
+            } else {
+                // Success Default
+                icon.className = "ph-bold ph-check-circle";
+                toast.style.backgroundColor = "#dcfce7"; // Hijau muda default
+                toast.style.color = "#166534"; // Hijau
+                toast.style.border = "1px solid #86efac";
+            }
+
+            toast.classList.add("show");
+            
             setTimeout(function(){ 
-                toast.className = toast.className.replace("show", ""); 
+                toast.classList.remove("show"); 
             }, 3000);
         }
     // === NAVBAR: DROPDOWN PROFILE ===
@@ -475,6 +582,10 @@
         }
     });
 
+
+        function showSyncToast() {
+            showToast("Sinkronisasi Data Berhasil!", 'success');
+        }
     </script>
 </body>
 </html>
