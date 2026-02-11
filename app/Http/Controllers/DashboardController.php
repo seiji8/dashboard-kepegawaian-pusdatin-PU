@@ -46,7 +46,14 @@ class DashboardController extends Controller
 
         // Kelompokkan berdasarkan Kategori untuk Accordion
         $listKenaikanPangkat = $trackers->where('kategori', 'KP_Jafung'); // Gabung Struktural & Jafung logic nanti
-        $listKGB             = $trackers->where('kategori', 'KGB');
+        $listKGB             = $trackers->where('kategori', 'KGB')->sortBy(function($item) {
+            switch ($item->status_saat_ini) {
+                case 'Usulan': return 1;
+                case 'Upload E-HRM': return 2;
+                case 'Proses': return 3;
+                default: return 4;
+            }
+        });
         
         // Pisahkan Struktural vs Fungsional (Asumsi ada logic pembeda, sementara kita filter manual)
         // Disini saya contohkan filter sederhana

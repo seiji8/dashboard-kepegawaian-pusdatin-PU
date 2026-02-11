@@ -68,8 +68,8 @@ class DatabaseSeeder extends Seeder
         Pegawai::create([
             'id_pegawai_api' => \Illuminate\Support\Str::uuid()->toString(), // Dummy UUID
             'nip' => $nip_siti,
-            'nama' => 'Raissa',
-            'email' => 'akhdiyanraissa@gmail.com',
+            'nama' => 'Hasan',
+            'email' => 'hasan.skak7@gmail.com',
             'no_hp' => '08987654321',
             'jabatan_saat_ini' => 'Pranata Komputer Ahli Pertama',
             'pangkat_golongan' => 'III/a',
@@ -112,8 +112,8 @@ class DatabaseSeeder extends Seeder
         Pegawai::create([
             'id_pegawai_api' => \Illuminate\Support\Str::uuid()->toString(),
             'nip' => '198507082008011001',
-            'nama' => 'Budi Santoso',
-            'email' => 'budi.santoso@test.go.id',
+            'nama' => 'ANAK KONTOL BANYAK MINTA',
+            'email' => 'ezaadityan@gmail.com',
             'jabatan_saat_ini' => 'Kepala Seksi Perencanaan',
             'pangkat_golongan' => 'III/d',
             'tmt_kgb_terakhir' => '2024-01-01',
