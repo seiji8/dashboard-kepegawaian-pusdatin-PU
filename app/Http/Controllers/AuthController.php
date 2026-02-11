@@ -175,4 +175,36 @@ class AuthController extends Controller
 
         return redirect()->route('login')->with('status', 'Password berhasil direset! Silakan login dengan password baru Anda.');
     }
+    // CHANGE PASSWORD (AUTHENTICATED USER)
+    public function changePassword(Request $request)
+    {
+        $request->validate([
+            'current_password' => ['required', 'string'],
+            'new_password' => ['required', 'string', 'min:8', 'confirmed', 'different:current_password'],
+        ]);
+
+        $user = Auth::user();
+
+        // 1. Verifikasi Password Lama
+        if (!Hash::check($request->current_password, $user->password)) {
+            throw ValidationException::withMessages([
+                'current_password' => ['Password lama yang Anda masukkan salah.'],
+            ]);
+        }
+
+        // 2. Update Password Baru
+        /** @var \App\Models\User $user */
+        $user->password = Hash::make($request->new_password);
+        $user->save();
+
+        // 3. Log Aktivitas
+        ActivityLogger::logAdminAction(
+            'Mengubah password akun sendiri (' . $user->nama_lengkap . ')'
+        );
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Password berhasil diubah!'
+        ]);
+    }
 }

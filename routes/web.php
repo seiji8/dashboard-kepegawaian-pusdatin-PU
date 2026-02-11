@@ -25,6 +25,11 @@ Route::post('/forgot-password', [AuthController::class, 'sendResetLinkEmail'])->
 Route::get('/reset-password/{token}', [AuthController::class, 'showResetPasswordForm'])->name('password.reset');
 Route::post('/reset-password', [AuthController::class, 'resetPassword'])->name('password.update');
 
+// Change Password Routes (Authenticated Custom)
+Route::middleware(['auth'])->group(function () {
+    Route::post('/change-password', [AuthController::class, 'changePassword'])->name('change-password.update');
+});
+
 // 3. Rute Halaman Admin (Harus Login Dulu)
 Route::middleware(['auth'])->group(function () {
     

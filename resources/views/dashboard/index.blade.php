@@ -92,7 +92,7 @@
                         </button>
 
                         <div id="profileDropdown" class="dropdown-menu">
-                            <a href="#" class="dropdown-item">
+                            <a href="#" onclick="openChangePasswordModal(); return false;" class="dropdown-item">
                                 <i class="ph-fill ph-lock-key" style="font-size: 18px; margin-right: 8px;"></i>
                                 Ganti Kata Sandi
                             </a>
@@ -745,5 +745,6 @@
             }
         });
     </script>
+    @include('partials.change_password_modal')
 </body>
 </html>
