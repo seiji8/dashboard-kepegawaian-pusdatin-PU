@@ -325,12 +325,14 @@
                                                     <td>{{ $kgb->pegawai->nama }}</td>
                                                     <td>{{ optional($kgb->pegawai->tmt_kgb_terakhir)->format('d M Y') ?? '-' }}</td>
                                                     <td>
-                                                        @if($kgb->status_saat_ini == 'Mendekati')
-                                                            <span class="status-badge status-warning">Mendekati</span>
-                                                        @elseif($kgb->status_saat_ini == 'Usulan')
-                                                            <span class="status-badge status-ok">Usulan</span>
+                                                        @if($kgb->status_saat_ini == 'Usulan')
+                                                            <span class="status-badge status-missing">Usulan</span>
+                                                        @elseif($kgb->status_saat_ini == 'Proses')
+                                                            <span class="status-badge status-warning">Proses</span>
+                                                        @elseif($kgb->status_saat_ini == 'Upload E-HRM')
+                                                            <span class="status-badge status-ok">Upload E-HRM</span>
                                                         @else
-                                                            <span class="status-badge status-missing">{{ $kgb->status_saat_ini }}</span>
+                                                            <span class="status-badge status-secondary">{{ $kgb->status_saat_ini }}</span>
                                                         @endif
                                                     </td>
                                                     <td>
@@ -342,8 +344,9 @@
                                                         <button class="btn-action-view" onclick="openDetailModal('{{ $kgb->pegawai->nip }}')">
                                                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
                                                         </button>
-                                                        @if($kgb->status_saat_ini == 'Mendekati')
-                                                        <button class="btn-action-confirm" onclick="openConfirmModal({{ $kgb->id }}, '{{ $kgb->pegawai->nama }}')" title="Konfirmasi sudah diproses">
+                                                        {{-- Tombol Confirm hanya muncul saat status Usulan (Merah) --}}
+                                                        @if($kgb->status_saat_ini == 'Usulan')
+                                                        <button class="btn-action-confirm" onclick="openConfirmModal({{ $kgb->id }}, '{{ $kgb->pegawai->nama }}')" title="Konfirmasi Proses">
                                                             <i class="ph-bold ph-check" style="font-size: 16px;"></i>
                                                         </button>
                                                         @endif

@@ -20,7 +20,7 @@
         <div style="font-size: 16px; line-height: 1.6; white-space: pre-line;">{{ $pesanTemplate }}</div>
         @else
         <p style="font-size: 16px; line-height: 1.5;">
-            Masa <strong>Kenaikan Gaji Berkala (KGB)</strong> Anda sudah tiba atau mendekati batas waktu.
+            Surat <strong> Keterangan Kenaikan Gaji Berkala (KGB) "Bulan" "Tahun" (TMT KGB 2 tahun)</strong> Anda sudah terbit.
         </p>
 
         <p style="font-size: 16px; line-height: 1.5;">
@@ -32,7 +32,7 @@
 
         <div style="background-color: #f8f9fa; padding: 15px; border-left: 4px solid #ffc107; margin: 20px 0;">
             <p style="margin: 0; font-weight: bold;">
-                Silakan kirimkan dokumen tersebut ke Admin Kepegawaian secepatnya.
+                Mohon segera unggah dokumen tersebut ke E-HRM secepatnya.
             </p>
         </div>
         @endif
@@ -40,8 +40,8 @@
         <!-- Footer -->
         <p style="margin-top: 30px; font-size: 14px; color: #6c757d;">
             Terima kasih,<br>
-            <strong>Admin Kepegawaian</strong><br>
-            Pusdatin Kementerian PU
+            <strong>Admin Tim Kepegawaian dan JF</strong><br>
+            Pusdatin
         </p>
 
     </div>

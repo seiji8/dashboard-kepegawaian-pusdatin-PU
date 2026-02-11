@@ -53,13 +53,13 @@ class DatabaseSeeder extends Seeder
         Pegawai::create([
             'id_pegawai_api' => \Illuminate\Support\Str::uuid()->toString(), // Dummy UUID
             'nip' => '199001012022011001',
-            'nama' => 'Hilmi Jim',
+            'nama' => 'Hilmi',
             'email' => 'hilmiasardan@gmail.com',
             'no_hp' => '08123456789',
             'jabatan_saat_ini' => 'Pranata Komputer Ahli Pertama',
             'pangkat_golongan' => 'III/a',
             'tmt_cpns' => null,
-            'tmt_kgb_terakhir' => '2024-02-01',
+            'tmt_kgb_terakhir' => '2024-04-01',
         ]);
 
         // Kasus KP (Poin Cukup)
@@ -68,7 +68,7 @@ class DatabaseSeeder extends Seeder
         Pegawai::create([
             'id_pegawai_api' => \Illuminate\Support\Str::uuid()->toString(), // Dummy UUID
             'nip' => $nip_siti,
-            'nama' => 'CEO Pusdatin',
+            'nama' => 'Raissa',
             'email' => 'akhdiyanraissa@gmail.com',
             'no_hp' => '08987654321',
             'jabatan_saat_ini' => 'Pranata Komputer Ahli Pertama',

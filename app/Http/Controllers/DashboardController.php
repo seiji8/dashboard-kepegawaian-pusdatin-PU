@@ -18,12 +18,13 @@ class DashboardController extends Controller
         
         $tenggatMendesak = DashboardTracker::whereNull('dikonfirmasi_at')
                                        ->where(function($q) {
-                                           $q->where('status_saat_ini', 'Mendekati')
-                                             ->orWhere('status_saat_ini', 'Menunggu SKP');
+                                           $q->whereIn('status_saat_ini', ['Usulan', 'Upload E-HRM', 'Mendekati', 'Menunggu SKP']);
                                        })
                                        ->count();
                                            
-        $jumlahUsulan = DashboardTracker::where('status_saat_ini', 'Usulan')->count();
+        // REVISI: 'Usulan' sekarang status warning (merah).
+        // Yang sedang "Di-usulkan/Diproses" (kuning) adalah status 'Proses'.
+        $jumlahUsulan = DashboardTracker::where('status_saat_ini', 'Proses')->count();
 
         // Hitung persentase kepatuhan (Dokumen Terupload / Total Dokumen)
         $totalDokumenWajib = DashboardTracker::sum('dokumen_total');
@@ -35,7 +36,13 @@ class DashboardController extends Controller
 
         // 2. DATA TUGAS (Task List)
         // Kita ambil data tracker dan load relasi pegawainya
-        $trackers = DashboardTracker::with('pegawai')->whereNull('dikonfirmasi_at')->get();
+        // REVISI KGB: Tampilkan juga yang sudah dikonfirmasi (status 'Proses') jika kategorinya KGB
+        $trackers = DashboardTracker::with('pegawai')
+                    ->where(function($query) {
+                        $query->whereNull('dikonfirmasi_at')
+                              ->orWhere('kategori', 'KGB'); 
+                    })
+                    ->get();
 
         // Kelompokkan berdasarkan Kategori untuk Accordion
         $listKenaikanPangkat = $trackers->where('kategori', 'KP_Jafung'); // Gabung Struktural & Jafung logic nanti
@@ -72,6 +79,7 @@ public function confirmTracker(Request $request, $id)
     $tracker->update([
         'dikonfirmasi_at'   => now(),
         'dikonfirmasi_oleh' => auth()->id(),
+        'status_saat_ini'   => 'Proses', // Update status agar langsung berubah di UI
     ]);
 
     ActivityLogger::logAdminAction(
