@@ -50,14 +50,18 @@ class KgbUsulanNotification extends Notification
 
     public function toMail($notifiable)
     {
-        $message = $this->buildMessage();
+        // $message = $this->buildMessage(); // Kita ganti logicnya untuk ikut desain baru
+        
+        $tmt = \Carbon\Carbon::parse($this->tracker->tanggal_target);
+        $bulanTahun = $tmt->isoFormat('MMMM Y'); // Contoh: Februari 2026
 
         return (new MailMessage)
                     ->from(config('mail.from.address'), config('mail.from.name'))
-                    ->subject('🔔 Peringatan KGB: Segera Upload Dokumen')
+                    ->subject('🔔 Notifikasi KGB: SK KGB Sudah Terbit')
                     ->view('emails.kgb_notification', [
                         'tracker' => $this->tracker,
-                        'pesanTemplate' => $message,
+                        'bulanTahun' => $bulanTahun,
+                        // 'pesanTemplate' => $message, // Tidak dipakai dulu karena custom layout
                     ]);
     }
 

@@ -12,19 +12,28 @@
                 
                 <div class="form-group" style="margin-bottom: 15px;">
                     <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #374151;">Password Saat Ini</label>
-                    <input type="password" name="current_password" class="form-input" style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 8px;" required>
+                    <div style="position: relative;">
+                        <input type="password" name="current_password" class="form-input" style="width: 100%; padding: 10px; padding-right: 40px; border: 1px solid #d1d5db; border-radius: 8px;" required>
+                        <i class="ph-bold ph-eye-slash toggle-password" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); cursor: pointer; color: #6b7280;" onclick="togglePassword(this)"></i>
+                    </div>
                     <span class="text-danger error-current_password" style="color: #dc2626; font-size: 12px; display: none;"></span>
                 </div>
 
                 <div class="form-group" style="margin-bottom: 15px;">
                     <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #374151;">Password Baru</label>
-                    <input type="password" name="new_password" class="form-input" style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 8px;" required>
+                    <div style="position: relative;">
+                        <input type="password" name="new_password" class="form-input" style="width: 100%; padding: 10px; padding-right: 40px; border: 1px solid #d1d5db; border-radius: 8px;" required>
+                        <i class="ph-bold ph-eye-slash toggle-password" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); cursor: pointer; color: #6b7280;" onclick="togglePassword(this)"></i>
+                    </div>
                     <span class="text-danger error-new_password" style="color: #dc2626; font-size: 12px; display: none;"></span>
                 </div>
 
                 <div class="form-group" style="margin-bottom: 25px;">
                     <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #374151;">Konfirmasi Password Baru</label>
-                    <input type="password" name="new_password_confirmation" class="form-input" style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 8px;" required>
+                    <div style="position: relative;">
+                        <input type="password" name="new_password_confirmation" class="form-input" style="width: 100%; padding: 10px; padding-right: 40px; border: 1px solid #d1d5db; border-radius: 8px;" required>
+                        <i class="ph-bold ph-eye-slash toggle-password" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); cursor: pointer; color: #6b7280;" onclick="togglePassword(this)"></i>
+                    </div>
                 </div>
 
                 <div class="modal-footer" style="display: flex; gap: 10px; margin-top: 20px;">
@@ -37,9 +46,28 @@
 </div>
 
 <script>
+    function togglePassword(icon) {
+        const input = icon.previousElementSibling;
+        if (input.type === "password") {
+            input.type = "text";
+            icon.classList.remove("ph-eye-slash");
+            icon.classList.add("ph-eye");
+        } else {
+            input.type = "password";
+            icon.classList.remove("ph-eye");
+            icon.classList.add("ph-eye-slash");
+        }
+    }
+
     function openChangePasswordModal() {
         document.getElementById('modalChangePassword').style.display = 'flex';
         document.getElementById('formChangePassword').reset();
+        // Reset icons to eye-slash
+        document.querySelectorAll('.toggle-password').forEach(icon => {
+            icon.classList.remove("ph-eye");
+            icon.classList.add("ph-eye-slash");
+            icon.previousElementSibling.type = "password";
+        });
         document.querySelectorAll('.text-danger').forEach(el => el.style.display = 'none');
     }
 
