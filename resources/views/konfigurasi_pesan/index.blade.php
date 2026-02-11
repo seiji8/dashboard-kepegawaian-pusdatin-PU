@@ -253,7 +253,7 @@
 
                 <div class="input-group">
                     <label class="info-label">Interval / Jeda Waktu (Hari)</label>
-                    <input type="number" name="interval_hari" class="form-input" placeholder="Contoh: 1, 30, 60" required>
+                    <input type="number" id="inputInterval" name="interval_hari" class="form-input" placeholder="Contoh: 1, 30, 60" required>
                     <p class="text-xs text-gray-500 mt-1" style="font-size: 11px; color: #6b7280; margin-top: 4px;">
                        * <b>Jadwal:</b> Masukkan dalam hari (Contoh: 1 = Harian, 7 = Mingguan, 30 = Bulanan).
                     </p>
@@ -295,7 +295,7 @@
                     <label class="info-label">Jenis & Interval (Hari)</label>
                     <div style="display: flex; gap: 10px;">
                         <select id="editJenis" name="jenis" class="form-select" style="width: 130px;" onchange="toggleJadwalEdit()">
-                            <option value="Jadwal">Jadwal Rutin</option>
+                            <option value="Penjadwalan">Jadwal Rutin</option>
                             <option value="Template">Template</option>
                         </select>
                         <input type="number" id="editJadwal" name="interval_hari" class="form-input" placeholder="Jml Hari" required>
@@ -357,27 +357,35 @@
     }
     function toggleJadwal() {
         var jenis = document.getElementById("pilihJenis").value;
-        var jadwalDropdown = document.getElementById("pilihJadwal");
+        var intervalInput = document.getElementById("inputInterval");
+        
         if (jenis === "Template") {
-            jadwalDropdown.disabled = true;
-            jadwalDropdown.value = "";
-            jadwalDropdown.style.backgroundColor = "#f3f4f6";
+            intervalInput.disabled = true;
+            intervalInput.value = "";
+            intervalInput.style.backgroundColor = "#f3f4f6";
+            intervalInput.removeAttribute('required');
         } else {
-            jadwalDropdown.disabled = false;
-            jadwalDropdown.style.backgroundColor = "white";
+            intervalInput.disabled = false;
+            intervalInput.style.backgroundColor = "white";
+            intervalInput.setAttribute('required', 'required');
         }
     }
 
     document.getElementById('formTambah').addEventListener('submit', function(e) {
         e.preventDefault();
         
+        const formData = new FormData(this);
+        if (document.getElementById('pilihJenis').value === 'Template') {
+            formData.set('interval_hari', '0');
+        }
+
         fetch("{{ route('konfigurasi-pesan.store') }}", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
                 "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').getAttribute('content')
             },
-            body: JSON.stringify(Object.fromEntries(new FormData(this)))
+            body: JSON.stringify(Object.fromEntries(formData))
         })
         .then(res => res.json())
         .then(data => {
