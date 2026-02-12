@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Pegawai;
 use App\Models\NotifikasiRules; // Added
+use App\Models\Logs; // Added
 use App\Mail\ManualNotification; // Added
 use Illuminate\Support\Facades\Mail; // Added
 use Illuminate\Http\Request;
@@ -189,6 +190,16 @@ class DataPegawaiController extends Controller
 
         try {
             Mail::to($pegawai->email)->send(new ManualNotification($pegawai, $subject, $message));
+
+            // Log Aktivitas
+            Logs::create([
+                'tipe' => 'NOTIF_SENT',
+                'deskripsi' => "Mengirim notifikasi manual ke Pegawai {$pegawai->nama}",
+                'target_nip' => $pegawai->nip,
+                'user_id' => auth()->id(), // Admin yang sedang login
+                'waktu' => now()
+            ]);
+
             return response()->json(['success' => true, 'message' => 'Email berhasil dikirim ke ' . $pegawai->email]);
         } catch (\Exception $e) {
             return response()->json(['success' => false, 'message' => 'Gagal mengirim email: ' . $e->getMessage()], 500);
