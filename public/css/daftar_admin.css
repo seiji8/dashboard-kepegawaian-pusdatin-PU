@@ -1,11 +1,16 @@
 /* =========================================
    1. GLOBAL & RESET
    ========================================= */
-* { margin: 0; padding: 0; box-sizing: border-box; }
-body {
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
     font-family: 'Poppins', sans-serif;
-    background-color: #f0f4f8;
-    color: #333;
+}
+
+body {
+    background-color: #f3f4f6;
+    color: #374151;
     display: flex;
     min-height: 100vh;
 }
@@ -382,6 +387,7 @@ body {
 .profile-role {
     display: block;
     font-size: 11px;
+    font-weight: 600;
     color: #6b7280;
 }
 
