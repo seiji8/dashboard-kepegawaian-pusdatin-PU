@@ -41,8 +41,74 @@ class DataPegawaiController extends Controller
             return response()->json(['success' => false, 'message' => 'Pegawai tidak ditemukan'], 404);
         }
 
-        // Hitung total angka kredit (contoh sederhana, bisa disesuaikan logicnya)
+        // Hitung total angka kredit
         $totalKredit = $pegawai->riwayat_angka_kredit->sum('total_kredit');
+
+        // Logic TMT 2 Tahun (Next KGB)
+        $nextKgb = '-';
+        $nextKgbDate = null;
+        if ($pegawai->tmt_kgb_terakhir) {
+            $nextKgbDate = \Carbon\Carbon::parse($pegawai->tmt_kgb_terakhir)->addYears(2);
+            $nextKgb = $nextKgbDate->format('d/m/Y');
+        } elseif ($pegawai->tmt_cpns) {
+             // Jika belum ada KGB (CPNS baru), hitung dari CPNS
+            $nextKgbDate = \Carbon\Carbon::parse($pegawai->tmt_cpns)->addYears(2);
+            $nextKgb = $nextKgbDate->format('d/m/Y');
+        }
+
+        // Ambil dokumen yang belum diupload dari tracker yang aktif
+        $missingDocs = [];
+        $activeTrackers = $pegawai->dashboard_tracker()->whereNull('dikonfirmasi_at')->with('kelengkapan_dokumen')->get();
+
+        foreach ($activeTrackers as $tracker) {
+            if ($tracker->kategori == 'KGB') {
+                // LOGIC KHUSUS KGB (Continuous Check):
+                // Cek apakah TMT KGB Terakhir di database SUDAH SAMA dengan Target Berikutnya?
+                // Jika SUDAH SAMA, berarti data sudah diupdate -> Tidak perlu upload SK.
+                // Jika BELUM SAMA, berarti pegawai masih di status lama -> Perlu upload SK Baru.
+
+                // 1. Hitung Target TMT Berikutnya (karena logic +2 tahun, kita harus hati-hati)
+                // Kita asumsikan TMT yang ada di DB sekarang adalah TMT LAMA.
+                // Jadi Target-nya adalah TMT LAMA + 2 Tahun.
+                
+                $tmtLama = $pegawai->tmt_kgb_terakhir ? \Carbon\Carbon::parse($pegawai->tmt_kgb_terakhir) : ($pegawai->tmt_cpns ? \Carbon\Carbon::parse($pegawai->tmt_cpns) : null);
+                
+                if ($tmtLama) {
+                    $targetTmt = $tmtLama->copy()->addYears(2);
+                    
+                    // Cek: Apakah TMT di database pegawai sudah update ke target ini?
+                    // Karena $pegawai->tmt_kgb_terakhir yang kita ambil diatas adalah data CURRENT di DB.
+                    // Jika data di DB masih data lama (misal 2024), dan targetnya 2026.
+                    // Maka "SK KGB 2026" WAJIB muncul.
+                    
+                    // Logic sederhananya: Selama ada Tracker KGB Aktif, berarti sistem mendeteksi sudah waktunya naik.
+                    // Dan selama TMT di DB belum berubah maju, berarti SK belum diterima sistem.
+                    
+                    // Format Bulan Tahun SK Target
+                    $bulanIndo = [
+                        1 => 'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+                        'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
+                    ];
+                    $bulan = $bulanIndo[$targetTmt->month];
+                    $tahun = $targetTmt->year;
+
+                    $missingDocs[] = [
+                        'kategori' => 'KGB',
+                        'nama_dokumen' => "SK KGB {$bulan} {$tahun}"
+                    ];
+                }
+
+            } else {
+                // Logic existing untuk kategori lain (KP Jafung, dll)
+                $docs = $tracker->kelengkapan_dokumen->where('is_uploaded', false);
+                foreach ($docs as $doc) {
+                    $missingDocs[] = [
+                        'kategori' => $tracker->kategori,
+                        'nama_dokumen' => $doc->nama_dokumen
+                    ];
+                }
+            }
+        }
 
         return response()->json([
             'success' => true,
@@ -57,6 +123,8 @@ class DataPegawaiController extends Controller
                 'angka_kredit' => $totalKredit,
                 'no_hp' => $pegawai->no_hp ?? '-',
                 'email' => $pegawai->email ?? '-',
+                'next_kgb' => $nextKgb,
+                'missing_documents' => $missingDocs
             ]
         ]);
     }

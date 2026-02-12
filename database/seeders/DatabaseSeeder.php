@@ -74,7 +74,7 @@ class DatabaseSeeder extends Seeder
             'jabatan_saat_ini' => 'Pranata Komputer Ahli Pertama',
             'pangkat_golongan' => 'III/a',
             'tmt_pangkat_terakhir' => '2022-01-01',
-            'tmt_kgb_terakhir' => '2024-02-01',
+            'tmt_kgb_terakhir' => '2026-02-01',
         ]);
 
         RiwayatAngkaKredit::create([

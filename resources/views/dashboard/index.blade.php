@@ -446,23 +446,24 @@
             <h2 style="text-align: center; color: #1e3a8a; margin-bottom: 30px;">Pengingat Manual</h2>
             
             <label style="display: block; font-weight: 600; margin-bottom: 8px;">Pilih Template</label>
-            <select style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 8px; margin-bottom: 20px; color: #9ca3af;">
-                <option>Pilih</option>
-                <option>Template 1: Dokumen Kurang</option>
-                <option>Template 2: Segera Lengkapi</option>
+            <select id="reminderTemplate" style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 8px; margin-bottom: 20px; color: #9ca3af;" onchange="toggleMessageMode()">
+                <option value="" disabled selected>Pilih</option>
+                @foreach($templates as $template)
+                    <option value="{{ $template->id }}">{{ $template->kategori }}</option>
+                @endforeach
             </select>
 
             <div style="display: flex; align-items: center; margin-bottom: 20px;">
-                <input type="checkbox" id="customCheck" style="margin-right: 10px; width: 18px; height: 18px;">
-                <label for="customCheck">Apakah anda ingin menambahkan pesan custom?</label>
+                <input type="checkbox" id="checkCustom" onchange="toggleMessageMode()" style="margin-right: 10px; width: 18px; height: 18px;">
+                <label for="checkCustom">Apakah anda ingin menambahkan pesan custom?</label>
             </div>
 
             <label style="display: block; font-weight: 600; margin-bottom: 8px;">Isi Pesan</label>
-            <textarea style="width: 100%; height: 120px; padding: 10px; border: 1px solid #d1d5db; border-radius: 8px; margin-bottom: 30px; resize: none;"></textarea>
+            <textarea id="reminderMessage" disabled style="width: 100%; height: 120px; padding: 10px; border: 1px solid #d1d5db; border-radius: 8px; margin-bottom: 30px; resize: none;"></textarea>
 
             <div style="display: flex; justify-content: flex-end; gap: 15px;">
                 <button onclick="closeReminderModal()" style="padding: 10px 30px; background: #fca5a5; color: #991b1b; border: none; border-radius: 8px; cursor: pointer; font-weight: 600;">Batal</button>
-                <button onclick="closeReminderModal()" style="padding: 10px 30px; background: #cbd5e1; color: #1e3a8a; border: none; border-radius: 8px; cursor: pointer; font-weight: 600;">Kirim</button>
+                <button onclick="sendReminder()" id="btnSendManual" style="padding: 10px 30px; background: #cbd5e1; color: #1e3a8a; border: none; border-radius: 8px; cursor: pointer; font-weight: 600;">Kirim</button>
             </div>
         </div>
     </div>
@@ -537,15 +538,72 @@
         // --- 3. MODALS ---
         const detailModal = document.getElementById('detailModal');
         const reminderModal = document.getElementById('reminderModal');
+        let currentDetailNip = null;
 
         function openDetailModal(nip) {
+            currentDetailNip = nip;
             detailModal.style.display = 'flex';
-            // Simple mockup logic, in real app, fetch data by NIP
             const contentBody = document.getElementById('modalContentBody');
-            contentBody.innerHTML = '<div style="font-weight: 600;">NIP :</div><div>' + nip + '</div>' +
-                                  '<div style="font-weight: 600;">Status :</div><div>Loading data...</div>';
-                                  
-            // In a real implementation, you would AJAX fetch details here
+            
+            // Show loading state
+            contentBody.innerHTML = '<div style="grid-column: 1 / -1; text-align: center; padding: 20px;"><i class="ph-bold ph-spinner ph-spin" style="font-size: 32px; color: #1e3a8a;"></i><p>Memuat data pegawai...</p></div>';
+
+            fetch(`/data-pegawai/${nip}`)
+                .then(response => response.json())
+                .then(res => {
+                    if(res.success) {
+                        const data = res.data;
+                        let docsHtml = '';
+                        if (data.missing_documents && data.missing_documents.length > 0) {
+                            docsHtml = `
+                                <div style="grid-column: 1 / -1; margin-top: 20px; border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden;">
+                                    <div style="display: flex; background-color: #f1f5f9; padding: 15px; border-bottom: 1px solid #e2e8f0;">
+                                        <div style="width: 50px; font-weight: 700; color: #0f172a; text-align: center;">No</div>
+                                        <div style="flex: 1; font-weight: 500; color: #dc2626; padding-left: 15px;">Dokumen Yang Perlu Diunggah!</div>
+                                    </div>
+                                    <div style="background-color: #fff;">
+                                        ${data.missing_documents.map((doc, index) => `
+                                            <div style="display: flex; padding: 15px; border-bottom: index < data.missing_documents.length - 1 ? '1px solid #f1f5f9' : 'none'; align-items: center;">
+                                                <div style="width: 50px; font-weight: 700; color: #334155; text-align: center;">${index + 1}</div>
+                                                <div style="flex: 1; color: #ef4444; font-weight: 500; padding-left: 15px;">
+                                                    ${doc.nama_dokumen}
+                                                </div>
+                                            </div>
+                                        `).join('')}
+                                    </div>
+                                </div>
+                            `;
+                        } else {
+                            docsHtml = `
+                                <div style="grid-column: 1 / -1; margin-top: 15px; color: #059669; font-weight: 600; display: flex; align-items: center; background: #ecfdf5; padding: 15px; border-radius: 8px; border: 1px solid #a7f3d0;">
+                                    <i class="ph-fill ph-check-circle" style="margin-right: 10px; font-size: 20px;"></i>
+                                    Semua Dokumen Lengkap
+                                </div>
+                            `;
+                        }
+
+                        contentBody.innerHTML = `
+                            <div style="font-weight: 600;">Nama :</div><div>${data.nama}</div>
+                            <div style="font-weight: 600;">NIP :</div><div>${data.nip}</div>
+                            <div style="font-weight: 600;">Jabatan :</div><div>${data.jabatan}</div>
+                            <div style="font-weight: 600;">Tipe Jabatan :</div><div>${data.tipe_jabatan}</div>
+                            <div style="font-weight: 600;">Pangkat :</div><div>${data.pangkat}</div>
+                            <div style="font-weight: 600;">Jenjang :</div><div>${data.jenjang}</div>
+                            <div style="font-weight: 600;">TMT CPNS :</div><div>${data.tmt_cpns}</div>
+                            <div style="font-weight: 600;">Angka Kredit :</div><div>${data.angka_kredit}</div>
+                            <div style="font-weight: 600;">No HP :</div><div>${data.no_hp}</div>
+                            <div style="font-weight: 600;">Email :</div><div>${data.email}</div>
+                            <div style="font-weight: 600; color: #d97706;">Proyeksi KGB :</div><div style="font-weight: 600; color: #d97706;">${data.next_kgb}</div>
+                            ${docsHtml}
+                        `;
+                    } else {
+                        contentBody.innerHTML = '<p style="color: red;">Gagal memuat data.</p>';
+                    }
+                })
+                .catch(err => {
+                    console.error(err);
+                    contentBody.innerHTML = '<p style="color: red;">Terjadi kesalahan koneksi.</p>';
+                });
         }
 
         function closeDetailModal() {
@@ -558,6 +616,78 @@
 
         function closeReminderModal() {
             reminderModal.style.display = 'none';
+        }
+
+        function toggleMessageMode() {
+            const isCustom = document.getElementById('checkCustom').checked;
+            const selectTemplate = document.getElementById('reminderTemplate');
+            const txtMessage = document.getElementById('reminderMessage');
+
+            if (isCustom) {
+                selectTemplate.disabled = true;
+                selectTemplate.value = "";
+                txtMessage.disabled = false;
+                txtMessage.focus();
+            } else {
+                selectTemplate.disabled = false;
+                txtMessage.disabled = true;
+                txtMessage.value = "";
+            }
+        }
+
+        function sendReminder() {
+            if (!currentDetailNip) return;
+
+            const isCustom = document.getElementById('checkCustom').checked;
+            const templateId = document.getElementById('reminderTemplate').value;
+            const customMessage = document.getElementById('reminderMessage').value;
+
+            let payload = {};
+
+            if (isCustom) {
+                if (!customMessage) {
+                    alert("Harap isi pesan custom!");
+                    return;
+                }
+                payload = { custom_message: customMessage };
+            } else {
+                if (!templateId) {
+                    alert("Harap pilih template!");
+                    return;
+                }
+                payload = { template_id: templateId };
+            }
+
+            const btnSend = document.getElementById('btnSendManual');
+            const originalText = btnSend.innerText;
+            btnSend.innerText = 'Mengirim...';
+            btnSend.disabled = true;
+
+            fetch(`/data-pegawai/${currentDetailNip}/send-manual`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+                body: JSON.stringify(payload)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Email berhasil dikirim!');
+                    closeReminderModal();
+                } else {
+                     alert(data.message || 'Gagal mengirim email.');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Terjadi kesalahan saat mengirim email.');
+            })
+            .finally(() => {
+                btnSend.innerText = originalText;
+                btnSend.disabled = false;
+            });
         }
 
         // --- GLOBAL CLICK LISTENER (GABUNGAN) ---

@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Pegawai;
 use App\Models\DashboardTracker;
 use App\Models\KelengkapanDokumen;
+use App\Models\NotifikasiRules; // Added
 use App\Helpers\ActivityLogger;
 use Illuminate\Support\Facades\Auth;
 
@@ -65,6 +66,9 @@ class DashboardController extends Controller
             return !str_contains($item->pegawai->jabatan_saat_ini, 'Kepala');
         });
 
+        // Ambil template manual untuk modal reminder di dashboard
+        $templates = NotifikasiRules::where('interval_hari', 0)->get();
+
         return view('dashboard.index', compact(
             'totalPegawai', 
             'tenggatMendesak', 
@@ -72,7 +76,8 @@ class DashboardController extends Controller
             'tingkatKepatuhan',
             'kpStruktural',
             'kpFungsional',
-            'listKGB'
+            'listKGB',
+            'templates'
         ));
     }
 
