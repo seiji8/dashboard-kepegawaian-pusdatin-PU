@@ -1848,9 +1848,6 @@ body {
 }
 
 /* --- Source: konfigurasi_pesan.css --- */
-    flex: 1;
-    overflow-y: auto;
-}
 
 .welcome-title {
     color: #1e3a8a;
@@ -2523,9 +2520,6 @@ body {
 }
 
 /* --- Source: log_aktivitas.css --- */
-    flex: 1;
-    overflow-y: auto;
-}
 
 .welcome-title {
     color: #1e3a8a;
@@ -3146,9 +3140,6 @@ body {
 }
 
 /* --- Source: daftar_admin.css --- */
-    flex: 1;
-    overflow-y: auto;
-}
 
 .welcome-title {
     color: #1e3a8a;
