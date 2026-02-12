@@ -229,7 +229,8 @@ body {
     background: #f9fafb;
 }
 
-.btn-icon-header .badge {
+.btn-icon-header .badge,
+.notif-badge {
     position: absolute;
     top: -5px;
     right: -5px;

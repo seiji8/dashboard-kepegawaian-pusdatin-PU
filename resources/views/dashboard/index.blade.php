@@ -59,7 +59,7 @@
                     <div class="notif-wrapper">
                         <button class="btn-icon-header" onclick="toggleNotifDropdown()">
                             <i class="ph-fill ph-bell" style="font-size: 24px; color: #1e3a8a;"></i>
-                            <span class="badge" id="notifBadge" style="display: none;">0</span>
+                            <span class="notif-badge" id="notifBadge" style="display: none;">0</span>
                         </button>
 
                         <div id="notifDropdown" class="notif-dropdown">
