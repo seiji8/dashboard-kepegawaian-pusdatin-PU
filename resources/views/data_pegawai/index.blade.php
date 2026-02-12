@@ -315,9 +315,9 @@
                 <label class="form-label">Pilih Template</label>
                 <select id="reminderTemplate" class="form-select">
                     <option value="" disabled selected>Pilih</option>
-                    <option value="skp">Peringatan SKP Triwulan</option>
-                    <option value="berkas">Pengingat Kelengkapan Berkas</option>
-                    <option value="kenaikan">Info Kenaikan Pangkat</option>
+                    @foreach($templates as $template)
+                        <option value="{{ $template->id }}">{{ $template->kategori }}</option>
+                    @endforeach
                 </select>
             </div>
 
@@ -346,9 +346,11 @@
 
     <script>
         let currentDeleteNip = null;
+        let currentDetailNip = null; // Added for reminder context
 
         // === FETCH DETAIL PEGAWAI ===
         function openDetailModal(nip) {
+            currentDetailNip = nip; // Store NIP
             document.getElementById('modalDetailPegawai').style.display = 'flex';
             document.getElementById('detailLoading').style.display = 'block';
             document.getElementById('detailContent').style.display = 'none';
@@ -445,8 +447,59 @@
         }
 
         function sendReminder() {
-            alert("Pesan simulasi berhasil dikirim!");
-            closeReminderModal();
+            if (!currentDetailNip) return;
+
+            const isCustom = document.getElementById('checkCustom').checked;
+            const templateId = document.getElementById('reminderTemplate').value;
+            const customMessage = document.getElementById('reminderMessage').value;
+
+            let payload = {};
+
+            if (isCustom) {
+                if (!customMessage) {
+                    alert("Harap isi pesan custom!");
+                    return;
+                }
+                payload = { custom_message: customMessage };
+            } else {
+                if (!templateId) {
+                    alert("Harap pilih template!");
+                    return;
+                }
+                payload = { template_id: templateId };
+            }
+
+            // Button Loading State
+            const btnSend = document.querySelector('.btn-send-soft');
+            const originalText = btnSend.innerText;
+            btnSend.innerText = 'Mengirim...';
+            btnSend.disabled = true;
+
+            fetch(`/data-pegawai/${currentDetailNip}/send-manual`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                },
+                body: JSON.stringify(payload)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Email berhasil dikirim!');
+                    closeReminderModal();
+                } else {
+                     alert(data.message || 'Gagal mengirim email.');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Terjadi kesalahan saat mengirim email.');
+            })
+            .finally(() => {
+                btnSend.innerText = originalText;
+                btnSend.disabled = false;
+            });
         }
 
         // === SYNC TOAST ===

@@ -49,6 +49,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/data-pegawai', [DataPegawaiController::class, 'index'])->name('data-pegawai');
     Route::get('/data-pegawai/{nip}', [DataPegawaiController::class, 'show'])->name('data-pegawai.show');
     Route::delete('/data-pegawai/{nip}', [DataPegawaiController::class, 'destroy'])->name('data-pegawai.destroy');
+    Route::post('/data-pegawai/{nip}/send-manual', [DataPegawaiController::class, 'sendManualNotification'])->name('data-pegawai.send-manual');
 
     // Konfigurasi Pesan
     Route::get('/konfigurasi-pesan', [KonfigurasiPesanController::class, 'index'])->name('konfigurasi-pesan');
