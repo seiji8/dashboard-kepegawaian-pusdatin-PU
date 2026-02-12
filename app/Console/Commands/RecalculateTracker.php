@@ -16,7 +16,7 @@ use App\Helpers\ActivityLogger;
 
 class RecalculateTracker extends Command
 {
-    protected $signature = 'tracker:run';
+    protected $signature = 'tracker:run {--force : Paksa kirim notifikasi tanpa cek interval}';
     protected $description = 'Hitung ulang status KGB dan Pangkat serta Kirim Notifikasi';
 
     public function handle()
@@ -122,10 +122,19 @@ class RecalculateTracker extends Command
                         
                         $lastNotifDate = $tracker->notified_at ? Carbon::parse($tracker->notified_at) : null;
                         $daysSinceLast = $lastNotifDate ? $lastNotifDate->diffInDays($today) : 9999;
+                        
+                        // Default: Cek interval
                         $isDueForUploadNotif = ($daysSinceLast >= $freqUploadDays);
                         
-                        if ($lastNotifDate && $lastNotifDate->isToday()) {
-                            $isDueForUploadNotif = false;
+                        // Jika ada flag --force, abaikan interval (TAPI tetap jangan kirim jika baru saja dikirim hari ini, kecuali user benar-benar maksa berkali-kali)
+                        // Kita buat --force mem-bypass segalanya, termasuk "hari ini sdh kirim".
+                        if ($this->option('force')) {
+                            $isDueForUploadNotif = true;
+                        } else {
+                             // Jika tidak force, dan sudah kirim hari ini, jangan kirim lagi
+                            if ($lastNotifDate && $lastNotifDate->isToday()) {
+                                $isDueForUploadNotif = false;
+                            }
                         }
 
                         // KASUS A: USULAN (Merah) -> KIRIM KE ADMIN

@@ -98,4 +98,38 @@ public function confirmTracker(Request $request, $id)
         'message' => 'Tugas berhasil dikonfirmasi!',
     ]);
 }
+
+/**
+ * Sinkronisasi Data Manual (E-HRM -> Seeder -> Tracker)
+ */
+public function syncData()
+{
+    try {
+        // 1. Sync E-HRM (API)
+        \Illuminate\Support\Facades\Artisan::call('ehrm:sync');
+        
+        // 2. Seeder Manual (UpdateTmtManualSeeder)
+        \Illuminate\Support\Facades\Artisan::call('db:seed', [
+            '--class' => 'UpdateTmtManualSeeder' // Sesuaikan path jika perlu
+        ]);
+
+        // 3. Recalculate Tracker (Force Notification)
+        \Illuminate\Support\Facades\Artisan::call('tracker:run', [
+            '--force' => true
+        ]);
+
+        ActivityLogger::logAdminAction("Melakukan Sinkronisasi Data Manual (Button Dashboard)");
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Sinkronisasi Data Berhasil!',
+        ]);
+
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Gagal Sinkronisasi: ' . $e->getMessage(),
+        ], 500);
+    }
+}
 }
