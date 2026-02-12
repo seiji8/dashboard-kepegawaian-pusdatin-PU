@@ -50,13 +50,13 @@ class DataPegawaiController extends Controller
                 'nama' => $pegawai->nama,
                 'nip' => $pegawai->nip,
                 'jabatan' => $pegawai->jabatan_saat_ini ?? '-',
-                'pangkat' => $pegawai->pangkat_saat_ini ?? '-',
-                'golongan' => $pegawai->golongan ?? '-',
+                'tipe_jabatan' => $pegawai->tipe_jabatan ?? '-',
+                'pangkat' => $pegawai->pangkat_golongan ?? '-',
+                'jenjang' => $pegawai->jenjang ?? '-',
                 'tmt_cpns' => $pegawai->tmt_cpns ? date('d/m/Y', strtotime($pegawai->tmt_cpns)) : '-',
                 'angka_kredit' => $totalKredit,
                 'no_hp' => $pegawai->no_hp ?? '-',
                 'email' => $pegawai->email ?? '-',
-                'alamat' => '-', // Belum ada kolom alamat di tabel
             ]
         ]);
     }

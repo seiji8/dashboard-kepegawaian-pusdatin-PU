@@ -40,10 +40,9 @@
                 </a>
             </nav>
             <div class="sidebar-footer">
-                <form action="{{ url('/sync-now') }}" method="POST" id="syncForm" style="display:none;">@csrf</form>
-                <button class="sync-btn" onclick="showSyncToast()">
-                    <i class="ph-bold ph-arrows-clockwise sync-img"></i>
-                    <span class="sync-icon">Sinkronisasi</span>
+                <button class="sync-btn" id="btnSync" onclick="triggerSync()">
+                    <i class="ph-bold ph-arrows-clockwise sync-img" id="iconSync"></i>
+                    <span class="sync-icon" id="textSync">Sinkronisasi</span>
                 </button>
             </div>
         </aside>
@@ -484,6 +483,17 @@
         </div>
     </div>
 
+    <!-- LOADING MODAL -->
+    <div id="loadingModal" class="modal-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2300; justify-content: center; align-items: center;">
+        <div class="loading-modal-content">
+            <div class="loading-spinner"></div>
+            <div>
+                <p class="loading-text">Sedang Sinkronisasi Data...</p>
+                <p class="loading-subtext">Mohon tunggu, proses ini mungkin memakan waktu beberapa saat.</p>
+            </div>
+        </div>
+    </div>
+
     <div id="syncToast" class="toast-notification">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
@@ -579,9 +589,59 @@
             }
         }
 
-        // --- 4. SINKRONISASI TOAST ---
-        function showSyncToast() {
+        // --- 4. SINKRONISASI TOAST & LOGIC ---
+        function triggerSync() {
+            var loadingModal = document.getElementById('loadingModal');
+
+            // 1. Show Loading Modal
+            loadingModal.style.display = 'flex';
+
+            // 2. AJAX Request
+            fetch('{{ route("sync.now") }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                loadingModal.style.display = 'none'; // Hide modal
+
+                if (data.success) {
+                    showSyncToast(data.message); // Tampilkan pesan dari server
+                    
+                    // Reload setelah 2 detik agar toast terbaca
+                    setTimeout(function() {
+                        window.location.reload();
+                    }, 2000);
+                } else {
+                    alert('Gagal: ' + data.message);
+                }
+            })
+            .catch(error => {
+                loadingModal.style.display = 'none'; // Hide modal
+                console.error('Error:', error);
+                alert('Terjadi kesalahan koneksi.');
+            });
+        }
+
+        function resetSyncBtn() {
+            var btn = document.getElementById('btnSync');
+            var icon = document.getElementById('iconSync');
+            var text = document.getElementById('textSync');
+
+            btn.disabled = false;
+            btn.style.opacity = "1";
+            icon.classList.remove('ph-spin');
+            text.textContent = 'Sinkronisasi';
+        }
+
+        function showSyncToast(message) {
             var toast = document.getElementById("syncToast");
+            if (message) {
+                toast.querySelector('span').textContent = message;
+            }
             
             // Tambahkan class 'show' untuk memunculkan
             toast.className = "toast-notification show";

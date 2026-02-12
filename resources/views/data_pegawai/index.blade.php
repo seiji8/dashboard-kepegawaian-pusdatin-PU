@@ -251,12 +251,16 @@
                         <span class="value" id="detJabatan">-</span>
                     </div>
                     <div class="info-row">
+                        <span class="label">Tipe Jabatan</span><span class="separator">:</span>
+                        <span class="value" id="detTipeJabatan">-</span>
+                    </div>
+                    <div class="info-row">
                         <span class="label">Pangkat</span><span class="separator">:</span>
                         <span class="value" id="detPangkat">-</span>
                     </div>
                     <div class="info-row">
                         <span class="label">Jenjang</span><span class="separator">:</span>
-                        <span class="value" id="detGolongan">-</span>
+                        <span class="value" id="detJenjang">-</span>
                     </div>
                     <div class="info-row">
                         <span class="label">Tanggal Masuk (CPNS)</span><span class="separator">:</span>
@@ -273,10 +277,6 @@
                     <div class="info-row">
                         <span class="label">Email</span><span class="separator">:</span>
                         <span class="value" id="detEmail">-</span>
-                    </div>
-                    <div class="info-row">
-                        <span class="label">Alamat</span><span class="separator">:</span>
-                        <span class="value" id="detAlamat">-</span>
                     </div>
 
                     <div class="detail-actions">
@@ -362,13 +362,13 @@
                     document.getElementById('detNama').innerText = data.nama;
                     document.getElementById('detNIP').innerText = data.nip;
                     document.getElementById('detJabatan').innerText = data.jabatan;
+                    document.getElementById('detTipeJabatan').innerText = data.tipe_jabatan;
                     document.getElementById('detPangkat').innerText = data.pangkat;
-                    document.getElementById('detGolongan').innerText = data.golongan;
+                    document.getElementById('detJenjang').innerText = data.jenjang;
                     document.getElementById('detTmt').innerText = data.tmt_cpns;
                     document.getElementById('detKredit').innerText = data.angka_kredit;
                     document.getElementById('detHP').innerText = data.no_hp;
                     document.getElementById('detEmail').innerText = data.email;
-                    document.getElementById('detAlamat').innerText = data.alamat;
 
                     document.getElementById('detailLoading').style.display = 'none';
                     document.getElementById('detailContent').style.display = 'flex';
