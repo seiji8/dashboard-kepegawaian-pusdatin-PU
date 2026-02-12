@@ -6,7 +6,7 @@
   <title>Login - DashboardAlert</title>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="login.css">
+  <link rel="stylesheet" href="{{ asset('css/main.css') }}">
   <script src="https://unpkg.com/@phosphor-icons/web"></script>
   <style>
       body { font-family: 'Poppins', sans-serif; }

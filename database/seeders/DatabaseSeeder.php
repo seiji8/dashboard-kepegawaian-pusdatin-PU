@@ -113,7 +113,7 @@ class DatabaseSeeder extends Seeder
             'id_pegawai_api' => \Illuminate\Support\Str::uuid()->toString(),
             'nip' => '198507082008011001',
             'nama' => 'Eza Aditya',
-            'email' => 'ezaadityan@gmail.com',
+            'email' => 'ezaadityanugroho1@gmail.com',
             'jabatan_saat_ini' => 'Kepala Seksi Perencanaan',
             'pangkat_golongan' => 'III/d',
             'tmt_kgb_terakhir' => '2024-01-01',
