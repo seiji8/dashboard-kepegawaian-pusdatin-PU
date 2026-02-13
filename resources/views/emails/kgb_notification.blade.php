@@ -39,9 +39,24 @@
             </div>
 
             <!-- Footer Signature -->
-            <div style="margin-top: 40px; border-top: 1px solid #eee; padding-top: 20px;">
-                <p style="margin: 0; font-weight: 700; color: #6b7280; font-size: 14px;">Admin Kepegawaian</p>
-                <p style="margin: 2px 0 0; color: #9ca3af; font-size: 14px;">Pusat Data dan Teknologi Informasi</p>
+            <!-- Footer Signature -->
+            <div style="margin-top: 40px; padding-top: 25px; border-top: 1px solid #e5e7eb;">
+                
+                <!-- Signature -->
+                <div style="margin-bottom: 20px;">
+                    <p style="margin: 0 0 4px; font-size: 14px; color: #374151;">Salam,</p>
+                    <p style="margin: 0; font-weight: 700; color: #1e3a8a; font-size: 15px;">Admin Kepegawaian</p>
+                    <p style="margin: 2px 0 0; color: #6b7280; font-size: 13px;">Pusat Data dan Teknologi Informasi</p>
+                </div>
+
+                <!-- Zona Integritas Banner -->
+                <div style="background-color: #f0f9ff; border: 1px solid #bae6fd; border-radius: 8px; padding: 15px;">
+                    <p style="margin: 0; font-size: 11px; line-height: 1.6; color: #0369a1; text-align: justify; font-style: italic;">
+                        "Dalam menunjang pembangunan zona integritas menuju wilayah birokrasi bersih dan melayani, 
+                        <strong>PUSDATIN</strong> berkomitmen meningkatkan kualitas pelayanan publik yang bebas dari korupsi 
+                        dan memberikan pelayanan prima serta <strong>tidak dipungut biaya apapun</strong>."
+                    </p>
+                </div>
             </div>
         </div>
 

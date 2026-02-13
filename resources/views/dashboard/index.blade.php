@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard - DashboardAlert</title>
-    <link rel="stylesheet" href="{{ asset('css/dashboard.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/main.css') }}">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <!-- Bootstrap Icons for fallback since assets are missing -->
     <!-- Phosphor Icons -->
@@ -59,7 +59,7 @@
                     <div class="notif-wrapper">
                         <button class="btn-icon-header" onclick="toggleNotifDropdown()">
                             <i class="ph-fill ph-bell" style="font-size: 24px; color: #1e3a8a;"></i>
-                            <span class="badge" id="notifBadge" style="display: none;">0</span>
+                            <span class="notif-badge" id="notifBadge" style="display: none;">0</span>
                         </button>
 
                         <div id="notifDropdown" class="notif-dropdown">
