@@ -422,6 +422,11 @@
 
         // === REMINDER LOGIC ===
         function openReminderModal() {
+            // Reset Form Fields
+            document.getElementById('reminderTemplate').value = "";
+            document.getElementById('checkCustom').checked = false;
+            toggleMessageMode(); // This will reset disabled states and clear textarea
+
             document.getElementById('modalReminder').style.display = 'flex';
         }
 

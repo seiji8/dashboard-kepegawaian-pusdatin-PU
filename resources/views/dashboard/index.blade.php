@@ -9,6 +9,30 @@
     <!-- Bootstrap Icons for fallback since assets are missing -->
     <!-- Phosphor Icons -->
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <style>
+        /* Shared Button Bell Style */
+        .btn-bell {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            border: none;
+            background-color: #fef3c7; /* Pale Yellow/Amber */
+            color: #d97706; /* Dark Amber icon */
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: 0.2s;
+            box-shadow: none;
+            margin-right: 0; /* Handled by parent gap */
+        }
+        .btn-bell:hover {
+            transform: scale(1.05);
+            background-color: #fde68a;
+        }
+
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
     <!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css"> -->
 </head>
 <body>
@@ -431,8 +455,8 @@
             </div>
 
             <div style="padding: 20px 30px; display: flex; justify-content: flex-end; gap: 10px;">
-                <button onclick="openReminderModal()" style="padding: 10px 15px; background: #fbbf24; border: none; border-radius: 8px; cursor: pointer; color: white;">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+                <button class="btn-bell" onclick="openReminderModal()" title="Kirim Pengingat">
+                    <i class="ph-fill ph-bell-ringing" style="font-size: 20px;"></i>
                 </button>
                 <button onclick="closeDetailModal()" style="padding: 10px 25px; background: #1e3a8a; color: white; border: none; border-radius: 8px; cursor: pointer;">Kembali</button>
             </div>
@@ -501,6 +525,58 @@
             <polyline points="22 4 12 14.01 9 11.01"></polyline>
         </svg>
         <span>Sinkronisasi Data Berhasil!</span>
+    </div>
+
+    <!-- MODAL CONFIRM SEND -->
+    <div id="modalConfirmSend" class="modal-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2200; justify-content: center; align-items: center; backdrop-filter: blur(2px);">
+        <div class="modal-content" style="background: white; width: auto; min-width: 300px; padding: 20px; border-radius: 12px; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.1); border: 1px solid #f3f4f6;">
+            <h3 style="display: flex; align-items: center; justify-content: center; gap: 10px; font-size: 18px; font-weight: 600; margin-bottom: 15px; color: #000;">
+                Kirim Notifikasi?
+                <i class="ph-fill ph-paper-plane-tilt" style="color: #3b82f6; font-size: 24px;"></i>
+            </h3>
+            <p style="text-align: center; color: #6b7280; margin-bottom: 20px;">Apakah Anda yakin ingin mengirim notifikasi ini?</p>
+            <div style="display: flex; justify-content: center; gap: 10px;">
+                <button onclick="processSendReminder()" style="padding: 6px 24px; border-radius: 50px; background-color: #3b82f6; color: white; border: none; font-weight: 600; cursor: pointer;">Ya, Kirim</button> 
+                <button onclick="closeConfirmModal()" style="padding: 6px 24px; border-radius: 50px; background-color: white; color: #333; border: 1px solid #d1d5db; font-weight: 600; cursor: pointer;">Batal</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL WARNING -->
+    <div id="modalWarning" class="modal-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2300; justify-content: center; align-items: center; backdrop-filter: blur(2px);">
+        <div class="modal-content" style="background: white; width: auto; min-width: 300px; padding: 20px; border-radius: 12px; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.1); border: 1px solid #f3f4f6;">
+            <h3 style="display: flex; align-items: center; justify-content: center; gap: 10px; font-size: 18px; font-weight: 600; margin-bottom: 15px; color: #000;">
+                Perhatian
+                <i class="ph-fill ph-warning" style="color: #fbbf24; font-size: 24px;"></i>
+            </h3>
+            <p id="warningMessage" style="text-align: center; color: #6b7280; margin-bottom: 20px;">-</p>
+            <div style="display: flex; justify-content: center;">
+                <button onclick="closeWarningModal()" style="padding: 6px 24px; border-radius: 50px; background-color: white; color: #333; border: 1px solid #d1d5db; font-weight: 600; cursor: pointer;">Oke</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL LOADING (MANUAL SEND) -->
+    <div id="modalLoadingManual" class="modal-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2400; justify-content: center; align-items: center; backdrop-filter: blur(2px);">
+        <div class="modal-content" style="background: white; width: 300px; padding: 20px; border-radius: 12px; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.1); border: 1px solid #f3f4f6;">
+            <i class="ph-bold ph-spinner" style="font-size: 40px; animation: spin 1s linear infinite; color: #3b82f6; margin: 0 auto 15px; display: block;"></i>
+            <h3 style="margin-bottom: 5px; font-size: 16px; font-weight: 600;">Sedang Mengirim...</h3>
+            <p style="text-align: center; color: #6b7280; font-size: 14px;">Mohon tunggu sebentar.</p>
+        </div>
+    </div>
+
+    <!-- MODAL STATUS (Success/Error) -->
+    <div id="modalStatus" class="modal-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2500; justify-content: center; align-items: center; backdrop-filter: blur(2px);">
+        <div class="modal-content" style="background: white; width: auto; min-width: 300px; padding: 20px; border-radius: 12px; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.1); border: 1px solid #f3f4f6;">
+            <h3 id="statusTitle" style="display: flex; align-items: center; justify-content: center; gap: 10px; font-size: 18px; font-weight: 600; margin-bottom: 15px; color: #000;">
+                Berhasil!
+            </h3>
+            <i id="statusIcon" class="ph-fill ph-check-circle" style="font-size: 40px; color: #10b981; margin: 0 auto 15px; display: block;"></i>
+            <p id="statusMessage" style="text-align: center; color: #6b7280; margin-bottom: 20px;">-</p>
+            <div style="display: flex; justify-content: center;">
+                <button onclick="closeStatusModal()" style="padding: 6px 24px; border-radius: 50px; background-color: white; color: #333; border: 1px solid #d1d5db; font-weight: 600; cursor: pointer;">Tutup</button>
+            </div>
+        </div>
     </div>
 
     <script>
@@ -611,11 +687,16 @@
         }
 
         function openReminderModal() {
-            reminderModal.style.display = 'flex';
+             // Reset Form Fields
+            document.getElementById('reminderTemplate').value = "";
+            document.getElementById('checkCustom').checked = false;
+            toggleMessageMode(); // This will reset disabled states and clear textarea
+
+            document.getElementById('reminderModal').style.display = 'flex';
         }
 
         function closeReminderModal() {
-            reminderModal.style.display = 'none';
+            document.getElementById('reminderModal').style.display = 'none';
         }
 
         function toggleMessageMode() {
@@ -635,6 +716,60 @@
             }
         }
 
+        // === CUSTOM MODAL LOGIC (DASHBOARD) ===
+        let pendingPayload = null;
+
+        function showWarning(message) {
+            document.getElementById('warningMessage').innerText = message;
+            document.getElementById('modalWarning').style.display = 'flex';
+        }
+
+        function closeWarningModal() {
+            document.getElementById('modalWarning').style.display = 'none';
+        }
+
+        function showConfirmModalSend() {
+            document.getElementById('modalConfirmSend').style.display = 'flex';
+        }
+
+        function closeConfirmModal() { 
+            // Note: This closes the manual send confirm modal. 
+            // Be careful if there is another "confirmModal" for KGB confirmation.
+            // In HTML above, likely ID collision if not careful. 
+            // Let's rename the manual one to be safe or ensure unique IDs.
+            // HTML above uses 'modalConfirmSend'.
+            document.getElementById('modalConfirmSend').style.display = 'none';
+            openReminderModal();
+        }
+
+        function showLoadingModalManual() {
+            document.getElementById('modalLoadingManual').style.display = 'flex';
+        }
+
+        function closeLoadingModalManual() {
+            document.getElementById('modalLoadingManual').style.display = 'none';
+        }
+
+        function showStatusModal(isSuccess, title, message) {
+            document.getElementById('statusTitle').innerText = title;
+            document.getElementById('statusMessage').innerText = message;
+            
+            const icon = document.getElementById('statusIcon');
+            if (isSuccess) {
+                icon.className = "ph-fill ph-check-circle";
+                icon.style.color = "#10b981"; // Green
+            } else {
+                icon.className = "ph-fill ph-x-circle";
+                icon.style.color = "#ef4444"; // Red
+            }
+            
+            document.getElementById('modalStatus').style.display = 'flex';
+        }
+
+        function closeStatusModal() {
+            document.getElementById('modalStatus').style.display = 'none';
+        }
+
         function sendReminder() {
             if (!currentDetailNip) return;
 
@@ -646,22 +781,27 @@
 
             if (isCustom) {
                 if (!customMessage) {
-                    alert("Harap isi pesan custom!");
+                    showWarning("Harap isi pesan custom!");
                     return;
                 }
                 payload = { custom_message: customMessage };
             } else {
                 if (!templateId) {
-                    alert("Harap pilih template!");
+                    showWarning("Harap pilih template!");
                     return;
                 }
                 payload = { template_id: templateId };
             }
 
-            const btnSend = document.getElementById('btnSendManual');
-            const originalText = btnSend.innerText;
-            btnSend.innerText = 'Mengirim...';
-            btnSend.disabled = true;
+            // Store payload
+            pendingPayload = payload;
+            closeReminderModal();
+            showConfirmModalSend();
+        }
+
+        function processSendReminder() {
+            document.getElementById('modalConfirmSend').style.display = 'none';
+            showLoadingModalManual();
 
             fetch(`/data-pegawai/${currentDetailNip}/send-manual`, {
                 method: 'POST',
@@ -669,24 +809,21 @@
                     'Content-Type': 'application/json',
                     'X-CSRF-TOKEN': '{{ csrf_token() }}'
                 },
-                body: JSON.stringify(payload)
+                body: JSON.stringify(pendingPayload)
             })
             .then(response => response.json())
             .then(data => {
+                closeLoadingModalManual();
                 if (data.success) {
-                    alert('Email berhasil dikirim!');
-                    closeReminderModal();
+                    showStatusModal(true, 'Berhasil!', 'Email notifikasi telah terkirim.');
                 } else {
-                     alert(data.message || 'Gagal mengirim email.');
+                    showStatusModal(false, 'Gagal!', data.message || 'Terjadi kesalahan saat mengirim email.');
                 }
             })
             .catch(error => {
+                closeLoadingModalManual();
                 console.error('Error:', error);
-                alert('Terjadi kesalahan saat mengirim email.');
-            })
-            .finally(() => {
-                btnSend.innerText = originalText;
-                btnSend.disabled = false;
+                showStatusModal(false, 'Error!', 'Terjadi kesalahan sistem.');
             });
         }
 
