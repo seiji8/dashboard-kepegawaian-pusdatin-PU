@@ -90,7 +90,7 @@ class DatabaseSeeder extends Seeder
         Pegawai::create([
             'id_pegawai_api' => \Illuminate\Support\Str::uuid()->toString(),
             'nip' => '198201012010011001',
-            'nama' => 'Ahmad Budiman',
+            'nama' => 'Raissa',
             'email' => 'ahmad.budiman@test.go.id',
             'jabatan_saat_ini' => 'Analis Kebijakan Ahli Muda',
             'pangkat_golongan' => 'III/c',
@@ -101,7 +101,7 @@ class DatabaseSeeder extends Seeder
         Pegawai::create([
             'id_pegawai_api' => \Illuminate\Support\Str::uuid()->toString(),
             'nip' => '199212152015022001',
-            'nama' => 'Siti Nurhaliza',
+            'nama' => 'Bimo',
             'email' => 'siti.nurhaliza@test.go.id',
             'jabatan_saat_ini' => 'Pranata Komputer Ahli Pertama',
             'pangkat_golongan' => 'III/a',
