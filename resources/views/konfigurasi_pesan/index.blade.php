@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="{{ asset('css/main.css') }}">
     <!-- Phosphor Icons -->
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <meta name="csrf-token" content="{{ csrf_token() }}">
 </head>
 <body>
@@ -230,39 +231,41 @@
 
     <!-- MODAL TAMBAH PESAN -->
     <div id="modalTambahPesan" class="modal-overlay">
-        <form id="formTambah" class="modal-box">
+        <form id="formTambah" class="modal-box-compact">
             <div class="modal-header">
                 <h2>Tambah Pesan</h2>
             </div>
             
             <div class="modal-body">
                 
-                <div class="input-group">
-                    <label class="info-label">Nama Notifikasi</label>
-                    <input type="text" name="kategori" class="form-input" placeholder="Contoh: Peringatan SKP Triwulan" required>
+                <div style="display: grid; grid-template-columns: 3fr 2fr 1fr; gap: 16px; align-items: start;">
+                    <div>
+                        <label class="info-label">Nama Notifikasi</label>
+                        <input type="text" name="kategori" class="form-input" placeholder="Contoh: SKP" required>
+                    </div>
+                    <div>
+                        <label class="info-label">Jenis</label>
+                        <select id="pilihJenis" class="form-select" onchange="toggleJadwal()" required>
+                            <option value="" disabled selected>Pilih</option>
+                            <option value="Penjadwalan">Jadwal</option>
+                            <option value="Template">Template</option>
+                        </select>
+                    </div>
+                    <div>
+                         <label class="info-label">Jeda (Hari)</label>
+                        <input type="number" id="inputInterval" name="interval_hari" class="form-input" placeholder="0" required>
+                    </div>
                 </div>
-
-                <div class="input-group">
-                    <label class="info-label">Jenis Notifikasi</label>
-                    <select id="pilihJenis" class="form-select" onchange="toggleJadwal()" required>
-                        <option value="" disabled selected>Pilih Jenis</option>
-                        <option value="Penjadwalan">Penjadwalan (Otomatis)</option>
-                        <option value="Template">Template (Manual)</option>
-                    </select>
-                </div>
-
-                <div class="input-group">
-                    <label class="info-label">Interval / Jeda Waktu (Hari)</label>
-                    <input type="number" id="inputInterval" name="interval_hari" class="form-input" placeholder="Contoh: 1, 30, 60" required>
-                    <p class="text-xs text-gray-500 mt-1" style="font-size: 11px; color: #6b7280; margin-top: 4px;">
-                       * <b>Jadwal:</b> Masukkan dalam hari (Contoh: 1 = Harian, 7 = Mingguan, 30 = Bulanan).
+                <div style="margin-top: 4px; margin-bottom: 16px;">
+                    <p class="helper-text" style="margin: 0;">
+                        <span style="color: #d97706; font-weight: 600;">* Info:</span> Isi <b>1</b> (Harian), <b>7</b> (Mingguan), <b>30</b> (Bulanan).
                     </p>
                 </div>
 
                 <div class="input-group">
                     <label class="info-label">Isi Pesan</label>
                     <textarea name="template_pesan" class="form-input text-area-pesan" placeholder="Tulis template pesan di sini..." required></textarea>
-                    <p class="text-xs text-gray-500 mt-1" style="font-size: 12px; color: #6b7280; margin-top: 4px;">
+                    <p class="helper-text">
                         Gunakan placeholder: <b>{nama}</b>, <b>{nip}</b>, <b>{deadline}</b>, <b>{poin}</b>, <b>{next_pangkat}</b>
                     </p>
                 </div>
@@ -278,38 +281,40 @@
 
     <!-- MODAL EDIT PESAN -->
     <div id="modalEditPesan" class="modal-overlay">
-        <form id="formEdit" class="modal-box">
+        <form id="formEdit" class="modal-box-compact">
             <input type="hidden" id="editId" name="id">
             <div class="modal-header">
                 <h2>Edit Pesan</h2>
             </div>
             
             <div class="modal-body">
-                <div class="input-group">
-                    <label class="info-label">Nama Notifikasi</label>
-                    <input type="text" id="editNama" name="kategori" class="form-input" required>
-                </div>
-
-                <div class="input-group">
-                <div class="input-group">
-                    <label class="info-label">Jenis & Interval (Hari)</label>
-                    <div style="display: flex; gap: 10px;">
-                        <select id="editJenis" name="jenis" class="form-select" style="width: 130px;" onchange="toggleJadwalEdit()">
-                            <option value="Penjadwalan">Jadwal Rutin</option>
+                <div style="display: grid; grid-template-columns: 3fr 2fr 1fr; gap: 16px; align-items: start;">
+                    <div>
+                        <label class="info-label">Nama Notifikasi</label>
+                        <input type="text" id="editNama" name="kategori" class="form-input" required>
+                    </div>
+                    <div>
+                        <label class="info-label">Jenis</label>
+                        <select id="editJenis" name="jenis" class="form-select" onchange="toggleJadwalEdit()">
+                            <option value="Penjadwalan">Jadwal</option>
                             <option value="Template">Template</option>
                         </select>
-                        <input type="number" id="editJadwal" name="interval_hari" class="form-input" placeholder="Jml Hari" required>
                     </div>
-                    <p class="text-xs text-gray-500 mt-1" style="font-size: 11px; color: #6b7280; margin-top: 4px;">
-                        Set ke 0 jika Tipe = Template. (Tips: 7 = 1 Minggu, 30 = 1 Bulan).
-                    </p>
+                    <div>
+                        <label class="info-label">Jeda (Hari)</label>
+                        <input type="number" id="editJadwal" name="interval_hari" class="form-input" placeholder="0" required>
+                    </div>
                 </div>
+                <div style="margin-top: 4px; margin-bottom: 16px;">
+                    <p class="helper-text" style="margin: 0;">
+                         <span style="color: #d97706; font-weight: 600;">* Info:</span> Isi <b>1</b> (Harian), <b>7</b> (Mingguan), <b>30</b> (Bulanan).
+                    </p>
                 </div>
 
                 <div class="input-group">
                     <label class="info-label">Isi Pesan</label>
                     <textarea id="editIsi" name="template_pesan" class="form-input text-area-pesan" required></textarea>
-                     <p class="text-xs text-gray-500 mt-1" style="font-size: 12px; color: #6b7280; margin-top: 4px;">
+                     <p class="helper-text">
                         Gunakan placeholder: <b>{nama}</b>, <b>{nip}</b>, <b>{deadline}</b>, <b>{poin}</b>, <b>{next_pangkat}</b>
                     </p>
                 </div>
@@ -390,8 +395,14 @@
         .then(res => res.json())
         .then(data => {
             if(data.success) {
-                alert(data.message);
-                location.reload();
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Berhasil',
+                    text: data.message,
+                    confirmButtonColor: '#1e3a8a'
+                }).then(() => {
+                    location.reload();
+                });
             }
         });
     });
@@ -469,8 +480,14 @@
         .then(res => res.json())
         .then(data => {
             if(data.success) {
-                alert(data.message);
-                location.reload();
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Berhasil',
+                    text: data.message,
+                    confirmButtonColor: '#1e3a8a'
+                }).then(() => {
+                    location.reload();
+                });
             }
         });
     });
@@ -499,8 +516,14 @@
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                alert('Pesan berhasil dihapus!');
-                location.reload();
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Berhasil',
+                    text: 'Pesan berhasil dihapus!',
+                    confirmButtonColor: '#1e3a8a'
+                }).then(() => {
+                    location.reload();
+                });
             }
         });
     }

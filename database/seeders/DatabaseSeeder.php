@@ -51,8 +51,8 @@ class DatabaseSeeder extends Seeder
         $tmt_kgb = now()->subYears(2)->addMonth();
         
         Pegawai::create([
-            'id_pegawai_api' => \Illuminate\Support\Str::uuid()->toString(), // Dummy UUID
-            'nip' => '199001012022011001',
+            'id_pegawai_api' => '101', // ID Dummy Simple
+            'nip' => '101',
             'nama' => 'Hilmi',
             'email' => 'hilmiasardan@gmail.com',
             'no_hp' => '08123456789',
@@ -63,10 +63,10 @@ class DatabaseSeeder extends Seeder
         ]);
 
         // Kasus KP (Poin Cukup)
-        $nip_siti = '199505052020012001';
+        $nip_siti = '102'; // ID Dummy Simple
         
         Pegawai::create([
-            'id_pegawai_api' => \Illuminate\Support\Str::uuid()->toString(), // Dummy UUID
+            'id_pegawai_api' => $nip_siti,
             'nip' => $nip_siti,
             'nama' => 'Hasan',
             'email' => 'hasan.inf1re7@gmail.com',
@@ -76,20 +76,22 @@ class DatabaseSeeder extends Seeder
             'tmt_pangkat_terakhir' => '2022-01-01',
             'tmt_kgb_terakhir' => '2026-02-01',
         ]);
-
+        
+        // ... (Riwayat Angka Kredit tetap sama) ...
         RiwayatAngkaKredit::create([
-            'nip' => $nip_siti,
-            'nomor_sk' => 'SK-DUMMY-001',
-            'tanggal_sk' => '2022-12-01',
-            'total_kredit' => 55, // Langsung tembak 55 biar lolos
-            'jabatan_saat_penilaian' => 'Pranata Komputer Ahli Pertama',
-        ]);
+             'nip' => $nip_siti,
+             'nomor_sk' => 'SK-DUMMY-001',
+             'tanggal_sk' => '2022-12-01',
+             'total_kredit' => 55, // Langsung tembak 55 biar lolos
+             'jabatan_saat_penilaian' => 'Pranata Komputer Ahli Pertama',
+         ]);
+
 
         // Pegawai Tambahan (Untuk test fitur KGB)
         // KGB Mendekati: tmt_kgb + 2 tahun = Maret 2026 (H-1 bulan)
         Pegawai::create([
-            'id_pegawai_api' => \Illuminate\Support\Str::uuid()->toString(),
-            'nip' => '198201012010011001',
+            'id_pegawai_api' => '103',
+            'nip' => '103',
             'nama' => 'Raissa',
             'email' => 'ahmad.budiman@test.go.id',
             'jabatan_saat_ini' => 'Analis Kebijakan Ahli Muda',
@@ -99,8 +101,8 @@ class DatabaseSeeder extends Seeder
 
         // KGB Mendekati: tmt_kgb + 2 tahun = April 2026 (H-2 bulan)
         Pegawai::create([
-            'id_pegawai_api' => \Illuminate\Support\Str::uuid()->toString(),
-            'nip' => '199212152015022001',
+            'id_pegawai_api' => '104',
+            'nip' => '104',
             'nama' => 'Bimo',
             'email' => 'siti.nurhaliza@test.go.id',
             'jabatan_saat_ini' => 'Pranata Komputer Ahli Pertama',
@@ -110,8 +112,8 @@ class DatabaseSeeder extends Seeder
 
         // KGB Usulan: tmt_kgb + 2 tahun = Januari 2026 (sudah lewat)
         Pegawai::create([
-            'id_pegawai_api' => \Illuminate\Support\Str::uuid()->toString(),
-            'nip' => '198507082008011001',
+            'id_pegawai_api' => '105',
+            'nip' => '105',
             'nama' => 'Eza Aditya',
             'email' => 'ezaadityanugroho1@gmail.com',
             'jabatan_saat_ini' => 'Kepala Seksi Perencanaan',
@@ -124,5 +126,10 @@ class DatabaseSeeder extends Seeder
 
         // 5. Update TMT Manual (jika pegawai ada)
         $this->call(UpdateTmtManualSeeder::class);
+
+        // 6. Hitung Ulang Tracker (Supaya Dashboard langsung terisi)
+        $this->command->info('⚙️  Menghitung status KGB & Pangkat...');
+        \Illuminate\Support\Facades\Artisan::call('tracker:run');
+        $this->command->info('✅ Tracker selesai dihitung.');
     }
 }

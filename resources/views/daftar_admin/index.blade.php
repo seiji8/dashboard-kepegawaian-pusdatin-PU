@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="{{ asset('css/main.css') }}">
     <!-- Phosphor Icons -->
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <meta name="csrf-token" content="{{ csrf_token() }}">
 </head>
 <body>
@@ -327,15 +328,31 @@
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    alert('Role berhasil diubah!');
-                    location.reload();
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Berhasil',
+                        text: 'Role berhasil diubah!',
+                        confirmButtonColor: '#1e3a8a'
+                    }).then(() => {
+                        location.reload();
+                    });
                 } else {
-                    alert(data.message || 'Gagal mengubah role!');
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Gagal',
+                        text: data.message || 'Gagal mengubah role!',
+                        confirmButtonColor: '#dc2626'
+                    });
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
-                alert('Terjadi kesalahan!');
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Kesalahan',
+                    text: 'Terjadi kesalahan!',
+                    confirmButtonColor: '#dc2626'
+                });
             });
         }
 

@@ -116,7 +116,12 @@
                 if (typeof showToast === 'function') {
                     showToast(body.message, 'success');
                 } else {
-                    alert(body.message);
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Berhasil',
+                        text: body.message,
+                        confirmButtonColor: '#1e3a8a'
+                    });
                 }
             } else if (status === 422) {
                 // Validation Errors
@@ -128,14 +133,24 @@
                     }
                 }
             } else {
-                alert('Terjadi kesalahan server!');
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Kesalahan Server',
+                    text: 'Terjadi kesalahan server!',
+                    confirmButtonColor: '#dc2626'
+                });
             }
         })
         .catch(error => {
             console.error('Error:', error);
             submitBtn.disabled = false;
             submitBtn.textContent = 'Simpan';
-            alert('Terjadi kesalahan jaringan!');
+            Swal.fire({
+                icon: 'error',
+                title: 'Kesalahan Jaringan',
+                text: 'Terjadi kesalahan jaringan!',
+                confirmButtonColor: '#dc2626'
+            });
         });
     });
 </script>

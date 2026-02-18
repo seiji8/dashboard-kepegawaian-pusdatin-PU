@@ -9,6 +9,7 @@
     <!-- Bootstrap Icons for fallback since assets are missing -->
     <!-- Phosphor Icons -->
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css"> -->
 </head>
 <body>
@@ -411,32 +412,29 @@
         </main>
     </div>
 
-    <!-- DETAIL MODAL -->
+    <!-- DETAIL MODAL MODERN -->
     <div id="detailModal" class="modal-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2000; justify-content: center; align-items: center;">
-        <div class="modal-content" style="background: white; width: 800px; max-height: 90vh; overflow-y: auto; border-radius: 12px; padding: 0;">
+        <div class="modal-modern-content">
             
-            <div style="padding: 20px; border-bottom: 1px solid #e5e7eb;">
-                <h2 style="font-size: 18px; color: #1e3a8a; font-weight: 700; text-align: center;">Data Lengkap Pegawai</h2>
-            </div>
-
-            <div style="padding: 30px; display: flex; gap: 40px;">
-                <div style="width: 150px; height: 180px; background: #e5e7eb; border-radius: 8px; flex-shrink: 0; display: flex; align-items: center; justify-content: center;">
-                    <svg width="60" height="60" viewBox="0 0 24 24" fill="#9ca3af" stroke="none"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+            <div class="modal-modern-header">
+                <div class="modal-modern-title">
+                    <i class="ph-bold ph-user-circle" style="font-size: 24px;"></i>
+                    Detail Pegawai
                 </div>
-                
-                <div id="modalContentBody" style="flex: 1; display: grid; grid-template-columns: 180px 1fr; gap: 10px; font-size: 14px;">
-                    <!-- Content injected by JS -->
-                    <p>Loading...</p>
-                </div>
-            </div>
-
-            <div style="padding: 20px 30px; display: flex; justify-content: flex-end; gap: 10px;">
-                <button onclick="openReminderModal()" style="padding: 10px 15px; background: #fbbf24; border: none; border-radius: 8px; cursor: pointer; color: white;">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+                <button class="btn-close-modern" onclick="closeDetailModal()">
+                    <i class="ph-bold ph-x"></i>
                 </button>
-                <button onclick="closeDetailModal()" style="padding: 10px 25px; background: #1e3a8a; color: white; border: none; border-radius: 8px; cursor: pointer;">Kembali</button>
             </div>
-            
+
+            <div id="detailLoading" style="text-align: center; padding: 50px; display: none;">
+                <i class="ph-bold ph-spinner" style="font-size: 40px; color: #1e3a8a; animation: spin 1s linear infinite;"></i>
+                <p style="margin-top: 10px; color: #6b7280;">Memuat data...</p>
+            </div>
+
+            <div id="modalContentBody" class="modal-modern-body" style="display: none;">
+                <!-- Content injected by JS -->
+            </div>
+
         </div>
     </div>
 
@@ -544,65 +542,102 @@
             currentDetailNip = nip;
             detailModal.style.display = 'flex';
             const contentBody = document.getElementById('modalContentBody');
+            const loading = document.getElementById('detailLoading');
             
             // Show loading state
-            contentBody.innerHTML = '<div style="grid-column: 1 / -1; text-align: center; padding: 20px;"><i class="ph-bold ph-spinner ph-spin" style="font-size: 32px; color: #1e3a8a;"></i><p>Memuat data pegawai...</p></div>';
+            loading.style.display = 'block';
+            contentBody.style.display = 'none';
 
             fetch(`/data-pegawai/${nip}`)
                 .then(response => response.json())
                 .then(res => {
                     if(res.success) {
                         const data = res.data;
+                        const initials = data.nama.split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase();
+                        
                         let docsHtml = '';
                         if (data.missing_documents && data.missing_documents.length > 0) {
                             docsHtml = `
-                                <div style="grid-column: 1 / -1; margin-top: 20px; border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden;">
-                                    <div style="display: flex; background-color: #f1f5f9; padding: 15px; border-bottom: 1px solid #e2e8f0;">
-                                        <div style="width: 50px; font-weight: 700; color: #0f172a; text-align: center;">No</div>
-                                        <div style="flex: 1; font-weight: 500; color: #dc2626; padding-left: 15px;">Dokumen Yang Perlu Diunggah!</div>
+                                <div class="doc-warning-box">
+                                    <div class="doc-warning-header">
+                                        <span>STATUS DOKUMEN</span>
+                                        <span>TIDAK LENGKAP</span>
                                     </div>
-                                    <div style="background-color: #fff;">
-                                        ${data.missing_documents.map((doc, index) => `
-                                            <div style="display: flex; padding: 15px; border-bottom: index < data.missing_documents.length - 1 ? '1px solid #f1f5f9' : 'none'; align-items: center;">
-                                                <div style="width: 50px; font-weight: 700; color: #334155; text-align: center;">${index + 1}</div>
-                                                <div style="flex: 1; color: #ef4444; font-weight: 500; padding-left: 15px;">
-                                                    ${doc.nama_dokumen}
-                                                </div>
-                                            </div>
-                                        `).join('')}
-                                    </div>
-                                </div>
                             `;
+                            data.missing_documents.forEach((doc, index) => {
+                                docsHtml += `
+                                    <div class="doc-list-item">
+                                        <div class="doc-number">${index + 1}</div>
+                                        <div style="flex: 1;">${doc.nama_dokumen}</div>
+                                    </div>
+                                `;
+                            });
+                            docsHtml += `</div>`;
                         } else {
                             docsHtml = `
-                                <div style="grid-column: 1 / -1; margin-top: 15px; color: #059669; font-weight: 600; display: flex; align-items: center; background: #ecfdf5; padding: 15px; border-radius: 8px; border: 1px solid #a7f3d0;">
-                                    <i class="ph-fill ph-check-circle" style="margin-right: 10px; font-size: 20px;"></i>
+                                <div class="doc-success-box">
+                                    <div style="background: #10b981; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                                        <i class="ph-bold ph-check" style="color: white; font-size: 14px;"></i>
+                                    </div>
                                     Semua Dokumen Lengkap
                                 </div>
                             `;
                         }
 
                         contentBody.innerHTML = `
-                            <div style="font-weight: 600;">Nama :</div><div>${data.nama}</div>
-                            <div style="font-weight: 600;">NIP :</div><div>${data.nip}</div>
-                            <div style="font-weight: 600;">Jabatan :</div><div>${data.jabatan}</div>
-                            <div style="font-weight: 600;">Tipe Jabatan :</div><div>${data.tipe_jabatan}</div>
-                            <div style="font-weight: 600;">Pangkat :</div><div>${data.pangkat}</div>
-                            <div style="font-weight: 600;">Jenjang :</div><div>${data.jenjang}</div>
-                            <div style="font-weight: 600;">TMT CPNS :</div><div>${data.tmt_cpns}</div>
-                            <div style="font-weight: 600;">Angka Kredit :</div><div>${data.angka_kredit}</div>
-                            <div style="font-weight: 600;">No HP :</div><div>${data.no_hp}</div>
-                            <div style="font-weight: 600;">Email :</div><div>${data.email}</div>
-                            <div style="font-weight: 600; color: #d97706;">Proyeksi KGB :</div><div style="font-weight: 600; color: #d97706;">${data.next_kgb}</div>
-                            ${docsHtml}
+                            <!-- LEFT SIDEBAR -->
+                            <div class="profile-sidebar">
+                                <div class="profile-avatar-large">${initials}</div>
+                                <h3 class="profile-name-large">${data.nama}</h3>
+                                <p class="profile-role-large">${data.jabatan}</p>
+
+                                <button class="btn-reminder-yellow" onclick="openReminderModal()">
+                                    <i class="ph-fill ph-bell-ringing"></i>
+                                    Kirim Pengingat
+                                </button>
+                                <div style="margin-top: 10px; width: 100%;">
+                                    <div style="font-size: 11px; color: #9ca3af; margin-bottom: 5px; font-weight: 700; text-align: left;">PROYEKSI KGB</div>
+                                    <div style="background: #eff6ff; color: #1e40af; padding: 8px; border-radius: 6px; font-weight: 600; font-size: 13px; border: 1px solid #dbeafe;">
+                                        ${data.next_kgb ? data.next_kgb : '-'}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- RIGHT CONTENT -->
+                            <div class="info-section">
+                                <div class="info-grid">
+                                    <div class="info-item"><label>NIP / ID</label><span>${data.nip}</span></div>
+                                    <div class="info-item"><label>EMAIL</label><span>${data.email}</span></div>
+                                    <div class="info-item"><label>NO. HP</label><span>${data.no_hp}</span></div>
+                                    <div class="info-item"><label>TIPE JABATAN</label><span>${data.tipe_jabatan}</span></div>
+                                    <div class="info-item"><label>PANGKAT / GOLONGAN</label><span>${data.pangkat}</span></div>
+                                    <div class="info-item"><label>JENJANG</label><span>${data.jenjang}</span></div>
+                                    <div class="info-item"><label>TMT CPNS</label><span>${data.tmt_cpns}</span></div>
+                                    <div class="info-item"><label>ANGKA KREDIT</label><span>${data.angka_kredit}</span></div>
+                                </div>
+
+                                <div class="doc-section">
+                                    <div class="doc-section-title">
+                                        <i class="ph-fill ph-file-text" style="color: #4b5563;"></i>
+                                        Dokumen Wajib
+                                    </div>
+                                    ${docsHtml}
+                                </div>
+                            </div>
                         `;
+                        loading.style.display = 'none';
+                        contentBody.style.display = 'flex';
                     } else {
                         contentBody.innerHTML = '<p style="color: red;">Gagal memuat data.</p>';
+                        loading.style.display = 'none';
+                        contentBody.style.display = 'block';
                     }
                 })
                 .catch(err => {
                     console.error(err);
                     contentBody.innerHTML = '<p style="color: red;">Terjadi kesalahan koneksi.</p>';
+                    loading.style.display = 'none';
+                    contentBody.style.display = 'block';
                 });
         }
 
@@ -646,13 +681,23 @@
 
             if (isCustom) {
                 if (!customMessage) {
-                    alert("Harap isi pesan custom!");
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Peringatan',
+                        text: 'Harap isi pesan custom!',
+                        confirmButtonColor: '#1e3a8a'
+                    });
                     return;
                 }
                 payload = { custom_message: customMessage };
             } else {
                 if (!templateId) {
-                    alert("Harap pilih template!");
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Peringatan',
+                        text: 'Harap pilih template!',
+                        confirmButtonColor: '#1e3a8a'
+                    });
                     return;
                 }
                 payload = { template_id: templateId };
@@ -674,15 +719,30 @@
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    alert('Email berhasil dikirim!');
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Berhasil',
+                        text: 'Email berhasil dikirim!',
+                        confirmButtonColor: '#1e3a8a'
+                    });
                     closeReminderModal();
                 } else {
-                     alert(data.message || 'Gagal mengirim email.');
+                     Swal.fire({
+                        icon: 'error',
+                        title: 'Gagal',
+                        text: data.message || 'Gagal mengirim email.',
+                        confirmButtonColor: '#dc2626'
+                    });
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
-                alert('Terjadi kesalahan saat mengirim email.');
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Kesalahan',
+                    text: 'Terjadi kesalahan saat mengirim email.',
+                    confirmButtonColor: '#dc2626'
+                });
             })
             .finally(() => {
                 btnSend.innerText = originalText;
@@ -746,13 +806,23 @@
                         window.location.reload();
                     }, 2000);
                 } else {
-                    alert('Gagal: ' + data.message);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Sinkronisasi Gagal',
+                        text: data.message,
+                        confirmButtonColor: '#dc2626'
+                    });
                 }
             })
             .catch(error => {
                 loadingModal.style.display = 'none'; // Hide modal
                 console.error('Error:', error);
-                alert('Terjadi kesalahan koneksi.');
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Kesalahan Koneksi',
+                    text: 'Terjadi kesalahan saat menghubungi server.',
+                    confirmButtonColor: '#dc2626'
+                });
             });
         }
 
