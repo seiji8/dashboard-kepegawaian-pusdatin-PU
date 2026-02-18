@@ -59,7 +59,14 @@ class DataPegawaiController extends Controller
 
         // Ambil dokumen yang belum diupload dari tracker yang aktif
         $missingDocs = [];
-        $activeTrackers = $pegawai->dashboard_tracker()->whereNull('dikonfirmasi_at')->with('kelengkapan_dokumen')->get();
+        // Fix: Include trackers that are 'Proses' (confirmed) so documents still show up until uploaded
+        $activeTrackers = $pegawai->dashboard_tracker()
+            ->where(function($query) {
+                $query->whereNull('dikonfirmasi_at')
+                      ->orWhere('status_saat_ini', 'Proses');
+            })
+            ->with('kelengkapan_dokumen')
+            ->get();
 
         foreach ($activeTrackers as $tracker) {
             if ($tracker->kategori == 'KGB') {

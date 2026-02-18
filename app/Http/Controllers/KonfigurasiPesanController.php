@@ -54,13 +54,22 @@ class KonfigurasiPesanController extends Controller
         return response()->json(['success' => true, 'message' => 'Aturan notifikasi berhasil diperbarui!']);
     }
 
-    public function destroy($id)
+    public function destroy($konfigurasi_pesan)
     {
-        $rule = NotifikasiRules::find($id);
+        $id = $konfigurasi_pesan; 
+
+        // Debugging: Ensure ID is valid
+        if (!$id) {
+             return response()->json(['success' => false, 'message' => 'ID tidak valid!'], 400);
+        }
+
+        $rule = NotifikasiRules::where('id', $id)->first();
+        
         if ($rule) {
             $rule->delete();
             return response()->json(['success' => true, 'message' => 'Aturan notifikasi berhasil dihapus!']);
         }
-        return response()->json(['success' => false, 'message' => 'Data tidak ditemukan!'], 404);
+        
+        return response()->json(['success' => false, 'message' => 'Data tidak ditemukan! (ID: ' . $id . ')'], 404);
     }
 }

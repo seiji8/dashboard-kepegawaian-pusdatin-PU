@@ -22,7 +22,7 @@
                 <div class="form-group" style="margin-bottom: 15px;">
                     <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #374151;">Password Baru</label>
                     <div style="position: relative;">
-                        <input type="password" name="new_password" class="form-input" style="width: 100%; padding: 10px; padding-right: 40px; border: 1px solid #d1d5db; border-radius: 8px;" required>
+                        <input type="password" name="new_password" class="form-input" style="width: 100%; padding: 10px; padding-right: 40px; border: 1px solid #d1d5db; border-radius: 8px;" required autocomplete="new-password">
                         <i class="ph-bold ph-eye-slash toggle-password" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); cursor: pointer; color: #6b7280;" onclick="togglePassword(this)"></i>
                     </div>
                     <span class="text-danger error-new_password" style="color: #dc2626; font-size: 12px; display: none;"></span>
@@ -31,7 +31,7 @@
                 <div class="form-group" style="margin-bottom: 25px;">
                     <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #374151;">Konfirmasi Password Baru</label>
                     <div style="position: relative;">
-                        <input type="password" name="new_password_confirmation" class="form-input" style="width: 100%; padding: 10px; padding-right: 40px; border: 1px solid #d1d5db; border-radius: 8px;" required>
+                        <input type="password" name="new_password_confirmation" class="form-input" style="width: 100%; padding: 10px; padding-right: 40px; border: 1px solid #d1d5db; border-radius: 8px;" required autocomplete="new-password">
                         <i class="ph-bold ph-eye-slash toggle-password" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); cursor: pointer; color: #6b7280;" onclick="togglePassword(this)"></i>
                     </div>
                 </div>
@@ -73,6 +73,8 @@
 
     function closeChangePasswordModal() {
         document.getElementById('modalChangePassword').style.display = 'none';
+        // Hide keyboard on mobile
+        document.activeElement.blur(); 
     }
 
     // Close on outside click
@@ -86,40 +88,70 @@
     document.getElementById('formChangePassword').addEventListener('submit', function(e) {
         e.preventDefault();
         
+        // 1. Prepare Data
         let formData = new FormData(this);
-        let submitBtn = this.querySelector('button[type="submit"]');
-        submitBtn.disabled = true;
-        submitBtn.textContent = 'Menyimpan...';
-
-        // Reset errors
+        
+        // 2. Clear Errors
         document.querySelectorAll('.text-danger').forEach(el => {
             el.textContent = '';
             el.style.display = 'none';
         });
 
+        // 3. Close Modal & Show Loading
+        closeChangePasswordModal();
+        if (typeof showLoading === 'function') {
+            showLoading();
+        } else {
+            // Fallback simplistic loading if global showLoading missing
+            console.log("Loading...");
+        }
+
         fetch("{{ route('change-password.update') }}", {
             method: 'POST',
             headers: {
                 'X-Requested-With': 'XMLHttpRequest',
+                'Accept': 'application/json', // Force JSON response
                 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
             },
             body: formData
         })
-        .then(response => response.json().then(data => ({ status: response.status, body: data })))
+        .then(async response => {
+            // Try parse JSON
+            let data;
+            try {
+                data = await response.json();
+            } catch (err) {
+                throw new Error("Server response is not valid JSON.");
+            }
+            return { status: response.status, body: data };
+        })
         .then(({ status, body }) => {
-            submitBtn.disabled = false;
-            submitBtn.textContent = 'Simpan';
+            
+            // Close Loading
+            if (typeof closeLoading === 'function') {
+                closeLoading();
+            }
 
-            if (status === 200) {
-                closeChangePasswordModal();
-                // Gunakan fungsi showToast global jika ada, atau alert fallback
-                if (typeof showToast === 'function') {
-                    showToast(body.message, 'success');
+            if (status === 200 && body.success) {
+                // SUCCESS
+                if (typeof showStatusModal === 'function') {
+                    // Hijack close function of status modal to reload page
+                    const oldClose = window.closeStatusModal; 
+                    window.closeStatusModal = function() {
+                        document.getElementById('modalStatus').style.display = 'none';
+                        window.location.reload();
+                        // Restore original function just in case
+                        if(oldClose) window.closeStatusModal = oldClose;
+                    };
+                    
+                    showStatusModal(true, 'Berhasil!', body.message || 'Password berhasil diubah!');
                 } else {
-                    alert(body.message);
+                    alert(body.message || 'Password berhasil diubah!');
+                    window.location.reload();
                 }
             } else if (status === 422) {
-                // Validation Errors
+                // VALIDATION ERROR
+                openChangePasswordModal(); // Re-open modal
                 for (let [key, messages] of Object.entries(body.errors)) {
                     let errorSpan = document.querySelector(`.error-${key}`);
                     if (errorSpan) {
@@ -128,14 +160,26 @@
                     }
                 }
             } else {
-                alert('Terjadi kesalahan server!');
+                // SERVER ERROR
+                if (typeof showStatusModal === 'function') {
+                    showStatusModal(false, 'Gagal!', body.message || 'Terjadi kesalahan sistem.');
+                } else {
+                    alert(body.message || 'Terjadi kesalahan sistem.');
+                }
             }
         })
         .catch(error => {
             console.error('Error:', error);
-            submitBtn.disabled = false;
-            submitBtn.textContent = 'Simpan';
-            alert('Terjadi kesalahan jaringan!');
+            if (typeof closeLoading === 'function') {
+                closeLoading();
+            }
+            // Generic Error
+            const msg = "Terjadi kesalahan koneksi atau server.";
+            if (typeof showStatusModal === 'function') {
+                showStatusModal(false, 'Error!', msg);
+            } else {
+                alert(msg);
+            }
         });
     });
 </script>

@@ -109,26 +109,36 @@ class AdminController extends Controller
         }
 
         $request->validate([
-            'is_super_admin' => 'required|boolean',
+            'is_super_admin' => 'required', // Removed boolean strict validation temporarily or ensure frontend sends 0/1
         ]);
 
-        $admin = User::findOrFail($id);
-        $oldRole = $admin->isSuperAdmin() ? 'Admin Super' : 'Admin Kepegawaian';
-        
-        $admin->role = $request->is_super_admin ? 'super_admin' : 'admin_pegawai';
-        $admin->save();
+        try {
+            $admin = User::findOrFail($id);
+            $oldRole = $admin->isSuperAdmin() ? 'Admin Super' : 'Admin Kepegawaian';
+            
+            // Cast input to boolean explicitly
+            $isSuper = filter_var($request->is_super_admin, FILTER_VALIDATE_BOOLEAN);
 
-        $newRole = $admin->isSuperAdmin() ? 'Admin Super' : 'Admin Kepegawaian';
+            $admin->role = $isSuper ? 'super_admin' : 'admin_pegawai';
+            $admin->save();
 
-        // Log activity
-        ActivityLogger::logAdminAction(
-            "Mengubah role {$admin->nama_lengkap} dari {$oldRole} menjadi {$newRole}"
-        );
+            $newRole = $admin->isSuperAdmin() ? 'Admin Super' : 'Admin Kepegawaian';
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Role admin berhasil diubah!'
-        ]);
+            // Log activity
+            ActivityLogger::logAdminAction(
+                "Mengubah role {$admin->nama_lengkap} dari {$oldRole} menjadi {$newRole}"
+            );
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Role admin berhasil diubah!'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false, 
+                'message' => 'Gagal mengubah role: ' . $e->getMessage()
+            ], 500);
+        }
     }
 
     /**

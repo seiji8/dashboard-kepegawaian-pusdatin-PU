@@ -34,7 +34,7 @@
             <div style="background-color: #f8f9fa; border-radius: 8px; padding: 25px; margin: 25px 0; border-left: 5px solid #fbbf24;">
                 <p style="margin: 0; font-size: 16px; font-weight: 600; color: #1f2937; line-height: 1.6;">
                     Surat Keterangan KGB {{ $bulanTahun }} Anda sudah terbit.<br>
-                    Mohon segera unggah dokumen tersebut ke E-HRM terima kasih.
+                    Mohon segera unggah dokumen tersebut ke E-HRM. Terima kasih.
                 </p>
             </div>
 
