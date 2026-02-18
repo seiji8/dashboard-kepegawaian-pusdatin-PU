@@ -58,7 +58,8 @@ class DataPegawaiController extends Controller
         }
 
         // Ambil dokumen yang belum diupload dari tracker yang aktif
-        // Ambil dokumen yang belum diupload dari tracker yang aktif
+        $missingDocs = [];
+
         // REVISI: Sertakan juga yang statusnya 'Proses' walaupun sudah dikonfirmasi, agar dokumen tetap muncul
         $activeTrackers = $pegawai->dashboard_tracker()
             ->where(function($q) {
