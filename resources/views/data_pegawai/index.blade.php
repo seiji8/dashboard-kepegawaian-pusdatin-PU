@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="{{ asset('css/main.css') }}">
     <!-- Phosphor Icons -->
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <meta name="csrf-token" content="{{ csrf_token() }}">
 </head>
 <body>
@@ -216,90 +217,95 @@
         </div>
     </div>
 
-    <!-- MODAL DETAIL PEGAWAI -->
-    <div id="modalDetailPegawai" class="modal-overlay">
-        <div class="modal-box-large">
+    <!-- MODAL DETAIL PEGAWAI MODERN -->
+    <div id="modalDetailPegawai" class="modal-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2000; justify-content: center; align-items: center;">
+        <div class="modal-modern-content">
             
-            <div class="detail-header">
-                <h2>Data Lengkap Pegawai</h2>
+            <div class="modal-modern-header">
+                <div class="modal-modern-title">
+                    <i class="ph-bold ph-user-circle" style="font-size: 24px;"></i>
+                    Detail Pegawai
+                </div>
+                <button class="btn-close-modern" onclick="closeDetailModal()">
+                    <i class="ph-bold ph-x"></i>
+                </button>
             </div>
-            
-            <!-- Loading State inside Modal -->
+
             <div id="detailLoading" style="text-align: center; padding: 50px; display: none;">
-                <i class="ph-bold ph-spinner" style="font-size: 40px; animation: spin 1s linear infinite;"></i>
-                <p>Memuat data...</p>
+                <i class="ph-bold ph-spinner" style="font-size: 40px; color: #1e3a8a; animation: spin 1s linear infinite;"></i>
+                <p style="margin-top: 10px; color: #6b7280;">Memuat data...</p>
             </div>
 
-            <div id="detailContent" class="detail-layout">
-                <div class="profile-area">
-                    <div class="profile-placeholder">
-                        <i class="ph-fill ph-user" style="font-size: 80px; opacity: 0.3;"></i>
+            <div id="detailContent" class="modal-modern-body" style="display: none;">
+                
+                <!-- LEFT SIDEBAR -->
+                <div class="profile-sidebar">
+                    <div class="profile-avatar-large" id="detAvatar">
+                        <!-- Initials by JS -->
+                    </div>
+                    <h3 class="profile-name-large" id="detNama">-</h3>
+                    <p class="profile-role-large" id="detJabatan">-</p>
+
+                    <button class="btn-reminder-yellow" onclick="openReminderModal()">
+                        <i class="ph-fill ph-bell-ringing"></i>
+                        Kirim Pengingat
+                    </button>
+                    <div style="margin-top: 10px; width: 100%;">
+                        <div style="font-size: 11px; color: #9ca3af; margin-bottom: 5px; font-weight: 700; text-align: left;">PROYEKSI KGB</div>
+                        <div id="detNextKGB" style="background: #eff6ff; color: #1e40af; padding: 8px; border-radius: 6px; font-weight: 600; font-size: 13px; border: 1px solid #dbeafe;">-</div>
                     </div>
                 </div>
 
-                <div class="info-area">
-                    <div class="info-row">
-                        <span class="label">Nama</span><span class="separator">:</span>
-                        <span class="value" id="detNama">-</span>
-                    </div>
-                    <div class="info-row">
-                        <span class="label">NIP</span><span class="separator">:</span>
-                        <span class="value" id="detNIP">-</span>
-                    </div>
-                    <div class="info-row">
-                        <span class="label">Jabatan</span><span class="separator">:</span>
-                        <span class="value" id="detJabatan">-</span>
-                    </div>
-                    <div class="info-row">
-                        <span class="label">Tipe Jabatan</span><span class="separator">:</span>
-                        <span class="value" id="detTipeJabatan">-</span>
-                    </div>
-                    <div class="info-row">
-                        <span class="label">Pangkat</span><span class="separator">:</span>
-                        <span class="value" id="detPangkat">-</span>
-                    </div>
-                    <div class="info-row">
-                        <span class="label">Jenjang</span><span class="separator">:</span>
-                        <span class="value" id="detJenjang">-</span>
-                    </div>
-                    <div class="info-row">
-                        <span class="label">Tanggal Masuk (CPNS)</span><span class="separator">:</span>
-                        <span class="value" id="detTmt">-</span>
-                    </div>
-                    <div class="info-row">
-                        <span class="label">Angka Kredit saat ini</span><span class="separator">:</span>
-                        <span class="value" id="detKredit">-</span>
-                    </div>
-                    <div class="info-row">
-                        <span class="label">No HP</span><span class="separator">:</span>
-                        <span class="value" id="detHP">-</span>
-                    </div>
-                    <div class="info-row">
-                        <span class="label">Email</span><span class="separator">:</span>
-                        <span class="value" id="detEmail">-</span>
+                <!-- RIGHT CONTENT -->
+                <div class="info-section">
+                    
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <label>NIP / ID</label>
+                            <span id="detNIP">-</span>
+                        </div>
+                        <div class="info-item">
+                            <label>EMAIL</label>
+                            <span id="detEmail">-</span>
+                        </div>
+                        <div class="info-item">
+                            <label>NO. HP</label>
+                            <span id="detHP">-</span>
+                        </div>
+                        <div class="info-item">
+                            <label>TIPE JABATAN</label>
+                            <span id="detTipeJabatan">-</span>
+                        </div>
+                        <div class="info-item">
+                            <label>PANGKAT / GOLONGAN</label>
+                            <span id="detPangkat">-</span>
+                        </div>
+                        <div class="info-item">
+                            <label>JENJANG</label>
+                            <span id="detJenjang">-</span>
+                        </div>
+                        <div class="info-item">
+                            <label>TMT CPNS</label>
+                            <span id="detTmt">-</span>
+                        </div>
+                        <div class="info-item">
+                            <label>ANGKA KREDIT</label>
+                            <span id="detKredit">-</span>
+                        </div>
                     </div>
 
-                    <div class="detail-actions">
-                        <button class="btn-bell" onclick="openReminderModal()">
-                            <i class="ph-fill ph-bell-ringing" style="font-size: 20px;"></i>
-                        </button>
-                        <button class="btn-back" onclick="closeDetailModal()">Kembali</button>
+                    <div class="doc-section">
+                        <div class="doc-section-title">
+                            <i class="ph-fill ph-file-text" style="color: #4b5563;"></i>
+                            Dokumen Wajib
+                        </div>
+                        
+                        <!-- Container for dynamic doc status -->
+                        <div id="docStatusContainer">
+                            <!-- Injected by JS -->
+                        </div>
                     </div>
-                </div>
-            </div>
 
-            <div class="doc-section">
-                <div class="doc-header">
-                    <div class="col-no">No</div>
-                    <div class="col-name">Dokumen Yang Perlu diunggah!</div>
-                </div>
-                <div class="doc-row">
-                    <div class="col-no">1</div>
-                    <div class="col-name">PAK ( Penilaian Angka Kredit) Konversi SKP (Sasaran Kinerja Pegawai)</div>
-                </div>
-                <div class="doc-row">
-                    <div class="col-no">2</div>
-                    <div class="col-name">SK (Surat Keputusan) Jabatan Fungsional</div>
                 </div>
             </div>
 
@@ -361,6 +367,7 @@
                     const data = res.data;
                     document.getElementById('detNama').innerText = data.nama;
                     document.getElementById('detNIP').innerText = data.nip;
+                    // Format Jabatan properly, maybe allow multiline if long
                     document.getElementById('detJabatan').innerText = data.jabatan;
                     document.getElementById('detTipeJabatan').innerText = data.tipe_jabatan;
                     document.getElementById('detPangkat').innerText = data.pangkat;
@@ -369,13 +376,56 @@
                     document.getElementById('detKredit').innerText = data.angka_kredit;
                     document.getElementById('detHP').innerText = data.no_hp;
                     document.getElementById('detEmail').innerText = data.email;
+                    
+                    // Update Initials Avatar
+                    const initials = data.nama.split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase();
+                    document.getElementById('detAvatar').innerText = initials;
+
+                    // Update Next KGB
+                    document.getElementById('detNextKGB').innerText = data.next_kgb ? data.next_kgb : '-';
+
+                    // Update Document Status
+                    const docContainer = document.getElementById('docStatusContainer');
+                    if (data.missing_documents && data.missing_documents.length > 0) {
+                        let docListHtml = `
+                            <div class="doc-warning-box">
+                                <div class="doc-warning-header">
+                                    <span>STATUS DOKUMEN</span>
+                                    <span>TIDAK LENGKAP</span>
+                                </div>
+                        `;
+                        data.missing_documents.forEach((doc, index) => {
+                            docListHtml += `
+                                <div class="doc-list-item">
+                                    <div class="doc-number">${index + 1}</div>
+                                    <div style="flex: 1;">${doc.nama_dokumen}</div>
+                                </div>
+                            `;
+                        });
+                        docListHtml += `</div>`;
+                        docContainer.innerHTML = docListHtml;
+                    } else {
+                        docContainer.innerHTML = `
+                            <div class="doc-success-box">
+                                <div style="background: #10b981; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                                    <i class="ph-bold ph-check" style="color: white; font-size: 14px;"></i>
+                                </div>
+                                Semua Dokumen Lengkap
+                            </div>
+                        `;
+                    }
 
                     document.getElementById('detailLoading').style.display = 'none';
                     document.getElementById('detailContent').style.display = 'flex';
                 })
                 .catch(err => {
                     console.error(err);
-                    alert("Gagal mengambil data pegawai.");
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Gagal',
+                        text: 'Gagal mengambil data pegawai.',
+                        confirmButtonColor: '#dc2626'
+                    });
                     closeDetailModal();
                 });
         }
@@ -408,15 +458,31 @@
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    alert('Pegawai berhasil dihapus!');
-                    location.reload();
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Berhasil',
+                        text: 'Pegawai berhasil dihapus!',
+                        confirmButtonColor: '#1e3a8a'
+                    }).then(() => {
+                        location.reload();
+                    });
                 } else {
-                    alert(data.message || 'Gagal menghapus pegawai!');
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Gagal',
+                        text: data.message || 'Gagal menghapus pegawai!',
+                        confirmButtonColor: '#dc2626'
+                    });
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
-                alert('Terjadi kesalahan!');
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Kesalahan',
+                    text: 'Terjadi kesalahan!',
+                    confirmButtonColor: '#dc2626'
+                });
             });
         }
 
@@ -462,13 +528,23 @@
 
             if (isCustom) {
                 if (!customMessage) {
-                    alert("Harap isi pesan custom!");
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Peringatan',
+                        text: 'Harap isi pesan custom!',
+                        confirmButtonColor: '#1e3a8a'
+                    });
                     return;
                 }
                 payload = { custom_message: customMessage };
             } else {
                 if (!templateId) {
-                    alert("Harap pilih template!");
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Peringatan',
+                        text: 'Harap pilih template!',
+                        confirmButtonColor: '#1e3a8a'
+                    });
                     return;
                 }
                 payload = { template_id: templateId };
@@ -491,15 +567,30 @@
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    alert('Email berhasil dikirim!');
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Berhasil',
+                        text: 'Email berhasil dikirim!',
+                        confirmButtonColor: '#1e3a8a'
+                    });
                     closeReminderModal();
                 } else {
-                     alert(data.message || 'Gagal mengirim email.');
+                     Swal.fire({
+                        icon: 'error',
+                        title: 'Gagal',
+                        text: data.message || 'Gagal mengirim email.',
+                        confirmButtonColor: '#dc2626'
+                    });
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
-                alert('Terjadi kesalahan saat mengirim email.');
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Kesalahan',
+                    text: 'Terjadi kesalahan saat mengirim email.',
+                    confirmButtonColor: '#dc2626'
+                });
             })
             .finally(() => {
                 btnSend.innerText = originalText;

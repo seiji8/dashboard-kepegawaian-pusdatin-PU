@@ -146,8 +146,12 @@
                     
                     showStatusModal(true, 'Berhasil!', body.message || 'Password berhasil diubah!');
                 } else {
-                    alert(body.message || 'Password berhasil diubah!');
-                    window.location.reload();
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Berhasil',
+                        text: body.message,
+                        confirmButtonColor: '#1e3a8a'
+                    });
                 }
             } else if (status === 422) {
                 // VALIDATION ERROR
@@ -160,26 +164,24 @@
                     }
                 }
             } else {
-                // SERVER ERROR
-                if (typeof showStatusModal === 'function') {
-                    showStatusModal(false, 'Gagal!', body.message || 'Terjadi kesalahan sistem.');
-                } else {
-                    alert(body.message || 'Terjadi kesalahan sistem.');
-                }
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Kesalahan Server',
+                    text: 'Terjadi kesalahan server!',
+                    confirmButtonColor: '#dc2626'
+                });
             }
         })
         .catch(error => {
             console.error('Error:', error);
-            if (typeof closeLoading === 'function') {
-                closeLoading();
-            }
-            // Generic Error
-            const msg = "Terjadi kesalahan koneksi atau server.";
-            if (typeof showStatusModal === 'function') {
-                showStatusModal(false, 'Error!', msg);
-            } else {
-                alert(msg);
-            }
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Simpan';
+            Swal.fire({
+                icon: 'error',
+                title: 'Kesalahan Jaringan',
+                text: 'Terjadi kesalahan jaringan!',
+                confirmButtonColor: '#dc2626'
+            });
         });
     });
 </script>
