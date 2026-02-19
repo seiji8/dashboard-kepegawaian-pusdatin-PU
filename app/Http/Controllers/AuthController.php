@@ -164,7 +164,7 @@ class AuthController extends Controller
 
         // Update password
         $user = User::where('email', $request->email)->first();
-        $user->password = Hash::make($request->password);
+        $user->password = $request->password;
         $user->save();
 
         // Delete the token
@@ -194,7 +194,7 @@ class AuthController extends Controller
 
         // 2. Update Password Baru
         /** @var \App\Models\User $user */
-        $user->password = Hash::make($request->new_password);
+        $user->password = $request->new_password;
         $user->save();
 
         // 3. Log Aktivitas

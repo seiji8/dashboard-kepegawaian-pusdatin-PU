@@ -27,6 +27,8 @@ Route::post('/reset-password', [AuthController::class, 'resetPassword'])->name('
 
 // Change Password Routes (Authenticated Custom)
 Route::middleware(['auth'])->group(function () {
+
+
     Route::post('/change-password', [AuthController::class, 'changePassword'])->name('change-password.update');
 });
 
