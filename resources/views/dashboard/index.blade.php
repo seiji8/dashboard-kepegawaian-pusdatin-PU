@@ -17,7 +17,9 @@
     <div class="container">
         <aside class="sidebar">
             <div class="sidebar-header">
-                <h1 class="logo"><span class="logo-highlight">Dashboard</span>Alert</h1>
+                <a href="{{ route('dashboard') }}" style="text-decoration: none; color: inherit;">
+                    <h1 class="logo"><span class="logo-highlight">Dashboard</span>Alert</h1>
+                </a>
             </div>
             <nav class="sidebar-nav">
                 <a href="{{ route('dashboard') }}" class="nav-item {{ request()->routeIs('dashboard') ? 'active' : '' }}">
