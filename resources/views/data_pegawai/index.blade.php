@@ -124,6 +124,13 @@
                     document.getElementById('searchForm').submit();
                 }
             });
+
+            // Prevent dragging on sidebar elements and profile picture
+            document.addEventListener('dragstart', function(event) {
+                if (event.target.closest('.sidebar') || event.target.closest('.profile-btn') || event.target.tagName === 'IMG') {
+                    event.preventDefault();
+                }
+            });
         </script>
 
         <div class="content-section">

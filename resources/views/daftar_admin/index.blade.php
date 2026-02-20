@@ -581,6 +581,13 @@
         .catch(err => console.error('Gagal mark notif:', err));
     }
 
+    // Prevent dragging on sidebar elements and profile picture
+    document.addEventListener('dragstart', function(event) {
+        if (event.target.closest('.sidebar') || event.target.closest('.profile-btn') || event.target.tagName === 'IMG') {
+            event.preventDefault();
+        }
+    });
+
     document.addEventListener('DOMContentLoaded', function() {
         fetchNotifications();
     });

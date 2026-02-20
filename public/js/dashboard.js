@@ -478,6 +478,13 @@ function markNotifRead(notifId) {
 }
 
 // Auto-fetch notifications on load
+// Prevent dragging on sidebar elements
+document.addEventListener('dragstart', function(event) {
+    if (event.target.closest('.sidebar')) {
+        event.preventDefault();
+    }
+});
+
 document.addEventListener('DOMContentLoaded', function() {
     fetchNotifications();
 });

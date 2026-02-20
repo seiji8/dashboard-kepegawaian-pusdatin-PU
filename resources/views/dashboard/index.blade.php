@@ -52,7 +52,14 @@
         </aside>
 
         <main class="main-content">
-            
+            <script>
+            // Prevent dragging on sidebar elements and profile picture
+    document.addEventListener('dragstart', function(event) {
+        if (event.target.closest('.sidebar') || event.target.closest('.profile-btn') || event.target.tagName === 'IMG' || event.target.closest('.avatar-circle') || event.target.closest('.top-navbar img')) {
+            event.preventDefault();
+        }
+    });
+            </script>
             <header class="top-navbar">
                 <div class="welcome-section">
                     <h2 class="welcome-title">Selamat Datang</h2>
