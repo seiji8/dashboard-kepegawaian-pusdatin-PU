@@ -4223,9 +4223,8 @@ p {
 .swal2-container {
     z-index: 9999 !important;
 }
-/* Override to remove border from doc-section in Dashboard Detail Modal */
-.modal-modern-body .doc-section {
-    border: none !important;
-    border-radius: 0 !important;
-    box-shadow: none !important;
+/* Utility to remove border from doc-section */
+.doc-section.borderless {
+    border: none;
+    box-shadow: none;
 }

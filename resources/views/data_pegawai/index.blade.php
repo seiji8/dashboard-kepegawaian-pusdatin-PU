@@ -323,7 +323,7 @@
                         </div>
                     </div>
 
-                    <div class="doc-section">
+                    <div class="doc-section borderless">
                         <div class="doc-section-title">
                             <i class="ph-fill ph-file-text" style="color: #4b5563;"></i>
                             Dokumen Wajib

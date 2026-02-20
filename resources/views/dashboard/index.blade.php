@@ -493,7 +493,7 @@
                         <div class="info-item"><label>ANGKA KREDIT</label><span id="detKredit">-</span></div>
                     </div>
 
-                    <div class="doc-section">
+                    <div class="doc-section borderless">
                         <div class="doc-section-title">
                             <i class="ph-fill ph-file-text" style="color: #4b5563;"></i>
                             Dokumen Wajib
