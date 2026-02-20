@@ -459,8 +459,48 @@
                 <p style="margin-top: 10px; color: #6b7280;">Memuat data...</p>
             </div>
 
-            <div id="modalContentBody" class="modal-modern-body" style="display: none;">
-                <!-- Content injected by JS -->
+<div id="modalContentBody" class="modal-modern-body" style="display: none;">
+                <!-- LEFT SIDEBAR -->
+                <div class="profile-sidebar">
+                    <div class="profile-avatar-large" id="detAvatar">
+                        <!-- Initials by JS -->
+                    </div>
+                    <h3 class="profile-name-large" id="detNama">-</h3>
+                    <p class="profile-role-large" id="detJabatan">-</p>
+
+                    <button class="btn-reminder-yellow" onclick="openReminderModal()">
+                        <i class="ph-fill ph-bell-ringing"></i>
+                        Kirim Pengingat
+                    </button>
+                    <div style="margin-top: 10px; width: 100%;">
+                        <div style="font-size: 11px; color: #9ca3af; margin-bottom: 5px; font-weight: 700; text-align: left;">PROYEKSI KGB</div>
+                        <div id="detNextKGB" style="background: #eff6ff; color: #1e40af; padding: 8px; border-radius: 6px; font-weight: 600; font-size: 13px; border: 1px solid #dbeafe;">-</div>
+                    </div>
+                </div>
+
+                <!-- RIGHT CONTENT -->
+                <div class="info-section">
+                    <div class="info-grid">
+                        <div class="info-item"><label>NIP / ID</label><span id="detNIP">-</span></div>
+                        <div class="info-item"><label>EMAIL</label><span id="detEmail">-</span></div>
+                        <div class="info-item"><label>NO. HP</label><span id="detHP">-</span></div>
+                        <div class="info-item"><label>TIPE JABATAN</label><span id="detTipeJabatan">-</span></div>
+                        <div class="info-item"><label>PANGKAT / GOLONGAN</label><span id="detPangkat">-</span></div>
+                        <div class="info-item"><label>JENJANG</label><span id="detJenjang">-</span></div>
+                        <div class="info-item"><label>TMT CPNS</label><span id="detTmt">-</span></div>
+                        <div class="info-item"><label>ANGKA KREDIT</label><span id="detKredit">-</span></div>
+                    </div>
+
+                    <div class="doc-section">
+                        <div class="doc-section-title">
+                            <i class="ph-fill ph-file-text" style="color: #4b5563;"></i>
+                            Dokumen Wajib
+                        </div>
+                        <div id="docStatusContainer">
+                            <!-- Injected by JS -->
+                        </div>
+                    </div>
+                </div>
             </div>
 
         </div>

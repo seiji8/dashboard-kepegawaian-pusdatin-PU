@@ -58,102 +58,83 @@ function openDetailModal(nip) {
                 const data = res.data;
                 const initials = data.nama.split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase();
                 
-                let docsHtml = '';
-                if (data.missing_documents && data.missing_documents.length > 0) {
-                    docsHtml = `
-                        <div class="doc-warning-box">
-                            <div class="doc-warning-header">
-                                <span>STATUS DOKUMEN</span>
-                                <span>TIDAK LENGKAP</span>
-                            </div>
-                    `;
-                    data.missing_documents.forEach((doc, index) => {
-                        docsHtml += `
-                            <div class="doc-list-item">
-                                <div class="doc-number">${index + 1}</div>
-                                <div style="flex: 1;">${doc.nama_dokumen}</div>
+                // Populate Static Fields
+                setText('detNama', data.nama);
+                setText('detNIP', data.nip);
+                setText('detJabatan', data.jabatan);
+                setText('detTipeJabatan', data.tipe_jabatan);
+                setText('detPangkat', data.pangkat);
+                setText('detJenjang', data.jenjang);
+                setText('detTmt', data.tmt_cpns);
+                setText('detKredit', data.angka_kredit);
+                setText('detHP', data.no_hp);
+                setText('detEmail', data.email);
+                setText('detAvatar', initials);
+                setText('detNextKGB', data.next_kgb ? data.next_kgb : '-');
+
+                // Populate Documents
+                const docContainer = document.getElementById('docStatusContainer');
+                if (docContainer) {
+                    if (data.missing_documents && data.missing_documents.length > 0) {
+                        let docsHtml = `
+                            <div class="doc-warning-box">
+                                <div class="doc-warning-header">
+                                    <span>STATUS DOKUMEN</span>
+                                    <span>TIDAK LENGKAP</span>
+                                </div>
+                        `;
+                        data.missing_documents.forEach((doc, index) => {
+                            docsHtml += `
+                                <div class="doc-list-item">
+                                    <div class="doc-number">${index + 1}</div>
+                                    <div style="flex: 1;">${doc.nama_dokumen}</div>
+                                </div>
+                            `;
+                        });
+                        docsHtml += `</div>`;
+                        docContainer.innerHTML = docsHtml;
+                    } else {
+                        docContainer.innerHTML = `
+                            <div class="doc-success-box">
+                                <div style="background: #10b981; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                                    <i class="ph-bold ph-check" style="color: white; font-size: 14px;"></i>
+                                </div>
+                                Semua Dokumen Lengkap
                             </div>
                         `;
-                    });
-                    docsHtml += `</div>`;
-                } else {
-                    docsHtml = `
-                        <div class="doc-success-box">
-                            <div style="background: #10b981; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
-                                <i class="ph-bold ph-check" style="color: white; font-size: 14px;"></i>
-                            </div>
-                            Semua Dokumen Lengkap
-                        </div>
-                    `;
+                    }
                 }
 
-                if (contentBody) {
-                    contentBody.innerHTML = `
-                        <!-- LEFT SIDEBAR -->
-                        <div class="profile-sidebar">
-                            <div class="profile-avatar-large">${initials}</div>
-                            <h3 class="profile-name-large">${data.nama}</h3>
-                            <p class="profile-role-large">${data.jabatan}</p>
-
-                            <button class="btn-reminder-yellow" onclick="openReminderModal()">
-                                <i class="ph-fill ph-bell-ringing"></i>
-                                Kirim Pengingat
-                            </button>
-                            <div style="margin-top: 10px; width: 100%;">
-                                <div style="font-size: 11px; color: #9ca3af; margin-bottom: 5px; font-weight: 700; text-align: left;">PROYEKSI KGB</div>
-                                <div style="background: #eff6ff; color: #1e40af; padding: 8px; border-radius: 6px; font-weight: 600; font-size: 13px; border: 1px solid #dbeafe;">
-                                    ${data.next_kgb ? data.next_kgb : '-'}
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- RIGHT CONTENT -->
-                        <div class="info-section">
-                            <div class="info-grid">
-                                <div class="info-item"><label>NIP / ID</label><span>${data.nip}</span></div>
-                                <div class="info-item"><label>EMAIL</label><span>${data.email}</span></div>
-                                <div class="info-item"><label>NO. HP</label><span>${data.no_hp}</span></div>
-                                <div class="info-item"><label>TIPE JABATAN</label><span>${data.tipe_jabatan}</span></div>
-                                <div class="info-item"><label>PANGKAT / GOLONGAN</label><span>${data.pangkat}</span></div>
-                                <div class="info-item"><label>JENJANG</label><span>${data.jenjang}</span></div>
-                                <div class="info-item"><label>TMT CPNS</label><span>${data.tmt_cpns}</span></div>
-                                <div class="info-item"><label>ANGKA KREDIT</label><span>${data.angka_kredit}</span></div>
-                            </div>
-
-                            <div class="doc-section">
-                                <div class="doc-section-title">
-                                    <i class="ph-fill ph-file-text" style="color: #4b5563;"></i>
-                                    Dokumen Wajib
-                                </div>
-                                ${docsHtml}
-                            </div>
-                        </div>
-                    `;
-                }
-                
                 // Hide Skeleton, Show Content
                 if (skeleton) skeleton.style.display = 'none';
                 if (loadingSpinner) loadingSpinner.style.display = 'none';
                 if (contentBody) contentBody.style.display = 'flex';
 
             } else {
-                if (contentBody) {
-                    contentBody.innerHTML = '<p style="color: red;">Gagal memuat data.</p>';
-                    contentBody.style.display = 'block';
-                }
-                if (loadingSpinner) loadingSpinner.style.display = 'none';
-                if (skeleton) skeleton.style.display = 'none';
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Gagal',
+                    text: 'Gagal memuat data.',
+                    confirmButtonColor: '#dc2626'
+                });
+                closeDetailModal();
             }
         })
         .catch(err => {
             console.error(err);
-            if (contentBody) {
-                contentBody.innerHTML = '<p style="color: red;">Terjadi kesalahan koneksi.</p>';
-                contentBody.style.display = 'block';
-            }
-            if (loadingSpinner) loadingSpinner.style.display = 'none';
-            if (skeleton) skeleton.style.display = 'none';
+            Swal.fire({
+                icon: 'error',
+                title: 'Kesalahan',
+                text: 'Terjadi kesalahan koneksi.',
+                confirmButtonColor: '#dc2626'
+            });
+            closeDetailModal();
         });
+}
+
+function setText(id, text) {
+    const el = document.getElementById(id);
+    if (el) el.innerText = text;
 }
 
 function closeDetailModal() {
