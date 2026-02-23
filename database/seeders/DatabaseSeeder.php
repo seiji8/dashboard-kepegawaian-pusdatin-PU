@@ -127,9 +127,5 @@ class DatabaseSeeder extends Seeder
         // 5. Update TMT Manual (jika pegawai ada)
         $this->call(UpdateTmtManualSeeder::class);
 
-        // 6. Hitung Ulang Tracker (Supaya Dashboard langsung terisi)
-        $this->command->info('⚙️  Menghitung status KGB & Pangkat...');
-        \Illuminate\Support\Facades\Artisan::call('tracker:run');
-        $this->command->info('✅ Tracker selesai dihitung.');
     }
 }

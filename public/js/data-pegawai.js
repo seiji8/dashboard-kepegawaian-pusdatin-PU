@@ -25,7 +25,7 @@ function openDetailModal(nip) {
         .then(response => response.json())
         .then(res => {
             const data = res.data;
-            
+
             // Populate Data
             setText('detNama', data.nama);
             setText('detNIP', data.nip);
@@ -37,7 +37,7 @@ function openDetailModal(nip) {
             setText('detKredit', data.angka_kredit);
             setText('detHP', data.no_hp);
             setText('detEmail', data.email);
-            
+
             // Initials Avatar
             const initials = data.nama.split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase();
             setText('detAvatar', initials);
@@ -125,35 +125,35 @@ function confirmDelete() {
             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
         }
     })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            Swal.fire({
-                icon: 'success',
-                title: 'Berhasil',
-                text: 'Pegawai berhasil dihapus!',
-                confirmButtonColor: '#1e3a8a'
-            }).then(() => {
-                location.reload();
-            });
-        } else {
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Berhasil',
+                    text: 'Pegawai berhasil dihapus!',
+                    confirmButtonColor: '#1e3a8a'
+                }).then(() => {
+                    location.reload();
+                });
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Gagal',
+                    text: data.message || 'Gagal menghapus pegawai!',
+                    confirmButtonColor: '#dc2626'
+                });
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
             Swal.fire({
                 icon: 'error',
-                title: 'Gagal',
-                text: data.message || 'Gagal menghapus pegawai!',
+                title: 'Kesalahan',
+                text: 'Terjadi kesalahan!',
                 confirmButtonColor: '#dc2626'
             });
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        Swal.fire({
-            icon: 'error',
-            title: 'Kesalahan',
-            text: 'Terjadi kesalahan!',
-            confirmButtonColor: '#dc2626'
         });
-    });
 }
 
 // === REMINDER LOGIC ===
@@ -229,151 +229,53 @@ function sendReminder() {
         },
         body: JSON.stringify(payload)
     })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            Swal.fire({
-                icon: 'success',
-                title: 'Berhasil',
-                text: 'Email berhasil dikirim!',
-                confirmButtonColor: '#1e3a8a'
-            });
-            closeReminderModal();
-        } else {
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
                 Swal.fire({
+                    icon: 'success',
+                    title: 'Berhasil',
+                    text: 'Email berhasil dikirim!',
+                    confirmButtonColor: '#1e3a8a'
+                });
+                closeReminderModal();
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Gagal',
+                    text: data.message || 'Gagal mengirim email.',
+                    confirmButtonColor: '#dc2626'
+                });
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            Swal.fire({
                 icon: 'error',
-                title: 'Gagal',
-                text: data.message || 'Gagal mengirim email.',
+                title: 'Kesalahan',
+                text: 'Terjadi kesalahan saat mengirim email.',
                 confirmButtonColor: '#dc2626'
             });
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        Swal.fire({
-            icon: 'error',
-            title: 'Kesalahan',
-            text: 'Terjadi kesalahan saat mengirim email.',
-            confirmButtonColor: '#dc2626'
+        })
+        .finally(() => {
+            btnSend.innerText = originalText;
+            btnSend.disabled = false;
         });
-    })
-    .finally(() => {
-        btnSend.innerText = originalText;
-        btnSend.disabled = false;
-    });
 }
 
-// === SYNC TOAST ===
-function showSyncToast() {
-    var toast = document.getElementById("syncToast");
-    toast.className = "toast-notification show";
-    setTimeout(function(){ 
-        toast.className = toast.className.replace("show", ""); 
-    }, 3000);
-}
+// === SYNC TOAST (Now in app-common.js) ===
 
-// === NAVBAR: DROPDOWN PROFILE ===
-function toggleDropdown() {
-    var dropdown = document.getElementById("profileDropdown");
-    if (dropdown.style.display === "block") {
-        dropdown.style.display = "none";
-    } else {
-        dropdown.style.display = "block";
-    }
-}
+// === NAVBAR: DROPDOWN PROFILE (Now in app-common.js) ===
 
-// === NAVBAR: NOTIFIKASI ===
-function toggleNotifDropdown() {
-    var dropdown = document.getElementById('notifDropdown');
-    if (dropdown.classList.contains('active')) {
-        dropdown.classList.remove('active');
-    } else {
-        dropdown.classList.add('active');
-        fetchNotifications();
-    }
-}
+// === NAVBAR: NOTIFIKASI (Now in app-common.js) ===
 
-function fetchNotifications() {
-    fetch('/notifications', {
-        headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }
-    })
-    .then(res => res.json())
-    .then(data => {
-        renderNotifications(data.notifications);
-        updateBadge(data.unread_count);
-    })
-    .catch(err => console.error('Gagal fetch notifikasi:', err));
-}
-
-function renderNotifications(notifications) {
-    var list = document.getElementById('notifList');
-    if (!notifications || notifications.length === 0) {
-        list.innerHTML = '<div class="notif-empty">' +
-            '<i class="ph-light ph-bell-slash" style="font-size: 32px; color: #9ca3af;"></i>' +
-            '<p>Belum ada notifikasi</p></div>';
-        return;
-    }
-    var html = '';
-    notifications.forEach(function(n) {
-        var unreadClass = n.read ? '' : ' unread';
-        var clickAction = n.read ? '' : ' onclick="markNotifRead(\'' + n.id + '\')"}'; 
-        html += '<div class="notif-item' + unreadClass + '"' + clickAction + '>' +
-            '<div class="notif-content">' +
-                '<p class="notif-title">' + n.title + '</p>' +
-                '<p class="notif-message">' + n.message + '</p>' +
-                '<span class="notif-time">' + n.time + '</span>' +
-            '</div></div>';
-    });
-    list.innerHTML = html;
-}
-
-function updateBadge(count) {
-    var badge = document.getElementById('notifBadge');
-    if (count > 0) {
-        badge.textContent = count > 99 ? '99+' : count;
-        badge.style.display = 'flex';
-    } else {
-        badge.style.display = 'none';
-    }
-}
-
-function markAllRead() {
-    fetch('/notifications/mark-read', {
-        method: 'POST',
-        headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json',
-            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-            'X-Requested-With': 'XMLHttpRequest'
-        }
-    })
-    .then(res => res.json())
-    .then(data => { if (data.success) fetchNotifications(); })
-    .catch(err => console.error('Gagal mark read:', err));
-}
-
-function markNotifRead(notifId) {
-    fetch('/notifications/' + notifId + '/read', {
-        method: 'POST',
-        headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json',
-            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-            'X-Requested-With': 'XMLHttpRequest'
-        }
-    })
-    .then(res => res.json())
-    .then(data => { if (data.success) fetchNotifications(); })
-    .catch(err => console.error('Gagal mark notif:', err));
-}
-
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     fetchNotifications();
-    
+
     // Auto-search logic moved here
     const searchInput = document.getElementById('searchInput');
     if (searchInput) {
-        searchInput.addEventListener('input', function(e) {
+        searchInput.addEventListener('input', function (e) {
             if (this.value === '') {
                 document.getElementById('searchForm').submit();
             }
@@ -381,26 +283,14 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
-// Close Modal on Click Outside + Navbar Dropdowns
-window.onclick = function(event) {
+// Window click listener moved to app-common.js
+// Use addEventListener instead of window.onclick to avoid overriding app-common.js
+window.addEventListener('click', function (event) {
     const detailModal = document.getElementById('modalDetailPegawai');
     const deleteModal = document.getElementById('modalHapusPegawai');
     const reminderModal = document.getElementById('modalReminder');
 
-    if (event.target == detailModal) detailModal.style.display = "none";
-    if (event.target == deleteModal) deleteModal.style.display = "none";
-    if (event.target == reminderModal) reminderModal.style.display = "none";
-
-    // Navbar: tutup profile dropdown
-    if (!event.target.closest('.profile-btn')) {
-        var dropdowns = document.getElementsByClassName("dropdown-menu");
-        for (var i = 0; i < dropdowns.length; i++) {
-            if (dropdowns[i].style.display === "block") dropdowns[i].style.display = "none";
-        }
-    }
-    // Navbar: tutup notif dropdown
-    if (!event.target.closest('.notif-wrapper')) {
-        var notifDropdown = document.getElementById('notifDropdown');
-        if (notifDropdown) notifDropdown.classList.remove('active');
-    }
-}
+    if (detailModal && event.target == detailModal) detailModal.style.display = "none";
+    if (deleteModal && event.target == deleteModal) deleteModal.style.display = "none";
+    if (reminderModal && event.target == reminderModal) reminderModal.style.display = "none";
+});

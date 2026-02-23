@@ -15,51 +15,9 @@
 </head>
 <body>
     <div class="container">
-        <aside class="sidebar">
-            <div class="sidebar-header">
-                <a href="{{ route('dashboard') }}" style="text-decoration: none; color: inherit;">
-                    <h1 class="logo"><span class="logo-highlight">Dashboard</span>Alert</h1>
-                </a>
-            </div>
-            <nav class="sidebar-nav">
-                <a href="{{ route('dashboard') }}" class="nav-item {{ request()->routeIs('dashboard') ? 'active' : '' }}">
-                    <i class="ph-fill ph-squares-four nav-icon"></i>
-                    <span class="nav-text">Dashboard</span>
-                </a>
-                <a href="{{ route('data-pegawai') }}" class="nav-item {{ request()->routeIs('data-pegawai') ? 'active' : '' }}">
-                    <i class="ph-fill ph-users nav-icon"></i>
-                    <span class="nav-text">Data Pegawai</span>
-                </a>
-                <a href="{{ route('konfigurasi-pesan') }}" class="nav-item {{ request()->routeIs('konfigurasi-pesan') ? 'active' : '' }}">
-                    <i class="ph-fill ph-chat-dots nav-icon"></i>
-                    <span class="nav-text">Konfigurasi Pesan</span>
-                </a>
-                <a href="{{ route('log-aktivitas') }}" class="nav-item {{ request()->routeIs('log-aktivitas') ? 'active' : '' }}">
-                    <i class="ph-fill ph-clock-counter-clockwise nav-icon"></i>
-                    <span class="nav-text">Log Aktivitas</span>
-                </a>
-                <a href="{{ route('daftar-admin') }}" class="nav-item {{ request()->routeIs('daftar-admin') ? 'active' : '' }}">
-                    <i class="ph-fill ph-shield-check nav-icon"></i>
-                    <span class="nav-text">Daftar Admin</span>
-                </a>
-            </nav>
-            <div class="sidebar-footer">
-                <button class="sync-btn" id="btnSync" onclick="triggerSync()">
-                    <i class="ph-bold ph-arrows-clockwise sync-img" id="iconSync"></i>
-                    <span class="sync-icon" id="textSync">Sinkronisasi</span>
-                </button>
-            </div>
-        </aside>
+        @include('partials.sidebar')
 
         <main class="main-content">
-            <script>
-            // Prevent dragging on sidebar elements and profile picture
-    document.addEventListener('dragstart', function(event) {
-        if (event.target.closest('.sidebar') || event.target.closest('.profile-btn') || event.target.tagName === 'IMG' || event.target.closest('.avatar-circle') || event.target.closest('.top-navbar img')) {
-            event.preventDefault();
-        }
-    });
-            </script>
             <header class="top-navbar">
                 <div class="welcome-section">
                     <h2 class="welcome-title">Selamat Datang</h2>
@@ -559,25 +517,9 @@
         </div>
     </div>
 
-    <!-- LOADING MODAL -->
-    <div id="loadingModal" class="modal-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2300; justify-content: center; align-items: center;">
-        <div class="loading-modal-content">
-            <div class="loading-spinner"></div>
-            <div>
-                <p class="loading-text">Sedang Sinkronisasi Data...</p>
-                <p class="loading-subtext">Mohon tunggu, proses ini mungkin memakan waktu beberapa saat.</p>
-            </div>
-        </div>
-    </div>
+    @include('partials.sync_loading')
 
-    <div id="syncToast" class="toast-notification">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-            <polyline points="22 4 12 14.01 9 11.01"></polyline>
-        </svg>
-        <span>Sinkronisasi Data Berhasil!</span>
-    </div>
-
+    <script src="{{ asset('js/app-common.js') }}"></script>
     <script src="{{ asset('js/dashboard.js') }}"></script>
     <!-- JS Loaded via external file -->
     @include('partials.change_password_modal')

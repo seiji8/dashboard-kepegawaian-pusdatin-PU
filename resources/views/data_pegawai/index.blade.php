@@ -13,43 +13,10 @@
 </head>
 <body>
 
-    <aside class="sidebar">
-        <div class="sidebar-header">
-            <a href="{{ route('dashboard') }}" style="text-decoration: none; color: inherit;">
-                <h1 class="logo"><span class="logo-highlight">Dashboard</span>Alert</h1>
-            </a>
-        </div>
-        <nav class="sidebar-nav">
-            <a href="{{ route('dashboard') }}" class="nav-item">
-                <i class="ph-fill ph-squares-four nav-icon"></i>
-                <span class="nav-text">Dashboard</span>
-            </a>
-            <a href="{{ route('data-pegawai') }}" class="nav-item active">
-                <i class="ph-fill ph-users nav-icon"></i>
-                <span class="nav-text">Data Pegawai</span>
-            </a>
-            <a href="{{ route('konfigurasi-pesan') }}" class="nav-item {{ request()->routeIs('konfigurasi-pesan') ? 'active' : '' }}">
-                <i class="ph-fill ph-chat-dots nav-icon"></i>
-                <span class="nav-text">Konfigurasi Pesan</span>
-            </a>
-            <a href="{{ route('log-aktivitas') }}" class="nav-item">
-                <i class="ph-fill ph-clock-counter-clockwise nav-icon"></i>
-                <span class="nav-text">Log Aktivitas</span>
-            </a>
-            <a href="{{ route('daftar-admin') }}" class="nav-item">
-                <i class="ph-fill ph-shield-check nav-icon"></i>
-                <span class="nav-text">Daftar Admin</span>
-            </a>
-        </nav>
-        <div class="sidebar-footer">
-            <button class="sync-btn" onclick="showSyncToast()">
-                <i class="ph-bold ph-arrows-clockwise sync-img"></i>
-                <span class="sync-icon">Sinkronisasi</span>
-            </button>
-        </div>
-    </aside>
+    <div class="container">
+        @include('partials.sidebar')
 
-    <main class="main-content">
+        <main class="main-content">
         <header class="top-navbar">
             <div class="welcome-section">
                 <h2 class="welcome-title">Selamat Datang</h2>
@@ -122,13 +89,6 @@
             document.getElementById('searchInput').addEventListener('input', function(e) {
                 if (this.value === '') {
                     document.getElementById('searchForm').submit();
-                }
-            });
-
-            // Prevent dragging on sidebar elements and profile picture
-            document.addEventListener('dragstart', function(event) {
-                if (event.target.closest('.sidebar') || event.target.closest('.profile-btn') || event.target.tagName === 'IMG') {
-                    event.preventDefault();
                 }
             });
         </script>
@@ -379,13 +339,11 @@
             </div>
         </div>
     </div>
-
-    <!-- TOAST -->
-    <div id="syncToast" class="toast-notification">
-        <i class="ph-bold ph-check-circle" style="font-size: 20px;"></i>
-        <span>Sinkronisasi Data Berhasil!</span>
+        </main>
     </div>
+    @include('partials.sync_loading')
 
+    <script src="{{ asset('js/app-common.js') }}"></script>
     <script src="{{ asset('js/data-pegawai.js') }}"></script>
     <style>
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }

@@ -1,12 +1,4 @@
-// --- 1. DROPDOWN PROFILE ---
-function toggleDropdown() {
-    var dropdown = document.getElementById("profileDropdown");
-    if (dropdown.style.display === "block") {
-        dropdown.style.display = "none";
-    } else {
-        dropdown.style.display = "block";
-    }
-}
+// --- 1. DROPDOWN PROFILE (Now in app-common.js) ---
 
 // --- 2. ACCORDION TASK ---
 function toggleMainTask(targetId, headerElement) {
@@ -38,9 +30,9 @@ let confirmTrackerId = null;
 
 function openDetailModal(nip) {
     currentDetailNip = nip;
-    
+
     if (detailModal) detailModal.style.display = 'flex';
-    
+
     // Toggle Skeleton vs Content
     const skeleton = document.getElementById('detailSkeleton');
     const contentBody = document.getElementById('modalContentBody');
@@ -54,10 +46,10 @@ function openDetailModal(nip) {
     fetch(`/data-pegawai/${nip}`)
         .then(response => response.json())
         .then(res => {
-            if(res.success) {
+            if (res.success) {
                 const data = res.data;
                 const initials = data.nama.split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase();
-                
+
                 // Populate Static Fields
                 setText('detNama', data.nama);
                 setText('detNIP', data.nip);
@@ -226,38 +218,38 @@ function sendReminder() {
         },
         body: JSON.stringify(payload)
     })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            Swal.fire({
-                icon: 'success',
-                title: 'Berhasil',
-                text: 'Email berhasil dikirim!',
-                confirmButtonColor: '#1e3a8a'
-            });
-            closeReminderModal();
-        } else {
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
                 Swal.fire({
+                    icon: 'success',
+                    title: 'Berhasil',
+                    text: 'Email berhasil dikirim!',
+                    confirmButtonColor: '#1e3a8a'
+                });
+                closeReminderModal();
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Gagal',
+                    text: data.message || 'Gagal mengirim email.',
+                    confirmButtonColor: '#dc2626'
+                });
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            Swal.fire({
                 icon: 'error',
-                title: 'Gagal',
-                text: data.message || 'Gagal mengirim email.',
+                title: 'Kesalahan',
+                text: 'Terjadi kesalahan saat mengirim email.',
                 confirmButtonColor: '#dc2626'
             });
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        Swal.fire({
-            icon: 'error',
-            title: 'Kesalahan',
-            text: 'Terjadi kesalahan saat mengirim email.',
-            confirmButtonColor: '#dc2626'
+        })
+        .finally(() => {
+            btnSend.innerText = originalText;
+            btnSend.disabled = false;
         });
-    })
-    .finally(() => {
-        btnSend.innerText = originalText;
-        btnSend.disabled = false;
-    });
 }
 
 function submitConfirm() {
@@ -278,213 +270,30 @@ function submitConfirm() {
             'X-Requested-With': 'XMLHttpRequest'
         }
     })
-    .then(res => res.json())
-    .then(data => {
-        if (data.success) {
-            closeConfirmModal();
-            // Reload halaman agar list terupdate
-            window.location.reload();
-        }
-    })
-    .catch(err => {
-        console.error('Gagal konfirmasi:', err);
-        btn.textContent = 'Ya, Sudah Diproses';
-        btn.disabled = false;
-    });
-}
-
-// --- GLOBAL CLICK LISTENER (GABUNGAN) ---
-window.onclick = function(event) {
-    
-    // Logika Dropdown Profile
-    if (!event.target.closest('.profile-btn')) {
-        var dropdowns = document.getElementsByClassName("dropdown-menu");
-        for (var i = 0; i < dropdowns.length; i++) {
-            var openDropdown = dropdowns[i];
-            if (openDropdown.style.display === "block") {
-                openDropdown.style.display = "none";
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                closeConfirmModal();
+                // Reload halaman agar list terupdate
+                window.location.reload();
             }
-        }
-    }
-
-    // Logika Notif Dropdown (tutup jika klik di luar)
-    if (!event.target.closest('.notif-wrapper')) {
-        var notifDropdown = document.getElementById('notifDropdown');
-        if (notifDropdown) notifDropdown.classList.remove('active');
-    }
-
-    // Logika Menutup Modal jika klik di area gelap (overlay)
-    if (detailModal && event.target == detailModal) {
-        closeDetailModal();
-    }
-    if (reminderModal && event.target == reminderModal) {
-        closeReminderModal();
-    }
-    if (confirmModal && event.target == confirmModal) {
-        closeConfirmModal();
-    }
-}
-
-// --- 4. SINKRONISASI TOAST & LOGIC ---
-function triggerSync() {
-    var loadingModal = document.getElementById('loadingModal');
-    const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-
-    // 1. Show Loading Modal
-    if (loadingModal) loadingModal.style.display = 'flex';
-
-    // 2. AJAX Request
-    fetch('/sync-now', { 
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRF-TOKEN': csrfToken
-        }
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (loadingModal) loadingModal.style.display = 'none'; // Hide modal
-
-        if (data.success) {
-            // Show Success Toast
-            var toast = document.getElementById("syncToast");
-            if (toast) {
-                toast.className = "toast-notification show";
-                setTimeout(function(){ toast.className = toast.className.replace("show", ""); }, 3000);
-            }
-            
-            // Reload page to reflect changes
-            setTimeout(() => {
-                location.reload();
-            }, 1000); 
-
-        } else {
-             Swal.fire({
-                icon: 'error',
-                title: 'Gagal',
-                text: data.message || 'Sinkronisasi gagal.',
-                confirmButtonColor: '#dc2626'
-            });
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        if (loadingModal) loadingModal.style.display = 'none';
-        Swal.fire({
-            icon: 'error',
-            title: 'Kesalahan',
-            text: 'Terjadi kesalahan sistem.',
-            confirmButtonColor: '#dc2626'
+        })
+        .catch(err => {
+            console.error('Gagal konfirmasi:', err);
+            btn.textContent = 'Ya, Sudah Diproses';
+            btn.disabled = false;
         });
-    });
 }
 
-// --- 5. NOTIFICATION LOGIC ---
-function toggleNotifDropdown() {
-    var dropdown = document.getElementById('notifDropdown');
-    if (dropdown.classList.contains('active')) {
-        dropdown.classList.remove('active');
-    } else {
-        dropdown.classList.add('active');
-        fetchNotifications();
-    }
-}
+// --- GLOBAL CLICK LISTENER (Now in app-common.js) ---
 
-function fetchNotifications() {
-    fetch('/notifications', {
-        headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }
-    })
-    .then(res => res.json())
-    .then(data => {
-        renderNotifications(data.notifications);
-        updateBadge(data.unread_count);
-    })
-    .catch(err => console.error('Gagal fetch notifikasi:', err));
-}
+// --- 4. SINKRONISASI LOGIC (Now in app-common.js) ---
 
-function renderNotifications(notifications) {
-    var list = document.getElementById('notifList');
-
-    if (!notifications || notifications.length === 0) {
-        list.innerHTML = '<div class="notif-empty">' +
-            '<i class="ph-light ph-bell-slash" style="font-size: 32px; color: #9ca3af;"></i>' +
-            '<p>Belum ada notifikasi</p></div>';
-        return;
-    }
-
-    var html = '';
-    notifications.forEach(function(n) {
-        var unreadClass = n.read ? '' : ' unread';
-        var clickAction = n.read ? '' : ' onclick="markNotifRead(\'' + n.id + '\')"';
-        html += '<div class="notif-item' + unreadClass + '"' + clickAction + '>' +
-            '<div class="notif-content">' +
-                '<p class="notif-title">' + n.title + '</p>' +
-                '<p class="notif-message">' + n.message + '</p>' +
-                '<span class="notif-time">' + n.time + '</span>' +
-            '</div>' +
-        '</div>';
-    });
-    list.innerHTML = html;
-}
-
-function updateBadge(count) {
-    var badge = document.getElementById('notifBadge');
-    if (count > 0) {
-        badge.textContent = count > 99 ? '99+' : count;
-        badge.style.display = 'flex';
-    } else {
-        badge.style.display = 'none';
-    }
-}
-
-function markAllRead() {
-    const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-    fetch('/notifications/mark-read', {
-        method: 'POST',
-        headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json',
-            'X-CSRF-TOKEN': csrfToken,
-            'X-Requested-With': 'XMLHttpRequest'
-        }
-    })
-    .then(res => res.json())
-    .then(data => {
-        if (data.success) {
-            fetchNotifications();
-        }
-    })
-    .catch(err => console.error('Gagal mark read:', err));
-}
-
-function markNotifRead(notifId) {
-    const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-    fetch('/notifications/' + notifId + '/read', {
-        method: 'POST',
-        headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json',
-            'X-CSRF-TOKEN': csrfToken,
-            'X-Requested-With': 'XMLHttpRequest'
-        }
-    })
-    .then(res => res.json())
-    .then(data => {
-        if (data.success) {
-            fetchNotifications();
-        }
-    })
-    .catch(err => console.error('Gagal mark notif:', err));
-}
+// --- 5. NOTIFICATION LOGIC (Now in app-common.js) ---
 
 // Auto-fetch notifications on load
-// Prevent dragging on sidebar elements
-document.addEventListener('dragstart', function(event) {
-    if (event.target.closest('.sidebar')) {
-        event.preventDefault();
-    }
-});
+// Side bar drag prevention moved to app-common.js
 
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     fetchNotifications();
 });

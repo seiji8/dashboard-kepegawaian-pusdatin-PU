@@ -12,43 +12,10 @@
 </head>
 <body>
 
-    <aside class="sidebar">
-        <div class="sidebar-header">
-            <a href="{{ route('dashboard') }}" style="text-decoration: none; color: inherit;">
-                <h1 class="logo"><span class="logo-highlight">Dashboard</span>Alert</h1>
-            </a>
-        </div>
-        <nav class="sidebar-nav">
-            <a href="{{ route('dashboard') }}" class="nav-item">
-                <i class="ph-fill ph-squares-four nav-icon"></i>
-                <span class="nav-text">Dashboard</span>
-            </a>
-            <a href="{{ route('data-pegawai') }}" class="nav-item {{ request()->routeIs('data-pegawai') ? 'active' : '' }}">
-                <i class="ph-fill ph-users nav-icon"></i>
-                <span class="nav-text">Data Pegawai</span>
-            </a>
-            <a href="{{ route('konfigurasi-pesan') }}" class="nav-item {{ request()->routeIs('konfigurasi-pesan') ? 'active' : '' }}">
-                <i class="ph-fill ph-chat-dots nav-icon"></i>
-                <span class="nav-text">Konfigurasi Pesan</span>
-            </a>
-            <a href="{{ route('log-aktivitas') }}" class="nav-item active">
-                <i class="ph-fill ph-clock-counter-clockwise nav-icon"></i>
-                <span class="nav-text">Log Aktivitas</span>
-            </a>
-            <a href="{{ route('daftar-admin') }}" class="nav-item {{ request()->routeIs('daftar-admin') ? 'active' : '' }}">
-                <i class="ph-fill ph-shield-check nav-icon"></i>
-                <span class="nav-text">Daftar Admin</span>
-            </a>
-        </nav>
-        <div class="sidebar-footer">
-            <button class="sync-btn" onclick="showSyncToast()">
-                <i class="ph-bold ph-arrows-clockwise sync-img"></i>
-                <span class="sync-icon">Sinkronisasi</span>
-            </button>
-        </div>
-    </aside>
+    <div class="container">
+        @include('partials.sidebar')
 
-    <main class="main-content">
+        <main class="main-content">
         <header class="top-navbar">
             <div class="welcome-section">
                 <h2 class="welcome-title">Selamat Datang</h2>
@@ -254,156 +221,26 @@
             @endif
         </div>
         </div><!-- end content-area -->
-    </main>
-
-    <!-- SYNC TOAST NOTIFICATION -->
-    <div id="syncToast" class="toast-notification">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-            <polyline points="22 4 12 14.01 9 11.01"></polyline>
-        </svg>
-        <span>Sinkronisasi Data Berhasil!</span>
-    </div>
-
     <script>
-        // SINKRONISASI TOAST
-        function showSyncToast() {
-            var toast = document.getElementById("syncToast");
-            toast.className = "toast-notification show";
-            setTimeout(function(){ 
-                toast.className = toast.className.replace("show", ""); 
-            }, 3000);
-        }
-
         // RESET FILTER
         function resetFilter() {
             document.getElementById('filterForm').reset();
             window.location.href = "{{ route('log-aktivitas') }}";
         }
 
-    // === NAVBAR: DROPDOWN PROFILE ===
-    function toggleDropdown() {
-        var dropdown = document.getElementById("profileDropdown");
-        if (dropdown.style.display === "block") {
-            dropdown.style.display = "none";
-        } else {
-            dropdown.style.display = "block";
-        }
-    }
-
-    // === NAVBAR: NOTIFIKASI ===
-    function toggleNotifDropdown() {
-        var dropdown = document.getElementById('notifDropdown');
-        if (dropdown.classList.contains('active')) {
-            dropdown.classList.remove('active');
-        } else {
-            dropdown.classList.add('active');
-            fetchNotifications();
-        }
-    }
-
-    function fetchNotifications() {
-        fetch('/notifications', {
-            headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }
-        })
-        .then(res => res.json())
-        .then(data => {
-            renderNotifications(data.notifications);
-            updateBadge(data.unread_count);
-        })
-        .catch(err => console.error('Gagal fetch notifikasi:', err));
-    }
-
-    function renderNotifications(notifications) {
-        var list = document.getElementById('notifList');
-        if (!notifications || notifications.length === 0) {
-            list.innerHTML = '<div class="notif-empty">' +
-                '<i class="ph-light ph-bell-slash" style="font-size: 32px; color: #9ca3af;"></i>' +
-                '<p>Belum ada notifikasi</p></div>';
-            return;
-        }
-        var html = '';
-        notifications.forEach(function(n) {
-            var unreadClass = n.read ? '' : ' unread';
-            var clickAction = n.read ? '' : ' onclick="markNotifRead(\'' + n.id + '\')"}'; 
-            html += '<div class="notif-item' + unreadClass + '"' + clickAction + '>' +
-                '<div class="notif-content">' +
-                    '<p class="notif-title">' + n.title + '</p>' +
-                    '<p class="notif-message">' + n.message + '</p>' +
-                    '<span class="notif-time">' + n.time + '</span>' +
-                '</div></div>';
+        // Use addEventListener instead of window.onclick to avoid overriding app-common.js
+        window.addEventListener('click', function(event) {
+            // Add any view-specific click logic here if needed
         });
-        list.innerHTML = html;
-    }
-
-    function updateBadge(count) {
-        var badge = document.getElementById('notifBadge');
-        if (count > 0) {
-            badge.textContent = count > 99 ? '99+' : count;
-            badge.style.display = 'flex';
-        } else {
-            badge.style.display = 'none';
-        }
-    }
-
-    function markAllRead() {
-        fetch('/notifications/mark-read', {
-            method: 'POST',
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                'X-Requested-With': 'XMLHttpRequest'
-            }
-        })
-        .then(res => res.json())
-        .then(data => { if (data.success) fetchNotifications(); })
-        .catch(err => console.error('Gagal mark read:', err));
-    }
-
-    function markNotifRead(notifId) {
-        fetch('/notifications/' + notifId + '/read', {
-            method: 'POST',
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                'X-Requested-With': 'XMLHttpRequest'
-            }
-        })
-        .then(res => res.json())
-        .then(data => { if (data.success) fetchNotifications(); })
-        .catch(err => console.error('Gagal mark notif:', err));
-    }
-
-    // Prevent dragging on sidebar elements and profile picture
-    document.addEventListener('dragstart', function(event) {
-        if (event.target.closest('.sidebar') || event.target.closest('.profile-btn') || event.target.tagName === 'IMG') {
-            event.preventDefault();
-        }
-    });
-
-    document.addEventListener('DOMContentLoaded', function() {
-        fetchNotifications();
-    });
-
-    // Close Dropdowns on outside click
-    window.addEventListener('click', function(e){
-        // Navbar: tutup profile dropdown
-        if (!e.target.closest('.profile-btn')) {
-            var dropdowns = document.getElementsByClassName("dropdown-menu");
-            for (var i = 0; i < dropdowns.length; i++) {
-                if (dropdowns[i].style.display === "block") dropdowns[i].style.display = "none";
-            }
-        }
-        // Navbar: tutup notif dropdown
-        if (!e.target.closest('.notif-wrapper')) {
-            var notifDropdown = document.getElementById('notifDropdown');
-            if (notifDropdown) notifDropdown.classList.remove('active');
-        }
-    });
-
     </script>
+
+        </main>
+    </div>
+
+    @include('partials.sync_loading')
+
+    <script src="{{ asset('js/app-common.js') }}"></script>
+    <script src="{{ asset('js/dashboard.js') }}"></script>
     @include('partials.change_password_modal')
 </body>
 </html>

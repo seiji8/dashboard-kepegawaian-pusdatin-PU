@@ -110,6 +110,7 @@ public function confirmTracker(Request $request, $id)
 public function syncData()
 {
     try {
+        set_time_limit(300);
         // 1. Sync E-HRM (API)
         \Illuminate\Support\Facades\Artisan::call('ehrm:sync');
         

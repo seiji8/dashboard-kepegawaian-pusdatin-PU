@@ -26,7 +26,7 @@ class SyncEhrmData extends Command
 
         // 2. Login ke API Gateway
         $this->info('🔑 Sedang login...');
-        $loginResponse = Http::withHeaders([
+        $loginResponse = Http::timeout(30)->withHeaders([
             'X-DreamFactory-Api-Key' => $apiKey,
         ])->post("$baseUrl/user/login", [
             'email' => $email,
@@ -48,7 +48,7 @@ class SyncEhrmData extends Command
         // TAHAP 1: SINKRONISASI DATA UTAMA PEGAWAI
         // ============================================================
         $this->info('⬇️  [1/4] Mengunduh data utama pegawai...');
-        $pegawaiResponse = Http::withHeaders([
+        $pegawaiResponse = Http::timeout(60)->withHeaders([
             'X-DreamFactory-Api-Key' => $apiKey,
             'X-DreamFactory-Session-Token' => $token,
         ])->get("$baseUrl/v1/ehrm/pegawai");
@@ -93,7 +93,7 @@ class SyncEhrmData extends Command
         // TAHAP 2: RIWAYAT JABATAN
         // ============================================================
         $this->info('⬇️  [2/4] Mengunduh Riwayat Jabatan...');
-        $riwResponse = Http::withHeaders([
+        $riwResponse = Http::timeout(60)->withHeaders([
             'X-DreamFactory-Api-Key' => $apiKey,
             'X-DreamFactory-Session-Token' => $token,
         ])->get("$baseUrl/v1/ehrm/riw");
@@ -147,7 +147,7 @@ class SyncEhrmData extends Command
         // TAHAP 3: RIWAYAT ANGKA KREDIT
         // ============================================================
         $this->info('⬇️  [3/4] Mengunduh Riwayat Angka Kredit...');
-        $akResponse = Http::withHeaders([
+        $akResponse = Http::timeout(60)->withHeaders([
             'X-DreamFactory-Api-Key' => $apiKey,
             'X-DreamFactory-Session-Token' => $token,
         ])->get("$baseUrl/v1/ehrm/riw/angka-kredit");
@@ -197,7 +197,7 @@ class SyncEhrmData extends Command
         foreach ($allPegawai as $peg) {
             $nip = $peg->nip;
             
-            $diklatResp = Http::withHeaders([
+            $diklatResp = Http::timeout(20)->withHeaders([
                 'X-DreamFactory-Api-Key' => $apiKey,
                 'X-DreamFactory-Session-Token' => $token,
             ])->get("$baseUrl/v1/ehrm/riw/diklat", [
