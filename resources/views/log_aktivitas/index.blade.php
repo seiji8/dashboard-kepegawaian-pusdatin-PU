@@ -184,8 +184,20 @@
                         </tr>
                         @empty
                         <tr>
-                            <td colspan="4" style="text-align: center; padding: 40px; color: #9ca3af;">
-                                Tidak ada data log aktivitas
+                            <td colspan="4" style="padding: 0; border: none;">
+                                <div class="empty-state-container">
+                                    <div class="empty-state-content">
+                                        <div class="empty-state-icon">
+                                            <i class="ph-duotone ph-magnifying-glass-minus"></i>
+                                        </div>
+                                        <h4 class="empty-state-title">Data Tidak Ditemukan</h4>
+                                        <p class="empty-state-desc">Maaf, kami tidak dapat menemukan log aktivitas yang sesuai dengan filter pencarian Anda.<br>Silakan sesuaikan kriteria pencarian atau filter tanggal yang digunakan.</p>
+                                        <a href="{{ route('log-aktivitas') }}" class="btn-reset-search" style="cursor: pointer;">
+                                            <i class="ph-bold ph-arrow-counter-clockwise"></i>
+                                            Reset Filter
+                                        </a>
+                                    </div>
+                                </div>
                             </td>
                         </tr>
                         @endforelse

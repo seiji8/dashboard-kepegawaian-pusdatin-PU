@@ -21,11 +21,15 @@ document.addEventListener('DOMContentLoaded', function () {
 // --- NAVBAR: DROPDOWN PROFILE ---
 function toggleDropdown() {
     var dropdown = document.getElementById("profileDropdown");
+    var btn = document.querySelector(".profile-btn");
+    
     if (dropdown) {
         if (dropdown.style.display === "block") {
             dropdown.style.display = "none";
+            if (btn) btn.classList.remove("active");
         } else {
             dropdown.style.display = "block";
+            if (btn) btn.classList.add("active");
         }
     }
 }
@@ -55,6 +59,8 @@ window.onclick = function (event) {
                 dropdowns[i].style.display = "none";
             }
         }
+        var profileBtn = document.querySelector(".profile-btn");
+        if (profileBtn) profileBtn.classList.remove("active");
     }
     // Tutup notif dropdown
     if (!event.target.closest('.notif-wrapper')) {

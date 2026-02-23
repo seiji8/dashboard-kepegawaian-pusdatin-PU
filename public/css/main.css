@@ -413,6 +413,20 @@ body {
     border-color: #d1d5db;
 }
 
+.profile-btn.active {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+}
+
+.profile-btn i.ph-caret-down {
+    transition: transform 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.profile-btn.active i.ph-caret-down {
+    transform: rotate(180deg);
+    color: #3b82f6 !important;
+}
+
 .avatar-circle {
     width: 35px;
     height: 35px;
@@ -2147,16 +2161,52 @@ body {
     gap: 12px;
 }
 
-.select-filter {
-    padding: 10px 16px;
-    border: 1px solid #e5e7eb;
+select.select-filter {
+    appearance: none;
+    -webkit-appearance: none;
+    padding: 10px 40px 10px 16px;
+    border: 1px solid #d1d5db;
     border-radius: 8px;
     font-family: 'Poppins', sans-serif;
     font-size: 14px;
+    font-weight: 500;
     background-color: white;
     color: #374151;
     outline: none;
     cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%236b7280'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    background-size: 16px;
+}
+
+select.select-filter option {
+    color: #9ca3af; /* Gray text by default like the placeholder */
+    background-color: white;
+}
+
+select.select-filter option:checked,
+select.select-filter option:hover {
+    color: #111827; /* Black/Dark text when selected or hovered */
+}
+
+select.select-filter:hover {
+    border-color: #3b82f6;
+    box-shadow: 0 4px 6px rgba(59, 130, 246, 0.1);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%233b82f6'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+}
+
+select.select-filter:focus {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+    /* Flipped arrow (points up) */
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%233b82f6'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M5 15l7-7 7 7'%3E%3C/path%3E%3C/svg%3E");
+}
+
+select.select-filter:active {
+    transform: scale(0.97);
 }
 
 .btn-tambah {
@@ -2933,7 +2983,7 @@ body {
     color: #1f2937;
 }
 
-/* Styles untuk Input (Select, Text, Date) */
+/* Styles untuk Input (Text, Date) */
 .filter-input {
     width: 100%;
     padding: 10px 16px;
@@ -2945,10 +2995,38 @@ body {
     outline: none;
     background-color: white;
     height: 44px;
+    transition: all 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
 }
 
 .filter-input:focus {
     border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+}
+
+/* Styles khusus untuk Dropdown (Select) */
+select.filter-input {
+    appearance: none;
+    -webkit-appearance: none;
+    padding-right: 40px; /* Space for arrow */
+    cursor: pointer;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%236b7280'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    background-size: 16px;
+}
+
+select.filter-input:hover {
+    border-color: #3b82f6;
+    box-shadow: 0 4px 6px rgba(59, 130, 246, 0.1);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%233b82f6'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+}
+
+select.filter-input:focus {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%233b82f6'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M5 15l7-7 7 7'%3E%3C/path%3E%3C/svg%3E");
+}
+
+select.filter-input:active {
+    transform: scale(0.97);
 }
 
 /* Input dengan Icon Search di kiri */

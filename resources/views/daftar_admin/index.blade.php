@@ -124,8 +124,20 @@
                         </tr>
                         @empty
                         <tr>
-                            <td colspan="5" style="text-align: center; padding: 40px; color: #9ca3af;">
-                                Tidak ada data admin
+                            <td colspan="5" style="padding: 0; border: none;">
+                                <div class="empty-state-container">
+                                    <div class="empty-state-content">
+                                        <div class="empty-state-icon">
+                                            <i class="ph-duotone ph-magnifying-glass-minus"></i>
+                                        </div>
+                                        <h4 class="empty-state-title">Data Tidak Ditemukan</h4>
+                                        <p class="empty-state-desc">Maaf, kami tidak dapat menemukan data admin dengan kata kunci <br><strong>"{{ request('search') }}"</strong>.<br>Silakan periksa kembali ejaan Anda atau gunakan kata kunci yang berbeda.</p>
+                                        <a href="{{ route('daftar-admin') }}" class="btn-reset-search">
+                                            <i class="ph-bold ph-arrow-counter-clockwise"></i>
+                                            Reset Pencarian
+                                        </a>
+                                    </div>
+                                </div>
                             </td>
                         </tr>
                         @endforelse
