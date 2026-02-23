@@ -81,13 +81,11 @@ body {
     white-space: nowrap;
     /* DITAMBAHKAN: Mencegah teks wrap */
     -webkit-user-drag: none;
-    user-drag: none;
     user-select: none;
 }
 
 .sidebar a, .sidebar img, .sidebar i, .sidebar span {
     -webkit-user-drag: none;
-    user-drag: none;
     user-select: none;
 }
 
@@ -4240,4 +4238,142 @@ p {
 .doc-section.borderless {
     border: none;
     box-shadow: none;
+}
+
+/* =========================================
+   EMPTY STATE UI (AWWWARDS CLASS)
+   ========================================= */
+.empty-state-container {
+    padding: 80px 20px;
+    text-align: center;
+    background-color: white; /* Match table logic */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.empty-state-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    max-width: 500px;
+    margin: 0 auto;
+    animation: emptyFadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.empty-state-icon {
+    width: 120px;
+    height: 120px;
+    background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 28px;
+    box-shadow: 0 15px 35px rgba(59, 130, 246, 0.15), inset 0 0 0 4px white;
+    position: relative;
+}
+
+.empty-state-icon::after {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    border: 2px dashed #93c5fd;
+    animation: emptySpinSlow 15s linear infinite;
+    top: -6px;
+    left: -6px;
+    box-sizing: content-box;
+    padding: 4px;
+}
+
+.empty-state-icon i {
+    font-size: 56px;
+    color: #3b82f6;
+    animation: emptyPulse 2s ease-in-out infinite alternate;
+}
+
+.empty-state-title {
+    font-size: 24px;
+    font-weight: 800;
+    color: #1e3a8a;
+    margin-bottom: 12px;
+    letter-spacing: -0.5px;
+}
+
+.empty-state-desc {
+    font-size: 15px;
+    color: #64748b;
+    line-height: 1.7;
+    margin-bottom: 32px;
+}
+
+.empty-state-desc strong {
+    color: #0f172a;
+    background: #f1f5f9;
+    padding: 4px 8px;
+    border-radius: 6px;
+    display: inline-block;
+    margin: 4px 0;
+    font-weight: 600;
+    border: 1px solid #e2e8f0;
+}
+
+.btn-reset-search {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 14px 28px;
+    background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+    color: white;
+    font-weight: 600;
+    font-size: 15px;
+    border-radius: 50px;
+    text-decoration: none;
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    box-shadow: 0 8px 20px rgba(59, 130, 246, 0.3);
+}
+
+.btn-reset-search:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 25px rgba(59, 130, 246, 0.4);
+    background: linear-gradient(135deg, #1e40af 0%, #2563eb 100%);
+    color: white; /* Maintain color on hover */
+}
+
+.btn-reset-search:active {
+    transform: translateY(0);
+}
+
+.btn-reset-search i {
+    font-size: 20px;
+    transition: transform 0.3s ease;
+}
+
+.btn-reset-search:hover i {
+    transform: rotate(-45deg);
+}
+
+@keyframes emptyFadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes emptySpinSlow { 
+    0% { transform: rotate(0deg); } 
+    100% { transform: rotate(360deg); } 
+}
+
+@keyframes emptyPulse {
+    0% { transform: scale(1); }
+    100% { transform: scale(1.05); }
 }
