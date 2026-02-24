@@ -1,0 +1,50 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: dashboard-kepegawaian-app
+    container_name: dashboard-kepegawaian-app
+    restart: unless-stopped
+    working_dir: /var/www
+    volumes:
+      - ./:/var/www
+    networks:
+      - dashboard-network
+
+  webserver:
+    image: nginx:alpine
+    container_name: dashboard-kepegawaian-webserver
+    restart: unless-stopped
+    ports:
+      - "8000:80"
+    volumes:
+      - ./:/var/www
+      - ./docker/nginx/conf.d/:/etc/nginx/conf.d/
+    networks:
+      - dashboard-network
+    depends_on:
+      - app
+
+  db:
+    image: mysql:8.0
+    container_name: dashboard-kepegawaian-db
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: db_kepegawaian
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_PASSWORD: root
+    volumes:
+      - dbdata:/var/lib/mysql
+    ports:
+      - "33061:3306" # Pakai port 33061 di laptop biar gak bentrok sama MySQL bawaan Laragon
+    networks:
+      - dashboard-network
+
+networks:
+  dashboard-network:
+    driver: bridge
+
+volumes:
+  dbdata:
+    driver: local
