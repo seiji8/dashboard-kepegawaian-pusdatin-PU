@@ -239,6 +239,12 @@ body {
     background: #f9fafb;
 }
 
+.btn-icon-header.active {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+    z-index: 10;
+}
+
 .btn-icon-header .badge,
 .notif-badge {
     position: absolute;
@@ -1432,32 +1438,49 @@ body {
 .table-responsive {
     overflow-x: auto;
     margin-bottom: 24px;
-    border: 1px solid #e5e7eb;
-    border-radius: 8px;
+    border-radius: 12px; /* Lebih membulat */
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03); /* Tambah soft shadow */
+    border: 1px solid #f3f4f6; /* Border luaran super tipis/soft */
 }
 
 .data-table {
     width: 100%;
     border-collapse: collapse;
     min-width: 800px;
+    background-color: white; /* Base tabel putih */
 }
 
 .data-table th {
-    background-color: #f9fafb;
-    padding: 16px;
+    background-color: #f8fafc; /* Biru keputihan sangat soft seperti Vercel */
+    padding: 16px 20px;
     text-align: left;
     font-weight: 600;
-    color: #374151;
-    font-size: 14px;
-    border-bottom: 1px solid #e5e7eb;
+    color: #64748b; /* Abu-abu kebiruan untuk teks header */
+    font-size: 13px; /* Header sedikit lebih kecil */
+    text-transform: uppercase; /* Kesan tegas/korporat */
+    letter-spacing: 0.05em; /* Spasi antar huruf */
+    border-bottom: 2px solid #e2e8f0; /* Garis bawah header sedikit lebih tebal */
+    white-space: nowrap;
 }
 
 .data-table td {
-    padding: 16px;
-    color: #374151;
+    padding: 18px 20px; /* Padding lebih luas agar nafas lega */
+    color: #1e293b; /* Teks isi lebih gelap tegas */
     font-size: 14px;
-    border-bottom: 1px solid #e5e7eb;
+    font-weight: 500;
+    border-bottom: 1px solid #f1f5f9; /* Garis batas baris sangat tipis */
     vertical-align: middle;
+    transition: background-color 0.2s ease; /* Transisi halus nunggu hover */
+}
+
+/* Zebra Striping Halus */
+.data-table tbody tr:nth-child(even) {
+    background-color: #fbfcfd;
+}
+
+/* Hover State - Baris menyala saat didekati mouse */
+.data-table tbody tr:hover {
+    background-color: #eff6ff !important; /* Biru super muda */
 }
 
 .data-table tr:last-child td {
@@ -1468,32 +1491,45 @@ body {
 .btn-view,
 .btn-delete {
     border: none;
-    border-radius: 8px;
-    width: 36px;
-    height: 36px;
+    border-radius: 8px; /* Mengotak elegan */
+    width: 38px; /* Agak diperbesar dikit */
+    height: 38px;
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    transition: all 0.2s;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05); /* Shadow super tipis */
 }
 
+/* Tombol Biru (Lihat Detail) */
 .btn-view {
-    background-color: #e0f2fe;
-    color: #0284c7;
+    background-color: white;
+    color: #3b82f6; /* Warna ikon biru primer */
+    border: 1px solid #e5e7eb;
 }
 
 .btn-view:hover {
-    background-color: #bae6fd;
+    background-color: #3b82f6;
+    color: white;
+    border-color: #3b82f6;
+    transform: translateY(-2px); /* Efek melayang */
+    box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.3);
 }
 
+/* Tombol Merah (Hapus) */
 .btn-delete {
-    background-color: #fee2e2;
-    color: #ef4444;
+    background-color: white;
+    color: #ef4444; /* Warna merah warning */
+    border: 1px solid #e5e7eb;
 }
 
 .btn-delete:hover {
-    background-color: #fecaca;
+    background-color: #ef4444;
+    color: white;
+    border-color: #ef4444;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px -1px rgba(239, 68, 68, 0.3);
 }
 
 /* Pagination */

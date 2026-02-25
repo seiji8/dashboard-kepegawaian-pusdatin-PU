@@ -37,11 +37,15 @@ function toggleDropdown() {
 // --- NAVBAR: NOTIFIKASI ---
 function toggleNotifDropdown() {
     var dropdown = document.getElementById('notifDropdown');
+    var btn = document.querySelector('.btn-icon-header');
+
     if (dropdown) {
         if (dropdown.classList.contains('active')) {
             dropdown.classList.remove('active');
+            if (btn) btn.classList.remove('active');
         } else {
             dropdown.classList.add('active');
+            if (btn) btn.classList.add('active');
             if (typeof fetchNotifications === 'function') {
                 fetchNotifications();
             }
@@ -66,6 +70,8 @@ window.onclick = function (event) {
     if (!event.target.closest('.notif-wrapper')) {
         var notifDropdown = document.getElementById('notifDropdown');
         if (notifDropdown) notifDropdown.classList.remove('active');
+        var notifBtn = document.querySelector('.btn-icon-header');
+        if (notifBtn) notifBtn.classList.remove('active');
     }
 }
 
