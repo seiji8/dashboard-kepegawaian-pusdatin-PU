@@ -116,6 +116,9 @@
 
                         card.style.display = shouldShow ? 'grid' : 'none';
                     });
+
+                    // Remove focus to flip the arrow back immediately
+                    filterElement.blur();
                 }
             </script>
 
@@ -154,7 +157,7 @@
                     <button class="btn-icon btn-edit" onclick="openEditModal(this)">
                         <i class="ph-bold ph-pencil-simple"></i>
                     </button>
-                    <button class="btn-icon btn-delete" onclick="openDeleteModal('{{ $rule->id }}')">
+                    <button class="btn-icon btn-delete" onclick="openDeletePesanModal('{{ $rule->id }}')">
                         <i class="ph-bold ph-trash"></i>
                     </button>
                 </div>
@@ -305,8 +308,8 @@
                     <i class="ph-fill ph-warning" style="color: #fbbf24; font-size: 24px;"></i>
                 </h3>
                 <div class="delete-actions">
-                    <button class="btn-pill confirm-delete" onclick="confirmDelete()">Yakin</button>
-                    <button class="btn-pill" onclick="closeDeleteModal()">Batal</button>
+                    <button class="btn-pill confirm-delete" onclick="confirmDeletePesan()">Yakin</button>
+                    <button class="btn-pill" onclick="closeDeletePesanModal()">Batal</button>
                 </div>
             </div>
         </div>
@@ -462,17 +465,17 @@
     });
 
     // === HAPUS ===
-    function openDeleteModal(id) {
+    function openDeletePesanModal(id) {
         currentDeleteId = id;
         document.getElementById('modalHapusPesan').style.display = 'flex';
     }
 
-    function closeDeleteModal() {
+    function closeDeletePesanModal() {
         document.getElementById('modalHapusPesan').style.display = 'none';
         currentDeleteId = null;
     }
 
-    function confirmDelete() {
+    function confirmDeletePesan() {
         if (!currentDeleteId) return;
 
         fetch(`/konfigurasi-pesan/${currentDeleteId}`, {
@@ -497,18 +500,6 @@
         });
     }
 
-    <script>
-        // === GLOBAL VIEW-SPECIFIC ===
-        window.addEventListener('click', function(event) {
-            const modals = [
-                document.getElementById('modalTambahPesan'),
-                document.getElementById('modalEditPesan'),
-                document.getElementById('modalHapusPesan')
-            ];
-            modals.forEach(modal => {
-                if (event.target == modal) modal.style.display = "none";
-            });
-        });
     </script>
 
     @include('partials.sync_loading')

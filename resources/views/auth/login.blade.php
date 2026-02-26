@@ -56,10 +56,13 @@
                 <input type="email" id="email" name="email" 
                        placeholder="Masukkan Email" 
                        value="{{ old('email') }}"
-                       class="w-full py-2.5 px-3 border border-[#CBD5E1] rounded-md focus:outline-none focus:ring-2 focus:ring-[#FFC928] text-sm" 
+                       class="w-full py-2.5 px-3 border @error('email') border-red-500 @else border-[#CBD5E1] @enderror rounded-md focus:outline-none focus:ring-2 @error('email') focus:ring-red-500 @else focus:ring-[#FFC928] @enderror text-sm" 
                        style="padding-left: 48px;"
                        required autofocus>
             </div>
+            @error('email')
+                <p class="text-red-500 text-xs italic mt-1">{{ $message }}</p>
+            @enderror
           </div>
 
           <div>
@@ -68,11 +71,14 @@
                 <i class="ph-bold ph-lock-key icon-input"></i>
                 <input type="password" id="password" name="password" 
                        placeholder="Masukkan Kata Sandi" 
-                       class="w-full py-2.5 px-3 border border-[#CBD5E1] rounded-md focus:outline-none focus:ring-2 focus:ring-[#FFC928] text-sm" 
+                       class="w-full py-2.5 px-3 border @error('password') border-red-500 @else border-[#CBD5E1] @enderror rounded-md focus:outline-none focus:ring-2 @error('password') focus:ring-red-500 @else focus:ring-[#FFC928] @enderror text-sm" 
                        style="padding-left: 48px; padding-right: 48px;"
                        required>
                 <i class="ph-bold ph-eye-slash icon-toggle" id="toggleIcon"></i>
             </div>
+            @error('password')
+                <p class="text-red-500 text-xs italic mt-1">{{ $message }}</p>
+            @enderror
           </div>
 
           <div class="text-right">

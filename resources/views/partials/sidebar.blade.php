@@ -6,23 +6,55 @@
     </div>
     <nav class="sidebar-nav">
         <a href="{{ route('dashboard') }}" class="nav-item {{ request()->routeIs('dashboard') ? 'active' : '' }}">
-            <i class="ph-fill ph-squares-four nav-icon"></i>
+            <svg class="nav-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="4" y="4" width="6" height="8" rx="1" />
+                <rect x="4" y="16" width="6" height="4" rx="1" />
+                <rect x="14" y="12" width="6" height="8" rx="1" />
+                <rect x="14" y="4" width="6" height="4" rx="1" />
+            </svg>
             <span class="nav-text">Dashboard</span>
         </a>
         <a href="{{ route('data-pegawai') }}" class="nav-item {{ request()->routeIs('data-pegawai') ? 'active' : '' }}">
-            <i class="ph-fill ph-users nav-icon"></i>
+            <svg class="nav-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="9" cy="7" r="4" />
+                <path d="M3 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
+                <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                <path d="M21 21v-2a4 4 0 0 0 -3 -3.85" />
+            </svg>
             <span class="nav-text">Data Pegawai</span>
         </a>
         <a href="{{ route('konfigurasi-pesan') }}" class="nav-item {{ request()->routeIs('konfigurasi-pesan') ? 'active' : '' }}">
-            <i class="ph-fill ph-chat-dots nav-icon"></i>
+            <svg class="nav-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 19H5a2 2 0 0 1 -2 -2V7a2 2 0 0 1 2 -2h14a2 2 0 0 1 2 2v4" />
+                <path d="M3 7l9 6l9 -6" />
+                <circle cx="19" cy="18" r="2" />
+                <path d="M19 14.5v1.5" />
+                <path d="M19 20v1.5" />
+                <path d="M22.032 16.25l-1.3 .75" />
+                <path d="M17.27 19.75l-1.3 .75" />
+                <path d="M15.97 16.25l1.3 .75" />
+                <path d="M20.733 19.75l1.3 .75" />
+            </svg>
             <span class="nav-text">Konfigurasi Pesan</span>
         </a>
         <a href="{{ route('log-aktivitas') }}" class="nav-item {{ request()->routeIs('log-aktivitas') ? 'active' : '' }}">
-            <i class="ph-fill ph-clock-counter-clockwise nav-icon"></i>
+            <svg class="nav-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <!-- Selembar kertas / Paper di belakang folder -->
+                <path d="M8 8V5a1 1 0 0 1 1 -1h6a1 1 0 0 1 1 1v5" />
+                <path d="M10 8h4" />
+                <!-- Folder depan (tertutup) -->
+                <path d="M5 8h4l2 3h8a2 2 0 0 1 2 2v5a2 2 0 0 1 -2 2H5a2 2 0 0 1 -2 -2v-8a2 2 0 0 1 2 -2z" />
+            </svg>
             <span class="nav-text">Log Aktivitas</span>
         </a>
         <a href="{{ route('daftar-admin') }}" class="nav-item {{ request()->routeIs('daftar-admin') ? 'active' : '' }}">
-            <i class="ph-fill ph-shield-check nav-icon"></i>
+            <svg class="nav-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="10" cy="7" r="4" />
+                <path d="M4 21v-2a4 4 0 0 1 4 -4h2.5" />
+                <rect x="15" y="14" width="6" height="7" rx="1" />
+                <path d="M16 14v-2a2 2 0 0 1 4 0v2" />
+                <path d="M18 18v.01" />
+            </svg>
             <span class="nav-text">Daftar Admin</span>
         </a>
     </nav>
