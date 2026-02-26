@@ -42,8 +42,9 @@ class DataPegawaiController extends Controller
             return response()->json(['success' => false, 'message' => 'Pegawai tidak ditemukan'], 404);
         }
 
-        // Hitung total angka kredit
-        $totalKredit = $pegawai->riwayat_angka_kredit->sum('total_kredit');
+        // AK Terbaru (Bukan sum, tapi nilai akumulasi dari data terakhir)
+        $latestAK = $pegawai->riwayat_angka_kredit->sortByDesc('tmt_angka_kredit')->first();
+        $totalKredit = $latestAK ? $latestAK->total_kredit : 0;
 
         // Logic TMT 2 Tahun (Next KGB)
         $nextKgb = '-';

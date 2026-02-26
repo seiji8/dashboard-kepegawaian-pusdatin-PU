@@ -15,6 +15,6 @@ class RiwayatAngkaKredit extends Model
     // Relasi Balik: Nilai ini punya siapa?
     public function pegawai()
     {
-        return $this->belongsTo(Pegawai::class, 'nip', 'nip');
+        return $this->belongsTo(Pegawai::class, 'id_pegawai_api', 'id_pegawai_api');
     }
 }

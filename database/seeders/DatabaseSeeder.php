@@ -73,17 +73,24 @@ class DatabaseSeeder extends Seeder
             'tmt_kgb_terakhir' => '2026-02-01',
         ]);
         
-        // ... (Riwayat Angka Kredit tetap sama) ...
-        RiwayatAngkaKredit::create([
-             'nip' => $nip_siti,
-             'nomor_sk' => 'SK-DUMMY-001',
-             'tanggal_sk' => '2022-12-01',
-             'total_kredit' => 55, // Langsung tembak 55 biar lolos
-             'jabatan_saat_penilaian' => 'Pranata Komputer Ahli Pertama',
-         ]);
+        // 4. DATA DUMMY ANGKA KREDIT AWAL
+        \App\Models\RiwayatAngkaKredit::create([
+            'id_pegawai_api' => '102', // Hasan
+            'nomor_sk' => 'SK-DUMMY-001',
+            'tanggal_sk' => '2022-12-01',
+            'total_kredit' => 55, // Lebih dari target 50
+            'jabatan_saat_penilaian' => 'Pranata Komputer Ahli Pertama'
+        ]);
 
+        \App\Models\RiwayatAngkaKredit::create([
+            'id_pegawai_api' => '104', // Bimo (Kekurangan AK)
+            'nomor_sk' => 'SK-DUMMY-002',
+            'tanggal_sk' => '2023-12-01',
+            'total_kredit' => 40, // Kurang dari 50
+            'jabatan_saat_penilaian' => 'Pranata Komputer Ahli Pertama'
+        ]);
 
-        // Pegawai Tambahan (Untuk test fitur KGB)
+        // 5. Pegawai Tambahan (Untuk test fitur KGB)
         // KGB Mendekati: tmt_kgb + 2 tahun = Maret 2026 (H-1 bulan)
         Pegawai::create([
             'id_pegawai_api' => '103',

@@ -255,16 +255,49 @@
                             </div>
                         </div>
 
-                        <!-- TASK: KENAIKAN JENJANG (Placeholder) -->
+                        <!-- TASK: KENAIKAN JENJANG -->
                         <div class="task-card-wrapper">
                             <div class="task-header" onclick="toggleMainTask('task-jenjang', this)">
-                                <div style="background:#1e3a8a; color:white; width:36px; height:36px; border-radius:8px; display:flex; align-items:center; justify-content:center; font-weight:700; margin-right:15px;">0</div>
+                                <div style="background:#1e3a8a; color:white; width:36px; height:36px; border-radius:8px; display:flex; align-items:center; justify-content:center; font-weight:700; margin-right:15px;">{{ $listKenaikanJenjang->count() }}</div>
                                 <span style="font-weight:600; font-size:16px; flex:1;">Kenaikan Jenjang</span>
                                 <svg class="arrow-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
                             </div>
                             <div id="task-jenjang" class="task-sub-container">
-                                <div style="padding: 25px; text-align: center; color: #64748b; font-style: italic; background-color: #f8fafc; border-radius: 0 0 8px 8px;">
-                                    Belum ada tugas untuk saat ini
+                                <div class="sub-table-container active" style="display:block;">
+                                    <table class="custom-table">
+                                        <thead>
+                                            <tr>
+                                                <th>NAMA</th>
+                                                <th>Pangkat Saat Ini</th>
+                                                <th>Status Dokumen</th>
+                                                <th>Aksi</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @forelse($listKenaikanJenjang as $item)
+                                            <tr>
+                                                <td>{{ $item->pegawai->nama }}</td>
+                                                <td>{{ $item->pegawai->pangkat_saat_ini ?? '-' }}</td>
+                                                <td>
+                                                    @if($item->status_saat_ini == 'Mendekati')
+                                                        <span class="status-badge status-warning">Mendekati</span>
+                                                    @elseif($item->status_saat_ini == 'Usulan')
+                                                        <span class="status-badge status-ok">Usulan</span>
+                                                    @else
+                                                        <span class="status-badge status-missing">{{ $item->status_saat_ini }}</span>
+                                                    @endif
+                                                </td>
+                                                <td>
+                                                    <button class="btn-action-view" onclick="openDetailModal('{{ $item->pegawai->nip }}')">
+                                                        <i class="ph-bold ph-eye"></i>
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                            @empty
+                                            <tr><td colspan="4" style="text-align:center;">Tidak ada usulan kenaikan jenjang.</td></tr>
+                                            @endforelse
+                                        </tbody>
+                                    </table>
                                 </div>
                             </div>
                         </div>

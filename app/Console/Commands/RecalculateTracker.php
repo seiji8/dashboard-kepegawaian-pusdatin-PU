@@ -148,10 +148,14 @@ class RecalculateTracker extends Command
                     // pegawai dummy belum diset tipe jabatannya. Namun ref_matriks_jf hanya mengakomodir jabatan Fungsional.
                     // Jika ingin ketat, buka komen: if ($pegawai->tipe_jabatan == 'Fungsional') 
 
-                    // Penentuan Kategori berdasarkan matriks di Memory (Cache)
-                    $matriks = $matriksKamus->where('jabatan_asal', $pegawai->jenjang)
-                        ->where('pangkat_asal', $pegawai->pangkat_golongan)
-                        ->first();
+                    // Normalisasi case karena API bisa mengembalikan "AHLI MADYA" (all caps) sedangkan matriks kita "Ahli Madya"
+                    $normalizedJenjang = ucwords(strtolower(trim($pegawai->jenjang)));
+                    
+                    // Penentuan Kategori berdasarkan matriks di Memory (Cache) 
+                    $matriks = $matriksKamus->first(function ($item) use ($normalizedJenjang, $pegawai) {
+                        return strtolower($item->jabatan_asal) === strtolower($normalizedJenjang) && 
+                               strtolower($item->pangkat_asal) === strtolower(trim($pegawai->pangkat_golongan));
+                    });
 
                     if ($matriks) {
                         $targetAK = $matriks->target_ak;
@@ -162,6 +166,9 @@ class RecalculateTracker extends Command
                         $kategoriSekarang = $isKenaikanJenjang ? 'KJ_Jafung' : 'KP_Jafung';
                         $kategoriLawan = $isKenaikanJenjang ? 'KP_Jafung' : 'KJ_Jafung';
                         $dokumenTotal = $isKenaikanJenjang ? 3 : 2;
+                        
+                        $namaProses = $isKenaikanJenjang ? 'Kenaikan Jenjang' : 'Kenaikan Pangkat';
+                        $tujuanProses = $isKenaikanJenjang ? ($matriks->next_jenjang ?? 'Jenjang Berikutnya') : ($matriks->next_pangkat ?? 'Pangkat Berikutnya');
 
                         // Ambil 1 Riwayat AK terbaru secara Eager Loaded (sudah discore order desc)
                         $latestAK = $pegawai->riwayatAngkaKredit->first();
@@ -175,7 +182,7 @@ class RecalculateTracker extends Command
                             if ($tmtAK->greaterThan($tmtPangkat)) {
                                 $currentAK = $latestAK->total_kredit;
                             }
-                        } elseif ($latestAK && !$pegawai->tmt_pangkat_terakhir) {
+                        } elseif ($latestAK && empty($pegawai->tmt_pangkat_terakhir)) {
                             // Anggap valid jika tmt pangkat terakhir belum terdokumentasi
                             $currentAK = $latestAK->total_kredit;
                         }
@@ -187,8 +194,9 @@ class RecalculateTracker extends Command
                             $akTriwulanBaik = ($koefisienTahunan / 4) * 1.0;
                             $akTriwulanSangatBaik = ($koefisienTahunan / 4) * 1.5;
 
-                            $statusAK = 'Aman';
+                            $statusAK = '';
                             $keteranganAK = '';
+                            $kurangFormat = number_format($kekuranganAK, 3, ',', '.'); 
 
                             $existingAK = DashboardTracker::where('pegawai_id', $pegawai->id_pegawai_api)
                                 ->where('kategori', $kategoriSekarang)
@@ -200,19 +208,22 @@ class RecalculateTracker extends Command
                             if ($isProses) {
                                 $statusAK = 'Proses';
                                 $keteranganAK = 'Sedang diproses admin';
+                            } elseif (is_null($latestAK)) {
+                                $statusAK = 'Usulan'; // Dibuat mode usulan agar menonjol di dashboard (urgent)
+                                $keteranganAK = 'Peringatan: Data Riwayat AK tidak ditemukan di e-HRM. Segera upload/update data Anda.';
                             } else {
                                 if ($kekuranganAK <= 0) {
                                     $statusAK = 'Usulan';
-                                    $namaProses = $isKenaikanJenjang ? 'Kenaikan Jenjang / UKOM' : 'Kenaikan Pangkat';
-                                    $keteranganAK = "AK memenuhi target. Segera usulkan {$namaProses}";
+                                    $keteranganAK = "AK memenuhi target. Segera usulkan {$namaProses} ke {$tujuanProses}";
                                 } elseif ($kekuranganAK <= $akTriwulanBaik) {
                                     $statusAK = 'Mendekati';
-                                    $keteranganAK = "Dapat dicapai dalam 1 Triwulan dengan predikat minimal BAIK";
+                                    $keteranganAK = "Kurang {$kurangFormat} AK. Dapat dicapai dalam 1 Triwulan ke depan dengan predikat minimal BAIK";
                                 } elseif ($kekuranganAK <= $akTriwulanSangatBaik) {
                                     $statusAK = 'Mendekati';
-                                    $keteranganAK = "Dapat dicapai dalam 1 Triwulan dengan predikat SANGAT BAIK";
+                                    $keteranganAK = "Kurang {$kurangFormat} AK. Dapat dicapai dalam 1 Triwulan ke depan jika mendapat predikat SANGAT BAIK";
                                 } else {
                                     $statusAK = 'Aman';
+                                    $keteranganAK = "Masih kurang {$kurangFormat} AK. Belum bisa dicapai dalam 1 Triwulan ke depan";
                                 }
                             }
 

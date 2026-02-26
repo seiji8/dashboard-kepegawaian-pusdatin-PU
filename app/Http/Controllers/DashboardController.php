@@ -47,6 +47,8 @@ class DashboardController extends Controller
 
         // Kelompokkan berdasarkan Kategori untuk Accordion
         $listKenaikanPangkat = $trackers->where('kategori', 'KP_Jafung'); // Gabung Struktural & Jafung logic nanti
+        $listKenaikanJenjang = $trackers->where('kategori', 'KJ_Jafung'); // Kenaikan Jenjang / UKOM
+        
         $listKGB             = $trackers->where('kategori', 'KGB')->sortBy(function($item) {
             switch ($item->status_saat_ini) {
                 case 'Usulan': return 1;
@@ -56,14 +58,13 @@ class DashboardController extends Controller
             }
         });
         
-        // Pisahkan Struktural vs Fungsional (Asumsi ada logic pembeda, sementara kita filter manual)
-        // Disini saya contohkan filter sederhana
+        // Pisahkan Struktural vs Fungsional berdasarkan tipe_jabatan yang sesungguhnya di database
         $kpStruktural = $listKenaikanPangkat->filter(function($item) {
-            return str_contains($item->pegawai->jabatan_saat_ini, 'Kepala') || str_contains($item->pegawai->jabatan_saat_ini, 'Kabid');
+            return str_contains(strtolower($item->pegawai->tipe_jabatan), 'struktural');
         });
 
         $kpFungsional = $listKenaikanPangkat->filter(function($item) {
-            return !str_contains($item->pegawai->jabatan_saat_ini, 'Kepala');
+            return str_contains(strtolower($item->pegawai->tipe_jabatan), 'fungsional');
         });
 
         // Ambil template manual untuk modal reminder di dashboard
@@ -76,6 +77,7 @@ class DashboardController extends Controller
             'tingkatKepatuhan',
             'kpStruktural',
             'kpFungsional',
+            'listKenaikanJenjang',
             'listKGB',
             'templates'
         ));

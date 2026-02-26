@@ -147,42 +147,57 @@ class SyncEhrmData extends Command
         // TAHAP 3: RIWAYAT ANGKA KREDIT
         // ============================================================
         $this->info('⬇️  [3/4] Mengunduh Riwayat Angka Kredit...');
-        $akResponse = Http::timeout(60)->withHeaders([
-            'X-DreamFactory-Api-Key' => $apiKey,
-            'X-DreamFactory-Session-Token' => $token,
-        ])->get("$baseUrl/v1/ehrm/riw/angka-kredit");
+        
+        $allPegawai = Pegawai::select('nip', 'id_pegawai_api')->get();
+        $bar3 = $this->output->createProgressBar($allPegawai->count());
+        $bar3->start();
 
-        if ($akResponse->successful()) {
-            $dataAK = $akResponse->json()['resource'] ?? $akResponse->json();
-            $bar3 = $this->output->createProgressBar(count($dataAK));
-            $bar3->start();
+        foreach ($allPegawai as $peg) {
+            $nip = $peg->nip;
+            
+            try {
+                if (!$peg->id_pegawai_api) continue;
 
-            foreach ($dataAK as $ak) {
-                $idPegawaiApi = $ak['id_pegawai'] ?? null;
-                if (!$idPegawaiApi) continue;
+                $akResponse = Http::timeout(45)->withHeaders([
+                    'X-DreamFactory-Api-Key' => $apiKey,
+                    'X-DreamFactory-Session-Token' => $token,
+                ])->get("$baseUrl/v1/ehrm/riw/angka-kredit", [
+                    'filter' => "id_pegawai={$peg->id_pegawai_api}"
+                ]);
 
-                $pegawai = Pegawai::where('id_pegawai_api', $idPegawaiApi)->first();
-                
-                if ($pegawai) {
-                    \App\Models\RiwayatAngkaKredit::updateOrCreate(
-                        [
-                            'nip' => $pegawai->nip,
-                            'nomor_sk' => $ak['tknopak'] ?? '-',
-                        ],
-                        [
-                            'tanggal_sk' => $this->parseDate($ak['tktglpak'] ?? null),
-                            'tmt_angka_kredit' => $this->parseDate($ak['tmtakrid'] ?? null),
-                            'kredit_utama' => $ak['tkutama1'] ?? 0,
-                            'kredit_penunjang' => $ak['tkutama2'] ?? 0,
-                            'total_kredit' => $ak['tkutama3'] ?? 0,
-                            'jabatan_saat_penilaian' => $ak['tk_keterangan'] ?? null,
-                        ]
-                    );
+                if ($akResponse->successful()) {
+                    $listAK = $akResponse->json()['resource'] ?? $akResponse->json();
+                    
+                    if (is_array($listAK)) {
+                        // Kosongkan existing AK milik ID_PEGAWAI_API ini untuk menghindari duplikat nomor SK yang persis sama tapi beda field terupdate
+                        \App\Models\RiwayatAngkaKredit::where('id_pegawai_api', $peg->id_pegawai_api)->delete();
+
+                        foreach ($listAK as $ak) {
+                            \App\Models\RiwayatAngkaKredit::create([
+                                'id_pegawai_api' => $peg->id_pegawai_api, // FK kita di DB lokal pakai id_pegawai_api
+                                'nomor_sk' => $ak['tknopak'] ?? '-',
+                                'tanggal_sk' => $this->parseDate($ak['tktglpak'] ?? null),
+                                'tmt_angka_kredit' => $this->parseDate($ak['tmtakrid'] ?? null),
+                                
+                                'kredit_utama' => floatval($ak['tkutama1'] ?? 0),
+                                'kredit_penunjang' => floatval($ak['tkutama2'] ?? 0),
+                                // Apabila tkutama3 nol tapi tkutama1/2 ada, maka totalkan, atau ambil 'penilaian_ak'
+                                'total_kredit' => floatval($ak['tkutama3'] > 0 ? $ak['tkutama3'] : 
+                                                  (($ak['tkutama1'] ?? 0) + ($ak['tkutama2'] ?? 0) > 0 ? ($ak['tkutama1'] ?? 0) + ($ak['tkutama2'] ?? 0) : 
+                                                  ($ak['penilaian_ak'] ?? 0))),
+                                                  
+                                'jabatan_saat_penilaian' => $ak['tk_keterangan'] ?? null,
+                            ]);
+                        }
+                    }
                 }
-                $bar3->advance();
+            } catch (\Exception $e) {
+                // Ignore timeout untuk 1 NIP spesifik agar proses loop terus berjalan
+                \Illuminate\Support\Facades\Log::warning("Gagal ambil AK NIP {$nip}: " . $e->getMessage());
             }
-            $bar3->finish();
+            $bar3->advance();
         }
+        $bar3->finish();
         $this->newLine();
 
         // ============================================================
