@@ -33,16 +33,8 @@ class DatabaseSeeder extends Seeder
             'role' => 'admin_pegawai',
         ]);
 
-        // 2. DATA ATURAN
-        RefMatriksJf::create([
-            'jabatan_asal' => 'Pranata Komputer Ahli Pertama',
-            'pangkat_asal' => 'III/a',
-            'target_ak' => 50,
-            'syarat_tahun_min' => 2,
-            'next_pangkat' => 'III/b',
-            'next_jenjang' => 'Pranata Komputer Ahli Pertama',
-            'is_naik_jenjang' => false,
-        ]);
+        // 2. DATA ATURAN / KAMUS MATRIKS JAFUNG
+        $this->call(\Database\Seeders\RefMatriksJfSeeder::class);
 
 
 
@@ -56,7 +48,9 @@ class DatabaseSeeder extends Seeder
             'nama' => 'Hilmi',
             'email' => 'hilmiasardan@gmail.com',
             'no_hp' => '08123456789',
+            'tipe_jabatan' => 'Fungsional',
             'jabatan_saat_ini' => 'Pranata Komputer Ahli Pertama',
+            'jenjang' => 'Ahli Pertama', // Berfungsi sebagai referensi kamus JF BKN
             'pangkat_golongan' => 'III/a',
             'tmt_cpns' => null,
             'tmt_kgb_terakhir' => '2024-04-01',
@@ -71,7 +65,9 @@ class DatabaseSeeder extends Seeder
             'nama' => 'Hasan',
             'email' => 'hasan.inf1re7@gmail.com',
             'no_hp' => '08987654321',
+            'tipe_jabatan' => 'Fungsional',
             'jabatan_saat_ini' => 'Pranata Komputer Ahli Pertama',
+            'jenjang' => 'Ahli Pertama', // Berfungsi sebagai referensi kamus JF BKN
             'pangkat_golongan' => 'III/a',
             'tmt_pangkat_terakhir' => '2022-01-01',
             'tmt_kgb_terakhir' => '2026-02-01',
@@ -94,7 +90,9 @@ class DatabaseSeeder extends Seeder
             'nip' => '103',
             'nama' => 'Raissa',
             'email' => 'ahmad.budiman@test.go.id',
+            'tipe_jabatan' => 'Fungsional',
             'jabatan_saat_ini' => 'Analis Kebijakan Ahli Muda',
+            'jenjang' => 'Ahli Muda', // Berfungsi sebagai referensi kamus JF BKN
             'pangkat_golongan' => 'III/c',
             'tmt_kgb_terakhir' => '2024-03-01',
         ]);
@@ -105,7 +103,9 @@ class DatabaseSeeder extends Seeder
             'nip' => '104',
             'nama' => 'Bimo',
             'email' => 'siti.nurhaliza@test.go.id',
+            'tipe_jabatan' => 'Fungsional',
             'jabatan_saat_ini' => 'Pranata Komputer Ahli Pertama',
+            'jenjang' => 'Ahli Pertama',
             'pangkat_golongan' => 'III/a',
             'tmt_kgb_terakhir' => '2024-04-01',
         ]);
@@ -116,7 +116,9 @@ class DatabaseSeeder extends Seeder
             'nip' => '105',
             'nama' => 'Eza Aditya',
             'email' => 'ezaadityanugroho1@gmail.com',
+            'tipe_jabatan' => 'Struktural',
             'jabatan_saat_ini' => 'Kepala Seksi Perencanaan',
+            'jenjang' => null,
             'pangkat_golongan' => 'III/d',
             'tmt_kgb_terakhir' => '2024-01-01',
         ]);

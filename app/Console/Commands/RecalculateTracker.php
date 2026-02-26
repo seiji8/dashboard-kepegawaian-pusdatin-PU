@@ -10,14 +10,14 @@ use Illuminate\Support\Facades\Notification;
 use App\Notifications\KgbMendekatiNotification;
 use App\Notifications\KgbUsulanNotification;
 use App\Models\NotifikasiRules;
-
 use Carbon\Carbon;
 use App\Helpers\ActivityLogger;
+use Illuminate\Support\Facades\Cache;
 
 class RecalculateTracker extends Command
 {
     protected $signature = 'tracker:run {--force : Paksa kirim notifikasi tanpa cek interval}';
-    protected $description = 'Hitung ulang status KGB dan Pangkat serta Kirim Notifikasi';
+    protected $description = 'Hitung ulang status KGB dan Pangkat/Jenjang (berdasarkan Triwulan) serta Kirim Notifikasi';
 
     public function handle()
     {
@@ -32,112 +32,86 @@ class RecalculateTracker extends Command
         $leadCheckDays = $rulePenjadwalan ? $rulePenjadwalan->interval_hari : 60;
         $freqUploadDays = $ruleUpload ? ($ruleUpload->interval_hari > 0 ? $ruleUpload->interval_hari : 1) : 1; 
 
-        // --- PERUBAHAN 1: HAPUS TRUNCATE ---
-        // Kita JANGAN kosongkan tabel, supaya history 'notified_at' tidak hilang.
-        // Schema::disableForeignKeyConstraints();
-        // DashboardTracker::truncate(); 
-        // Schema::enableForeignKeyConstraints();
+        // CACHE: Muat seluruh isi matriks jf ke memory untuk performa (Fase 3: Big Data Optimized)
+        $matriksKamus = Cache::remember('ref_matriks_jf_all', 3600, function () {
+            return \App\Models\RefMatriksJf::all();
+        });
 
-        $pegawais = Pegawai::all();
-        $bar = $this->output->createProgressBar(count($pegawais));
+        $count = Pegawai::count();
+        $bar = $this->output->createProgressBar($count);
         $bar->start();
 
-        foreach ($pegawais as $pegawai) {
-                        // ==========================================
+        // Big Data Optimized: Menggunakan chunkById(500) dan eager loading untuk menghindari N+1 Query Problem
+        Pegawai::with(['riwayatAngkaKredit' => function ($query) {
+            $query->orderBy('tmt_angka_kredit', 'desc');
+        }])->chunkById(500, function ($pegawais) use ($bar, $matriksKamus, $leadCheckDays, $freqUploadDays) {
+            foreach ($pegawais as $pegawai) {
+                $today = Carbon::now();
+
+                // ==========================================
                 // LOGIKA KGB
                 // ==========================================
                 if ($pegawai->tmt_kgb_terakhir) {
-                    // Rumus: TMT Terakhir + 2 Tahun
                     $nextKGB = Carbon::parse($pegawai->tmt_kgb_terakhir)->addYears(2);
-                    $today = Carbon::now();
-                    // Gunakan interval dari DB untuk menentukan kapan mulai notif (Lead Time)
                     $startNotify = $nextKGB->copy()->subDays($leadCheckDays);
 
                     $status = 'Aman';
                     $keterangan = 'Masih dalam masa aman';
 
-                    // Ambil data tracker lama untuk cek konfirmasi & upload
                     $existingTracker = DashboardTracker::where('pegawai_id', $pegawai->id_pegawai_api)
                                         ->where('kategori', 'KGB')
                                         ->first();
                     
                     $isConfirmed = $existingTracker && $existingTracker->dikonfirmasi_at;
                     $isUploaded  = $existingTracker && ($existingTracker->dokumen_terupload >= $existingTracker->dokumen_total);
-
-                    // LOGIKA BARU SESUAI REQUEST:
                     
-                    // 1. Cek jika sudah lewat TMT (H-Day ke atas)
                     if ($today->greaterThanOrEqualTo($nextKGB)) {
                         if ($isUploaded) {
-                            // Jika sudah upload, selesai (hilang dari dashboard)
                             $status = 'Aman';
                         } else {
-                            // Masuk fase Upload E-HRM
                             $status = 'Upload E-HRM';
                             $keterangan = 'SK KGB sudah terbit? Silakan upload E-HRM.';
                         }
-                    }
-                    // 2. Cek jika masuk periode H-2 Bulan (Lead Time)
-                    elseif ($today->greaterThanOrEqualTo($startNotify)) {
+                    } elseif ($today->greaterThanOrEqualTo($startNotify)) {
                         if ($isConfirmed) {
-                            // Jika sudah dikonfirmasi admin -> PROSES
                             $status = 'Proses';
                             $keterangan = 'Usulan sedang diproses oleh admin.';
                         } else {
-                            // Default: USULAN
                             $status = 'Usulan';
                             $keterangan = 'Segera ajukan usulan KGB.';
                         }
                     }
 
-                    // ==========================================
-                    // UPDATE DATABASE & NOTIFIKASI
-                    // ==========================================
-                    
                     if ($status != 'Aman') {
-                        // 1. Simpan/Update Tracker
                         $tracker = DashboardTracker::updateOrCreate(
+                            ['pegawai_id' => $pegawai->id_pegawai_api, 'kategori' => 'KGB'],
                             [
-                                'pegawai_id' => $pegawai->id_pegawai_api, 
-                                'kategori'   => 'KGB',
-                            ],
-                            [
-                                'tanggal_target'    => $nextKGB->format('Y-m-d'),
-                                'status_saat_ini'   => $status,
-                                'keterangan'        => $keterangan,
-                                'dokumen_total'     => 1,
+                                'tanggal_target'  => $nextKGB->format('Y-m-d'),
+                                'status_saat_ini' => $status,
+                                'keterangan'      => $keterangan,
+                                'dokumen_total'   => 1,
                             ]
                         );
 
-                        // 2. Cek Perubahan Status (Reset Notifikasi jika status berubah)
                         if ($tracker->wasChanged('status_saat_ini')) {
-                            // Jangan reset notif jika berubah ke Proses, karena user sedang menunggu.
-                            // Reset jika berubah ke Upload E-HRM agar notif upload jalan.
                             if ($status == 'Upload E-HRM' || $status == 'Usulan') {
                                 $tracker->update(['notified_at' => null]);
                             }
                         }
 
-                        // 3. LOGIKA KIRIM NOTIFIKASI
-                        
                         $lastNotifDate = $tracker->notified_at ? Carbon::parse($tracker->notified_at) : null;
                         $daysSinceLast = $lastNotifDate ? $lastNotifDate->diffInDays($today) : 9999;
                         
-                        // Default: Cek interval
                         $isDueForUploadNotif = ($daysSinceLast >= $freqUploadDays);
                         
-                        // Jika ada flag --force, abaikan interval (TAPI tetap jangan kirim jika baru saja dikirim hari ini, kecuali user benar-benar maksa berkali-kali)
-                        // Kita buat --force mem-bypass segalanya, termasuk "hari ini sdh kirim".
                         if ($this->option('force')) {
                             $isDueForUploadNotif = true;
                         } else {
-                             // Jika tidak force, dan sudah kirim hari ini, jangan kirim lagi
                             if ($lastNotifDate && $lastNotifDate->isToday()) {
                                 $isDueForUploadNotif = false;
                             }
                         }
 
-                        // KASUS A: USULAN (Merah) -> KIRIM KE ADMIN
                         if ($status == 'Usulan' && !$tracker->notified_at) {
                             $admins = User::whereIn('role', ['super_admin', 'admin_pegawai'])->get();
                             if ($admins->count() > 0) {
@@ -145,17 +119,12 @@ class RecalculateTracker extends Command
                                 $tracker->update(['notified_at' => now()]);
                                 ActivityLogger::logSystem("Mengirim notifikasi KGB Usulan ke admin untuk pegawai {$pegawai->nama}", $pegawai->nip);
                             }
-                        }
-
-                        // KASUS B: UPLOAD E-HRM (Hijau) -> KIRIM KE PEGAWAI
-                        elseif ($status == 'Upload E-HRM') {
-                            // Kirim notifikasi upload jika belum lengkap & sesuai jadwal
+                        } elseif ($status == 'Upload E-HRM') {
                             if ($isDueForUploadNotif) {
                                 $notifiable = User::where('email', $pegawai->email)->first();
                                 if (!$notifiable && $pegawai->email) {
                                     $notifiable = Notification::route('mail', $pegawai->email);
                                 }
-
                                 if ($notifiable) {
                                     $notifiable->notify(new KgbUsulanNotification($tracker));
                                     $tracker->update(['notified_at' => now()]); 
@@ -164,18 +133,124 @@ class RecalculateTracker extends Command
                             }
                         }
                     } else {
-                        // Jika status 'Aman', HAPUS data di tracker
                         DashboardTracker::where('pegawai_id', $pegawai->id_pegawai_api)
                                         ->where('kategori', 'KGB')
                                         ->delete();
-                    }          } 
-            
-            $bar->advance();
-        }
+                    }
+                }
+
+                // ==========================================
+                // LOGIKA AK FUNGSIONAL & UKOM (Berdasarkan Proyeksi Triwulan)
+                // ==========================================
+                // Syarat kinerja logis: pegawai Fungsional
+                if (!empty($pegawai->pangkat_golongan) && !empty($pegawai->jabatan_saat_ini)) { 
+                    // Kita tidak menggunakan where('tipe_jabatan', 'Fungsional') dengan ketat karena ada kemungkinan 
+                    // pegawai dummy belum diset tipe jabatannya. Namun ref_matriks_jf hanya mengakomodir jabatan Fungsional.
+                    // Jika ingin ketat, buka komen: if ($pegawai->tipe_jabatan == 'Fungsional') 
+
+                    // Penentuan Kategori berdasarkan matriks di Memory (Cache)
+                    $matriks = $matriksKamus->where('jabatan_asal', $pegawai->jenjang)
+                        ->where('pangkat_asal', $pegawai->pangkat_golongan)
+                        ->first();
+
+                    if ($matriks) {
+                        $targetAK = $matriks->target_ak;
+                        $koefisienTahunan = $matriks->koefisien_tahunan ?? 0;
+                        $isKenaikanJenjang = $matriks->is_naik_jenjang;
+                        
+                        // Kategori KJ_Jafung = KJ/UKOM, kategori KP_Jafung = Kenaikan Pangkat (dalam jenjang yang sama)
+                        $kategoriSekarang = $isKenaikanJenjang ? 'KJ_Jafung' : 'KP_Jafung';
+                        $kategoriLawan = $isKenaikanJenjang ? 'KP_Jafung' : 'KJ_Jafung';
+                        $dokumenTotal = $isKenaikanJenjang ? 3 : 2;
+
+                        // Ambil 1 Riwayat AK terbaru secara Eager Loaded (sudah discore order desc)
+                        $latestAK = $pegawai->riwayatAngkaKredit->first();
+                        $currentAK = 0;
+
+                        // Filter AK Valid: Harus lebih besar dari `tmt_pangkat_terakhir`
+                        if ($latestAK && $pegawai->tmt_pangkat_terakhir) {
+                            $tmtAK = Carbon::parse($latestAK->tmt_angka_kredit);
+                            $tmtPangkat = Carbon::parse($pegawai->tmt_pangkat_terakhir);
+                            
+                            if ($tmtAK->greaterThan($tmtPangkat)) {
+                                $currentAK = $latestAK->total_kredit;
+                            }
+                        } elseif ($latestAK && !$pegawai->tmt_pangkat_terakhir) {
+                            // Anggap valid jika tmt pangkat terakhir belum terdokumentasi
+                            $currentAK = $latestAK->total_kredit;
+                        }
+
+                        if ($targetAK > 0) {
+                            // Hitung Proyeksi Triwulan (Business Logic)
+                            $kekuranganAK = $targetAK - $currentAK;
+                            
+                            $akTriwulanBaik = ($koefisienTahunan / 4) * 1.0;
+                            $akTriwulanSangatBaik = ($koefisienTahunan / 4) * 1.5;
+
+                            $statusAK = 'Aman';
+                            $keteranganAK = '';
+
+                            $existingAK = DashboardTracker::where('pegawai_id', $pegawai->id_pegawai_api)
+                                ->where('kategori', $kategoriSekarang)
+                                ->first();
+
+                            $isProses = $existingAK && ($existingAK->status_saat_ini === 'Proses' || $existingAK->dikonfirmasi_at);
+
+                            // Penentuan Status Tracker
+                            if ($isProses) {
+                                $statusAK = 'Proses';
+                                $keteranganAK = 'Sedang diproses admin';
+                            } else {
+                                if ($kekuranganAK <= 0) {
+                                    $statusAK = 'Usulan';
+                                    $namaProses = $isKenaikanJenjang ? 'Kenaikan Jenjang / UKOM' : 'Kenaikan Pangkat';
+                                    $keteranganAK = "AK memenuhi target. Segera usulkan {$namaProses}";
+                                } elseif ($kekuranganAK <= $akTriwulanBaik) {
+                                    $statusAK = 'Mendekati';
+                                    $keteranganAK = "Dapat dicapai dalam 1 Triwulan dengan predikat minimal BAIK";
+                                } elseif ($kekuranganAK <= $akTriwulanSangatBaik) {
+                                    $statusAK = 'Mendekati';
+                                    $keteranganAK = "Dapat dicapai dalam 1 Triwulan dengan predikat SANGAT BAIK";
+                                } else {
+                                    $statusAK = 'Aman';
+                                }
+                            }
+
+                            // Manajemen Database Tracker
+                            if (in_array($statusAK, ['Usulan', 'Mendekati', 'Proses'])) {
+                                DashboardTracker::updateOrCreate(
+                                    [
+                                        'pegawai_id' => $pegawai->id_pegawai_api,
+                                        'kategori'   => $kategoriSekarang,
+                                    ],
+                                    [
+                                        'status_saat_ini' => $statusAK,
+                                        'keterangan'      => $keteranganAK,
+                                        'dokumen_total'   => $dokumenTotal,
+                                    ]
+                                );
+
+                                // Hapus Kategori Lawan
+                                DashboardTracker::where('pegawai_id', $pegawai->id_pegawai_api)
+                                    ->where('kategori', $kategoriLawan)
+                                    ->delete();
+                            } else {
+                                // Status Aman -> Hapus keduanya
+                                DashboardTracker::where('pegawai_id', $pegawai->id_pegawai_api)
+                                    ->whereIn('kategori', ['KP_Jafung', 'KJ_Jafung'])
+                                    ->delete();
+                            }
+                        }
+                    }
+                }
+
+                $bar->advance();
+            }
+        }, 'id_pegawai_api'); 
 
         $bar->finish();
         $this->newLine();
         $this->info('✅ Tracker update & Notifikasi terkirim!');
-        ActivityLogger::logSystem('Perhitungan tracker selesai untuk ' . $pegawais->count() . ' pegawai');
+        ActivityLogger::logSystem('Perhitungan tracker selesai untuk ' . $count . ' pegawai');
     }
 }

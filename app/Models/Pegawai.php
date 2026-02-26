@@ -39,6 +39,13 @@ class Pegawai extends Model
         return $this->hasMany(RiwayatDiklat::class, 'nip', 'nip');
     }
 
+    // Satu Pegawai punya BANYAK Riwayat Angka Kredit (Fase 2)
+    public function riwayatAngkaKredit()
+    {
+        // Catatan: relasi mengacu pada struktur aktual DB di mana FK adalah nip
+        return $this->hasMany(RiwayatAngkaKredit::class, 'nip', 'nip');
+    }
+
     // Satu Pegawai punya BANYAK Riwayat Angka Kredit
     public function riwayat_angka_kredit()
     {
