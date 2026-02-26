@@ -118,7 +118,7 @@ public function syncData()
         
         // 2. Seeder Manual (UpdateTmtManualSeeder)
         \Illuminate\Support\Facades\Artisan::call('db:seed', [
-            '--class' => 'UpdateTmtManualSeeder' // Sesuaikan path jika perlu
+            '--class' => 'Database\\Seeders\\UpdateTmtManualSeeder' // Sesuaikan path jika perlu
         ]);
 
         // 3. Recalculate Tracker (Force Notification)

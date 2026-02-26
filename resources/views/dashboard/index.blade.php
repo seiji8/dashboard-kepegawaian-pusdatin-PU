@@ -205,36 +205,49 @@
                                         <table class="custom-table">
                                             <thead>
                                                 <tr>
-                                                    <th>Tanggal</th>
-                                                    <th>NAMA</th>
-                                                    <th>Pangkat</th>
+                                                    <th>Mulai Notifikasi</th>
+                                                    <th>Nama</th>
+                                                    <th>Pangkat Saat Ini</th>
                                                     <th>Status</th>
+                                                    <th>Dokumen</th>
                                                     <th>Aksi</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
                                                 @forelse($kpFungsional as $item)
                                                 <tr>
-                                                    <td>{{ $item->tanggal_target ?? '-' }}</td>
+                                                    <td>{{ $item->tanggal_target ? \Carbon\Carbon::parse($item->tanggal_target)->format('d M Y') : '-' }}</td>
                                                     <td>{{ $item->pegawai->nama }}</td>
-                                                    <td>{{ $item->pegawai->pangkat_saat_ini }}</td>
+                                                    <td>{{ $item->pegawai->pangkat_golongan ?? '-' }}</td>
                                                     <td>
-                                                        @if($item->status_saat_ini == 'Mendekati')
-                                                            <span class="status-badge status-warning">Mendekati</span>
-                                                        @elseif($item->status_saat_ini == 'Usulan')
-                                                            <span class="status-badge status-ok">Usulan</span>
+                                                        @if($item->status_saat_ini == 'Usulan')
+                                                            <span class="status-badge status-missing">Usulan</span>
+                                                        @elseif($item->status_saat_ini == 'Mendekati' || $item->status_saat_ini == 'Proses')
+                                                            <span class="status-badge status-warning">{{ $item->status_saat_ini }}</span>
+                                                        @elseif($item->status_saat_ini == 'Upload E-HRM')
+                                                            <span class="status-badge status-ok">Upload E-HRM</span>
                                                         @else
-                                                            <span class="status-badge status-missing">{{ $item->status_saat_ini }}</span>
+                                                            <span class="status-badge status-secondary">{{ $item->status_saat_ini }}</span>
                                                         @endif
                                                     </td>
                                                     <td>
+                                                        <span style="color: #dc2626; font-weight: 600;">
+                                                            {{ $item->dokumen_total - $item->dokumen_terupload }} Belum
+                                                        </span>
+                                                    </td>
+                                                    <td style="display: flex; gap: 6px;">
                                                         <button class="btn-action-view" onclick="openDetailModal('{{ $item->pegawai->nip }}')">
-                                                            <i class="ph-bold ph-eye"></i>
+                                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
                                                         </button>
+                                                        @if($item->status_saat_ini == 'Usulan')
+                                                        <button class="btn-action-confirm" onclick="openConfirmModal({{ $item->id }}, '{{ $item->pegawai->nama }}')" title="Konfirmasi Proses">
+                                                            <i class="ph-bold ph-check" style="font-size: 16px;"></i>
+                                                        </button>
+                                                        @endif
                                                     </td>
                                                 </tr>
                                                 @empty
-                                                <tr><td colspan="5" style="text-align:center;">Tidak ada data.</td></tr>
+                                                <tr><td colspan="6" style="text-align:center;">Tidak ada data.</td></tr>
                                                 @endforelse
                                             </tbody>
                                         </table>
@@ -267,34 +280,49 @@
                                     <table class="custom-table">
                                         <thead>
                                             <tr>
-                                                <th>NAMA</th>
-                                                <th>Pangkat Saat Ini</th>
-                                                <th>Status Dokumen</th>
+                                                <th>Mulai Notifikasi</th>
+                                                <th>Nama</th>
+                                                <th>Jenjang Saat Ini</th>
+                                                <th>Status</th>
+                                                <th>Dokumen</th>
                                                 <th>Aksi</th>
                                             </tr>
                                         </thead>
                                         <tbody>
                                             @forelse($listKenaikanJenjang as $item)
                                             <tr>
+                                                <td>{{ $item->tanggal_target ? \Carbon\Carbon::parse($item->tanggal_target)->format('d M Y') : '-' }}</td>
                                                 <td>{{ $item->pegawai->nama }}</td>
-                                                <td>{{ $item->pegawai->pangkat_saat_ini ?? '-' }}</td>
+                                                <td>{{ $item->pegawai->jenjang ?? '-' }}</td>
                                                 <td>
-                                                    @if($item->status_saat_ini == 'Mendekati')
-                                                        <span class="status-badge status-warning">Mendekati</span>
-                                                    @elseif($item->status_saat_ini == 'Usulan')
-                                                        <span class="status-badge status-ok">Usulan</span>
+                                                    @if($item->status_saat_ini == 'Usulan')
+                                                        <span class="status-badge status-missing">Usulan</span>
+                                                    @elseif($item->status_saat_ini == 'Mendekati' || $item->status_saat_ini == 'Proses')
+                                                        <span class="status-badge status-warning">{{ $item->status_saat_ini }}</span>
+                                                    @elseif($item->status_saat_ini == 'Upload E-HRM')
+                                                        <span class="status-badge status-ok">Upload E-HRM</span>
                                                     @else
-                                                        <span class="status-badge status-missing">{{ $item->status_saat_ini }}</span>
+                                                        <span class="status-badge status-secondary">{{ $item->status_saat_ini }}</span>
                                                     @endif
                                                 </td>
                                                 <td>
+                                                    <span style="color: #dc2626; font-weight: 600;">
+                                                        {{ $item->dokumen_total - $item->dokumen_terupload }} Belum
+                                                    </span>
+                                                </td>
+                                                <td style="display: flex; gap: 6px;">
                                                     <button class="btn-action-view" onclick="openDetailModal('{{ $item->pegawai->nip }}')">
-                                                        <i class="ph-bold ph-eye"></i>
+                                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
                                                     </button>
+                                                    @if($item->status_saat_ini == 'Usulan')
+                                                    <button class="btn-action-confirm" onclick="openConfirmModal({{ $item->id }}, '{{ $item->pegawai->nama }}')" title="Konfirmasi Proses">
+                                                        <i class="ph-bold ph-check" style="font-size: 16px;"></i>
+                                                    </button>
+                                                    @endif
                                                 </td>
                                             </tr>
                                             @empty
-                                            <tr><td colspan="4" style="text-align:center;">Tidak ada usulan kenaikan jenjang.</td></tr>
+                                            <tr><td colspan="6" style="text-align:center;">Tidak ada usulan kenaikan jenjang.</td></tr>
                                             @endforelse
                                         </tbody>
                                     </table>

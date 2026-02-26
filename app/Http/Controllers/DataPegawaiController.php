@@ -108,8 +108,15 @@ class DataPegawaiController extends Controller
                     ];
                 }
 
+            } elseif ($tracker->kategori == 'KJ_Jafung') {
+                $missingDocs[] = ['kategori' => 'KJ_Jafung', 'nama_dokumen' => "Sertifikat Uji Kompetensi"];
+                $missingDocs[] = ['kategori' => 'KJ_Jafung', 'nama_dokumen' => "SKP 2 Tahun Terakhir"];
+                $missingDocs[] = ['kategori' => 'KJ_Jafung', 'nama_dokumen' => "SK Penilaian Angka Kredit (PAK)"];
+            } elseif ($tracker->kategori == 'KP_Jafung') {
+                $missingDocs[] = ['kategori' => 'KP_Jafung', 'nama_dokumen' => "SK Pangkat Terakhir"];
+                $missingDocs[] = ['kategori' => 'KP_Jafung', 'nama_dokumen' => "SK Penilaian Angka Kredit (PAK)"];
             } else {
-                // Logic existing untuk kategori lain (KP Jafung, dll)
+                // Logic existing untuk kategori lain (KGB, dll)
                 $docs = $tracker->kelengkapan_dokumen->where('is_uploaded', false);
                 foreach ($docs as $doc) {
                     $missingDocs[] = [

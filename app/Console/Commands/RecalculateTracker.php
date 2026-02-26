@@ -227,6 +227,16 @@ class RecalculateTracker extends Command
                                 }
                             }
 
+                            // Tentukan tanggal target notifikasi (saat AK mencukupi / mendekati)
+                            $targetDate = null;
+                            if (in_array($statusAK, ['Usulan', 'Mendekati', 'Proses'])) {
+                                if ($existingAK && $existingAK->tanggal_target) {
+                                    $targetDate = $existingAK->tanggal_target;
+                                } else {
+                                    $targetDate = Carbon::now()->format('Y-m-d');
+                                }
+                            }
+
                             // Manajemen Database Tracker
                             if (in_array($statusAK, ['Usulan', 'Mendekati', 'Proses'])) {
                                 DashboardTracker::updateOrCreate(
@@ -238,6 +248,7 @@ class RecalculateTracker extends Command
                                         'status_saat_ini' => $statusAK,
                                         'keterangan'      => $keteranganAK,
                                         'dokumen_total'   => $dokumenTotal,
+                                        'tanggal_target'  => $targetDate,
                                     ]
                                 );
 

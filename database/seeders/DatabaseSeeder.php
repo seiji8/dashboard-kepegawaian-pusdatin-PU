@@ -74,7 +74,7 @@ class DatabaseSeeder extends Seeder
         ]);
         
         // 4. DATA DUMMY ANGKA KREDIT AWAL
-        \App\Models\RiwayatAngkaKredit::create([
+        RiwayatAngkaKredit::create([
             'id_pegawai_api' => '102', // Hasan
             'nomor_sk' => 'SK-DUMMY-001',
             'tanggal_sk' => '2022-12-01',
@@ -82,7 +82,7 @@ class DatabaseSeeder extends Seeder
             'jabatan_saat_penilaian' => 'Pranata Komputer Ahli Pertama'
         ]);
 
-        \App\Models\RiwayatAngkaKredit::create([
+        RiwayatAngkaKredit::create([
             'id_pegawai_api' => '104', // Bimo (Kekurangan AK)
             'nomor_sk' => 'SK-DUMMY-002',
             'tanggal_sk' => '2023-12-01',
