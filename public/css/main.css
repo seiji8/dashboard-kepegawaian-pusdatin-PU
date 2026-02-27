@@ -778,55 +778,131 @@ body {
     display: block;
 }
 
-/* Style Tabel Custom */
-.custom-table {
+/* =========================================
+   PREMIUM TABLE UI
+   ========================================= */
+.custom-table,
+.data-table {
     width: 100%;
-    border-collapse: collapse;
+    border-collapse: separate;
+    border-spacing: 0;
     font-size: 14px;
+    overflow: hidden;
+    border-radius: 10px;
+    border: 1px solid #e2e8f0;
 }
 
-.custom-table th {
+.custom-table th,
+.data-table th {
     background-color: #e5e7eb;
-    /* Abu-abu header */
     color: #374151;
     font-weight: 600;
-    padding: 12px 15px;
+    padding: 14px 18px;
     text-align: left;
+    font-size: 13px;
+    white-space: nowrap;
 }
 
-.custom-table td {
-    padding: 12px 15px;
-    border-bottom: 1px solid #f3f4f6;
-    color: #4b5563;
+.custom-table th:first-child,
+.data-table th:first-child {
+    border-radius: 10px 0 0 0;
+}
+
+.custom-table th:last-child,
+.data-table th:last-child {
+    border-radius: 0 10px 0 0;
+}
+
+.custom-table td,
+.data-table td {
+    padding: 14px 18px;
+    border-bottom: 1px solid #f1f5f9;
+    color: #334155;
     vertical-align: middle;
+    font-size: 13px;
+    transition: all 0.15s ease;
 }
 
-/* Status Badges di dalam tabel */
+/* Alternating Row Colors (Zebra Striping) */
+.custom-table tbody tr:nth-child(even),
+.data-table tbody tr:nth-child(even) {
+    background-color: #f8fafc;
+}
+
+.custom-table tbody tr:nth-child(odd),
+.data-table tbody tr:nth-child(odd) {
+    background-color: #ffffff;
+}
+
+/* Row Hover Effect */
+.custom-table tbody tr,
+.data-table tbody tr {
+    transition: all 0.2s ease;
+}
+
+.custom-table tbody tr:hover,
+.data-table tbody tr:hover {
+    background-color: #eff6ff;
+    box-shadow: inset 4px 0 0 0 #3b82f6;
+}
+
+.custom-table tbody tr:last-child td,
+.data-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.custom-table tbody tr:last-child td:first-child,
+.data-table tbody tr:last-child td:first-child {
+    border-radius: 0 0 0 10px;
+}
+
+.custom-table tbody tr:last-child td:last-child,
+.data-table tbody tr:last-child td:last-child {
+    border-radius: 0 0 10px 0;
+}
+
+/* =========================================
+   STATUS BADGES (Premium)
+   ========================================= */
 .status-badge {
-    padding: 4px 10px;
+    padding: 5px 14px;
     border-radius: 20px;
-    font-size: 12px;
+    font-size: 11px;
     font-weight: 600;
+    letter-spacing: 0.3px;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    white-space: nowrap;
 }
 
+/* Merah — Usulan */
 .status-missing {
-    background-color: #fee2e2;
-    color: #dc2626;
+    background: linear-gradient(135deg, #fee2e2, #fecaca);
+    color: #b91c1c;
+    border: 1px solid #fca5a5;
 }
 
-/* Merah */
+/* Kuning — Warning / Mendekati / Proses */
 .status-warning {
-    background-color: #fef3c7;
-    color: #d97706;
+    background: linear-gradient(135deg, #fef3c7, #fde68a);
+    color: #92400e;
+    border: 1px solid #fcd34d;
 }
 
-/* Kuning */
+/* Hijau — OK / Upload E-HRM */
 .status-ok {
-    background-color: #d1fae5;
-    color: #059669;
+    background: linear-gradient(135deg, #d1fae5, #a7f3d0);
+    color: #065f46;
+    border: 1px solid #6ee7b7;
 }
 
-/* Hijau */
+/* Secondary */
+.status-secondary {
+    background: linear-gradient(135deg, #f1f5f9, #e2e8f0);
+    color: #475569;
+    border: 1px solid #cbd5e1;
+}
 
 /* --- Loading Modal --- */
 .loading-modal-content {
@@ -848,7 +924,6 @@ body {
     height: 60px;
     border: 5px solid #e5e7eb;
     border-top: 5px solid #2563eb;
-    /* Blue-600 */
     border-radius: 50%;
     animation: spin 1s linear infinite;
 }
@@ -877,52 +952,63 @@ body {
 /* Dokumen Badge (Angka merah background pink) */
 .doc-badge {
     background-color: #fce7f3;
-    /* Pink muda */
     color: #be185d;
-    /* Pink tua */
     padding: 4px 12px;
     border-radius: 6px;
     font-weight: 700;
     font-size: 12px;
 }
 
-/* Tombol Aksi (Mata) */
+/* =========================================
+   ACTION BUTTONS (Premium)
+   ========================================= */
 .btn-action-view {
-    background-color: #1e3a8a;
+    background: linear-gradient(135deg, #1e3a8a, #2563eb);
     color: white;
     border: none;
-    width: 32px;
-    height: 32px;
-    border-radius: 6px;
+    width: 34px;
+    height: 34px;
+    border-radius: 8px;
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    transition: transform 0.1s;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 4px rgba(30, 58, 138, 0.25);
 }
 
 .btn-action-view:hover {
-    transform: scale(1.05);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(30, 58, 138, 0.35);
+}
+
+.btn-action-view:active {
+    transform: translateY(0);
 }
 
 /* Tombol Konfirmasi */
 .btn-action-confirm {
-    background-color: #10b981;
+    background: linear-gradient(135deg, #10b981, #059669);
     color: white;
     border: none;
-    width: 32px;
-    height: 32px;
-    border-radius: 6px;
+    width: 34px;
+    height: 34px;
+    border-radius: 8px;
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    transition: all 0.2s;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 4px rgba(16, 185, 129, 0.25);
 }
 
 .btn-action-confirm:hover {
-    background-color: #059669;
-    transform: scale(1.05);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(16, 185, 129, 0.35);
+}
+
+.btn-action-confirm:active {
+    transform: translateY(0);
 }
 
 /* Confirm Modal */
@@ -1068,42 +1154,6 @@ body {
     100% {
         transform: rotate(360deg);
     }
-}
-
-/* --- Loading Modal --- */
-.loading-modal-content {
-    background: white;
-    padding: 40px;
-    border-radius: 16px;
-    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-    text-align: center;
-    width: 320px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 20px;
-}
-
-.loading-spinner {
-    width: 60px;
-    height: 60px;
-    border: 5px solid #e5e7eb;
-    border-top: 5px solid #2563eb;
-    /* Blue-600 */
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
-}
-
-.loading-text {
-    font-size: 16px;
-    font-weight: 600;
-    color: #1e3a8a;
-}
-
-.loading-subtext {
-    font-size: 13px;
-    color: #6b7280;
 }
 
 /* --- Source: data_pegawai.css --- */
@@ -1443,93 +1493,55 @@ body {
     border: 1px solid #f3f4f6; /* Border luaran super tipis/soft */
 }
 
-.data-table {
-    width: 100%;
-    border-collapse: collapse;
-    min-width: 800px;
-    background-color: white; /* Base tabel putih */
-}
-
-.data-table th {
-    background-color: #f8fafc; /* Biru keputihan sangat soft seperti Vercel */
-    padding: 16px 20px;
-    text-align: left;
-    font-weight: 600;
-    color: #64748b; /* Abu-abu kebiruan untuk teks header */
-    font-size: 13px; /* Header sedikit lebih kecil */
-    text-transform: uppercase; /* Kesan tegas/korporat */
-    letter-spacing: 0.05em; /* Spasi antar huruf */
-    border-bottom: 2px solid #e2e8f0; /* Garis bawah header sedikit lebih tebal */
-    white-space: nowrap;
-}
-
-.data-table td {
-    padding: 18px 20px; /* Padding lebih luas agar nafas lega */
-    color: #1e293b; /* Teks isi lebih gelap tegas */
-    font-size: 14px;
-    font-weight: 500;
-    border-bottom: 1px solid #f1f5f9; /* Garis batas baris sangat tipis */
-    vertical-align: middle;
-    transition: background-color 0.2s ease; /* Transisi halus nunggu hover */
-}
-
-/* Zebra Striping Halus */
-.data-table tbody tr:nth-child(even) {
-    background-color: #fbfcfd;
-}
-
-/* Hover State - Baris menyala saat didekati mouse */
-.data-table tbody tr:hover {
-    background-color: #eff6ff !important; /* Biru super muda */
-}
-
-.data-table tr:last-child td {
-    border-bottom: none;
-}
 
 /* Action Buttons */
 .btn-view,
+.btn-edit,
 .btn-delete {
     border: none;
-    border-radius: 8px; /* Mengotak elegan */
-    width: 38px; /* Agak diperbesar dikit */
-    height: 38px;
+    border-radius: 8px;
+    width: 36px;
+    height: 36px;
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-    box-shadow: 0 1px 2px rgba(0,0,0,0.05); /* Shadow super tipis */
+    transition: all 0.2s ease;
 }
 
-/* Tombol Biru (Lihat Detail) */
-.btn-view {
-    background-color: white;
-    color: #3b82f6; /* Warna ikon biru primer */
-    border: 1px solid #e5e7eb;
-}
-
-.btn-view:hover {
-    background-color: #3b82f6;
+/* Tombol Biru (Lihat Detail / Edit) */
+.btn-view,
+.btn-edit {
+    background: linear-gradient(135deg, #1e3a8a, #2563eb);
     color: white;
-    border-color: #3b82f6;
-    transform: translateY(-2px); /* Efek melayang */
-    box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.3);
+    box-shadow: 0 2px 4px rgba(30, 58, 138, 0.25);
+}
+
+.btn-view:hover,
+.btn-edit:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(30, 58, 138, 0.35);
+}
+
+.btn-view:active,
+.btn-edit:active {
+    transform: translateY(0);
 }
 
 /* Tombol Merah (Hapus) */
 .btn-delete {
-    background-color: white;
-    color: #ef4444; /* Warna merah warning */
-    border: 1px solid #e5e7eb;
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+    color: white;
+    box-shadow: 0 2px 4px rgba(239, 68, 68, 0.25);
 }
 
 .btn-delete:hover {
-    background-color: #ef4444;
-    color: white;
-    border-color: #ef4444;
     transform: translateY(-2px);
-    box-shadow: 0 4px 6px -1px rgba(239, 68, 68, 0.3);
+    box-shadow: 0 4px 8px rgba(239, 68, 68, 0.35);
+}
+
+.btn-delete:active {
+    transform: translateY(0);
 }
 
 /* Pagination */
@@ -2367,24 +2379,6 @@ select.select-filter:active {
     justify-content: center;
     width: 36px;
     height: 36px;
-}
-
-.btn-edit {
-    background-color: #dbeafe;
-    color: #0284c7;
-}
-
-.btn-edit:hover {
-    background-color: #bae6fd;
-}
-
-.btn-delete {
-    background-color: #fee2e2;
-    color: #ef4444;
-}
-
-.btn-delete:hover {
-    background-color: #fecaca;
 }
 
 .btn-icon i {
@@ -3233,24 +3227,6 @@ select.filter-input:active {
     color: #26BF94;
 }
 
-/* Tombol Hapus */
-.btn-delete {
-    background-color: #fee2e2;
-    border: none;
-    border-radius: 8px;
-    width: 36px;
-    height: 36px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-}
-
-.btn-delete img {
-    width: 18px;
-    height: 18px;
-}
-
 /* Pagination */
 .pagination {
     display: flex;
@@ -3801,14 +3777,6 @@ select.filter-input:active {
     width: 18px;
     height: 18px;
     object-fit: contain;
-}
-
-.btn-edit {
-    background-color: #e0f2fe;
-}
-
-.btn-delete {
-    background-color: #fee2e2;
 }
 
 /* PAGINATION */

@@ -113,12 +113,12 @@
                             <td>{{ $admin->username }}</td>
                             <td class="text-center">
                                 <button class="btn-icon btn-edit" onclick="openEditModal(this)">
-                                    <i class="ph-bold ph-pencil-simple" style="color: #3b82f6; font-size: 18px;"></i>
+                                    <i class="ph-bold ph-pencil-simple" style="font-size: 18px;"></i>
                                 </button>
                             </td>
                             <td class="text-center">
                                 <button class="btn-icon btn-delete" onclick="openDeleteModal({{ $admin->id }}, '{{ $admin->nama_lengkap }}')">
-                                    <i class="ph-fill ph-trash" style="color: #ef4444; font-size: 18px;"></i>
+                                    <i class="ph-fill ph-trash" style="font-size: 18px;"></i>
                                 </button>
                             </td>
                         </tr>
