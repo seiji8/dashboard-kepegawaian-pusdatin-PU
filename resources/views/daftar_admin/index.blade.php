@@ -261,8 +261,6 @@
 
         </main>
     </div>
-    @include('partials.sync_loading')
-
     <script>
         let currentEditAdminId = null;
         let currentDeleteAdminId = null;

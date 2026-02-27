@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="{{ asset('css/main.css') }}">
     <!-- Phosphor Icons -->
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <meta name="csrf-token" content="{{ csrf_token() }}">
 </head>
 <body>

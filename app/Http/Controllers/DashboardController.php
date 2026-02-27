@@ -112,31 +112,30 @@ public function confirmTracker(Request $request, $id)
 public function syncData()
 {
     try {
-        set_time_limit(300);
-        // 1. Sync E-HRM (API)
-        \Illuminate\Support\Facades\Artisan::call('ehrm:sync');
-        
-        // 2. Seeder Manual (UpdateTmtManualSeeder)
-        \Illuminate\Support\Facades\Artisan::call('db:seed', [
-            '--class' => 'UpdateTmtManualSeeder' // Sesuaikan path jika perlu
-        ]);
+        // Dispatch job ke background queue
+        \App\Jobs\ProcessSyncData::dispatch();
 
-        // 3. Recalculate Tracker (Force Notification)
-        \Illuminate\Support\Facades\Artisan::call('tracker:run', [
-            '--force' => true
-        ]);
+        ActivityLogger::logAdminAction("Memulai Sinkronisasi Data Manual (Berjalan di Latar Belakang)");
 
-        ActivityLogger::logAdminAction("Melakukan Sinkronisasi Data Manual (Button Dashboard)");
+        // --- TAMBAHAN FIX ---
+        // Biar user nggak perlu ngetik "php artisan queue:work" di terminal terpisah
+        $artisan = base_path('artisan');
+        if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
+            pclose(popen("start /B php {$artisan} queue:work --once > NUL 2>&1", "r"));
+        } else {
+            exec("php {$artisan} queue:work --once > /dev/null 2>&1 &");
+        }
+        // --------------------
 
         return response()->json([
             'success' => true,
-            'message' => 'Sinkronisasi Data Berhasil!',
+            'message' => 'Proses sinkronisasi telah masuk antrean latar belakang. Silakan cek beberapa saat lagi.',
         ]);
 
     } catch (\Exception $e) {
         return response()->json([
             'success' => false,
-            'message' => 'Gagal Sinkronisasi: ' . $e->getMessage(),
+            'message' => 'Gagal Memulai Sinkronisasi: ' . $e->getMessage(),
         ], 500);
     }
 }

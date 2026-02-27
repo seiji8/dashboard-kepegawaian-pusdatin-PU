@@ -500,10 +500,6 @@
         });
     }
 
-    </script>
-
-    @include('partials.sync_loading')
-
     <script src="{{ asset('js/app-common.js') }}"></script>
     <script src="{{ asset('js/data-pegawai.js') }}"></script>
     @include('partials.change_password_modal')
