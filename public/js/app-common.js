@@ -80,15 +80,25 @@ function triggerSync() {
     var loadingModal = document.getElementById('loadingModal');
     const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
 
-    // 1. Show Loading Modal
+    // 1. Reset Modal State & Show
     if (loadingModal) {
+        document.getElementById('syncProgressBar').style.width = '0%';
+        document.getElementById('syncProgressText').innerText = '0%';
+        document.getElementById('syncDetailText').innerText = 'Bersiap memulai sinkronisasi...';
+        
+        // Reset 4 Steps UI
+        for (let i = 1; i <= 4; i++) {
+            let stepEl = document.getElementById(`step${i}`);
+            let iconEl = document.getElementById(`step${i}Icon`);
+            if (stepEl && iconEl) {
+                stepEl.className = 'progress-step';
+                iconEl.innerHTML = '<span class="circle-pending"></span>';
+            }
+        }
         loadingModal.style.display = 'flex';
-    } else {
-        // Fallback console warning if modal missing
-        console.warn('Sync integration: #loadingModal missing from this view.');
     }
 
-    // 2. AJAX Request
+    // 2. AJAX Request to start Job
     fetch('/sync-now', {
         method: 'POST',
         headers: {
@@ -96,44 +106,116 @@ function triggerSync() {
             'X-CSRF-TOKEN': csrfToken
         }
     })
-        .then(response => response.json())
-        .then(data => {
-            if (loadingModal) loadingModal.style.display = 'none';
-
-            if (data.success) {
-                // Show Success Toast
-                var toast = document.getElementById("syncToast");
-                if (toast) {
-                    toast.className = "toast-notification show";
-                    setTimeout(function () {
-                        if (toast) toast.className = toast.className.replace("show", "");
-                    }, 3000);
-                }
-
-                // Reload page to reflect changes
-                setTimeout(() => {
-                    location.reload();
-                }, 1000);
-
-            } else {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Gagal',
-                    text: data.message || 'Sinkronisasi gagal.',
-                    confirmButtonColor: '#dc2626'
-                });
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
+    .then(response => response.json())
+    .then(data => {
+        if (!data.success) {
             if (loadingModal) loadingModal.style.display = 'none';
             Swal.fire({
                 icon: 'error',
-                title: 'Kesalahan',
-                text: 'Terjadi kesalahan sistem saat sinkronisasi.',
+                title: 'Gagal',
+                text: data.message || 'Sinkronisasi gagal.',
                 confirmButtonColor: '#dc2626'
             });
+            return;
+        }
+
+        // Job started in background, let's poll!
+        startSyncPolling();
+    })
+    .catch(error => {
+        console.error('Error starting sync:', error);
+        if (loadingModal) loadingModal.style.display = 'none';
+        Swal.fire({
+            icon: 'error',
+            title: 'Kesalahan',
+            text: 'Terjadi kesalahan sistem saat memulai sinkronisasi.',
+            confirmButtonColor: '#dc2626'
         });
+    });
+}
+
+// Global variable tracker to prevent duplicate intervals
+let syncPollInterval = null;
+
+function startSyncPolling() {
+    if (syncPollInterval) {
+        clearInterval(syncPollInterval);
+    }
+
+    syncPollInterval = setInterval(function() {
+        fetch('/sync-progress')
+            .then(res => res.json())
+            .then(data => {
+                updateSyncUI(data);
+
+                // If progress reaches 100%, finish up
+                if (data.progress >= 100) {
+                    clearInterval(syncPollInterval);
+                    syncPollInterval = null;
+                    finishSyncSuccess();
+                }
+            })
+            .catch(err => {
+                console.error("Error polling sync progress:", err);
+            });
+    }, 1500); // Poll every 1.5 seconds
+}
+
+function updateSyncUI(data) {
+    if (!data) return;
+
+    // Update Overall Bar & Text
+    let barFill = document.getElementById('syncProgressBar');
+    let pctText = document.getElementById('syncProgressText');
+    let detailText = document.getElementById('syncDetailText');
+
+    if (barFill) barFill.style.width = data.progress + '%';
+    if (pctText) pctText.innerText = data.progress + '%';
+    if (detailText) detailText.innerText = data.detail_text || '';
+
+    // Update 4 Steps Iteratively
+    for (let i = 1; i <= 4; i++) {
+        let status = data[`step_${i}_status`]; // 'pending', 'processing', 'done'
+        let stepEl = document.getElementById(`step${i}`);
+        let iconEl = document.getElementById(`step${i}Icon`);
+
+        if (stepEl && iconEl && status) {
+            // Remove previous classes
+            stepEl.classList.remove('processing', 'done');
+            
+            if (status === 'processing') {
+                stepEl.classList.add('processing');
+                iconEl.innerHTML = '<i class="ph-bold ph-spinner icon-processing"></i>';
+            } else if (status === 'done') {
+                stepEl.classList.add('done');
+                iconEl.innerHTML = '<i class="ph-fill ph-check-circle icon-done"></i>';
+            } else {
+                // pending
+                iconEl.innerHTML = '<span class="circle-pending"></span>';
+            }
+        }
+    }
+}
+
+function finishSyncSuccess() {
+    var loadingModal = document.getElementById('loadingModal');
+    
+    // Slight delay so user sees 100% and checkmarks before it closes
+    setTimeout(() => {
+        if (loadingModal) loadingModal.style.display = 'none';
+
+        var toast = document.getElementById("syncToast");
+        if (toast) {
+            toast.className = "toast-notification show";
+            setTimeout(function () {
+                if (toast) toast.className = toast.className.replace("show", "");
+            }, 3000);
+        }
+
+        setTimeout(() => {
+            location.reload();
+        }, 1000);
+    }, 1200);
 }
 
 

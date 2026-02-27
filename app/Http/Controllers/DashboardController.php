@@ -9,6 +9,7 @@ use App\Models\KelengkapanDokumen;
 use App\Models\NotifikasiRules; // Added
 use App\Helpers\ActivityLogger;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 
 class DashboardController extends Controller
 {
@@ -117,6 +118,21 @@ public function syncData()
 
         ActivityLogger::logAdminAction("Memulai Sinkronisasi Data Manual (Berjalan di Latar Belakang)");
 
+        // Inisialisasi Cache Progress
+        // Step 1: Data Utama Pegawai
+        // Step 2: Riwayat Jabatan
+        // Step 3: Angka Kredit
+        // Step 4: Riwayat Diklat
+        Cache::put('sync_status', [
+            'progress' => 0,
+            'current_step' => 1,
+            'step_1_status' => 'pending', 
+            'step_2_status' => 'pending',
+            'step_3_status' => 'pending',
+            'step_4_status' => 'pending',
+            'detail_text' => 'Bersiap memulai sinkronisasi...'
+        ], now()->addMinutes(15)); // Expire in 15 mins just in case
+
         // --- TAMBAHAN FIX ---
         // Biar user nggak perlu ngetik "php artisan queue:work" di terminal terpisah
         $artisan = base_path('artisan');
@@ -138,5 +154,24 @@ public function syncData()
             'message' => 'Gagal Memulai Sinkronisasi: ' . $e->getMessage(),
         ], 500);
     }
+}
+
+/**
+ * Mengambil status sinkronisasi terbaru dari Cache.
+ */
+public function syncProgress()
+{
+    // Ambil default null atau state 'pending' jika cache nggak ada.
+    $status = Cache::get('sync_status', [
+        'progress' => 0,
+        'current_step' => 1,
+        'step_1_status' => 'pending', 
+        'step_2_status' => 'pending',
+        'step_3_status' => 'pending',
+        'step_4_status' => 'pending',
+        'detail_text' => 'Bersiap memulai sinkronisasi...'
+    ]);
+
+    return response()->json($status);
 }
 }

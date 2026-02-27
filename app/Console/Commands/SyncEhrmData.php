@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Cache;
 use App\Models\Pegawai;
 use Carbon\Carbon;
 use App\Helpers\ActivityLogger;
@@ -59,9 +60,13 @@ class SyncEhrmData extends Command
         }
 
         $dataPegawai = $pegawaiResponse->json()['resource'] ?? $pegawaiResponse->json();
-        $bar = $this->output->createProgressBar(count($dataPegawai));
+        $totalPegawai = count($dataPegawai);
+        $bar = $this->output->createProgressBar($totalPegawai);
         $bar->start();
 
+        $this->updateProgressCache(5, 1, 'processing', 'Memulai sinkronisasi data utama pegawai...');
+
+        $currentPegawai = 0;
         foreach ($dataPegawai as $item) {
             Pegawai::updateOrCreate(
                 ['nip' => $item['nip']], 
@@ -83,8 +88,15 @@ class SyncEhrmData extends Command
                     // ================================================
                 ]
             );
+            $currentPegawai++;
+            // Calculate progress: Step 1 goes from 5% to 25% (20% total)
+            $stepProgress = 5 + intval(($currentPegawai / $totalPegawai) * 20);
+            if ($currentPegawai % 50 === 0 || $currentPegawai === $totalPegawai) {
+                $this->updateProgressCache($stepProgress, 1, 'processing', "Memproses $currentPegawai / $totalPegawai pegawai...");
+            }
             $bar->advance();
         }
+        $this->updateProgressCache(25, 1, 'done', 'Data Utama Pegawai Selesai');
         $bar->finish();
         $this->newLine();
 
@@ -100,9 +112,13 @@ class SyncEhrmData extends Command
 
         if ($riwResponse->successful()) {
             $dataRiw = $riwResponse->json()['resource'] ?? $riwResponse->json();
-            $bar2 = $this->output->createProgressBar(count($dataRiw));
+            $totalRiw = count($dataRiw);
+            $bar2 = $this->output->createProgressBar($totalRiw);
             $bar2->start();
 
+            $this->updateProgressCache(25, 2, 'processing', 'Memulai sinkronisasi riwayat jabatan...');
+
+            $currentRiw = 0;
             foreach ($dataRiw as $item) {
                 $apiId = $item['id'] ?? null;
                 if (!$apiId) continue;
@@ -134,8 +150,15 @@ class SyncEhrmData extends Command
                         );
                     }
                 }
+                $currentRiw++;
+                // Calculate progress: Step 2 goes from 25% to 45% (20% total)
+                $stepProgress = 25 + intval(($currentRiw / max(1, $totalRiw)) * 20);
+                if ($currentRiw % 50 === 0 || $currentRiw === $totalRiw) {
+                    $this->updateProgressCache($stepProgress, 2, 'processing', "Memproses riwayat jabatan $currentRiw / $totalRiw pegawai...");
+                }
                 $bar2->advance();
             }
+            $this->updateProgressCache(45, 2, 'done', 'Riwayat Jabatan Selesai');
             $bar2->finish();
         } else {
             $this->error('❌ Gagal ambil Riwayat Jabatan.');
@@ -149,9 +172,13 @@ class SyncEhrmData extends Command
         $this->info('⬇️  [3/4] Mengunduh Riwayat Angka Kredit...');
         
         $allPegawai = Pegawai::select('nip', 'id_pegawai_api')->get();
-        $bar3 = $this->output->createProgressBar($allPegawai->count());
+        $totalAk = $allPegawai->count();
+        $bar3 = $this->output->createProgressBar($totalAk);
         $bar3->start();
 
+        $this->updateProgressCache(45, 3, 'processing', 'Memulai sinkronisasi angka kredit...');
+
+        $currentAk = 0;
         foreach ($allPegawai as $peg) {
             $nip = $peg->nip;
             
@@ -195,8 +222,15 @@ class SyncEhrmData extends Command
                 // Ignore timeout untuk 1 NIP spesifik agar proses loop terus berjalan
                 \Illuminate\Support\Facades\Log::warning("Gagal ambil AK NIP {$nip}: " . $e->getMessage());
             }
+            $currentAk++;
+            // Calculate progress: Step 3 goes from 45% to 70% (25% total)
+            $stepProgress = 45 + intval(($currentAk / max(1, $totalAk)) * 25);
+            if ($currentAk % 50 === 0 || $currentAk === $totalAk) {
+                $this->updateProgressCache($stepProgress, 3, 'processing', "Memproses angka kredit $currentAk / $totalAk pegawai...");
+            }
             $bar3->advance();
         }
+        $this->updateProgressCache(70, 3, 'done', 'Angka Kredit Selesai');
         $bar3->finish();
         $this->newLine();
 
@@ -206,9 +240,13 @@ class SyncEhrmData extends Command
         $this->info('⬇️  [4/4] Mengunduh Riwayat Diklat (Per NIP)...');
         
         $allPegawai = Pegawai::select('nip', 'nama')->get();
-        $bar4 = $this->output->createProgressBar($allPegawai->count());
+        $totalDiklat = $allPegawai->count();
+        $bar4 = $this->output->createProgressBar($totalDiklat);
         $bar4->start();
 
+        $this->updateProgressCache(70, 4, 'processing', 'Memulai sinkronisasi riwayat diklat...');
+
+        $currentDiklat = 0;
         foreach ($allPegawai as $peg) {
             $nip = $peg->nip;
             
@@ -242,6 +280,14 @@ class SyncEhrmData extends Command
                     }
                 }
             }
+            $currentDiklat++;
+            // Calculate progress: Step 4 goes from 70% to 95% (25% total) 
+            // the last 5% is reserved for seeder and tracker in ProcessSyncData
+            $stepProgress = 70 + intval(($currentDiklat / max(1, $totalDiklat)) * 25);
+            if ($currentDiklat % 50 === 0 || $currentDiklat === $totalDiklat) {
+                // Keep step 4 processing until the very end of ProcessSyncData.php
+                $this->updateProgressCache($stepProgress, 4, 'processing', "Memproses riwayat diklat $currentDiklat / $totalDiklat pegawai...");
+            }
             $bar4->advance();
         }
         $bar4->finish();
@@ -267,5 +313,23 @@ class SyncEhrmData extends Command
         } catch (\Exception $e) {
             return null;
         }
+    }
+
+    /**
+     * Memperbarui progress ke Cache untuk divisualisasikan real-time di frontend.
+     */
+    private function updateProgressCache($progress, $step, $status, $detailText)
+    {
+        $currentCache = Cache::get('sync_status', []);
+        
+        $currentCache['progress'] = $progress;
+        $currentCache['current_step'] = $step;
+        if ($step === 1) $currentCache['step_1_status'] = $status;
+        if ($step === 2) $currentCache['step_2_status'] = $status;
+        if ($step === 3) $currentCache['step_3_status'] = $status;
+        if ($step === 4) $currentCache['step_4_status'] = $status;
+        $currentCache['detail_text'] = $detailText;
+
+        Cache::put('sync_status', $currentCache, now()->addMinutes(15));
     }
 }
