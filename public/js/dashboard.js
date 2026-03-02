@@ -153,6 +153,64 @@ function closeConfirmModal() {
     confirmTrackerId = null;
 }
 
+let ukomTrackerId = null;
+
+function openUkomModal(trackerId, pegawaiName) {
+    ukomTrackerId = trackerId;
+    const nameEl = document.getElementById('ukomPegawaiName');
+    if (nameEl) nameEl.textContent = pegawaiName;
+    const modal = document.getElementById('ukomModal');
+    if (modal) modal.style.display = 'flex';
+}
+
+function closeUkomModal() {
+    const modal = document.getElementById('ukomModal');
+    if (modal) modal.style.display = 'none';
+    ukomTrackerId = null;
+}
+
+function submitUkom() {
+    if (!ukomTrackerId) return;
+
+    var btn = document.getElementById('ukomYesBtn');
+    btn.textContent = 'Memproses...';
+    btn.disabled = true;
+
+    const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+    fetch('/tracker/' + ukomTrackerId + '/move-to-ukom', {
+        method: 'POST',
+        headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': csrfToken,
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                closeUkomModal();
+                // Reload halaman agar list terupdate
+                window.location.reload();
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Gagal',
+                    text: data.message || 'Gagal memindahkan pegawai.',
+                    confirmButtonColor: '#dc2626'
+                });
+                btn.textContent = 'Ya, Daftarkan UKOM';
+                btn.disabled = false;
+            }
+        })
+        .catch(err => {
+            console.error('Gagal ukom:', err);
+            btn.textContent = 'Ya, Daftarkan UKOM';
+            btn.disabled = false;
+        });
+}
+
 function toggleMessageMode() {
     const isCustom = document.getElementById('checkCustom').checked;
     const selectTemplate = document.getElementById('reminderTemplate');

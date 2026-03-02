@@ -315,7 +315,7 @@
                                                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
                                                     </button>
                                                     @if($item->status_saat_ini == 'Usulan')
-                                                    <button class="btn-action-confirm" onclick="openConfirmModal({{ $item->id }}, '{{ $item->pegawai->nama }}')" title="Konfirmasi Proses">
+                                                    <button class="btn-action-confirm" onclick="openUkomModal({{ $item->id }}, '{{ $item->pegawai->nama }}')" title="Daftarkan Uji Kompetensi">
                                                         <i class="ph-bold ph-check" style="font-size: 16px;"></i>
                                                     </button>
                                                     @endif
@@ -427,16 +427,47 @@
                             </div>
                         </div>
 
-                         <!-- TASK: KOMPETENSI (Placeholder) -->
+                         <!-- TASK: KOMPETENSI -->
                         <div class="task-card-wrapper">
                             <div class="task-header" onclick="toggleMainTask('task-kompetensi', this)">
-                                <div style="background:#1e3a8a; color:white; width:36px; height:36px; border-radius:8px; display:flex; align-items:center; justify-content:center; font-weight:700; margin-right:15px;">0</div>
+                                <div style="background:#1e3a8a; color:white; width:36px; height:36px; border-radius:8px; display:flex; align-items:center; justify-content:center; font-weight:700; margin-right:15px;">{{ $listUkom ? $listUkom->count() : 0 }}</div>
                                 <span style="font-weight:600; font-size:16px; flex:1;">Uji Kompetensi</span>
                                 <svg class="arrow-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
                             </div>
                             <div id="task-kompetensi" class="task-sub-container">
-                                <div style="padding: 25px; text-align: center; color: #64748b; font-style: italic; background-color: #f8fafc; border-radius: 0 0 8px 8px;">
-                                    Belum ada tugas untuk saat ini
+                                <div class="sub-table-container active" style="display:block;">
+                                    @if(isset($listUkom) && $listUkom->count() > 0)
+                                        <table class="custom-table">
+                                            <thead>
+                                                <tr>
+                                                    <th>Nama</th>
+                                                    <th>Jenjang Saat Ini</th>
+                                                    <th>Status</th>
+                                                    <th>Aksi</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @foreach($listUkom as $ukom)
+                                                <tr>
+                                                    <td>{{ $ukom->pegawai->nama }}</td>
+                                                    <td>{{ $ukom->pegawai->jenjang ?? '-' }}</td>
+                                                    <td>
+                                                        <span class="status-badge status-warning">{{ $ukom->status_saat_ini }}</span>
+                                                    </td>
+                                                    <td style="display: flex; gap: 6px;">
+                                                        <button class="btn-action-view" onclick="openDetailModal('{{ $ukom->pegawai->nip }}')">
+                                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                                @endforeach
+                                            </tbody>
+                                        </table>
+                                    @else
+                                        <div style="padding: 25px; text-align: center; color: #64748b; font-style: italic; background-color: #f8fafc;">
+                                            Belum ada pegawai dalam tahapan Uji Kompetensi
+                                        </div>
+                                    @endif
                                 </div>
                             </div>
                         </div>
@@ -580,6 +611,22 @@
             <div class="confirm-modal-actions">
                 <button class="confirm-btn-cancel" onclick="closeConfirmModal()">Batal</button>
                 <button class="confirm-btn-yes" id="confirmYesBtn" onclick="submitConfirm()">Ya, Sudah Diproses</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- UKOM MODAL -->
+    <div id="ukomModal" class="modal-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2200; justify-content: center; align-items: center;">
+        <div class="confirm-modal-content">
+            <div class="confirm-modal-icon" style="background:#dbeafe; width:80px; height:80px; border-radius:50%; display:flex; align-items:center; justify-content:center; margin-bottom:20px;">
+                <i class="ph-fill ph-medal" style="font-size: 48px; color: #1e3a8a;"></i>
+            </div>
+            <h3 class="confirm-modal-title">Daftarkan Uji Kompetensi</h3>
+            <p class="confirm-modal-text">Pindahkan pegawai berikut ke kategori Uji Kompetensi (UKOM) dan kirimkan notifikasi pemberitahuan kepadanya via email?</p>
+            <p class="confirm-modal-name" id="ukomPegawaiName">-</p>
+            <div class="confirm-modal-actions">
+                <button class="confirm-btn-cancel" onclick="closeUkomModal()">Batal</button>
+                <button class="confirm-btn-yes" id="ukomYesBtn" onclick="submitUkom()" style="background:#1e3a8a; color:white;">Ya, Daftarkan UKOM</button>
             </div>
         </div>
     </div>

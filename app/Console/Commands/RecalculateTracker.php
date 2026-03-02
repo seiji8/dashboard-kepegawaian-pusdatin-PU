@@ -158,7 +158,13 @@ class RecalculateTracker extends Command
                     });
 
                     if ($matriks) {
-                        $targetAK = $matriks->target_ak;
+                        // KEBUTUHAN AK KUMULATIF:
+                        // AK direset ke-0 HANYA saat kenaikan JENJANG. Saat kenaikan PANGKAT (dalam jenjang yg sama), AK berlanjut.
+                        // Sehingga target untuk pangkat ini adalah jumlah seluruh target_ak Pangkat sebelumnya pada Jenjang yg sama.
+                        $targetAK = $matriksKamus->where('jabatan_asal', $matriks->jabatan_asal)
+                                                 ->where('id', '<=', $matriks->id)
+                                                 ->sum('target_ak');
+                                                 
                         $koefisienTahunan = $matriks->koefisien_tahunan ?? 0;
                         $isKenaikanJenjang = $matriks->is_naik_jenjang;
                         
@@ -199,15 +205,24 @@ class RecalculateTracker extends Command
                             $kurangFormat = number_format($kekuranganAK, 3, ',', '.'); 
 
                             $existingAK = DashboardTracker::where('pegawai_id', $pegawai->id_pegawai_api)
-                                ->where('kategori', $kategoriSekarang)
+                                ->whereIn('kategori', [$kategoriSekarang, 'UKOM'])
                                 ->first();
 
-                            $isProses = $existingAK && ($existingAK->status_saat_ini === 'Proses' || $existingAK->dikonfirmasi_at);
+                            $isProses = $existingAK && (
+                                $existingAK->status_saat_ini === 'Proses' || 
+                                $existingAK->dikonfirmasi_at ||
+                                $existingAK->kategori === 'UKOM'
+                            );
+
+                            $skipTrackerUpdate = false;
 
                             // Penentuan Status Tracker
                             if ($isProses) {
                                 $statusAK = 'Proses';
                                 $keteranganAK = 'Sedang diproses admin';
+                                if ($existingAK->kategori === 'UKOM') {
+                                    $skipTrackerUpdate = true;
+                                }
                             } elseif (is_null($latestAK)) {
                                 $statusAK = 'Usulan'; // Dibuat mode usulan agar menonjol di dashboard (urgent)
                                 $keteranganAK = 'Peringatan: Data Riwayat AK tidak ditemukan di e-HRM. Segera upload/update data Anda.';
@@ -238,29 +253,31 @@ class RecalculateTracker extends Command
                             }
 
                             // Manajemen Database Tracker
-                            if (in_array($statusAK, ['Usulan', 'Mendekati', 'Proses'])) {
-                                DashboardTracker::updateOrCreate(
-                                    [
-                                        'pegawai_id' => $pegawai->id_pegawai_api,
-                                        'kategori'   => $kategoriSekarang,
-                                    ],
-                                    [
-                                        'status_saat_ini' => $statusAK,
-                                        'keterangan'      => $keteranganAK,
-                                        'dokumen_total'   => $dokumenTotal,
-                                        'tanggal_target'  => $targetDate,
-                                    ]
-                                );
+                            if (!$skipTrackerUpdate) {
+                                if (in_array($statusAK, ['Usulan', 'Mendekati', 'Proses'])) {
+                                    DashboardTracker::updateOrCreate(
+                                        [
+                                            'pegawai_id' => $pegawai->id_pegawai_api,
+                                            'kategori'   => $kategoriSekarang,
+                                        ],
+                                        [
+                                            'status_saat_ini' => $statusAK,
+                                            'keterangan'      => $keteranganAK,
+                                            'dokumen_total'   => $dokumenTotal,
+                                            'tanggal_target'  => $targetDate,
+                                        ]
+                                    );
 
-                                // Hapus Kategori Lawan
-                                DashboardTracker::where('pegawai_id', $pegawai->id_pegawai_api)
-                                    ->where('kategori', $kategoriLawan)
-                                    ->delete();
-                            } else {
-                                // Status Aman -> Hapus keduanya
-                                DashboardTracker::where('pegawai_id', $pegawai->id_pegawai_api)
-                                    ->whereIn('kategori', ['KP_Jafung', 'KJ_Jafung'])
-                                    ->delete();
+                                    // Hapus Kategori Lawan
+                                    DashboardTracker::where('pegawai_id', $pegawai->id_pegawai_api)
+                                        ->where('kategori', $kategoriLawan)
+                                        ->delete();
+                                } else {
+                                    // Status Aman -> Hapus keduanya + UKOM agar tidak jadi Zombie Tracker
+                                    DashboardTracker::where('pegawai_id', $pegawai->id_pegawai_api)
+                                        ->whereIn('kategori', ['KP_Jafung', 'KJ_Jafung', 'UKOM'])
+                                        ->delete();
+                                }
                             }
                         }
                     }

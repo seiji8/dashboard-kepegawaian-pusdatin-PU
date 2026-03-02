@@ -10,6 +10,8 @@ use App\Models\NotifikasiRules; // Added
 use App\Helpers\ActivityLogger;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
+use App\Mail\ManualNotification;
+use Illuminate\Support\Facades\Mail;
 
 class DashboardController extends Controller
 {
@@ -49,6 +51,7 @@ class DashboardController extends Controller
         // Kelompokkan berdasarkan Kategori untuk Accordion
         $listKenaikanPangkat = $trackers->where('kategori', 'KP_Jafung'); // Gabung Struktural & Jafung logic nanti
         $listKenaikanJenjang = $trackers->where('kategori', 'KJ_Jafung'); // Kenaikan Jenjang / UKOM
+        $listUkom            = $trackers->where('kategori', 'UKOM'); // Uji Kompetensi
         
         $listKGB             = $trackers->where('kategori', 'KGB')->sortBy(function($item) {
             switch ($item->status_saat_ini) {
@@ -79,10 +82,46 @@ class DashboardController extends Controller
             'kpStruktural',
             'kpFungsional',
             'listKenaikanJenjang',
+            'listUkom',
             'listKGB',
             'templates'
         ));
     }
+
+/**
+ * Pindahkan Tracker ke Uji Kompetensi (UKOM)
+ */
+public function moveToUkom(Request $request, $id)
+{
+    $tracker = DashboardTracker::with('pegawai')->findOrFail($id);
+
+    $tracker->update([
+        'kategori'          => 'UKOM',
+        'status_saat_ini'   => 'Usulan',
+        'keterangan'        => 'Pegawai masuk kategori Uji Kompetensi'
+    ]);
+
+    // Kirim Notifikasi Email
+    if ($tracker->pegawai->email) {
+        $subject = 'Pemberitahuan Uji Kompetensi (UKOM)';
+        $message = "Halo {$tracker->pegawai->nama},\n\nAnda telah masuk ke dalam kategori Uji Kompetensi (UKOM) untuk proses kenaikan jenjang Anda. Mohon segera persiapkan diri dan lengkapi dokumen yang diperlukan.\n\nTerima kasih.";
+        
+        try {
+            Mail::to($tracker->pegawai->email)->send(new ManualNotification($tracker->pegawai, $subject, $message));
+        } catch (\Exception $e) {
+            \Log::error("Gagal mengirim notifikasi UKOM ke {$tracker->pegawai->email}: " . $e->getMessage());
+        }
+    }
+
+    ActivityLogger::logAdminAction(
+        "Memindahkan {$tracker->pegawai->nama} (NIP: {$tracker->pegawai->nip}) ke kategori Uji Kompetensi (UKOM)"
+    );
+
+    return response()->json([
+        'success' => true,
+        'message' => 'Pegawai berhasil didaftarkan Uji Kompetensi dan notifikasi telah dikirim!',
+    ]);
+}
 
 /**
  * Konfirmasi manual bahwa tugas KGB sudah diproses di dunia nyata.

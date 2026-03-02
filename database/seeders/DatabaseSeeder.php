@@ -56,7 +56,7 @@ class DatabaseSeeder extends Seeder
             'tmt_kgb_terakhir' => '2024-04-01',
         ]);
 
-        // Kasus KP (Poin Cukup)
+        // Kasus KP (Poin Cukup) -> Dimodifikasi jadi kasus Kenaikan Jenjang (UKOM)
         $nip_siti = '102'; // ID Dummy Simple
         
         Pegawai::create([
@@ -66,11 +66,11 @@ class DatabaseSeeder extends Seeder
             'email' => 'hasan.inf1re7@gmail.com',
             'no_hp' => '08987654321',
             'tipe_jabatan' => 'Fungsional',
-            'jabatan_saat_ini' => 'Pranata Komputer Ahli Pertama',
-            'jenjang' => 'Ahli Pertama', // Berfungsi sebagai referensi kamus JF BKN
-            'pangkat_golongan' => 'III/a',
-            'tmt_pangkat_terakhir' => '2022-01-01',
-            'tmt_kgb_terakhir' => '2026-02-01',
+            'jabatan_saat_ini' => 'Analis Kebijakan Ahli Muda',
+            'jenjang' => 'Ahli Muda', // Berfungsi sebagai referensi kamus JF BKN
+            'pangkat_golongan' => 'III/d', // Titik lompat ke Ahli Madya
+            'tmt_pangkat_terakhir' => '2021-04-01',
+            'tmt_kgb_terakhir' => '2024-04-01',
         ]);
         
         // 4. DATA DUMMY ANGKA KREDIT AWAL
@@ -78,15 +78,15 @@ class DatabaseSeeder extends Seeder
             'id_pegawai_api' => '102', // Hasan
             'nomor_sk' => 'SK-DUMMY-001',
             'tanggal_sk' => '2022-12-01',
-            'total_kredit' => 55, // Lebih dari target 50
-            'jabatan_saat_penilaian' => 'Pranata Komputer Ahli Pertama'
+            'total_kredit' => 210, // Lebih dari syarat kumulatif jenjang (200 AK) untuk naik ke Ahli Madya
+            'jabatan_saat_penilaian' => 'Analis Kebijakan Ahli Muda'
         ]);
 
         RiwayatAngkaKredit::create([
             'id_pegawai_api' => '104', // Bimo (Kekurangan AK)
             'nomor_sk' => 'SK-DUMMY-002',
             'tanggal_sk' => '2023-12-01',
-            'total_kredit' => 40, // Kurang dari 50
+            'total_kredit' => 110, // Kurang dari 50
             'jabatan_saat_penilaian' => 'Pranata Komputer Ahli Pertama'
         ]);
 
@@ -113,7 +113,7 @@ class DatabaseSeeder extends Seeder
             'tipe_jabatan' => 'Fungsional',
             'jabatan_saat_ini' => 'Pranata Komputer Ahli Pertama',
             'jenjang' => 'Ahli Pertama',
-            'pangkat_golongan' => 'III/a',
+            'pangkat_golongan' => 'III/d',
             'tmt_kgb_terakhir' => '2024-04-01',
         ]);
 
