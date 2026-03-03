@@ -115,6 +115,9 @@ class DataPegawaiController extends Controller
             } elseif ($tracker->kategori == 'KP_Jafung') {
                 $missingDocs[] = ['kategori' => 'KP_Jafung', 'nama_dokumen' => "SK Pangkat Terakhir"];
                 $missingDocs[] = ['kategori' => 'KP_Jafung', 'nama_dokumen' => "SK Penilaian Angka Kredit (PAK)"];
+            } elseif ($tracker->kategori == 'KP_Struktural') {
+                $missingDocs[] = ['kategori' => 'KP_Struktural', 'nama_dokumen' => "SK Pangkat Terakhir"];
+                $missingDocs[] = ['kategori' => 'KP_Struktural', 'nama_dokumen' => "SK Jabatan Terakhir"];
             } else {
                 // Logic existing untuk kategori lain (KGB, dll)
                 $docs = $tracker->kelengkapan_dokumen->where('is_uploaded', false);

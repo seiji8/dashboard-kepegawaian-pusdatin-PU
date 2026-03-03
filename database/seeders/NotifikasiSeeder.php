@@ -36,7 +36,7 @@ class NotifikasiSeeder extends Seeder
         NotifikasiRules::updateOrCreate(
             ['kategori' => 'Template SKP'],
             [
-                'template_pesan' => "Halo {nama},\n\nIni adalah pengingat manual untuk melengkapi berkas SKP Anda yang masih kurang lengkap. Mohon segera dicek kembali.\n\nTerima kasih.",
+                'template_pesan' => "Ini adalah pengingat manual untuk melengkapi berkas SKP Anda yang masih kurang lengkap. Mohon segera dicek kembali.\n\nTerima kasih.",
                 'interval_hari' => 0, // Manual
                 'is_active' => true,
             ]

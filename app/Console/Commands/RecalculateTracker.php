@@ -283,6 +283,101 @@ class RecalculateTracker extends Command
                     }
                 }
 
+                // ==========================================
+                // LOGIKA KP STRUKTURAL
+                // ==========================================
+                // Syarat kinerja logis: pegawai Struktural
+                if (!empty($pegawai->pangkat_golongan) && !empty($pegawai->kd_eselon)) {
+                    // Mapping Eselon ke Min & Max Golru
+                    $eselonMapping = [
+                        '1' => ['min' => 'IV/d', 'max' => 'IV/e'], // I.a
+                        '2' => ['min' => 'IV/c', 'max' => 'IV/e'], // I.b
+                        '3' => ['min' => 'IV/c', 'max' => 'IV/d'], // II.a
+                        '4' => ['min' => 'IV/b', 'max' => 'IV/c'], // II.b
+                        '5' => ['min' => 'IV/a', 'max' => 'IV/b'], // III.a
+                        '6' => ['min' => 'III/d', 'max' => 'IV/a'], // III.b
+                        '7' => ['min' => 'III/c', 'max' => 'III/d'], // IV.a
+                        '8' => ['min' => 'III/b', 'max' => 'III/c'], // IV.b
+                        '9' => ['min' => 'III/a', 'max' => 'III/b'], // V.a
+                    ];
+
+                    $eselon = trim($pegawai->kd_eselon);
+                    $golru = trim($pegawai->pangkat_golongan);
+
+                    if (isset($eselonMapping[$eselon])) {
+                        $mapping = $eselonMapping[$eselon];
+                        $maxGolru = $mapping['max'];
+
+                        // Syarat Mutlak: Wajib (Masa Pangkat >= 1 thn) AND (Masa Jabatan/Pelantikan >= 1 thn).
+                        $masaPangkat = 0;
+                        $masaJabatan = 0;
+
+                        if ($pegawai->tmt_pangkat_terakhir) {
+                            $masaPangkat = Carbon::parse($pegawai->tmt_pangkat_terakhir)->diffInYears($today);
+                        }
+
+                        // Menggunakan tmt_struktural jika ada, jika tidak cek riwayat_jabatan terakhir
+                        $tmtJabatan = $pegawai->tmt_struktural;
+                        if (!$tmtJabatan && $pegawai->riwayat_jabatan) {
+                            $latestJabatan = $pegawai->riwayat_jabatan->first();
+                            if ($latestJabatan && $latestJabatan->tmt_jabatan) {
+                                $tmtJabatan = $latestJabatan->tmt_jabatan;
+                            }
+                        }
+
+                        if ($tmtJabatan) {
+                            $masaJabatan = Carbon::parse($tmtJabatan)->diffInYears($today);
+                        }
+
+                        $statusStruktural = 'Aman';
+                        $keteranganStruktural = 'Masih dalam masa aman / Belum memenuhi masa kerja';
+                        
+                        $existingKPStruct = DashboardTracker::where('pegawai_id', $pegawai->id_pegawai_api)
+                            ->where('kategori', 'KP_Struktural')
+                            ->first();
+                            
+                        $isProsesStruct = $existingKPStruct && (
+                            $existingKPStruct->status_saat_ini === 'Proses' || 
+                            $existingKPStruct->dikonfirmasi_at
+                        );
+
+                        if ($isProsesStruct) {
+                            $statusStruktural = 'Proses';
+                            $keteranganStruktural = 'Sedang diproses admin';
+                        } else {
+                            if ($masaPangkat >= 1 && $masaJabatan >= 1) {
+                                // Jika sudah di puncak Golru untuk eselon ini
+                                if ($golru === $maxGolru || strcmp($golru, $maxGolru) > 0) {
+                                    $statusStruktural = 'Aman';
+                                    $keteranganStruktural = 'Sudah mencapai Puncak Golongan Ruang untuk Eselon saat ini';
+                                } else {
+                                    $statusStruktural = 'Usulan';
+                                    $keteranganStruktural = 'Memenuhi Syarat Kenaikan Pangkat Pilihan (Struktural)';
+                                }
+                            }
+                        }
+
+                        if ($statusStruktural != 'Aman') {
+                            DashboardTracker::updateOrCreate(
+                                [
+                                    'pegawai_id' => $pegawai->id_pegawai_api,
+                                    'kategori'   => 'KP_Struktural',
+                                ],
+                                [
+                                    'status_saat_ini' => $statusStruktural,
+                                    'keterangan'      => $keteranganStruktural,
+                                    'dokumen_total'   => 2, // Asumsi 2 dokumen (SK Pangkat, SK Jabatan)
+                                    'tanggal_target'  => Carbon::now()->format('Y-m-d'),
+                                ]
+                            );
+                        } else {
+                            DashboardTracker::where('pegawai_id', $pegawai->id_pegawai_api)
+                                ->where('kategori', 'KP_Struktural')
+                                ->delete();
+                        }
+                    }
+                }
+
                 $bar->advance();
             }
         }, 'id_pegawai_api'); 

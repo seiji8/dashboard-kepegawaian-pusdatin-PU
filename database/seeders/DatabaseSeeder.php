@@ -125,8 +125,11 @@ class DatabaseSeeder extends Seeder
             'email' => 'ezaadityanugroho1@gmail.com',
             'tipe_jabatan' => 'Struktural',
             'jabatan_saat_ini' => 'Kepala Seksi Perencanaan',
+            'kd_eselon' => '7', // Eselon IV.a (Max III/d)
             'jenjang' => null,
-            'pangkat_golongan' => 'III/d',
+            'pangkat_golongan' => 'III/c', // Kurang satu tingkat dari batas Mentok Eselon
+            'tmt_pangkat_terakhir' => '2023-01-01', // Sudah > 1 Tahun
+            'tmt_struktural' => '2023-01-01', // Sudah > 1 Tahun
             'tmt_kgb_terakhir' => '2024-01-01',
         ]);
 

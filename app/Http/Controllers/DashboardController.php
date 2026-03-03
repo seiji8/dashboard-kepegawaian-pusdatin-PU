@@ -49,7 +49,7 @@ class DashboardController extends Controller
                     ->get();
 
         // Kelompokkan berdasarkan Kategori untuk Accordion
-        $listKenaikanPangkat = $trackers->where('kategori', 'KP_Jafung'); // Gabung Struktural & Jafung logic nanti
+        $listKenaikanPangkat = $trackers->whereIn('kategori', ['KP_Jafung', 'KP_Struktural']); // Gabung Struktural & Jafung logic nanti
         $listKenaikanJenjang = $trackers->where('kategori', 'KJ_Jafung'); // Kenaikan Jenjang / UKOM
         $listUkom            = $trackers->where('kategori', 'UKOM'); // Uji Kompetensi
         
@@ -104,7 +104,7 @@ public function moveToUkom(Request $request, $id)
     // Kirim Notifikasi Email
     if ($tracker->pegawai->email) {
         $subject = 'Pemberitahuan Uji Kompetensi (UKOM)';
-        $message = "Halo {$tracker->pegawai->nama},\n\nAnda telah masuk ke dalam kategori Uji Kompetensi (UKOM) untuk proses kenaikan jenjang Anda. Mohon segera persiapkan diri dan lengkapi dokumen yang diperlukan.\n\nTerima kasih.";
+        $message = "Anda telah masuk ke dalam kategori Uji Kompetensi (UKOM) untuk proses kenaikan jenjang Anda. Mohon segera persiapkan diri dan lengkapi dokumen yang diperlukan.\n\nTerima kasih.";
         
         try {
             Mail::to($tracker->pegawai->email)->send(new ManualNotification($tracker->pegawai, $subject, $message));

@@ -79,6 +79,7 @@ class SyncEhrmData extends Command
                     'jabatan_saat_ini' => $item['jabatan_lengkap'] ?? null,
                     'pangkat_golongan' => $item['golongan'] ?? null,
                     'jenjang' => $item['jenjang'] ?? null,
+                    'kd_eselon' => $item['kd_eselon'] ?? null,
                     
                     // === [PENTING] BAGIAN INI KITA KOMENTARI DULU ===
                     // Tujuannya: Agar data tanggal manual tidak tertimpa NULL dari API
