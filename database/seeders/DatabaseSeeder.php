@@ -90,6 +90,14 @@ class DatabaseSeeder extends Seeder
             'jabatan_saat_penilaian' => 'Pranata Komputer Ahli Pertama'
         ]);
 
+        RiwayatAngkaKredit::create([
+            'id_pegawai_api' => '103', // Raissa
+            'nomor_sk' => 'SK-DUMMY-003',
+            'tanggal_sk' => '2023-12-01',
+            'total_kredit' => 210, // Kurang dari 50
+            'jabatan_saat_penilaian' => 'Pranata Komputer Ahli Pertama'
+        ]);
+
         // 5. Pegawai Tambahan (Untuk test fitur KGB)
         // KGB Mendekati: tmt_kgb + 2 tahun = Maret 2026 (H-1 bulan)
         Pegawai::create([
@@ -100,7 +108,7 @@ class DatabaseSeeder extends Seeder
             'tipe_jabatan' => 'Fungsional',
             'jabatan_saat_ini' => 'Analis Kebijakan Ahli Muda',
             'jenjang' => 'Ahli Muda', // Berfungsi sebagai referensi kamus JF BKN
-            'pangkat_golongan' => 'III/c',
+            'pangkat_golongan' => 'III/d',
             'tmt_kgb_terakhir' => '2024-03-01',
         ]);
 
@@ -125,7 +133,8 @@ class DatabaseSeeder extends Seeder
             'email' => 'ezaadityanugroho1@gmail.com',
             'tipe_jabatan' => 'Struktural',
             'jabatan_saat_ini' => 'Kepala Seksi Perencanaan',
-            'kd_eselon' => '7', // Eselon IV.a (Max III/d)
+            'kd_eselon' => '7', // Eselon
+            //  (Max III/d)
             'jenjang' => null,
             'pangkat_golongan' => 'III/c', // Kurang satu tingkat dari batas Mentok Eselon
             'tmt_pangkat_terakhir' => '2023-01-01', // Sudah > 1 Tahun

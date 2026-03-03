@@ -223,9 +223,10 @@ class RecalculateTracker extends Command
                                 if ($existingAK->kategori === 'UKOM') {
                                     $skipTrackerUpdate = true;
                                 }
-                            } elseif (is_null($latestAK)) {
-                                $statusAK = 'Usulan'; // Dibuat mode usulan agar menonjol di dashboard (urgent)
-                                $keteranganAK = 'Peringatan: Data Riwayat AK tidak ditemukan di e-HRM. Segera upload/update data Anda.';
+                            } elseif (is_null($latestAK) || $currentAK == 0) {
+                                // Jika data AK tidak ada atau nilainya 0, maka belum memenuhi syarat untuk dihitung KP
+                                $statusAK = 'Data Tidak Lengkap'; 
+                                $keteranganAK = 'Peringatan: Data Riwayat AK tidak ditemukan di e-HRM atau bernilai 0. Segera upload/update SK PAK Anda.';
                             } else {
                                 if ($kekuranganAK <= 0) {
                                     $statusAK = 'Usulan';
