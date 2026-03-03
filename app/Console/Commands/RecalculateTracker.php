@@ -291,25 +291,55 @@ class RecalculateTracker extends Command
                 if (!empty($pegawai->pangkat_golongan) && !empty($pegawai->kd_eselon)) {
                     // Mapping Eselon ke Min & Max Golru
                     $eselonMapping = [
-                        '1' => ['min' => 'IV/d', 'max' => 'IV/e'], // I.a
-                        '2' => ['min' => 'IV/c', 'max' => 'IV/e'], // I.b
-                        '3' => ['min' => 'IV/c', 'max' => 'IV/d'], // II.a
-                        '4' => ['min' => 'IV/b', 'max' => 'IV/c'], // II.b
-                        '5' => ['min' => 'IV/a', 'max' => 'IV/b'], // III.a
-                        '6' => ['min' => 'III/d', 'max' => 'IV/a'], // III.b
-                        '7' => ['min' => 'III/c', 'max' => 'III/d'], // IV.a
-                        '8' => ['min' => 'III/b', 'max' => 'III/c'], // IV.b
-                        '9' => ['min' => 'III/a', 'max' => 'III/b'], // V.a
+                        '1' => ['min' => 'IV/d', 'max' => 'IV/e'], // I/a
+                        '2' => ['min' => 'IV/c', 'max' => 'IV/e'], // I/b
+                        '3' => ['min' => 'IV/c', 'max' => 'IV/d'], // II/a
+                        '4' => ['min' => 'IV/b', 'max' => 'IV/c'], // II/b
+                        '5' => ['min' => 'IV/a', 'max' => 'IV/b'], // III/a
+                        '6' => ['min' => 'III/d', 'max' => 'IV/a'], // III/b
+                        '7' => ['min' => 'III/c', 'max' => 'III/d'], // IV/a
+                        '8' => ['min' => 'III/b', 'max' => 'III/c'], // IV/b
+                        '9' => ['min' => 'III/a', 'max' => 'III/b'], // V
+                    ];
+
+                    // -------------------------------------------------------
+                    // FIX: Urutan golongan ruang ASN yang benar (I/a = terendah, IV/e = tertinggi)
+                    // Tidak bisa pakai strcmp() → 'IV/a' < 'III/d' secara ASCII karena 'V' > 'I'
+                    // Solusi: bandingkan berdasarkan index posisi dalam array berikut
+                    // -------------------------------------------------------
+                    $golruOrder = [
+                        'I/a', 'I/b', 'I/c', 'I/d',
+                        'II/a', 'II/b', 'II/c', 'II/d',
+                        'III/a', 'III/b', 'III/c', 'III/d',
+                        'IV/a', 'IV/b', 'IV/c', 'IV/d', 'IV/e',
                     ];
 
                     $eselon = trim($pegawai->kd_eselon);
-                    $golru = trim($pegawai->pangkat_golongan);
+                    $golru  = trim($pegawai->pangkat_golongan);
 
                     if (isset($eselonMapping[$eselon])) {
-                        $mapping = $eselonMapping[$eselon];
-                        $maxGolru = $mapping['max'];
+                        $mapping   = $eselonMapping[$eselon];
+                        $minGolru  = $mapping['min'];
+                        $maxGolru  = $mapping['max'];
 
-                        // Syarat Mutlak: Wajib (Masa Pangkat >= 1 thn) AND (Masa Jabatan/Pelantikan >= 1 thn).
+                        $idxGolru = array_search($golru,    $golruOrder);
+                        $idxMin   = array_search($minGolru, $golruOrder);
+                        $idxMax   = array_search($maxGolru, $golruOrder);
+
+                        // --- HITUNG TANGGAL TARGET (tmt_pangkat_terakhir + 4 tahun) ---
+                        $tanggalTargetStruktural = null;
+                        if ($pegawai->tmt_pangkat_terakhir) {
+                            $tanggalTargetStruktural = Carbon::parse($pegawai->tmt_pangkat_terakhir)->addYears(4);
+                        }
+
+                        // --- FILTER H-2 BULAN (60 hari sebelum tanggal target) ---
+                        $startNotifyStruktural = $tanggalTargetStruktural
+                            ? $tanggalTargetStruktural->copy()->subDays(60)
+                            : null;
+
+                        $inNotifyWindow = $startNotifyStruktural && $today->greaterThanOrEqualTo($startNotifyStruktural);
+
+                        // Syarat Mutlak: Masa Pangkat >= 1 thn AND Masa Jabatan >= 1 thn
                         $masaPangkat = 0;
                         $masaJabatan = 0;
 
@@ -317,7 +347,7 @@ class RecalculateTracker extends Command
                             $masaPangkat = Carbon::parse($pegawai->tmt_pangkat_terakhir)->diffInYears($today);
                         }
 
-                        // Menggunakan tmt_struktural jika ada, jika tidak cek riwayat_jabatan terakhir
+                        // tmt_struktural → fallback ke riwayat_jabatan terakhir
                         $tmtJabatan = $pegawai->tmt_struktural;
                         if (!$tmtJabatan && $pegawai->riwayat_jabatan) {
                             $latestJabatan = $pegawai->riwayat_jabatan->first();
@@ -330,34 +360,43 @@ class RecalculateTracker extends Command
                             $masaJabatan = Carbon::parse($tmtJabatan)->diffInYears($today);
                         }
 
-                        $statusStruktural = 'Aman';
+                        $statusStruktural    = 'Aman';
                         $keteranganStruktural = 'Masih dalam masa aman / Belum memenuhi masa kerja';
-                        
+
                         $existingKPStruct = DashboardTracker::where('pegawai_id', $pegawai->id_pegawai_api)
                             ->where('kategori', 'KP_Struktural')
                             ->first();
-                            
+
                         $isProsesStruct = $existingKPStruct && (
-                            $existingKPStruct->status_saat_ini === 'Proses' || 
+                            $existingKPStruct->status_saat_ini === 'Proses' ||
                             $existingKPStruct->dikonfirmasi_at
                         );
 
                         if ($isProsesStruct) {
-                            $statusStruktural = 'Proses';
+                            $statusStruktural    = 'Proses';
                             $keteranganStruktural = 'Sedang diproses admin';
-                        } else {
-                            if ($masaPangkat >= 1 && $masaJabatan >= 1) {
-                                // Jika sudah di puncak Golru untuk eselon ini
-                                if ($golru === $maxGolru || strcmp($golru, $maxGolru) > 0) {
-                                    $statusStruktural = 'Aman';
-                                    $keteranganStruktural = 'Sudah mencapai Puncak Golongan Ruang untuk Eselon saat ini';
-                                } else {
-                                    $statusStruktural = 'Usulan';
-                                    $keteranganStruktural = 'Memenuhi Syarat Kenaikan Pangkat Pilihan (Struktural)';
-                                }
-                            }
-                        }
 
+                        } elseif ($idxGolru === false || $idxMin === false || $idxMax === false) {
+                            // Golru dari API tidak dikenali dalam referensi → lewati
+                            $statusStruktural = 'Aman';
+                            $keteranganStruktural = 'Data golongan ruang tidak dikenali dalam referensi';
+
+                        } elseif ($idxGolru >= $idxMax) {
+                            // Sudah di puncak pangkat untuk eselon ini → Aman
+                            $statusStruktural    = 'Aman';
+                            $keteranganStruktural = 'Sudah mencapai Puncak Golongan Ruang untuk Eselon saat ini';
+
+                        } elseif (!$pegawai->tmt_pangkat_terakhir && $masaJabatan >= 1) {
+                            // FALLBACK: tmt_pangkat NULL (API tidak punya data)
+                            // Tapi masa jabatan >= 1 tahun dan golru belum puncak → tampilkan
+                            $statusStruktural    = 'Usulan';
+                            $keteranganStruktural = 'Memenuhi Syarat Kenaikan Pangkat Pilihan (Struktural). Data TMT Pangkat belum tersedia dari API.';
+
+                        } elseif ($inNotifyWindow && $masaPangkat >= 1 && $masaJabatan >= 1) {
+                            // Window H-2 bulan + syarat mutlak terpenuhi
+                            $statusStruktural    = 'Usulan';
+                            $keteranganStruktural = 'Memenuhi Syarat Kenaikan Pangkat Pilihan (Struktural)';
+                        }
                         if ($statusStruktural != 'Aman') {
                             DashboardTracker::updateOrCreate(
                                 [
@@ -368,7 +407,9 @@ class RecalculateTracker extends Command
                                     'status_saat_ini' => $statusStruktural,
                                     'keterangan'      => $keteranganStruktural,
                                     'dokumen_total'   => 2, // Asumsi 2 dokumen (SK Pangkat, SK Jabatan)
-                                    'tanggal_target'  => Carbon::now()->format('Y-m-d'),
+                                    'tanggal_target'  => $tanggalTargetStruktural
+                                                            ? $tanggalTargetStruktural->format('Y-m-d')
+                                                            : Carbon::now()->format('Y-m-d'),
                                 ]
                             );
                         } else {
@@ -378,6 +419,7 @@ class RecalculateTracker extends Command
                         }
                     }
                 }
+
 
                 $bar->advance();
             }

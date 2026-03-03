@@ -80,14 +80,12 @@ class SyncEhrmData extends Command
                     'pangkat_golongan' => $item['golongan'] ?? null,
                     'jenjang' => $item['jenjang'] ?? null,
                     'kd_eselon' => $item['kd_eselon'] ?? null,
-                    
-                    // === [PENTING] BAGIAN INI KITA KOMENTARI DULU ===
-                    // Tujuannya: Agar data tanggal manual tidak tertimpa NULL dari API
-                    // 'tmt_cpns' => $this->parseDate($item['tmt_cpns'] ?? null),
-                    // 'tmt_pangkat_terakhir' => $this->parseDate($item['tmt_pangkat'] ?? null),
-                    // 'tmt_kgb_terakhir' => $this->parseDate($item['tmt_kgb'] ?? null), 
-                    // ================================================
-                ]
+                ] + array_filter([
+                    // Hanya update tanggal jika API mengembalikan nilai (tidak timpa data manual dgn NULL)
+                    'tmt_cpns' => $this->parseDate($item['tmt_cpns'] ?? null),
+                    'tmt_pangkat_terakhir' => $this->parseDate($item['tmt_pangkat'] ?? null),
+                    'tmt_kgb_terakhir' => $this->parseDate($item['tmt_kgb'] ?? null),
+                ])
             );
             $currentPegawai++;
             // Calculate progress: Step 1 goes from 5% to 25% (20% total)
@@ -128,10 +126,17 @@ class SyncEhrmData extends Command
                 if (!$pegawai) continue;
 
                 if (isset($item['riwjabatan']) && is_array($item['riwjabatan'])) {
-                    // Update Tipe Jabatan di Pegawai (ambil data terbaru)
+                    // Update Tipe Jabatan & kd_eselon di Pegawai (ambil data terbaru)
                     if (count($item['riwjabatan']) > 0) {
                         $latest = $item['riwjabatan'][0];
-                        $pegawai->update(['tipe_jabatan' => $latest['tipejabatan'] ?? null]);
+                        $updateData = ['tipe_jabatan' => $latest['tipejabatan'] ?? null];
+
+                        // Ambil kd_eselon dari riwayat jabatan terbaru (hanya ada di riwjabatan, bukan data utama)
+                        if (isset($latest['kd_eselon']) && $latest['kd_eselon']) {
+                            $updateData['kd_eselon'] = $latest['kd_eselon'];
+                        }
+
+                        $pegawai->update($updateData);
                     }
 
                     foreach ($item['riwjabatan'] as $jab) {

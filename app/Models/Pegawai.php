@@ -63,4 +63,28 @@ class Pegawai extends Model
     {
         return $this->hasMany(Logs::class, 'target_nip', 'nip');
     }
+
+    // 4. Accessor Eselon
+    // Mapping kd_eselon (kode angka) ke nama_eselon (label resmi)
+    const ESELON_MAP = [
+        '1' => 'I/a',
+        '2' => 'I/b',
+        '3' => 'II/a',
+        '4' => 'II/b',
+        '5' => 'III/a',
+        '6' => 'III/b',
+        '7' => 'IV/a',
+        '8' => 'IV/b',
+        '9' => 'V',
+    ];
+
+    /**
+     * Getter otomatis: $pegawai->nama_eselon
+     * Mengkonversi kd_eselon (angka) menjadi nama eselon (I.a, II.b, dst.)
+     */
+    public function getNamaEselonAttribute(): string
+    {
+        $kd = (string) ($this->kd_eselon ?? '');
+        return self::ESELON_MAP[$kd] ?? '-';
+    }
 }

@@ -137,7 +137,7 @@ class DatabaseSeeder extends Seeder
             //  (Max III/d)
             'jenjang' => null,
             'pangkat_golongan' => 'III/c', // Kurang satu tingkat dari batas Mentok Eselon
-            'tmt_pangkat_terakhir' => '2023-01-01', // Sudah > 1 Tahun
+            'tmt_pangkat_terakhir' => '2022-04-01', // Target 4thn = Apr 2026, window H-2bln = Feb 2026
             'tmt_struktural' => '2023-01-01', // Sudah > 1 Tahun
             'tmt_kgb_terakhir' => '2024-01-01',
         ]);
