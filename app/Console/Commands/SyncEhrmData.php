@@ -55,7 +55,7 @@ class SyncEhrmData extends Command
         ])->get("$baseUrl/v1/ehrm/pegawai");
 
         if ($pegawaiResponse->failed()) {
-            $this->error('❌ Gagal ambil data pegawai.');
+            $this->error('❌ Gagal ambil data pegawai. Detail: ' . $pegawaiResponse->body());
             return;
         }
 
@@ -185,56 +185,63 @@ class SyncEhrmData extends Command
         $this->updateProgressCache(45, 3, 'processing', 'Memulai sinkronisasi angka kredit...');
 
         $currentAk = 0;
-        foreach ($allPegawai as $peg) {
-            $nip = $peg->nip;
-            
-            try {
-                if (!$peg->id_pegawai_api) continue;
+        $akChunks = $allPegawai->chunk(3);
+        foreach ($akChunks as $chunk) {
+            $responses = Http::pool(function (\Illuminate\Http\Client\Pool $pool) use ($chunk, $baseUrl, $apiKey, $token) {
+                $reqs = [];
+                foreach ($chunk as $peg) {
+                    if (!$peg->id_pegawai_api) continue;
+                    $reqs[] = $pool->as("peg_".$peg->id_pegawai_api)->timeout(20)->withHeaders([
+                        'X-DreamFactory-Api-Key' => $apiKey,
+                        'X-DreamFactory-Session-Token' => $token,
+                    ])->get("$baseUrl/v1/ehrm/riw/angka-kredit", [
+                        'filter' => "id_pegawai={$peg->id_pegawai_api}"
+                    ]);
+                }
+                return $reqs;
+            });
 
-                $akResponse = Http::timeout(45)->withHeaders([
-                    'X-DreamFactory-Api-Key' => $apiKey,
-                    'X-DreamFactory-Session-Token' => $token,
-                ])->get("$baseUrl/v1/ehrm/riw/angka-kredit", [
-                    'filter' => "id_pegawai={$peg->id_pegawai_api}"
-                ]);
-
-                if ($akResponse->successful()) {
-                    $listAK = $akResponse->json()['resource'] ?? $akResponse->json();
+            foreach ($chunk as $peg) {
+                $akKey = "peg_".$peg->id_pegawai_api;
+                
+                if ($peg->id_pegawai_api && isset($responses[$akKey])) {
+                    $akResponse = $responses[$akKey];
                     
-                    if (is_array($listAK)) {
-                        // Kosongkan existing AK milik ID_PEGAWAI_API ini untuk menghindari duplikat nomor SK yang persis sama tapi beda field terupdate
-                        \App\Models\RiwayatAngkaKredit::where('id_pegawai_api', $peg->id_pegawai_api)->delete();
+                    if ($akResponse instanceof \Illuminate\Http\Client\Response && $akResponse->successful()) {
+                        $listAK = $akResponse->json()['resource'] ?? $akResponse->json();
+                        
+                        if (is_array($listAK)) {
+                            \App\Models\RiwayatAngkaKredit::where('id_pegawai_api', $peg->id_pegawai_api)->delete();
 
-                        foreach ($listAK as $ak) {
-                            \App\Models\RiwayatAngkaKredit::create([
-                                'id_pegawai_api' => $peg->id_pegawai_api, // FK kita di DB lokal pakai id_pegawai_api
-                                'nomor_sk' => $ak['tknopak'] ?? '-',
-                                'tanggal_sk' => $this->parseDate($ak['tktglpak'] ?? null),
-                                'tmt_angka_kredit' => $this->parseDate($ak['tmtakrid'] ?? null),
-                                
-                                'kredit_utama' => floatval($ak['tkutama1'] ?? 0),
-                                'kredit_penunjang' => floatval($ak['tkutama2'] ?? 0),
-                                // Apabila tkutama3 nol tapi tkutama1/2 ada, maka totalkan, atau ambil 'penilaian_ak'
-                                'total_kredit' => floatval($ak['tkutama3'] > 0 ? $ak['tkutama3'] : 
-                                                  (($ak['tkutama1'] ?? 0) + ($ak['tkutama2'] ?? 0) > 0 ? ($ak['tkutama1'] ?? 0) + ($ak['tkutama2'] ?? 0) : 
-                                                  ($ak['penilaian_ak'] ?? 0))),
-                                                  
-                                'jabatan_saat_penilaian' => $ak['tk_keterangan'] ?? null,
-                            ]);
+                            foreach ($listAK as $ak) {
+                                \App\Models\RiwayatAngkaKredit::create([
+                                    'id_pegawai_api' => $peg->id_pegawai_api,
+                                    'nomor_sk' => $ak['tknopak'] ?? '-',
+                                    'tanggal_sk' => $this->parseDate($ak['tktglpak'] ?? null),
+                                    'tmt_angka_kredit' => $this->parseDate($ak['tmtakrid'] ?? null),
+                                    'kredit_utama' => floatval($ak['tkutama1'] ?? 0),
+                                    'kredit_penunjang' => floatval($ak['tkutama2'] ?? 0),
+                                    'total_kredit' => floatval($ak['tkutama3'] > 0 ? $ak['tkutama3'] : 
+                                                      (($ak['tkutama1'] ?? 0) + ($ak['tkutama2'] ?? 0) > 0 ? ($ak['tkutama1'] ?? 0) + ($ak['tkutama2'] ?? 0) : 
+                                                      ($ak['penilaian_ak'] ?? 0))),
+                                    'jabatan_saat_penilaian' => $ak['tk_keterangan'] ?? null,
+                                ]);
+                            }
                         }
+                    } elseif ($akResponse instanceof \Exception) {
+                        \Illuminate\Support\Facades\Log::warning("Gagal ambil AK NIP {$peg->nip}: " . $akResponse->getMessage());
                     }
                 }
-            } catch (\Exception $e) {
-                // Ignore timeout untuk 1 NIP spesifik agar proses loop terus berjalan
-                \Illuminate\Support\Facades\Log::warning("Gagal ambil AK NIP {$nip}: " . $e->getMessage());
+
+                $currentAk++;
+                $stepProgress = 45 + intval(($currentAk / max(1, $totalAk)) * 25);
+                if ($currentAk % 5 === 0 || $currentAk === $totalAk) {
+                    $this->updateProgressCache($stepProgress, 3, 'processing', "Memproses angka kredit $currentAk / $totalAk pegawai...");
+                }
+                $bar3->advance();
             }
-            $currentAk++;
-            // Calculate progress: Step 3 goes from 45% to 70% (25% total)
-            $stepProgress = 45 + intval(($currentAk / max(1, $totalAk)) * 25);
-            if ($currentAk % 50 === 0 || $currentAk === $totalAk) {
-                $this->updateProgressCache($stepProgress, 3, 'processing', "Memproses angka kredit $currentAk / $totalAk pegawai...");
-            }
-            $bar3->advance();
+            // Beri jeda 1 detik tiap 3 request bersamaan, supaya DB e-HRM tak crash (max_client_conn)
+            sleep(1);
         }
         $this->updateProgressCache(70, 3, 'done', 'Angka Kredit Selesai');
         $bar3->finish();
@@ -253,48 +260,62 @@ class SyncEhrmData extends Command
         $this->updateProgressCache(70, 4, 'processing', 'Memulai sinkronisasi riwayat diklat...');
 
         $currentDiklat = 0;
-        foreach ($allPegawai as $peg) {
-            $nip = $peg->nip;
-            
-            $diklatResp = Http::timeout(20)->withHeaders([
-                'X-DreamFactory-Api-Key' => $apiKey,
-                'X-DreamFactory-Session-Token' => $token,
-            ])->get("$baseUrl/v1/ehrm/riw/diklat", [
-                'nip' => $nip
-            ]);
+        $diklatChunks = $allPegawai->chunk(3);
+        foreach ($diklatChunks as $chunk) {
+            $responses = Http::pool(function (\Illuminate\Http\Client\Pool $pool) use ($chunk, $baseUrl, $apiKey, $token) {
+                $reqs = [];
+                foreach ($chunk as $peg) {
+                    $reqs[] = $pool->as("nip_".$peg->nip)->timeout(20)->withHeaders([
+                        'X-DreamFactory-Api-Key' => $apiKey,
+                        'X-DreamFactory-Session-Token' => $token,
+                    ])->get("$baseUrl/v1/ehrm/riw/diklat", ['nip' => $peg->nip]);
+                }
+                return $reqs;
+            });
 
-            if ($diklatResp->successful()) {
-                $listDiklat = $diklatResp->json()['resource'] ?? $diklatResp->json();
-                
-                if (is_array($listDiklat)) {
-                    foreach ($listDiklat as $d) {
-                        \App\Models\RiwayatDiklat::updateOrCreate(
-                            [
-                                'nip' => $nip,
-                                'nama_diklat' => $d['nmdiklat'] ?? $d['nama_diklat'] ?? '-',
-                                'nomor_sertifikat' => $d['no_sertifikat'] ?? $d['nosertifikat'] ?? '-',
-                            ],
-                            [
-                                'penyelenggara' => $d['penyelenggara'] ?? null,
-                                'tanggal_mulai' => $this->parseDate($d['tgl_mulai'] ?? null),
-                                'tanggal_selesai' => $this->parseDate($d['tgl_selesai'] ?? null),
-                                'jumlah_jam' => $d['jam'] ?? null,
-                                'tanggal_sertifikat' => $this->parseDate($d['tgl_sertifikat'] ?? null),
-                                'file_sertifikat' => $d['file'] ?? null,
-                            ]
-                        );
+            foreach ($chunk as $peg) {
+                $nip = $peg->nip;
+                $diklatKey = "nip_".$nip;
+
+                if (isset($responses[$diklatKey])) {
+                    $diklatResp = $responses[$diklatKey];
+
+                    if ($diklatResp instanceof \Illuminate\Http\Client\Response && $diklatResp->successful()) {
+                        $listDiklat = $diklatResp->json()['resource'] ?? $diklatResp->json();
+                        
+                        if (is_array($listDiklat)) {
+                            foreach ($listDiklat as $d) {
+                                \App\Models\RiwayatDiklat::updateOrCreate(
+                                    [
+                                        'nip' => $nip,
+                                        'nama_diklat' => $d['nmdiklat'] ?? $d['nama_diklat'] ?? '-',
+                                        'nomor_sertifikat' => $d['no_sertifikat'] ?? $d['nosertifikat'] ?? '-',
+                                    ],
+                                    [
+                                        'penyelenggara' => $d['penyelenggara'] ?? null,
+                                        'tanggal_mulai' => $this->parseDate($d['tgl_mulai'] ?? null),
+                                        'tanggal_selesai' => $this->parseDate($d['tgl_selesai'] ?? null),
+                                        'jumlah_jam' => $d['jam'] ?? null,
+                                        'tanggal_sertifikat' => $this->parseDate($d['tgl_sertifikat'] ?? null),
+                                        'file_sertifikat' => $d['file'] ?? null,
+                                    ]
+                                );
+                            }
+                        }
+                    } elseif ($diklatResp instanceof \Exception) {
+                        \Illuminate\Support\Facades\Log::warning("Gagal ambil Diklat NIP {$nip}: " . $diklatResp->getMessage());
                     }
                 }
+
+                $currentDiklat++;
+                $stepProgress = 70 + intval(($currentDiklat / max(1, $totalDiklat)) * 25);
+                if ($currentDiklat % 5 === 0 || $currentDiklat === $totalDiklat) {
+                    $this->updateProgressCache($stepProgress, 4, 'processing', "Memproses riwayat diklat $currentDiklat / $totalDiklat pegawai...");
+                }
+                $bar4->advance();
             }
-            $currentDiklat++;
-            // Calculate progress: Step 4 goes from 70% to 95% (25% total) 
-            // the last 5% is reserved for seeder and tracker in ProcessSyncData
-            $stepProgress = 70 + intval(($currentDiklat / max(1, $totalDiklat)) * 25);
-            if ($currentDiklat % 50 === 0 || $currentDiklat === $totalDiklat) {
-                // Keep step 4 processing until the very end of ProcessSyncData.php
-                $this->updateProgressCache($stepProgress, 4, 'processing', "Memproses riwayat diklat $currentDiklat / $totalDiklat pegawai...");
-            }
-            $bar4->advance();
+            // Beri jeda 1 detik tiap 3 request bersamaan
+            sleep(1);
         }
         $bar4->finish();
         $this->newLine();

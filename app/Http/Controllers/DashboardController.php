@@ -176,9 +176,9 @@ public function syncData()
         // Biar user nggak perlu ngetik "php artisan queue:work" di terminal terpisah
         $artisan = base_path('artisan');
         if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
-            pclose(popen("start /B php {$artisan} queue:work --once > NUL 2>&1", "r"));
+            pclose(popen("start /B php {$artisan} queue:work --once --timeout=3600 > NUL 2>&1", "r"));
         } else {
-            exec("php {$artisan} queue:work --once > /dev/null 2>&1 &");
+            exec("php {$artisan} queue:work --once --timeout=3600 > /dev/null 2>&1 &");
         }
         // --------------------
 
