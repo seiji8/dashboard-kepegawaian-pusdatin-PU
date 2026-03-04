@@ -156,6 +156,21 @@ class SyncEhrmData extends Command
                         );
                     }
                 }
+
+                // Sync tmt_pangkat_terakhir dari riwpangkat (jika ada)
+                if (isset($item['riwpangkat']) && is_array($item['riwpangkat']) && count($item['riwpangkat']) > 0) {
+                    // Sort by tglmulai desc → ambil yang terbaru
+                    $riwPangkatSorted = collect($item['riwpangkat'])->sortByDesc('tglmulai');
+                    $latestPangkat = $riwPangkatSorted->first();
+
+                    if ($latestPangkat && !empty($latestPangkat['tglmulai'])) {
+                        $tmtParsed = $this->parseDate($latestPangkat['tglmulai']);
+                        if ($tmtParsed) {
+                            $pegawai->update(['tmt_pangkat_terakhir' => $tmtParsed]);
+                        }
+                    }
+                }
+
                 $currentRiw++;
                 // Calculate progress: Step 2 goes from 25% to 45% (20% total)
                 $stepProgress = 25 + intval(($currentRiw / max(1, $totalRiw)) * 20);

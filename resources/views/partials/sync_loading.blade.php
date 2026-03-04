@@ -69,8 +69,8 @@
 
 .progress-bar-container {
     background: #e2e8f0;
-    height: 12px;
-    border-radius: 6px;
+    height: 22px;
+    border-radius: 11px;
     position: relative;
     overflow: hidden;
     margin-bottom: 10px;
@@ -78,8 +78,8 @@
 
 .progress-bar-fill {
     height: 100%;
-    background: #3b82f6; /* Blue highlight */
-    border-radius: 6px;
+    background: #3b82f6;
+    border-radius: 11px;
     transition: width 0.4s ease;
 }
 
@@ -88,10 +88,11 @@
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    font-size: 10px;
-    font-weight: 700;
-    color: #1e293b;
-    mix-blend-mode: difference; /* Optional for contrast */
+    font-size: 12px;
+    font-weight: 800;
+    color: #ffffff;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.5), 0 0 6px rgba(30,58,138,0.7);
+    z-index: 2;
 }
 
 .progress-detail-text {

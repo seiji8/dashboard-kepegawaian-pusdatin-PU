@@ -49,9 +49,9 @@ class DashboardController extends Controller
                     ->get();
 
         // Kelompokkan berdasarkan Kategori untuk Accordion
-        $listKenaikanPangkat = $trackers->whereIn('kategori', ['KP_Jafung', 'KP_Struktural']); // Gabung Struktural & Jafung logic nanti
-        $listKenaikanJenjang = $trackers->where('kategori', 'KJ_Jafung'); // Kenaikan Jenjang / UKOM
-        $listUkom            = $trackers->where('kategori', 'UKOM'); // Uji Kompetensi
+        $listKenaikanPangkat = $trackers->whereIn('kategori', ['KP_Jafung', 'KP_Struktural', 'KP_Reguler']);
+        $listKenaikanJenjang = $trackers->where('kategori', 'KJ_Jafung');
+        $listUkom            = $trackers->where('kategori', 'UKOM');
         
         $listKGB             = $trackers->where('kategori', 'KGB')->sortBy(function($item) {
             switch ($item->status_saat_ini) {
@@ -62,7 +62,7 @@ class DashboardController extends Controller
             }
         });
         
-        // Pisahkan Struktural vs Fungsional berdasarkan tipe_jabatan yang sesungguhnya di database
+        // Pisahkan berdasarkan tipe_jabatan
         $kpStruktural = $listKenaikanPangkat->filter(function($item) {
             return str_contains(strtolower($item->pegawai->tipe_jabatan), 'struktural');
         });
@@ -70,6 +70,8 @@ class DashboardController extends Controller
         $kpFungsional = $listKenaikanPangkat->filter(function($item) {
             return str_contains(strtolower($item->pegawai->tipe_jabatan), 'fungsional');
         });
+
+        $kpReguler = $trackers->where('kategori', 'KP_Reguler')->sortBy('tanggal_target');
 
         // Ambil template manual untuk modal reminder di dashboard
         $templates = NotifikasiRules::where('interval_hari', 0)->get();
@@ -81,6 +83,8 @@ class DashboardController extends Controller
             'tingkatKepatuhan',
             'kpStruktural',
             'kpFungsional',
+            'kpReguler',
+            'listKenaikanPangkat',
             'listKenaikanJenjang',
             'listUkom',
             'listKGB',

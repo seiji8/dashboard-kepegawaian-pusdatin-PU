@@ -33,6 +33,16 @@ class RefMatriksJfSeeder extends Seeder
                 'is_naik_jenjang' => true,
                 'koefisien_tahunan' => 12.5,
             ],
+            // TRANSISI: Sudah naik jenjang ke Ahli Muda, tapi pangkat masih III/b → usulkan naik ke III/c
+            [
+                'jabatan_asal' => 'Ahli Muda',
+                'pangkat_asal' => 'III/b',
+                'target_ak' => 0,
+                'next_pangkat' => 'III/c',
+                'next_jenjang' => 'Ahli Muda',
+                'is_naik_jenjang' => false,
+                'koefisien_tahunan' => 25,
+            ],
             // Ahli Muda
             [
                 'jabatan_asal' => 'Ahli Muda',
@@ -51,6 +61,16 @@ class RefMatriksJfSeeder extends Seeder
                 'next_jenjang' => 'Ahli Madya',
                 'is_naik_jenjang' => true,
                 'koefisien_tahunan' => 25,
+            ],
+            // TRANSISI: Sudah naik jenjang ke Ahli Madya, tapi pangkat masih III/d → usulkan naik ke IV/a
+            [
+                'jabatan_asal' => 'Ahli Madya',
+                'pangkat_asal' => 'III/d',
+                'target_ak' => 0,
+                'next_pangkat' => 'IV/a',
+                'next_jenjang' => 'Ahli Madya',
+                'is_naik_jenjang' => false,
+                'koefisien_tahunan' => 37.5,
             ],
             // Ahli Madya
             [
@@ -80,6 +100,16 @@ class RefMatriksJfSeeder extends Seeder
                 'is_naik_jenjang' => true,
                 'koefisien_tahunan' => 37.5,
             ],
+            // TRANSISI: Sudah naik jenjang ke Ahli Utama, tapi pangkat masih IV/c → usulkan naik ke IV/d
+            [
+                'jabatan_asal' => 'Ahli Utama',
+                'pangkat_asal' => 'IV/c',
+                'target_ak' => 0,
+                'next_pangkat' => 'IV/d',
+                'next_jenjang' => 'Ahli Utama',
+                'is_naik_jenjang' => false,
+                'koefisien_tahunan' => 50,
+            ],
             // Ahli Utama
             [
                 'jabatan_asal' => 'Ahli Utama',
@@ -103,6 +133,16 @@ class RefMatriksJfSeeder extends Seeder
                 'next_jenjang' => 'Terampil',
                 'is_naik_jenjang' => true,
                 'koefisien_tahunan' => 3.75,
+            ],
+            // TRANSISI: Sudah naik jenjang ke Terampil, tapi pangkat masih II/a → usulkan naik ke II/b
+            [
+                'jabatan_asal' => 'Terampil',
+                'pangkat_asal' => 'II/a',
+                'target_ak' => 0,
+                'next_pangkat' => 'II/b',
+                'next_jenjang' => 'Terampil',
+                'is_naik_jenjang' => false,
+                'koefisien_tahunan' => 5,
             ],
             // Terampil
             [
@@ -132,6 +172,16 @@ class RefMatriksJfSeeder extends Seeder
                 'is_naik_jenjang' => true,
                 'koefisien_tahunan' => 5,
             ],
+            // TRANSISI: Sudah naik jenjang ke Mahir, tapi pangkat masih II/d → usulkan naik ke III/a
+            [
+                'jabatan_asal' => 'Mahir',
+                'pangkat_asal' => 'II/d',
+                'target_ak' => 0,
+                'next_pangkat' => 'III/a',
+                'next_jenjang' => 'Mahir',
+                'is_naik_jenjang' => false,
+                'koefisien_tahunan' => 12.5,
+            ],
             // Mahir
             [
                 'jabatan_asal' => 'Mahir',
@@ -150,6 +200,16 @@ class RefMatriksJfSeeder extends Seeder
                 'next_jenjang' => 'Penyelia',
                 'is_naik_jenjang' => true,
                 'koefisien_tahunan' => 12.5,
+            ],
+            // TRANSISI: Sudah naik jenjang ke Penyelia, tapi pangkat masih III/b → usulkan naik ke III/c
+            [
+                'jabatan_asal' => 'Penyelia',
+                'pangkat_asal' => 'III/b',
+                'target_ak' => 0,
+                'next_pangkat' => 'III/c',
+                'next_jenjang' => 'Penyelia',
+                'is_naik_jenjang' => false,
+                'koefisien_tahunan' => 25,
             ],
             // Penyelia
             [

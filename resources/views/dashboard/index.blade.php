@@ -149,7 +149,7 @@
                         <div class="task-card-wrapper">
                             <div class="task-header" onclick="toggleMainTask('task-pangkat', this)">
                                 <div style="background:#1e3a8a; color:white; width:36px; height:36px; border-radius:8px; display:flex; align-items:center; justify-content:center; font-weight:700; margin-right:15px;">
-                                    {{ $kpStruktural->count() + $kpFungsional->count() }}
+                                    {{ $listKenaikanPangkat->count() }}
                                 </div>
                                 <span style="font-weight:600; font-size:16px; flex:1;">Kenaikan Pangkat</span>
                                 <svg class="arrow-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
@@ -167,7 +167,7 @@
                                         <table class="custom-table">
                                             <thead>
                                                 <tr>
-                                                    <th>Tanggal Target</th>
+                                                    <th>Mulai Notifikasi</th>
                                                     <th>Nama</th>
                                                     <th>Eselon</th>
                                                     <th>Pangkat Saat Ini</th>
@@ -277,14 +277,62 @@
                                     </div>
                                 </div>
 
-                                <!-- Sub: Reguler (Placeholder) -->
+                                <!-- Sub: Reguler -->
                                 <div class="sub-item">
                                     <div class="sub-task-btn" onclick="toggleSubTask('sub-reguler')">
-                                        <span class="sub-badge">0</span>
+                                        <span class="sub-badge">{{ $kpReguler->count() }}</span>
                                         <span style="flex:1;">Reguler</span>
                                     </div>
                                     <div id="sub-reguler" class="sub-table-container">
-                                        <div style="padding: 10px; text-align: center; color: #888;">Belum ada data</div>
+                                        <table class="custom-table">
+                                            <thead>
+                                                <tr>
+                                                    <th>Mulai Notifikasi</th>
+                                                    <th>Nama</th>
+                                                    <th>Pangkat Saat Ini</th>
+                                                    <th>TMT Pangkat Terakhir</th>
+                                                    <th>Status</th>
+                                                    <th>Dokumen</th>
+                                                    <th>Aksi</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @forelse($kpReguler as $item)
+                                                <tr>
+                                                    <td>{{ $item->tanggal_target ? \Carbon\Carbon::parse($item->tanggal_target)->format('d M Y') : '-' }}</td>
+                                                    <td>{{ $item->pegawai->nama }}</td>
+                                                    <td>{{ $item->pegawai->pangkat_golongan ?? '-' }}</td>
+                                                    <td>{{ $item->pegawai->tmt_pangkat_terakhir ? \Carbon\Carbon::parse($item->pegawai->tmt_pangkat_terakhir)->format('d M Y') : '-' }}</td>
+                                                    <td>
+                                                        @if($item->status_saat_ini == 'Usulan')
+                                                            <span class="status-badge status-missing">Usulan</span>
+                                                        @elseif($item->status_saat_ini == 'Proses')
+                                                            <span class="status-badge status-warning">Proses</span>
+                                                        @else
+                                                            <span class="status-badge status-secondary">{{ $item->status_saat_ini }}</span>
+                                                        @endif
+                                                    </td>
+                                                    <td>
+                                                        <span style="color: #dc2626; font-weight: 600;">
+                                                            {{ $item->dokumen_total - $item->dokumen_terupload }} Belum
+                                                        </span>
+                                                    </td>
+                                                    <td style="display: flex; gap: 6px;">
+                                                        <button class="btn-action-view" onclick="openDetailModal('{{ $item->pegawai->nip }}')" title="Lihat Profil">
+                                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                                                        </button>
+                                                        @if($item->status_saat_ini == 'Usulan')
+                                                        <button class="btn-action-confirm" onclick="openConfirmModal({{ $item->id }}, '{{ $item->pegawai->nama }}')" title="Konfirmasi Proses">
+                                                            <i class="ph-bold ph-check" style="font-size: 16px;"></i>
+                                                        </button>
+                                                        @endif
+                                                    </td>
+                                                </tr>
+                                                @empty
+                                                <tr><td colspan="7" style="text-align:center;">Tidak ada data usulan reguler.</td></tr>
+                                                @endforelse
+                                            </tbody>
+                                        </table>
                                     </div>
                                 </div>
 

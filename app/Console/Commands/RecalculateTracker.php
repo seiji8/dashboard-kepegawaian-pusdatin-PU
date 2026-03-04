@@ -160,10 +160,14 @@ class RecalculateTracker extends Command
                     if ($matriks) {
                         // KEBUTUHAN AK KUMULATIF:
                         // AK direset ke-0 HANYA saat kenaikan JENJANG. Saat kenaikan PANGKAT (dalam jenjang yg sama), AK berlanjut.
-                        // Sehingga target untuk pangkat ini adalah jumlah seluruh target_ak Pangkat sebelumnya pada Jenjang yg sama.
-                        $targetAK = $matriksKamus->where('jabatan_asal', $matriks->jabatan_asal)
-                                                 ->where('id', '<=', $matriks->id)
-                                                 ->sum('target_ak');
+                        // TRANSISI: Baris dengan target_ak=0 artinya sudah naik jenjang, langsung qualify tanpa AK tambahan.
+                        if ($matriks->target_ak == 0) {
+                            $targetAK = 0;
+                        } else {
+                            $targetAK = $matriksKamus->where('jabatan_asal', $matriks->jabatan_asal)
+                                                     ->where('id', '<=', $matriks->id)
+                                                     ->sum('target_ak');
+                        }
                                                  
                         $koefisienTahunan = $matriks->koefisien_tahunan ?? 0;
                         $isKenaikanJenjang = $matriks->is_naik_jenjang;
@@ -420,6 +424,68 @@ class RecalculateTracker extends Command
                     }
                 }
 
+
+                // ==========================================
+                // LOGIKA KP REGULER (HANYA JABATAN PELAKSANA)
+                // ==========================================
+                // Pegawai Pelaksana yang masa pangkat >= 4 tahun → USULAN
+                // Tidak perlu validasi SKP
+                $isPelaksana = $pegawai->tipe_jabatan && str_contains(strtolower($pegawai->tipe_jabatan), 'pelaksana');
+                if ($isPelaksana && $pegawai->tmt_pangkat_terakhir) {
+                    $tmtPangkat = Carbon::parse($pegawai->tmt_pangkat_terakhir);
+                    $masaPangkatReguler = (int) $tmtPangkat->diffInMonths($today);
+                    $tahun = intdiv($masaPangkatReguler, 12);
+                    $bulan = $masaPangkatReguler % 12;
+                    $masaKerjaLabel = "{$tahun} Tahun {$bulan} Bulan";
+
+                    $tanggalTargetReguler = $tmtPangkat->copy()->addYears(4);
+
+                    $statusReguler    = 'Aman';
+                    $keteranganReguler = $masaKerjaLabel;
+
+                    // Cek apakah sudah dikonfirmasi admin
+                    $existingKPReguler = DashboardTracker::where('pegawai_id', $pegawai->id_pegawai_api)
+                        ->where('kategori', 'KP_Reguler')
+                        ->first();
+
+                    $isProsesReguler = $existingKPReguler && (
+                        $existingKPReguler->status_saat_ini === 'Proses' ||
+                        $existingKPReguler->dikonfirmasi_at
+                    );
+
+                    if ($isProsesReguler) {
+                        $statusReguler    = 'Proses';
+                        $keteranganReguler = "Sedang diproses admin ({$masaKerjaLabel})";
+                    } elseif ($masaPangkatReguler >= 48) {
+                        // Masa pangkat >= 4 tahun (48 bulan) → USULAN
+                        $statusReguler    = 'Usulan';
+                        $keteranganReguler = $masaKerjaLabel;
+                    }
+
+                    if ($statusReguler != 'Aman') {
+                        DashboardTracker::updateOrCreate(
+                            [
+                                'pegawai_id' => $pegawai->id_pegawai_api,
+                                'kategori'   => 'KP_Reguler',
+                            ],
+                            [
+                                'status_saat_ini' => $statusReguler,
+                                'keterangan'      => $keteranganReguler,
+                                'dokumen_total'   => 0,
+                                'tanggal_target'  => $tanggalTargetReguler->format('Y-m-d'),
+                            ]
+                        );
+                    } else {
+                        DashboardTracker::where('pegawai_id', $pegawai->id_pegawai_api)
+                            ->where('kategori', 'KP_Reguler')
+                            ->delete();
+                    }
+                } else {
+                    // Bukan pelaksana atau gak punya tmt_pangkat → hapus KP_Reguler jika ada
+                    DashboardTracker::where('pegawai_id', $pegawai->id_pegawai_api)
+                        ->where('kategori', 'KP_Reguler')
+                        ->delete();
+                }
 
                 $bar->advance();
             }
