@@ -474,7 +474,7 @@
                         <div class="task-card-wrapper">
                             <div class="task-header" onclick="toggleMainTask('task-tubel', this)">
                                 <div style="background:#1e3a8a; color:white; width:36px; height:36px; border-radius:8px; display:flex; align-items:center; justify-content:center; font-weight:700; margin-right:15px;">0</div>
-                                <span style="font-weight:600; font-size:16px; flex:1;">SK Tubel dan Pengembalian Tubel</span>
+                                <span style="font-weight:600; font-size:16px; flex:1;">Tugas Belajar dan Pengembalian Tubel</span>
                                 <svg class="arrow-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
                             </div>
                             <div id="task-tubel" class="task-sub-container">
@@ -488,7 +488,7 @@
                         <div class="task-card-wrapper">
                             <div class="task-header" onclick="toggleMainTask('task-sertifikat', this)">
                                 <div style="background:#1e3a8a; color:white; width:36px; height:36px; border-radius:8px; display:flex; align-items:center; justify-content:center; font-weight:700; margin-right:15px;">0</div>
-                                <span style="font-weight:600; font-size:16px; flex:1;">Upload Sertifikat Keahlian</span>
+                                <span style="font-weight:600; font-size:16px; flex:1;">Sertifikat Keahlian</span>
                                 <svg class="arrow-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
                             </div>
                             <div id="task-sertifikat" class="task-sub-container">
