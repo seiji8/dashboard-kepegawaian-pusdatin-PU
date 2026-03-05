@@ -40,6 +40,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/tracker/{id}/move-to-ukom', [DashboardController::class, 'moveToUkom'])->name('tracker.move-to-ukom');
     Route::post('/sync-now', [DashboardController::class, 'syncData'])->name('sync.now');
     Route::get('/sync-progress', [DashboardController::class, 'syncProgress'])->name('sync.progress');
+    Route::get('/dashboard/diklat-detail/{nip}/{kategori}', [DashboardController::class, 'diklatDetail'])->name('dashboard.diklat-detail');
     
     // Log Aktivitas
     Route::get('/log-aktivitas', [LogAktivitasController::class, 'index'])->name('log-aktivitas');

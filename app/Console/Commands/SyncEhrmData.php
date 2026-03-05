@@ -299,22 +299,29 @@ class SyncEhrmData extends Command
                         $listDiklat = $diklatResp->json()['resource'] ?? $diklatResp->json();
                         
                         if (is_array($listDiklat)) {
+                            // Hapus data lama → replace dengan data fresh dari API
+                            \App\Models\RiwayatDiklat::where('nip', $nip)->delete();
+
                             foreach ($listDiklat as $d) {
-                                \App\Models\RiwayatDiklat::updateOrCreate(
-                                    [
-                                        'nip' => $nip,
-                                        'nama_diklat' => $d['nmdiklat'] ?? $d['nama_diklat'] ?? '-',
-                                        'nomor_sertifikat' => $d['no_sertifikat'] ?? $d['nosertifikat'] ?? '-',
-                                    ],
-                                    [
-                                        'penyelenggara' => $d['penyelenggara'] ?? null,
-                                        'tanggal_mulai' => $this->parseDate($d['tgl_mulai'] ?? null),
-                                        'tanggal_selesai' => $this->parseDate($d['tgl_selesai'] ?? null),
-                                        'jumlah_jam' => $d['jam'] ?? null,
-                                        'tanggal_sertifikat' => $this->parseDate($d['tgl_sertifikat'] ?? null),
-                                        'file_sertifikat' => $d['file'] ?? null,
-                                    ]
-                                );
+                                $namaDiklat = $d['uraian'] ?? $d['nmdiklat'] ?? $d['nama_diklat'] ?? '-';
+                                $noSertif = $d['nomor_sertifikat'] ?? $d['no_sertifikat'] ?? $d['nosertifikat'] ?? null;
+
+                                \App\Models\RiwayatDiklat::create([
+                                    'nip' => $nip,
+                                    'nama_diklat' => $namaDiklat,
+                                    'nomor_sertifikat' => $noSertif,
+                                    'id_diklat' => $d['id_diklat'] ?? $d['id'] ?? null,
+                                    'penyelenggara' => $d['institusi_penyelenggara'] ?? $d['penyelenggara'] ?? null,
+                                    'tanggal_mulai' => $this->parseDate($d['tglmulaidiklat'] ?? $d['tgl_mulai'] ?? null),
+                                    'tanggal_selesai' => $this->parseDate($d['tglakhirdiklat'] ?? $d['tgl_selesai'] ?? null),
+                                    'jumlah_jam' => $d['jam_diklat'] ?? $d['jam'] ?? null,
+                                    'tanggal_sertifikat' => $this->parseDate($d['tgl_sertifikat'] ?? null),
+                                    'file_sertifikat' => $d['arsip'] ?? $d['file'] ?? null,
+                                    'status_diklat' => intval($d['status'] ?? 0),
+                                    'kode_jenis' => $d['kode_jenis'] ?? null,
+                                    'jenis_diklat' => $d['jenisdiklat'] ?? null,
+                                    'arsip' => $d['arsip'] ?? null,
+                                ]);
                             }
                         }
                     } elseif ($diklatResp instanceof \Exception) {

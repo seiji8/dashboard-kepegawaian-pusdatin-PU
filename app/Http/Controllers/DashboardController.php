@@ -73,6 +73,11 @@ class DashboardController extends Controller
 
         $kpReguler = $trackers->where('kategori', 'KP_Reguler')->sortBy('tanggal_target');
 
+        // Monitoring Kompetensi (Diklat)
+        $diklatHutang = $trackers->where('kategori', 'DIKLAT_HUTANG')->sortBy('tanggal_target');
+        $diklatAnomali = $trackers->where('kategori', 'DIKLAT_ANOMALI');
+        $listMonitoringDiklat = $trackers->whereIn('kategori', ['DIKLAT_HUTANG', 'DIKLAT_ANOMALI']);
+
         // Ambil template manual untuk modal reminder di dashboard
         $templates = NotifikasiRules::where('interval_hari', 0)->get();
 
@@ -88,8 +93,50 @@ class DashboardController extends Controller
             'listKenaikanJenjang',
             'listUkom',
             'listKGB',
+            'diklatHutang',
+            'diklatAnomali',
+            'listMonitoringDiklat',
             'templates'
         ));
+    }
+
+    /**
+     * Detail Diklat bermasalah per pegawai (AJAX)
+     */
+    public function diklatDetail($nip, $kategori)
+    {
+        $pegawai = Pegawai::where('nip', $nip)->firstOrFail();
+        $today = \Carbon\Carbon::now();
+        $diklat = \App\Models\RiwayatDiklat::where('nip', $nip)->get();
+
+        if ($kategori === 'DIKLAT_HUTANG') {
+            $filtered = $diklat->filter(function ($d) use ($today) {
+                return $d->status_diklat == 0
+                    && $d->tanggal_selesai
+                    && $today->greaterThan(\Carbon\Carbon::parse($d->tanggal_selesai));
+            });
+        } else {
+            $filtered = $diklat->filter(function ($d) {
+                return $d->status_diklat == 1
+                    && (empty($d->arsip) || empty($d->nomor_sertifikat) || $d->nomor_sertifikat === '-');
+            });
+        }
+
+        return response()->json([
+            'pegawai' => $pegawai->nama,
+            'nip' => $nip,
+            'kategori' => $kategori,
+            'total' => $filtered->count(),
+            'data' => $filtered->map(fn($d) => [
+                'nama_diklat' => $d->nama_diklat,
+                'tanggal_mulai' => $d->tanggal_mulai ? \Carbon\Carbon::parse($d->tanggal_mulai)->format('d M Y') : '-',
+                'tanggal_selesai' => $d->tanggal_selesai ? \Carbon\Carbon::parse($d->tanggal_selesai)->format('d M Y') : '-',
+                'jenis' => $d->jenis_diklat ?? '-',
+                'sertifikat' => $d->nomor_sertifikat ?: '-',
+                'arsip' => $d->arsip ? 'Ada' : 'Tidak Ada',
+                'status' => $d->status_diklat == 1 ? 'Lulus' : 'Proses',
+            ])->values(),
+        ]);
     }
 
 /**

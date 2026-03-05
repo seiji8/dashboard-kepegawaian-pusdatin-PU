@@ -484,17 +484,52 @@
                             </div>
                         </div>
 
-                         <!-- TASK: SERTIFIKAT (Placeholder) -->
+                         <!-- TASK: PENDIDIKAN DAN KEAHLIAN (Monitoring Kompetensi) -->
                         <div class="task-card-wrapper">
                             <div class="task-header" onclick="toggleMainTask('task-sertifikat', this)">
-                                <div style="background:#1e3a8a; color:white; width:36px; height:36px; border-radius:8px; display:flex; align-items:center; justify-content:center; font-weight:700; margin-right:15px;">0</div>
+                                <div style="background:#1e3a8a; color:white; width:36px; height:36px; border-radius:8px; display:flex; align-items:center; justify-content:center; font-weight:700; margin-right:15px;">
+                                    {{ $listMonitoringDiklat->count() }}
+                                </div>
                                 <span style="font-weight:600; font-size:16px; flex:1;">Pendidikan dan Keahlian</span>
                                 <svg class="arrow-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
                             </div>
                             <div id="task-sertifikat" class="task-sub-container">
-                                <div style="padding: 25px; text-align: center; color: #64748b; font-style: italic; background-color: #f8fafc; border-radius: 0 0 8px 8px;">
-                                    Belum ada tugas untuk saat ini
-                                </div>
+                                <table class="custom-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Tanggal</th>
+                                            <th>Nama</th>
+                                            <th>Keterangan</th>
+                                            <th>Jumlah</th>
+                                            <th>Status</th>
+                                            <th>Aksi</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @forelse($listMonitoringDiklat as $item)
+                                        <tr>
+                                            <td>{{ $item->tanggal_target ? \Carbon\Carbon::parse($item->tanggal_target)->format('d M Y') : '-' }}</td>
+                                            <td>{{ $item->pegawai->nama }}</td>
+                                            <td style="max-width: 280px;">{{ $item->keterangan }}</td>
+                                            <td>
+                                                <span style="font-weight: 600; color: {{ $item->kategori == 'DIKLAT_HUTANG' ? '#dc2626' : '#d97706' }};">
+                                                    {{ $item->dokumen_total }} Diklat
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <span class="status-badge" style="background: #dcfce7; color: #166534;">Upload E-HRM</span>
+                                            </td>
+                                            <td>
+                                                <button class="btn-action-view" onclick="openDiklatModal('{{ $item->pegawai->nip }}', '{{ $item->kategori }}')" title="Lihat Detail Diklat">
+                                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                        @empty
+                                        <tr><td colspan="6" style="text-align:center;">Tidak ada data monitoring diklat.</td></tr>
+                                        @endforelse
+                                    </tbody>
+                                </table>
                             </div>
                         </div>
 
@@ -701,6 +736,93 @@
             </div>
         </div>
     </div>
+
+    <!-- MODAL DETAIL DIKLAT -->
+    <div id="diklatModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:2200; justify-content:center; align-items:center;">
+        <div style="background:#fff; width:900px; max-width:92vw; max-height:85vh; border-radius:12px; box-shadow:0 10px 40px rgba(0,0,0,0.15); overflow:hidden; display:flex; flex-direction:column;">
+            <div style="padding:20px 25px; border-bottom:1px solid #e2e8f0; display:flex; align-items:center; justify-content:space-between; flex-shrink:0;">
+                <div>
+                    <h3 id="diklatModalTitle" style="margin:0; font-size:17px; font-weight:700; color:#1e3a8a;"></h3>
+                    <p id="diklatModalSub" style="margin:4px 0 0; font-size:13px; color:#64748b;"></p>
+                </div>
+                <button onclick="closeDiklatModal()" style="background:none; border:none; cursor:pointer; padding:5px;">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                </button>
+            </div>
+            <div style="padding:15px 25px 25px; overflow-y:auto; flex:1;">
+                <div id="diklatModalLoading" style="text-align:center; padding:30px; color:#64748b;">
+                    <p>Memuat data...</p>
+                </div>
+                <div style="overflow-x:auto;">
+                    <table id="diklatModalTable" class="custom-table" style="display:none; min-width:750px;">
+                        <thead>
+                            <tr>
+                                <th style="width:35px; text-align:center;">No</th>
+                                <th style="min-width:200px;">Nama Diklat</th>
+                                <th style="min-width:120px;">Periode</th>
+                                <th style="width:80px; text-align:center;">Jenis</th>
+                                <th style="min-width:150px;">Sertifikat</th>
+                                <th style="width:80px; text-align:center;">Arsip</th>
+                            </tr>
+                        </thead>
+                        <tbody id="diklatModalBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    function openDiklatModal(nip, kategori) {
+        const modal = document.getElementById('diklatModal');
+        const loading = document.getElementById('diklatModalLoading');
+        const table = document.getElementById('diklatModalTable');
+        const body = document.getElementById('diklatModalBody');
+
+        modal.style.display = 'flex';
+        loading.style.display = 'block';
+        table.style.display = 'none';
+        body.innerHTML = '';
+
+        const label = kategori === 'DIKLAT_HUTANG' ? 'Sertifikat Belum Diupload' : 'Dokumen Belum Lengkap';
+
+        fetch(`/dashboard/diklat-detail/${nip}/${kategori}`)
+            .then(res => res.json())
+            .then(data => {
+                document.getElementById('diklatModalTitle').textContent = data.pegawai;
+                document.getElementById('diklatModalSub').textContent = `NIP: ${data.nip} — ${data.total} diklat (${label})`;
+
+                data.data.forEach((d, i) => {
+                    const arsipClass = d.arsip === 'Ada'
+                        ? 'style="color:#166534; font-weight:600; white-space:nowrap; text-align:center;"'
+                        : 'style="color:#dc2626; font-weight:600; white-space:nowrap; text-align:center;"';
+                    body.innerHTML += `
+                        <tr>
+                            <td>${i + 1}</td>
+                            <td style="max-width:200px; font-weight:500;">${d.nama_diklat}</td>
+                            <td style="white-space:nowrap; font-size:12px;">${d.tanggal_mulai}<br>s/d ${d.tanggal_selesai}</td>
+                            <td><span style="background:#e0e7ff; color:#3730a3; padding:2px 8px; border-radius:4px; font-size:11px; font-weight:600;">${d.jenis}</span></td>
+                            <td style="font-size:12px;">${d.sertifikat}</td>
+                            <td ${arsipClass}>${d.arsip}</td>
+                        </tr>`;
+                });
+
+                loading.style.display = 'none';
+                table.style.display = 'table';
+            })
+            .catch(() => {
+                loading.innerHTML = '<p style="color:#dc2626;">Gagal memuat data.</p>';
+            });
+    }
+
+    function closeDiklatModal() {
+        document.getElementById('diklatModal').style.display = 'none';
+    }
+
+    document.getElementById('diklatModal').addEventListener('click', function(e) {
+        if (e.target === this) closeDiklatModal();
+    });
+    </script>
 
     @include('partials.sync_loading')
 
