@@ -330,27 +330,7 @@ class RecalculateTracker extends Command
                         $idxMin   = array_search($minGolru, $golruOrder);
                         $idxMax   = array_search($maxGolru, $golruOrder);
 
-                        // --- HITUNG TANGGAL TARGET (tmt_pangkat_terakhir + 4 tahun) ---
-                        $tanggalTargetStruktural = null;
-                        if ($pegawai->tmt_pangkat_terakhir) {
-                            $tanggalTargetStruktural = Carbon::parse($pegawai->tmt_pangkat_terakhir)->addYears(4);
-                        }
-
-                        // --- FILTER H-2 BULAN (60 hari sebelum tanggal target) ---
-                        $startNotifyStruktural = $tanggalTargetStruktural
-                            ? $tanggalTargetStruktural->copy()->subDays(60)
-                            : null;
-
-                        $inNotifyWindow = $startNotifyStruktural && $today->greaterThanOrEqualTo($startNotifyStruktural);
-
-                        // Syarat Mutlak: Masa Pangkat >= 1 thn AND Masa Jabatan >= 1 thn
-                        $masaPangkat = 0;
-                        $masaJabatan = 0;
-
-                        if ($pegawai->tmt_pangkat_terakhir) {
-                            $masaPangkat = Carbon::parse($pegawai->tmt_pangkat_terakhir)->diffInYears($today);
-                        }
-
+                        // --- HITUNG TANGGAL TARGET (tmt_struktural + 1 tahun) ---
                         // tmt_struktural → fallback ke riwayat_jabatan terakhir
                         $tmtJabatan = $pegawai->tmt_struktural;
                         if (!$tmtJabatan && $pegawai->riwayat_jabatan) {
@@ -360,8 +340,21 @@ class RecalculateTracker extends Command
                             }
                         }
 
+                        $tanggalTargetStruktural = null;
                         if ($tmtJabatan) {
-                            $masaJabatan = Carbon::parse($tmtJabatan)->diffInYears($today);
+                            $tanggalTargetStruktural = Carbon::parse($tmtJabatan)->addYear(); // Jabatan Struktural: 1 Tahun
+                        }
+
+                        // --- FILTER H-2 BULAN (60 hari sebelum tanggal target 1 Tahun) ---
+                        $startNotifyStruktural = $tanggalTargetStruktural
+                            ? $tanggalTargetStruktural->copy()->subDays(60)
+                            : null;
+
+                        $inNotifyWindow = $startNotifyStruktural && $today->greaterThanOrEqualTo($startNotifyStruktural);
+
+                        $masaPangkat = 0;
+                        if ($pegawai->tmt_pangkat_terakhir) {
+                            $masaPangkat = Carbon::parse($pegawai->tmt_pangkat_terakhir)->diffInYears($today);
                         }
 
                         $statusStruktural    = 'Aman';
@@ -390,16 +383,22 @@ class RecalculateTracker extends Command
                             $statusStruktural    = 'Aman';
                             $keteranganStruktural = 'Sudah mencapai Puncak Golongan Ruang untuk Eselon saat ini';
 
-                        } elseif (!$pegawai->tmt_pangkat_terakhir && $masaJabatan >= 1) {
-                            // FALLBACK: tmt_pangkat NULL (API tidak punya data)
-                            // Tapi masa jabatan >= 1 tahun dan golru belum puncak → tampilkan
-                            $statusStruktural    = 'Usulan';
-                            $keteranganStruktural = 'Memenuhi Syarat Kenaikan Pangkat Pilihan (Struktural). Data TMT Pangkat belum tersedia dari API.';
+                        } elseif (!$tmtJabatan) {
+                            // Data tmt jabatan (tmt pelantikan) tidak ada
+                            $statusStruktural = 'Aman';
+                            $keteranganStruktural = 'Data TMT Struktural / Pelantikan tidak tersedia';
 
-                        } elseif ($inNotifyWindow && $masaPangkat >= 1 && $masaJabatan >= 1) {
-                            // Window H-2 bulan + syarat mutlak terpenuhi
+                        } elseif ($pegawai->tmt_pangkat_terakhir && Carbon::parse($pegawai->tmt_pangkat_terakhir)->greaterThanOrEqualTo(Carbon::parse($tmtJabatan))) {
+                            // Jika Pangkat Terakhir lebih baru ATAU sama dengan TMT Jabatan, artinya sudah pernah naik pangkat di jabatan ini.
+                            // Atau SK Pangkat dan SK Jabatan terbit bersamaan (tmt sama).
+                            // Struktural hanya bisa naik pangkat 1 kali dalam masa jabatannya.
+                            $statusStruktural = 'Aman';
+                            $keteranganStruktural = 'Sudah pernah menerima Kenaikan Pangkat dalam masa jabatan ini';
+
+                        } elseif ($inNotifyWindow && $masaPangkat >= 1) { // Tetap butuh 1 tahun dalam pangkat terakhir
+                            // Window H-2 bulan dari 1 Tahun Jabatan + syarat masa pangkat 1 tahun
                             $statusStruktural    = 'Usulan';
-                            $keteranganStruktural = 'Memenuhi Syarat Kenaikan Pangkat Pilihan (Struktural)';
+                            $keteranganStruktural = 'Memenuhi Syarat Kenaikan Pangkat Pilihan (Struktural 1 Tahun)';
                         }
                         if ($statusStruktural != 'Aman') {
                             DashboardTracker::updateOrCreate(
