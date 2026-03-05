@@ -33,6 +33,22 @@ class DatabaseSeeder extends Seeder
             'role' => 'admin_pegawai',
         ]);
 
+        User::create([
+            'username' => 'devy',
+            'nama_lengkap' => 'Devy Wardhani',
+            'email' => 'devy.wardhani@pu.go.id',
+            'password' => Hash::make('admin123'),
+            'role' => 'super_admin',
+        ]);
+
+        User::create([
+            'username' => 'hasan',
+            'nama_lengkap' => 'Hasan',
+            'email' => 'hasan.inf1re7@gmail.com',
+            'password' => Hash::make('admin123'),
+            'role' => 'super_admin',
+        ]);
+
         // 2. DATA ATURAN / KAMUS MATRIKS JAFUNG
         $this->call(\Database\Seeders\RefMatriksJfSeeder::class);
 
@@ -144,6 +160,107 @@ class DatabaseSeeder extends Seeder
 
         // 4. Seeder Notifikasi (Professional Wording)
         $this->call(NotifikasiSeeder::class);
+
+        // =====================================
+        // KASUS STUDY KP STRUKTURAL (Aturan 1 Tahun & 1 Kali)
+        // =====================================
+
+        // Kasus 1: KP Struktural - Aman (Sudah di Puncak Golru)
+        // Eselon 3 (Max IV/d), pegawai sudah IV/d
+        Pegawai::create([
+            'id_pegawai_api' => '201',
+            'nip' => '201',
+            'nama' => 'Struktural Aman Puncak',
+            'email' => 'struktural1@test.go.id',
+            'tipe_jabatan' => 'Struktural',
+            'jabatan_saat_ini' => 'Kepala Bagian Keuangan',
+            'kd_eselon' => '3',
+            'pangkat_golongan' => 'IV/d',
+            'tmt_pangkat_terakhir' => '2022-04-01',
+            'tmt_struktural' => '2023-01-01',
+            'tmt_kgb_terakhir' => '2024-01-01',
+        ]);
+
+        // Kasus 2: KP Struktural - Aman (Belum 1 Tahun Sejak Pelantikan)
+        // Eselon 3, Pangkat IV/c (Belum Puncak). Tapi baru dilantik 1 bulan lalu.
+        Pegawai::create([
+            'id_pegawai_api' => '202',
+            'nip' => '202',
+            'nama' => 'Struktural Aman Waktu',
+            'email' => 'struktural2@test.go.id',
+            'tipe_jabatan' => 'Struktural',
+            'jabatan_saat_ini' => 'Kepala Bidang Perencanaan',
+            'kd_eselon' => '3',
+            'pangkat_golongan' => 'IV/c', 
+            'tmt_pangkat_terakhir' => '2023-01-01', 
+            'tmt_struktural' => now()->subMonth()->format('Y-m-d'), // Baru 1 bulan
+            'tmt_kgb_terakhir' => '2026-01-01',
+        ]);
+
+        // Kasus 3: KP Struktural - Aman (Sudah Pernah KP 1 Kali di Jabatan Ini)
+        // Eselon 4, Pangkat III/c. Dilantik 2021. Naik pangkat terakhir 2023. 
+        // Artinya sejak menjabat, dia sudah pernah naik pangkat. Tidak bisa diusulkan lagi.
+        Pegawai::create([
+            'id_pegawai_api' => '203',
+            'nip' => '203',
+            'nama' => 'Struktural Aman Sudah KP',
+            'email' => 'struktural3@test.go.id',
+            'tipe_jabatan' => 'Struktural',
+            'jabatan_saat_ini' => 'Kepala Subbagian Kepegawaian',
+            'kd_eselon' => '4', // Eselon 4 -> max IV/c
+            'pangkat_golongan' => 'III/c',
+            'tmt_struktural' => '2021-01-01',      // Jabatan lebih lama (4 tahun lalu)
+            'tmt_pangkat_terakhir' => '2023-04-01',// Pangkat ditarik baru 2 tahun lalu (Sesudah menjabat)
+            'tmt_kgb_terakhir' => '2025-01-01', 
+        ]);
+
+        // Kasus 4: KP Struktural - Usulan (Sudah 1 Tahun dan Belum KP di Jabatan Ini)
+        // Eselon 4 (Max IV/c). Pangkat III/c.
+        // Pangkat terakhir: 2020. Dilantik jabatan: 10.5 bulan lalu. 
+        // Siap masuk radar usulan (H-2 Bulan dari 1 tahun masa jabatan).
+        Pegawai::create([
+            'id_pegawai_api' => '204',
+            'nip' => '204',
+            'nama' => 'Struktural Usulan Siap',
+            'email' => 'struktural4@test.go.id',
+            'tipe_jabatan' => 'Struktural',
+            'jabatan_saat_ini' => 'Kepala Seksi Operasional',
+            'kd_eselon' => '4',
+            'pangkat_golongan' => 'III/c',
+            'tmt_pangkat_terakhir' => '2020-04-01', // Pangkat lebih lawas / lama dari jabatan (Belum pernah KP struktural)
+            'tmt_struktural' => now()->subMonths(10)->subDays(15)->format('Y-m-d'), // Masuk radar H-60 hari
+            'tmt_kgb_terakhir' => '2024-01-01', 
+        ]);
+
+        // =====================================
+        // KASUS STUDY KP REGULER (KHUSUS PELAKSANA)
+        // =====================================
+
+        // Kasus 1: KP Reguler - Aman (Masa Pangkat < 4 Tahun)
+        Pegawai::create([
+            'id_pegawai_api' => '301',
+            'nip' => '301',
+            'nama' => 'Pelaksana Aman Waktu',
+            'email' => 'pelaksana1@test.go.id',
+            'tipe_jabatan' => 'Pelaksana', // Wajib Pelaksana
+            'jabatan_saat_ini' => 'Pengadministrasi Perkantoran',
+            'pangkat_golongan' => 'II/c',
+            'tmt_pangkat_terakhir' => '2024-01-01', // Baru 2 Tahun (Target 2028)
+            'tmt_kgb_terakhir' => '2025-01-01',
+        ]);
+
+        // Kasus 2: KP Reguler - Usulan (Masa Pangkat >= 4 Tahun)
+        Pegawai::create([
+            'id_pegawai_api' => '302',
+            'nip' => '302',
+            'nama' => 'Pelaksana Usulan Waktu',
+            'email' => 'pelaksana2@test.go.id',
+            'tipe_jabatan' => 'Pelaksana',
+            'jabatan_saat_ini' => 'Analis Data',
+            'pangkat_golongan' => 'III/a',
+            'tmt_pangkat_terakhir' => '2021-04-01', // Sudah ~5 Tahun
+            'tmt_kgb_terakhir' => '2025-01-01',
+        ]);
 
         // 5. Update TMT Manual (jika pegawai ada)
         $this->call(UpdateTmtManualSeeder::class);
