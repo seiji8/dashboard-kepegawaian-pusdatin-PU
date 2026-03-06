@@ -103,23 +103,13 @@ function openDetailModal(nip) {
                 if (contentBody) contentBody.style.display = 'flex';
 
             } else {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Gagal',
-                    text: 'Gagal memuat data.',
-                    confirmButtonColor: '#dc2626'
-                });
+                showCustomToast('Gagal memuat data.', 'error');
                 closeDetailModal();
             }
         })
         .catch(err => {
             console.error(err);
-            Swal.fire({
-                icon: 'error',
-                title: 'Kesalahan',
-                text: 'Terjadi kesalahan koneksi.',
-                confirmButtonColor: '#dc2626'
-            });
+            showCustomToast('Terjadi kesalahan koneksi.', 'error');
             closeDetailModal();
         });
 }
@@ -194,12 +184,7 @@ function submitUkom() {
                 // Reload halaman agar list terupdate
                 window.location.reload();
             } else {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Gagal',
-                    text: data.message || 'Gagal memindahkan pegawai.',
-                    confirmButtonColor: '#dc2626'
-                });
+                showCustomToast(data.message || 'Gagal memindahkan pegawai.', 'error');
                 btn.textContent = 'Ya, Daftarkan UKOM';
                 btn.disabled = false;
             }
@@ -239,23 +224,13 @@ function sendReminder() {
 
     if (isCustom) {
         if (!customMessage) {
-            Swal.fire({
-                icon: 'warning',
-                title: 'Peringatan',
-                text: 'Harap isi pesan custom!',
-                confirmButtonColor: '#1e3a8a'
-            });
+            showCustomToast('Harap isi pesan custom!', 'error');
             return;
         }
         payload = { custom_message: customMessage };
     } else {
         if (!templateId) {
-            Swal.fire({
-                icon: 'warning',
-                title: 'Peringatan',
-                text: 'Harap pilih template!',
-                confirmButtonColor: '#1e3a8a'
-            });
+            showCustomToast('Harap pilih template!', 'error');
             return;
         }
         payload = { template_id: templateId };
@@ -279,30 +254,15 @@ function sendReminder() {
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Berhasil',
-                    text: 'Email berhasil dikirim!',
-                    confirmButtonColor: '#1e3a8a'
-                });
                 closeReminderModal();
+                showCustomToast('Email berhasil dikirim!', 'success');
             } else {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Gagal',
-                    text: data.message || 'Gagal mengirim email.',
-                    confirmButtonColor: '#dc2626'
-                });
+                showCustomToast(data.message || 'Gagal mengirim email.', 'error');
             }
         })
         .catch(error => {
             console.error('Error:', error);
-            Swal.fire({
-                icon: 'error',
-                title: 'Kesalahan',
-                text: 'Terjadi kesalahan saat mengirim email.',
-                confirmButtonColor: '#dc2626'
-            });
+            showCustomToast('Terjadi kesalahan saat mengirim email.', 'error');
         })
         .finally(() => {
             btnSend.innerText = originalText;

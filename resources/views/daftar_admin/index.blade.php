@@ -304,31 +304,16 @@
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Berhasil',
-                        text: 'Role berhasil diubah!',
-                        confirmButtonColor: '#1e3a8a'
-                    }).then(() => {
-                        location.reload();
-                    });
+                    document.getElementById('modalEditAdmin').style.display = 'none';
+                    showCustomToast('Role berhasil diubah!', 'success');
+                    setTimeout(() => location.reload(), 1500);
                 } else {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Gagal',
-                        text: data.message || 'Gagal mengubah role!',
-                        confirmButtonColor: '#dc2626'
-                    });
+                    showCustomToast(data.message || 'Gagal mengubah role!', 'error');
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Kesalahan',
-                    text: 'Terjadi kesalahan!',
-                    confirmButtonColor: '#dc2626'
-                });
+                showCustomToast('Terjadi kesalahan!', 'error');
             });
         }
 
@@ -423,32 +408,7 @@
             if (event.target == addModal) addModal.style.display = "none";
         });
 
-        // Use custom toast logic that complements app-common.js
-        function showCustomToast(message, type = 'success') {
-            const toast = document.getElementById("syncToast");
-            if (!toast) return;
 
-            const icon = toast.querySelector("i");
-            const text = toast.querySelector("span");
-            if (text) text.innerText = message;
-            
-            toast.className = "toast-notification";
-            
-            if (type === 'error') {
-                toast.style.backgroundColor = "#fee2e2";
-                toast.style.color = "#ef4444";
-                toast.style.border = "1px solid #fca5a5";
-                if (icon) icon.className = "ph-bold ph-warning-circle";
-            } else {
-                toast.style.backgroundColor = "#dcfce7";
-                toast.style.color = "#166534";
-                toast.style.border = "1px solid #86efac";
-                if (icon) icon.className = "ph-bold ph-check-circle";
-            }
-
-            toast.classList.add("show");
-            setTimeout(() => toast.classList.remove("show"), 3000);
-        }
     </script>
 
     @include('partials.sync_loading')

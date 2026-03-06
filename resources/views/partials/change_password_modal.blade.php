@@ -113,17 +113,7 @@
 
             if (status === 200) {
                 closeChangePasswordModal();
-                // Gunakan fungsi showToast global jika ada, atau alert fallback
-                if (typeof showToast === 'function') {
-                    showToast(body.message, 'success');
-                } else {
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Berhasil',
-                        text: body.message,
-                        confirmButtonColor: '#1e3a8a'
-                    });
-                }
+                showCustomToast(body.message, 'success');
             } else if (status === 422) {
                 // Validation Errors
                 for (let [key, messages] of Object.entries(body.errors)) {
@@ -134,24 +124,14 @@
                     }
                 }
             } else {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Kesalahan Server',
-                    text: 'Terjadi kesalahan server!',
-                    confirmButtonColor: '#dc2626'
-                });
+                showCustomToast('Terjadi kesalahan server!', 'error');
             }
         })
         .catch(error => {
             console.error('Error:', error);
             submitBtn.disabled = false;
             submitBtn.textContent = 'Simpan';
-            Swal.fire({
-                icon: 'error',
-                title: 'Kesalahan Jaringan',
-                text: 'Terjadi kesalahan jaringan!',
-                confirmButtonColor: '#dc2626'
-            });
+            showCustomToast('Terjadi kesalahan jaringan!', 'error');
         });
     });
 </script>

@@ -110,12 +110,7 @@ function triggerSync() {
     .then(data => {
         if (!data.success) {
             if (loadingModal) loadingModal.style.display = 'none';
-            Swal.fire({
-                icon: 'error',
-                title: 'Gagal',
-                text: data.message || 'Sinkronisasi gagal.',
-                confirmButtonColor: '#dc2626'
-            });
+            showCustomToast(data.message || 'Sinkronisasi gagal.', 'error');
             return;
         }
 
@@ -125,12 +120,7 @@ function triggerSync() {
     .catch(error => {
         console.error('Error starting sync:', error);
         if (loadingModal) loadingModal.style.display = 'none';
-        Swal.fire({
-            icon: 'error',
-            title: 'Kesalahan',
-            text: 'Terjadi kesalahan sistem saat memulai sinkronisasi.',
-            confirmButtonColor: '#dc2626'
-        });
+        showCustomToast('Terjadi kesalahan sistem saat memulai sinkronisasi.', 'error');
     });
 }
 
@@ -307,4 +297,31 @@ function markNotifRead(notifId) {
             }
         })
         .catch(err => console.error('Gagal mark notif:', err));
+}
+
+// === CUSTOM TOAST NOTIFICATION ===
+function showCustomToast(message, type = 'success') {
+    const toast = document.getElementById("syncToast");
+    if (!toast) return;
+
+    const icon = toast.querySelector("i");
+    const text = toast.querySelector("span");
+    if (text) text.innerText = message;
+    
+    toast.className = "toast-notification";
+    
+    if (type === 'error') {
+        toast.style.backgroundColor = "#fee2e2";
+        toast.style.color = "#ef4444";
+        toast.style.border = "1px solid #fca5a5";
+        if (icon) icon.className = "ph-bold ph-warning-circle";
+    } else {
+        toast.style.backgroundColor = "#dcfce7";
+        toast.style.color = "#166534";
+        toast.style.border = "1px solid #86efac";
+        if (icon) icon.className = "ph-bold ph-check-circle";
+    }
+
+    toast.classList.add("show");
+    setTimeout(() => toast.classList.remove("show"), 3000);
 }

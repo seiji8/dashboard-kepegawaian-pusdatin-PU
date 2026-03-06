@@ -118,7 +118,7 @@
                     });
 
                     // Remove focus to flip the arrow back immediately
-                    filterElement.blur();
+                    document.getElementById('filterJenis').blur();
                 }
             </script>
 
@@ -367,15 +367,16 @@
         .then(res => res.json())
         .then(data => {
             if(data.success) {
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Berhasil',
-                    text: data.message,
-                    confirmButtonColor: '#1e3a8a'
-                }).then(() => {
-                    location.reload();
-                });
+                closeModal();
+                showCustomToast(data.message, 'success');
+                setTimeout(() => location.reload(), 1500);
+            } else {
+                showCustomToast(data.message || 'Terjadi kesalahan saat menyimpan data.', 'error');
             }
+        })
+        .catch(err => {
+            console.error(err);
+            showCustomToast('Terjadi kesalahan pada server. Cek console atau hubungi admin.', 'error');
         });
     });
 
@@ -449,18 +450,18 @@
                 ...Object.fromEntries(formData)
             })
         })
-        .then(res => res.json())
         .then(data => {
             if(data.success) {
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Berhasil',
-                    text: data.message,
-                    confirmButtonColor: '#1e3a8a'
-                }).then(() => {
-                    location.reload();
-                });
+                closeEditModal();
+                showCustomToast(data.message, 'success');
+                setTimeout(() => location.reload(), 1500);
+            } else {
+                showCustomToast(data.message || 'Terjadi kesalahan saat menyimpan data.', 'error');
             }
+        })
+        .catch(err => {
+            console.error(err);
+            showCustomToast('Terjadi kesalahan pada server.', 'error');
         });
     });
 
@@ -488,17 +489,19 @@
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Berhasil',
-                    text: 'Pesan berhasil dihapus!',
-                    confirmButtonColor: '#1e3a8a'
-                }).then(() => {
-                    location.reload();
-                });
+                closeDeletePesanModal();
+                showCustomToast('Pesan berhasil dihapus!', 'success');
+                setTimeout(() => location.reload(), 1500);
+            } else {
+                showCustomToast(data.message || 'Gagal menghapus pesan!', 'error');
             }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showCustomToast('Terjadi kesalahan server!', 'error');
         });
     }
+    </script>
 
     <script src="{{ asset('js/app-common.js') }}"></script>
     <script src="{{ asset('js/data-pegawai.js') }}"></script>
