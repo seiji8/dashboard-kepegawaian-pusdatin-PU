@@ -345,7 +345,7 @@
             const nipPegawai = document.getElementById('selectPegawai').value;
 
             if (!nipPegawai) {
-                showToast('Silakan pilih pegawai terlebih dahulu!', 'error');
+                showCustomToast('Silakan pilih pegawai terlebih dahulu!', 'error');
                 return;
             }
 
@@ -363,15 +363,15 @@
             .then(data => {
                 if (data.success) {
                     closeAddModal();
-                    showToast(data.message, 'success');
+                    showCustomToast(data.message, 'success');
                     setTimeout(() => location.reload(), 2000); // Reload setelah toast muncul
                 } else {
-                    showToast(data.message || 'Gagal menambahkan admin!', 'error');
+                    showCustomToast(data.message || 'Gagal menambahkan admin!', 'error');
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
-                showToast('Terjadi kesalahan! Pastikan Anda Super Admin.', 'error');
+                showCustomToast('Terjadi kesalahan! Pastikan Anda Super Admin.', 'error');
             });
         }
 
@@ -400,15 +400,15 @@
             .then(data => {
                 if (data.success) {
                     closeDeleteModal();
-                    showToast('Admin berhasil dihapus!', 'success');
+                    showCustomToast('Admin berhasil dihapus!', 'success');
                     setTimeout(() => location.reload(), 1500);
                 } else {
-                    showToast(data.message || 'Gagal menghapus admin!', 'error');
+                    showCustomToast(data.message || 'Gagal menghapus admin!', 'error');
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
-                showToast('Terjadi kesalahan server!', 'error');
+                showCustomToast('Terjadi kesalahan server!', 'error');
             });
         }
 
