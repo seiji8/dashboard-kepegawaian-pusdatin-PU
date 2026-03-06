@@ -13,6 +13,8 @@ use App\Models\NotifikasiRules;
 use Carbon\Carbon;
 use App\Helpers\ActivityLogger;
 use Illuminate\Support\Facades\Cache;
+use App\Mail\ManualNotification;
+use Illuminate\Support\Facades\Mail;
 
 class RecalculateTracker extends Command
 {
@@ -41,10 +43,17 @@ class RecalculateTracker extends Command
         $bar = $this->output->createProgressBar($count);
         $bar->start();
 
+        // Array untuk menyimpan usulan baru agar bisa dikirim summary ke admin di akhir
+        $daftarUsulanBaru = [];
+
+        // Penanda apakah saat ini adalah awal bulan triwulan
+        $isAwalTriwulan = in_array(Carbon::now()->format('m-d'), ['01-01', '04-01', '07-01', '10-01']);
+        $cacheKeyTriwulan = 'notif_triwulan_' . Carbon::now()->format('Y_m');
+
         // Big Data Optimized: Menggunakan chunkById(500) dan eager loading untuk menghindari N+1 Query Problem
         Pegawai::with(['riwayatAngkaKredit' => function ($query) {
             $query->orderBy('tmt_angka_kredit', 'desc');
-        }])->chunkById(500, function ($pegawais) use ($bar, $matriksKamus, $leadCheckDays, $freqUploadDays) {
+        }])->chunkById(500, function ($pegawais) use ($bar, $matriksKamus, $leadCheckDays, $freqUploadDays, &$daftarUsulanBaru, $isAwalTriwulan, $cacheKeyTriwulan) {
             foreach ($pegawais as $pegawai) {
                 $today = Carbon::now();
 
@@ -113,12 +122,12 @@ class RecalculateTracker extends Command
                         }
 
                         if ($status == 'Usulan' && !$tracker->notified_at) {
-                            $admins = User::whereIn('role', ['super_admin', 'admin_pegawai'])->get();
-                            if ($admins->count() > 0) {
-                                Notification::send($admins, new KgbMendekatiNotification($pegawai));
-                                $tracker->update(['notified_at' => now()]);
-                                ActivityLogger::logSystem("Mengirim notifikasi KGB Usulan ke admin untuk pegawai {$pegawai->nama}", $pegawai->nip);
-                            }
+                            $daftarUsulanBaru[] = [
+                                'nama' => $pegawai->nama,
+                                'nip' => $pegawai->nip,
+                                'kategori' => 'KGB'
+                            ];
+                            $tracker->update(['notified_at' => now()]);
                         } elseif ($status == 'Upload E-HRM') {
                             if ($isDueForUploadNotif) {
                                 $notifiable = User::where('email', $pegawai->email)->first();
@@ -260,7 +269,7 @@ class RecalculateTracker extends Command
                             // Manajemen Database Tracker
                             if (!$skipTrackerUpdate) {
                                 if (in_array($statusAK, ['Usulan', 'Mendekati', 'Proses'])) {
-                                    DashboardTracker::updateOrCreate(
+                                    $tracker = DashboardTracker::updateOrCreate(
                                         [
                                             'pegawai_id' => $pegawai->id_pegawai_api,
                                             'kategori'   => $kategoriSekarang,
@@ -272,6 +281,16 @@ class RecalculateTracker extends Command
                                             'tanggal_target'  => $targetDate,
                                         ]
                                     );
+
+                                    // Tambahkan ke Usulan Baru jika belum dinotifikasi
+                                    if ($statusAK == 'Usulan' && !$tracker->notified_at) {
+                                        $daftarUsulanBaru[] = [
+                                            'nama' => $pegawai->nama,
+                                            'nip' => $pegawai->nip,
+                                            'kategori' => $kategoriSekarang
+                                        ];
+                                        $tracker->update(['notified_at' => now()]);
+                                    }
 
                                     // Hapus Kategori Lawan
                                     DashboardTracker::where('pegawai_id', $pegawai->id_pegawai_api)
@@ -401,7 +420,7 @@ class RecalculateTracker extends Command
                             $keteranganStruktural = 'Memenuhi Syarat Kenaikan Pangkat Pilihan (Struktural 1 Tahun)';
                         }
                         if ($statusStruktural != 'Aman') {
-                            DashboardTracker::updateOrCreate(
+                            $trackerStruct = DashboardTracker::updateOrCreate(
                                 [
                                     'pegawai_id' => $pegawai->id_pegawai_api,
                                     'kategori'   => 'KP_Struktural',
@@ -415,6 +434,16 @@ class RecalculateTracker extends Command
                                                             : Carbon::now()->format('Y-m-d'),
                                 ]
                             );
+                            
+                            // Tambahkan ke Usulan Baru jika belum dinotifikasi
+                            if ($statusStruktural == 'Usulan' && !$trackerStruct->notified_at) {
+                                $daftarUsulanBaru[] = [
+                                    'nama' => $pegawai->nama,
+                                    'nip' => $pegawai->nip,
+                                    'kategori' => 'KP_Struktural'
+                                ];
+                                $trackerStruct->update(['notified_at' => now()]);
+                            }
                         } else {
                             DashboardTracker::where('pegawai_id', $pegawai->id_pegawai_api)
                                 ->where('kategori', 'KP_Struktural')
@@ -462,7 +491,7 @@ class RecalculateTracker extends Command
                     }
 
                     if ($statusReguler != 'Aman') {
-                        DashboardTracker::updateOrCreate(
+                        $trackerReg = DashboardTracker::updateOrCreate(
                             [
                                 'pegawai_id' => $pegawai->id_pegawai_api,
                                 'kategori'   => 'KP_Reguler',
@@ -474,6 +503,16 @@ class RecalculateTracker extends Command
                                 'tanggal_target'  => $tanggalTargetReguler->format('Y-m-d'),
                             ]
                         );
+
+                        // Tambahkan ke Usulan Baru jika belum dinotifikasi
+                        if ($statusReguler == 'Usulan' && !$trackerReg->notified_at) {
+                            $daftarUsulanBaru[] = [
+                                'nama' => $pegawai->nama,
+                                'nip' => $pegawai->nip,
+                                'kategori' => 'KP_Reguler'
+                            ];
+                            $trackerReg->update(['notified_at' => now()]);
+                        }
                     } else {
                         DashboardTracker::where('pegawai_id', $pegawai->id_pegawai_api)
                             ->where('kategori', 'KP_Reguler')
@@ -505,16 +544,17 @@ class RecalculateTracker extends Command
                             ? 'Sertifikat diklat belum diupload ke E-HRM'
                             : $jumlahHutang . ' sertifikat diklat belum diupload ke E-HRM';
 
-                        DashboardTracker::updateOrCreate(
+                        $trackerHutang = DashboardTracker::updateOrCreate(
                             ['pegawai_id' => $pegawai->id_pegawai_api, 'kategori' => 'DIKLAT_HUTANG'],
                             [
-                                'status_saat_ini' => 'Usulan',
+                                'status_saat_ini' => 'Upload E-HRM',
                                 'keterangan' => $keterangan,
                                 'dokumen_total' => $jumlahHutang,
                                 'dokumen_terupload' => 0,
                                 'tanggal_target' => Carbon::parse($hutangDiklat->sortBy('tanggal_selesai')->first()->tanggal_selesai)->format('Y-m-d'),
                             ]
                         );
+                        
                     } else {
                         DashboardTracker::where('pegawai_id', $pegawai->id_pegawai_api)
                             ->where('kategori', 'DIKLAT_HUTANG')->delete();
@@ -532,16 +572,17 @@ class RecalculateTracker extends Command
                             ? 'Dokumen diklat belum lengkap di E-HRM'
                             : $jumlahAnomali . ' dokumen diklat belum lengkap di E-HRM';
 
-                        DashboardTracker::updateOrCreate(
+                        $trackerAnomali = DashboardTracker::updateOrCreate(
                             ['pegawai_id' => $pegawai->id_pegawai_api, 'kategori' => 'DIKLAT_ANOMALI'],
                             [
-                                'status_saat_ini' => 'Usulan',
+                                'status_saat_ini' => 'Upload E-HRM',
                                 'keterangan' => $keterangan,
                                 'dokumen_total' => $jumlahAnomali,
                                 'dokumen_terupload' => 0,
                                 'tanggal_target' => Carbon::now()->format('Y-m-d'),
                             ]
                         );
+
                     } else {
                         DashboardTracker::where('pegawai_id', $pegawai->id_pegawai_api)
                             ->where('kategori', 'DIKLAT_ANOMALI')->delete();
@@ -558,6 +599,54 @@ class RecalculateTracker extends Command
 
         $bar->finish();
         $this->newLine();
+
+        // --- KIRIM SUMMARY EMAIL KE ADMIN ---
+        
+        // Menghitung total seluruh usulan yang berstatus 'Usulan' saja (berarti ini tugas Admin).
+        // Pegawai dengan status 'Upload E-HRM' tidak dimasukkan, karena itu tugas pegawai ybs.
+        $dbTotalUsulan = DashboardTracker::where('status_saat_ini', 'Usulan')
+            ->selectRaw('kategori, COUNT(*) as count')
+            ->groupBy('kategori')
+            ->pluck('count', 'kategori')
+            ->toArray();
+
+        // Email tetap dikirim saat ada daftarUsulanBaru (walau mungkin semua langsung diproses) 
+        // ATAU saat masih ada tumpukan Usulan di DB
+        if (!empty($daftarUsulanBaru) || !empty($dbTotalUsulan)) {
+            $admins = User::whereIn('role', ['super_admin', 'admin_pegawai'])->get();
+            if ($admins->count() > 0) {
+                $subject = "Daftar Usulan Tersedia Kepegawaian";
+                $messageBody = "Berikut adalah ringkasan total usulan yang perlu diproses di sistem saat ini:\n\n";
+                
+                // Gunakan dummy pegawai untuk Manual Notification karena struktur Mail\ManualNotification mewajibkan satu pegawai.
+                // Kita buat Dummy objek standar untuk fallback
+                $dummyPegawai = new \stdClass();
+                $dummyPegawai->nama = "Tim Kepegawaian";
+
+                if (!empty($dbTotalUsulan)) {
+                    foreach ($dbTotalUsulan as $kategori => $jumlah) {
+                        $namaKategori = str_replace('_', ' ', $kategori);
+                        $messageBody .= "• {$namaKategori}: {$jumlah} usulan\n";
+                    }
+                } else {
+                    $messageBody .= "Saat ini tidak ada antrean Usulan.\n";
+                }
+                
+                $messageBody .= "\nHarap segera login ke web untuk melakukan proses verifikasi dokumen.";
+
+                foreach ($admins as $admin) {
+                     if ($admin->email) {
+                         try {
+                              Mail::to($admin->email)->send(new ManualNotification($dummyPegawai, $subject, $messageBody));
+                         } catch (\Exception $e) {
+                              \Log::error("Gagal mengirim notifikasi rekap usulan ke Admin {$admin->email}: " . $e->getMessage());
+                         }
+                     }
+                }
+                ActivityLogger::logSystem("Mengirim notifikasi rekap usulan baru ke admin (" . count($daftarUsulanBaru) . " usulan)");
+            }
+        }
+
         $this->info('✅ Tracker update & Notifikasi terkirim!');
         ActivityLogger::logSystem('Perhitungan tracker selesai untuk ' . $count . ' pegawai');
     }
