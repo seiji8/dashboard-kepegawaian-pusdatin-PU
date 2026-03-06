@@ -90,7 +90,8 @@ body {
 }
 
 .nav-item:hover {
-    background-color: rgba(255, 255, 255, 0.1);
+    background-color: rgba(255, 255, 255, 0.15);
+    transform: translateX(6px);
 }
 
 .nav-item.active {
@@ -142,11 +143,17 @@ body {
 
 .sync-btn:hover {
     background-color: #f3f4f6;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.sync-btn:hover .sync-img {
+    transform: rotate(180deg);
 }
 
 .sync-img {
     font-size: 24px;
-    /* width & height dihapus */
+    transition: transform 0.5s ease;
 }
 
 .sync-icon {
@@ -237,6 +244,8 @@ body {
 
 .btn-icon-header:hover {
     background: #f9fafb;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
 }
 
 .btn-icon-header.active {
@@ -417,6 +426,9 @@ body {
 
 .profile-btn:hover {
     border-color: #d1d5db;
+    background: #f9fafb;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
 }
 
 .profile-btn.active {
@@ -530,12 +542,18 @@ body {
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.02);
     border: 1px solid #f3f4f6;
 
-    /* Layout Flex agar isinya bisa diatur rata atas & bawah */
     display: flex;
     flex-direction: column;
     height: 100%;
     /* Memaksa card mengisi penuh tinggi baris grid */
     position: relative;
+    transition: all 0.3s ease;
+}
+
+.summary-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    border-color: #e5e7eb;
 }
 
 /* Wrapper text sekarang jadi Flex Container juga */
@@ -653,7 +671,9 @@ body {
 }
 
 .task-item:hover {
-    transform: translateY(-2px);
+    transform: translateY(-3px);
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.08);
+    border-color: #d1d5db;
 }
 
 .task-left {
