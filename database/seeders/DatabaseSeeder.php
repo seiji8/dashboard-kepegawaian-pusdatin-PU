@@ -120,7 +120,7 @@ class DatabaseSeeder extends Seeder
             'id_pegawai_api' => '103',
             'nip' => '103',
             'nama' => 'Raissa',
-            'email' => 'ahmad.budiman@test.go.id',
+            'email' => 'raissaakhdiyan@gmail.com',
             'tipe_jabatan' => 'Fungsional',
             'jabatan_saat_ini' => 'Analis Kebijakan Ahli Muda',
             'jenjang' => 'Ahli Muda', // Berfungsi sebagai referensi kamus JF BKN
