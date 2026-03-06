@@ -154,6 +154,7 @@
             }
         }
     </style>
+    <link rel="icon" type="image/png" href="{{ asset('assets/Logo_PU.png') }}">
 </head>
 <body>
 

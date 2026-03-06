@@ -50,6 +50,7 @@
         /* Loading Spinner Hidden by Default */
         .spinner-border { display: none; }
     </style>
+    <link rel="icon" type="image/png" href="{{ asset('assets/Logo_PU.png') }}">
 </head>
 <body>
 
