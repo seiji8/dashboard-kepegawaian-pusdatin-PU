@@ -12,6 +12,7 @@
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css"> -->
+    <link rel="icon" type="image/png" href="{{ asset('assets/Logo_PU.png') }}">
 </head>
 <body>
     <div class="container">

@@ -19,6 +19,7 @@
           color: #94a3b8; /* Slate-400 */
       }
   </style>
+    <link rel="icon" type="image/png" href="{{ asset('assets/Logo_PU.png') }}">
 </head>
 <body class="bg-gray-50 overflow-hidden">
   <div class="flex h-screen justify-center items-center bg-gray-50">

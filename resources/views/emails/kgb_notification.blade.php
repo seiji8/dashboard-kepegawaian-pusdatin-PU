@@ -2,6 +2,7 @@
 <html>
 <head>
     <title>Notifikasi KGB</title>
+    <link rel="icon" type="image/png" href="{{ asset('assets/Logo_PU.png') }}">
 </head>
 <body style="font-family: Arial, sans-serif; color: #333; margin: 0; padding: 0; background-color: #f4f4f4;">
 
