@@ -735,7 +735,7 @@ class RecalculateTracker extends Command
                                 break;
                             default:
                                 // Fallback for KJ or other categories like the user's example
-                                $empMessage = "Angka Kredit / Syarat Anda telah mencukupi. Status berkas usulan {$namaKategori} Anda saat ini adalah 'Usulan'.\n\nMohon segera mempersiapkan berkas administrasi dan melengkapinya agar dapat diproses oleh Admin Kepegawaian.";
+                                $empMessage = "Angka Kredit / Syarat Anda telah mencukupi. Status {$namaKategori} Anda saat ini adalah 'Usulan'.\n\nMohon segera mempersiapkan berkas administrasi dan melengkapinya agar dapat diproses oleh Admin Kepegawaian.";
                                 break;
                         }
                         
