@@ -114,6 +114,14 @@ class DatabaseSeeder extends Seeder
             'jabatan_saat_penilaian' => 'Pranata Komputer Ahli Pertama'
         ]);
 
+        RiwayatAngkaKredit::create([
+            'id_pegawai_api' => '3174065301990001', // Faradz
+            'nomor_sk' => 'SK-DUMMY-004',
+            'tanggal_sk' => '2023-12-01',
+            'total_kredit' => 100, // Kurang dari 50
+            'jabatan_saat_penilaian' => 'Pranata Komputer Ahli Pertama'
+        ]);
+
         // 5. Pegawai Tambahan (Untuk test fitur KGB)
         // KGB Mendekati: tmt_kgb + 2 tahun = Maret 2026 (H-1 bulan)
         Pegawai::create([
@@ -136,10 +144,25 @@ class DatabaseSeeder extends Seeder
             'email' => 'siti.nurhaliza@test.go.id',
             'tipe_jabatan' => 'Fungsional',
             'jabatan_saat_ini' => 'Pranata Komputer Ahli Pertama',
-            'jenjang' => 'Ahli Pertama',
+            'jenjang' => 'Ahli Muda',
             'pangkat_golongan' => 'III/d',
             'tmt_kgb_terakhir' => '2024-04-01',
         ]);
+
+        Pegawai::updateOrCreate(
+            ['nip' => '3174065301990001'],
+            [
+                'id_pegawai_api' => '3174065301990001',
+                'nama' => 'Faradz Ayu Zachra',
+                'email' => 'faradzachra@pu.go.id',
+                'tipe_jabatan' => 'Fungsional',
+                'jabatan_saat_ini' => 'Analis Data',
+                'jenjang' => 'Ahli Pertama',
+                'pangkat_golongan' => 'III/a',
+                'tmt_pangkat_terakhir' => '2020-04-01', 
+                'tmt_kgb_terakhir' => '2024-05-01',
+            ]
+        );
 
         // KGB Usulan: tmt_kgb + 2 tahun = Januari 2026 (sudah lewat)
         Pegawai::create([
