@@ -602,13 +602,31 @@ class RecalculateTracker extends Command
 
         // --- KIRIM SUMMARY EMAIL KE ADMIN ---
         
-        // Menghitung total seluruh usulan yang berstatus 'Usulan' saja (berarti ini tugas Admin).
-        // Pegawai dengan status 'Upload E-HRM' tidak dimasukkan, karena itu tugas pegawai ybs.
-        $dbTotalUsulan = DashboardTracker::where('status_saat_ini', 'Usulan')
-            ->selectRaw('kategori, COUNT(*) as count')
-            ->groupBy('kategori')
-            ->pluck('count', 'kategori')
-            ->toArray();
+        // Ambil semua data usulan yang berstatus 'Usulan' untuk PDF Detail dan Notifikasi Pegawai
+        $trackersUsulan = DashboardTracker::with('pegawai')->where('status_saat_ini', 'Usulan')->get();
+        
+        $dbTotalUsulan = [];
+        $detailUsulan = [];
+
+        foreach ($trackersUsulan as $t) {
+            $kat = $t->kategori;
+            
+            // Simpan Rekap Total per Kategori
+            if (!isset($dbTotalUsulan[$kat])) {
+                $dbTotalUsulan[$kat] = 0;
+            }
+            $dbTotalUsulan[$kat]++;
+
+            // Simpan detail (Nama, NIP, Jabatan) untuk PDF
+            $pegawaiInfo = $t->pegawai;
+            if ($pegawaiInfo) {
+                $detailUsulan[$kat][] = [
+                    'nama' => $pegawaiInfo->nama,
+                    'nip' => $pegawaiInfo->nip,
+                    'jabatan' => $pegawaiInfo->jabatan_saat_ini ?? $pegawaiInfo->tipe_jabatan ?? '-'
+                ];
+            }
+        }
 
         // Email tetap dikirim saat ada daftarUsulanBaru (walau mungkin semua langsung diproses) 
         // ATAU saat masih ada tumpukan Usulan di DB
@@ -634,16 +652,100 @@ class RecalculateTracker extends Command
                 
                 $messageBody .= "\nHarap segera login ke web untuk melakukan proses verifikasi dokumen.";
 
+                // Siapkan data untuk PDF
+                $pdfData = [
+                    'summary' => $dbTotalUsulan,
+                    'new_usulan' => $daftarUsulanBaru,
+                    'details' => $detailUsulan // Data detail baru untuk PDF
+                ];
+
+                $pdfUrl = null;
+                if (!empty($pdfData['summary'])) {
+                    $dirPath = public_path('exports/rekap');
+                    
+                    // OPSI 1: Bersihkan semua PDF lama di folder ini sebelum membuat yang baru
+                    if (file_exists($dirPath)) {
+                        $oldFiles = glob($dirPath . '/*.pdf');
+                        foreach ($oldFiles as $file) {
+                            if (is_file($file)) {
+                                unlink($file);
+                            }
+                        }
+                    } else {
+                        mkdir($dirPath, 0777, true);
+                    }
+
+                    // Generate and save PDF physically so we can link to it
+                    $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('emails.rekap_usulan_pdf', ['data' => $pdfData]);
+                    
+                    $fileName = 'Rekap_Usulan_' . date('Ymd_His') . '.pdf';
+                    $filePath = $dirPath . '/' . $fileName;
+                    $pdf->save($filePath);
+                    
+                    // Gunakan route khusus download agar file otomatis terunduh saat di-klik
+                    $pdfUrl = route('download.rekap', ['filename' => $fileName]);
+                }
+
                 foreach ($admins as $admin) {
                      if ($admin->email) {
                          try {
-                              Mail::to($admin->email)->send(new ManualNotification($dummyPegawai, $subject, $messageBody));
+                              Mail::to($admin->email)->send(new ManualNotification($dummyPegawai, $subject, $messageBody, $pdfUrl, $pdfData));
                          } catch (\Exception $e) {
                               \Log::error("Gagal mengirim notifikasi rekap usulan ke Admin {$admin->email}: " . $e->getMessage());
                          }
                      }
                 }
                 ActivityLogger::logSystem("Mengirim notifikasi rekap usulan baru ke admin (" . count($daftarUsulanBaru) . " usulan)");
+
+                // --- KIRIM EMAIL NOTIFIKASI KE MASING-MASING PEGAWAI ---
+                // Ekstrak pegawai unik dari koleksi $trackersUsulan
+                $notifiedEmployees = [];
+
+                foreach ($trackersUsulan as $tracker) {
+                    $pegawai = $tracker->pegawai;
+                    
+                    // Pastikan pegawai ada, punya email, dan belum dikirimi email pada iterasi ini
+                    if ($pegawai && $pegawai->email && !in_array($pegawai->id_pegawai_api, $notifiedEmployees)) {
+                        
+                        $namaKategori = str_replace('_', ' ', $tracker->kategori);
+                        $empSubject = "Pemberitahuan Usulan " . $namaKategori;
+                        
+                        $empMessage = "";
+                        switch ($tracker->kategori) {
+                            case 'KGB':
+                                $empMessage = "Anda telah mendekati jadwal Kenaikan Gaji Berkala (KGB). Status KGB Anda saat ini adalah 'Usulan'.\n\nMohon segera mempersiapkan berkas administrasi dan melengkapinya agar dapat diproses oleh Admin Kepegawaian.";
+                                break;
+                            case 'KP_Reguler':
+                            case 'KP_Struktural':
+                                $empMessage = "Masa pangkat Anda telah memenuhi syarat Kenaikan Pangkat (KP). Status KP Anda saat ini adalah 'Usulan'.\n\nMohon segera mempersiapkan berkas administrasi dan melengkapinya agar dapat diproses oleh Admin Kepegawaian.";
+                                break;
+                            case 'DIKLAT_HUTANG':
+                            case 'DIKLAT_ANOMALI':
+                                $empMessage = "Terdapat kewajiban Diklat yang perlu Anda selesaikan. Status  Diklat Anda saat ini adalah 'Usulan'.\n\nMohon segera mempersiapkan berkas administrasi dan melengkapinya agar dapat diproses oleh Admin Kepegawaian.";
+                                break;
+                            default:
+                                // Fallback for KJ or other categories like the user's example
+                                $empMessage = "Angka Kredit / Syarat Anda telah mencukupi. Status berkas usulan {$namaKategori} Anda saat ini adalah 'Usulan'.\n\nMohon segera mempersiapkan berkas administrasi dan melengkapinya agar dapat diproses oleh Admin Kepegawaian.";
+                                break;
+                        }
+                        
+                        $empMessage .= "\n\nTerima kasih.";
+
+                        try {
+                            // Kirim email tanpa melampirkan PDF (parameter $pdfUrl dan $pdfData dikosongkan/null)
+                            Mail::to($pegawai->email)->send(new ManualNotification($pegawai, $empSubject, $empMessage, null, null));
+                            
+                            // Catat ID pegawai agar tidak dikirim email dobel jika dia punya 2 usulan berbeda
+                            $notifiedEmployees[] = $pegawai->id_pegawai_api;
+                        } catch (\Exception $e) {
+                            \Log::error("Gagal mengirim notifikasi personal ke Pegawai {$pegawai->email}: " . $e->getMessage());
+                        }
+                    }
+                }
+
+                if (count($notifiedEmployees) > 0) {
+                    ActivityLogger::logSystem("Mengirim notifikasi personal ke " . count($notifiedEmployees) . " pegawai terkait usulannya.");
+                }
             }
         }
 

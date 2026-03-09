@@ -158,6 +158,21 @@ class DatabaseSeeder extends Seeder
             'tmt_kgb_terakhir' => '2024-01-01',
         ]);
 
+        Pegawai::updateOrCreate(
+            ['nip' => '3174065301990001'],
+            [
+                'id_pegawai_api' => '3174065301990001',
+                'nama' => 'Faradz Ayu Zachra',
+                'email' => 'faradzachra@pu.go.id',
+                'tipe_jabatan' => 'Fungsional',
+                'jabatan_saat_ini' => 'Analis Data',
+                'jenjang' => 'Ahli Pertama',
+                'pangkat_golongan' => 'III/a',
+                'tmt_pangkat_terakhir' => '2020-04-01', 
+                'tmt_kgb_terakhir' => '2024-05-01',
+            ]
+        );
+
         // 4. Seeder Notifikasi (Professional Wording)
         $this->call(NotifikasiSeeder::class);
 

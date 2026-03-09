@@ -36,6 +36,27 @@
                 <p style="margin: 0; font-size: 16px; font-weight: 600; color: #1f2937; line-height: 1.6;">
                     {!! nl2br(e($content)) !!}
                 </p>
+
+                @if(isset($pdfData))
+                <div style="margin-top: 25px; padding-top: 15px; border-top: 1px dashed #d1d5db; text-align: left;">
+                    <p style="margin: 0; font-size: 13px; font-weight: 600; color: #1e3a8a; display: flex; align-items: center;">
+                        <span style="font-size: 16px; margin-right: 8px;">📎</span> 
+                        Untuk melihat detail selengkapnya, silakan unduh file rekap PDF pada lampiran (Attachment) di bagian bawah email ini.
+                    </p>
+                </div>
+                @endif
+                {{-- 
+                @if(isset($pdfUrl))
+                <div style="margin-top: 25px; text-align: left;">
+                    <a href="{{ $pdfUrl }}" target="_blank" style="display: inline-block; padding: 12px 24px; background-color: #1e3a8a; color: #ffffff; text-decoration: none; border-radius: 6px; font-weight: 600; font-size: 14px; text-align: center;">
+                        Download Rekap PDF
+                    </a>
+                    <p style="margin-top: 8px; font-size: 11px; color: #6b7280; font-weight: normal; font-style: italic;">
+                        * File PDF ini juga dilampirkan pada bagian bawah email (Attachment)
+                    </p>
+                </div>
+                @endif
+                --}}
             </div>
 
             <!-- Footer Signature -->

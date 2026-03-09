@@ -1,3 +1,6 @@
+@php
+    /** @var \Illuminate\Pagination\LengthAwarePaginator|\App\Models\Pegawai[] $pegawais */
+@endphp
 <!DOCTYPE html>
 <html lang="id">
 <head>
