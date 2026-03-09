@@ -8,7 +8,7 @@ use App\Models\DashboardTracker;
 use App\Models\User; // Butuh User untuk kirim notif
 use Illuminate\Support\Facades\Notification;
 use App\Notifications\KgbMendekatiNotification;
-use App\Notifications\KgbUsulanNotification;
+use App\Notifications\SystemAlertNotification;
 use App\Models\NotifikasiRules;
 use Carbon\Carbon;
 use App\Helpers\ActivityLogger;
@@ -135,7 +135,14 @@ class RecalculateTracker extends Command
                                     $notifiable = Notification::route('mail', $pegawai->email);
                                 }
                                 if ($notifiable) {
-                                    $notifiable->notify(new KgbUsulanNotification($tracker));
+                                    $tmt = Carbon::parse($tracker->tanggal_target);
+                                    $bulanTahun = $tmt->isoFormat('MMMM Y');
+                                    
+                                    $subject = '🔔 Notifikasi KGB: SK KGB Sudah Terbit';
+                                    $content = "Selamat! Waktunya proses KGB untuk periode {$bulanTahun}.\n\nSegera lengkapi berkas dan upload SK Terakhir & SKP Anda ke sistem sekarang agar dapat diproses lebih lanjut oleh admin.";
+                                    
+                                    $notifiable->notify(new SystemAlertNotification($pegawai, $subject, $content));
+                                    
                                     $tracker->update(['notified_at' => now()]); 
                                     ActivityLogger::logSystem("Mengirim notifikasi KGB Upload E-HRM ke pegawai {$pegawai->nama}", $pegawai->nip);
                                 }
@@ -650,7 +657,10 @@ class RecalculateTracker extends Command
                     $messageBody .= "Saat ini tidak ada antrean Usulan.\n";
                 }
                 
-                $messageBody .= "\nHarap segera login ke web untuk melakukan proses verifikasi dokumen.";
+                // Content khusus untuk Lonceng Database (Lebih ringkas)
+                $dbContent = $messageBody;
+
+                $messageBody .= "\nSilakan cek tabel daftar usulan untuk memproses verifikasi dokumen ini secara kolektif.";
 
                 // Siapkan data untuk PDF
                 $pdfData = [
@@ -689,7 +699,7 @@ class RecalculateTracker extends Command
                 foreach ($admins as $admin) {
                      if ($admin->email) {
                          try {
-                              Mail::to($admin->email)->send(new ManualNotification($dummyPegawai, $subject, $messageBody, $pdfUrl, $pdfData));
+                              $admin->notify(new SystemAlertNotification($dummyPegawai, $subject, $messageBody, $pdfUrl, $pdfData));
                          } catch (\Exception $e) {
                               \Log::error("Gagal mengirim notifikasi rekap usulan ke Admin {$admin->email}: " . $e->getMessage());
                          }
@@ -732,8 +742,13 @@ class RecalculateTracker extends Command
                         $empMessage .= "\n\nTerima kasih.";
 
                         try {
-                            // Kirim email tanpa melampirkan PDF (parameter $pdfUrl dan $pdfData dikosongkan/null)
-                            Mail::to($pegawai->email)->send(new ManualNotification($pegawai, $empSubject, $empMessage, null, null));
+                            // Kirim alert lengkap (Email Biru + Notif Lonceng Database) tanpa PDF
+                            $notifiable = User::where('email', $pegawai->email)->first();
+                            if (!$notifiable) {
+                                $notifiable = Notification::route('mail', $pegawai->email);
+                            }
+                            
+                            $notifiable->notify(new SystemAlertNotification($pegawai, $empSubject, $empMessage));
                             
                             // Catat ID pegawai agar tidak dikirim email dobel jika dia punya 2 usulan berbeda
                             $notifiedEmployees[] = $pegawai->id_pegawai_api;

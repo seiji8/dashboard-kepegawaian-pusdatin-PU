@@ -236,6 +236,7 @@ function renderNotifications(notifications) {
     notifications.forEach(function (n) {
         var unreadClass = n.read ? '' : ' unread';
         var clickAction = n.read ? '' : ' onclick="markNotifRead(\'' + n.id + '\')"';
+        
         html += '<div class="notif-item' + unreadClass + '"' + clickAction + '>' +
             '<div class="notif-content">' +
             '<p class="notif-title">' + n.title + '</p>' +

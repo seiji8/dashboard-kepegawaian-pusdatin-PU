@@ -16,14 +16,14 @@ class NotificationController extends Controller
 
         $notifications = $user->notifications()->latest()->take(10)->get()->map(function ($notif) {
             return [
-                'id'      => $notif->id,
-                'title'   => $notif->data['title'] ?? 'Notifikasi',
-                'message' => $notif->data['message'] ?? '',
-                'icon'    => $notif->data['icon'] ?? 'bi-bell-fill',
-                'type'    => $notif->data['type'] ?? 'info',
-                'url'     => $notif->data['url'] ?? '#',
-                'read'    => !is_null($notif->read_at),
-                'time'    => $notif->created_at->diffForHumans(),
+                'id'         => $notif->id,
+                'title'      => $notif->data['title'] ?? 'Notifikasi',
+                'message'    => $notif->data['message'] ?? '',
+                'icon'       => $notif->data['icon'] ?? 'bi-bell-fill',
+                'type'       => $notif->data['type'] ?? 'info',
+                'url'        => $notif->data['url'] ?? '#',
+                'read'       => !is_null($notif->read_at),
+                'time'       => $notif->created_at->diffForHumans(),
             ];
         });
 
