@@ -82,8 +82,8 @@
             <div class="header-actions">
                 <select id="filterJenis" class="select-filter" onchange="filterCards()">
                     <option value="all">Semua Jenis</option>
-                    <option value="schedule">Penjadwalan</option>
-                    <option value="template">Template</option>
+                    <option value="otomatis">Otomatis</option>
+                    <option value="manual">Manual / Template</option>
                 </select>
                 <button class="btn-tambah" onclick="openModal()">+ Tambah</button>
             </div>
@@ -102,21 +102,31 @@
                 function filterCards() {
                     const filter = document.getElementById('filterJenis').value;
                     const cards = document.querySelectorAll('.message-card');
+                    let visibleCount = 0;
 
                     cards.forEach(card => {
                         const interval = parseInt(card.getAttribute('data-interval'));
+                        const isSystem = card.getAttribute('data-is-system') === 'true';
                         let shouldShow = false;
 
                         if (filter === 'all') {
                             shouldShow = true;
-                        } else if (filter === 'schedule') {
-                            shouldShow = (interval > 0);
-                        } else if (filter === 'template') {
-                            shouldShow = (interval == 0);
+                        } else if (filter === 'otomatis') {
+                            // Masuk otomatis: Semua pesan bawaan sistem (trigger) ATAU yg punya interval > 0 (jadwal berulang)
+                            shouldShow = (isSystem || interval > 0);
+                        } else if (filter === 'manual') {
+                            // Masuk manual: Bukan pesan sistem bawaan DAN tidak punya jadwal (interval <= 0)
+                            shouldShow = (!isSystem && interval <= 0);
                         }
 
+                        if (shouldShow) visibleCount++;
                         card.style.display = shouldShow ? 'grid' : 'none';
                     });
+
+                    const emptyState = document.getElementById('emptyFilterState');
+                    if (emptyState) {
+                        emptyState.style.display = (visibleCount === 0) ? 'block' : 'none';
+                    }
 
                     // Remove focus to flip the arrow back immediately
                     document.getElementById('filterJenis').blur();
@@ -124,8 +134,22 @@
             </script>
 
             @forelse($rules as $rule)
-            <div class="message-card" data-id="{{ $rule->id }}" data-kategori="{{ $rule->kategori }}" data-interval="{{ $rule->interval_hari }}">
-                <div class="notif-name">{{ $rule->kategori }}</div>
+            @php
+                $systemCategories = [
+                    'KGB', 'KGB Penjadwalan', 'KGB Upload Dokumen', 'KP_Reguler', 
+                    'KP_Struktural', 'DIKLAT_HUTANG', 'DIKLAT_ANOMALI', 'KJ_Jafung', 
+                    'KP_Jafung', 'UKOM', 'Notifikasi Triwulan', 'Notifikasi Tahunan', 
+                    'Info Kenaikan Pangkat', 'Template SKP'
+                ];
+                $isSystem = in_array($rule->kategori, $systemCategories);
+            @endphp
+            <div class="message-card" data-id="{{ $rule->id }}" data-kategori="{{ $rule->kategori }}" data-interval="{{ $rule->interval_hari }}" data-is-system="{{ $isSystem ? 'true' : 'false' }}">
+                <div class="notif-name">
+                    {{ $rule->kategori }}
+                    @if($isSystem)
+                        <i class="ph-fill ph-lock-key" style="color: #9ca3af; font-size: 14px; margin-left: 4px;" title="Pesan Sistem Bawaan"></i>
+                    @endif
+                </div>
                 <div class="message-content">
                     {!! nl2br(e($rule->template_pesan)) !!}
                 </div>
@@ -133,9 +157,7 @@
                     @php
                         $interval = $rule->interval_hari;
                         $format = '';
-                        if ($interval <= 0) {
-                            $format = 'Manual';
-                        } elseif ($interval >= 365 && $interval % 365 == 0) {
+                        if ($interval >= 365 && $interval % 365 == 0) {
                             $format = ($interval / 365) . ' Tahun';
                         } elseif ($interval >= 30 && $interval % 30 == 0) {
                             $format = ($interval / 30) . ' Bulan';
@@ -147,27 +169,64 @@
                     @endphp
 
                     @if($rule->kategori == 'KGB Penjadwalan')
-                        <span class="badge-schedule" style="background-color: #fef3c7; color: #d97706;">H-{{ $rule->interval_hari }} Hari</span>
-                    @elseif($interval <= 0)
-                        <span class="badge-schedule" style="background-color: #f3f4f6; color: #6b7280;">Manual</span>
+                        <span class="badge-schedule" style="background-color: #dbeafe; color: #1e40af; white-space: nowrap;">Otomatis</span>
+                        <span class="badge-schedule" style="background-color: #fef3c7; color: #d97706; margin-left: 4px; white-space: nowrap;">H-{{ $rule->interval_hari }} Hari</span>
+                    @elseif($isSystem && $interval <= 0)
+                        <span class="badge-schedule" style="background-color: #dbeafe; color: #1e40af; white-space: nowrap;">Otomatis</span>
+                    @elseif($isSystem && $interval > 0)
+                        <span class="badge-schedule" style="background-color: #dbeafe; color: #1e40af; white-space: nowrap;">Otomatis</span>
+                        <span class="badge-schedule" style="background-color: #fef3c7; color: #d97706; margin-left: 4px; white-space: nowrap;">{{ $format }}</span>
+                    @elseif(!$isSystem && $interval <= 0)
+                        <span class="badge-schedule" style="background-color: #f3f4f6; color: #6b7280; white-space: nowrap;">Template Manual</span>
                     @else
-                        <span class="badge-schedule" style="background-color: #f3e8ff; color: #7e22ce;">{{ $format }}</span>
+                        <span class="badge-schedule" style="background-color: #ecfdf5; color: #047857; white-space: nowrap;">Penjadwalan ({{ $format }})</span>
                     @endif
                 </div>
                 <div class="action-col">
                     <button class="btn-icon btn-edit" onclick="openEditModal(this)">
                         <i class="ph-bold ph-pencil-simple"></i>
                     </button>
+                    @if(!$isSystem)
                     <button class="btn-icon btn-delete" onclick="openDeletePesanModal('{{ $rule->id }}')">
                         <i class="ph-bold ph-trash"></i>
                     </button>
+                    @endif
                 </div>
             </div>
             @empty
-            <div style="text-align: center; padding: 40px; color: #9ca3af; grid-column: 1 / -1;">
-                Belum ada konfigurasi pesan.
+            <div style="grid-column: 1 / -1; padding: 40px 0;">
+                <div class="empty-state-container" style="padding: 0; border: none; background: transparent; box-shadow: none;">
+                    <div class="empty-state-content">
+                        <div class="empty-state-icon">
+                            <i class="ph-duotone ph-chat-teardrop-slash"></i>
+                        </div>
+                        <h4 class="empty-state-title">Belum Ada Pesan</h4>
+                        <p class="empty-state-desc">Sistem belum memiliki konfigurasi pesan sama sekali.<br>Silakan tambahkan pesan template pertama Anda.</p>
+                        <button onclick="openModal()" class="btn-reset-search" style="border: none; cursor: pointer;">
+                            <i class="ph-bold ph-plus"></i>
+                            Tambah Pesan Baru
+                        </button>
+                    </div>
+                </div>
             </div>
             @endforelse
+
+            <!-- EMPTY FILTER STATE (Hidden by default) -->
+            <div id="emptyFilterState" style="display: none; grid-column: 1 / -1; padding: 40px 0;">
+                <div class="empty-state-container" style="padding: 0; border: none; background: transparent; box-shadow: none;">
+                    <div class="empty-state-content">
+                        <div class="empty-state-icon">
+                            <i class="ph-duotone ph-tray"></i>
+                        </div>
+                        <h4 class="empty-state-title">Pesan Tidak Ditemukan</h4>
+                        <p class="empty-state-desc">Belum ada konfigurasi pesan untuk jenis filter yang Anda pilih.<br>Silakan pilih jenis filter lainnya atau tambahkan pesan baru.</p>
+                        <button onclick="document.getElementById('filterJenis').value = 'all'; filterCards();" class="btn-reset-search" style="border: none; cursor: pointer;">
+                            <i class="ph-bold ph-arrow-counter-clockwise"></i>
+                            Tampilkan Semua
+                        </button>
+                    </div>
+                </div>
+            </div>
 
             <!-- PAGINATION -->
             <div style="grid-column: 1 / -1;">
@@ -387,10 +446,25 @@
         const id = card.getAttribute('data-id');
         const kategori = card.getAttribute('data-kategori');
         const interval = card.getAttribute('data-interval');
+        const isSystem = card.getAttribute('data-is-system') === 'true';
         const isi = card.querySelector('.message-content').innerText;
 
         document.getElementById('editId').value = id;
-        document.getElementById('editNama').value = kategori;
+        
+        const editNama = document.getElementById('editNama');
+        editNama.value = kategori;
+        
+        // Kunci Nama Notifikasi jika ini adalah pesan bawaan sistem
+        if (isSystem) {
+            editNama.readOnly = true;
+            editNama.style.backgroundColor = '#f3f4f6';
+            editNama.title = 'Nama notifikasi sistem tidak dapat diubah';
+        } else {
+            editNama.readOnly = false;
+            editNama.style.backgroundColor = 'white';
+            editNama.title = '';
+        }
+
         document.getElementById('editIsi').value = isi;
 
         const jenisSelect = document.getElementById('editJenis');

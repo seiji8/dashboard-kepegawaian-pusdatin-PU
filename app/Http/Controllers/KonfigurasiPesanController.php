@@ -9,8 +9,8 @@ class KonfigurasiPesanController extends Controller
 {
     public function index()
     {
-        // Filter: Hanya tampilkan Notifikasi Pegawai (Exclude Notif Admin)
-        $rules = NotifikasiRules::where('kategori', '!=', 'KGB Penjadwalan')->paginate(10);
+        // Tampilkan semua notifikasi termasuk sistem bawaan (Set ke 50 agar filter JS berfungsi dengan baik tanpa memotong halaman)
+        $rules = NotifikasiRules::paginate(50);
         return view('konfigurasi_pesan.index', compact('rules'));
     }
 

@@ -71,5 +71,28 @@ class NotifikasiSeeder extends Seeder
                 'is_active' => true,
             ]
         );
+
+        // 7. Pesan Otomatis (Triggered Once)
+        $autoCategories = [
+            'KGB' => "Yth. {nama},\n\nAnda telah mendekati jadwal Kenaikan Gaji Berkala (KGB). Status KGB Anda saat ini adalah 'Usulan'.\n\nMohon segera mempersiapkan berkas administrasi dan melengkapinya agar dapat diproses oleh Admin Kepegawaian.\n\nTerima kasih.",
+            'KP_Reguler' => "Yth. {nama},\n\nMasa pangkat Anda telah memenuhi syarat Kenaikan Pangkat (KP Reguler). Status KP Anda saat ini adalah 'Usulan'.\n\nMohon segera mempersiapkan berkas administrasi dan melengkapinya agar dapat diproses oleh Admin Kepegawaian.\n\nTerima kasih.",
+            'KP_Struktural' => "Yth. {nama},\n\nMasa pangkat Anda telah memenuhi syarat Kenaikan Pangkat (KP Struktural). Status KP Anda saat ini adalah 'Usulan'.\n\nMohon segera mempersiapkan berkas administrasi dan melengkapinya agar dapat diproses oleh Admin Kepegawaian.\n\nTerima kasih.",
+            'DIKLAT_HUTANG' => "Yth. {nama},\n\nTerdapat kewajiban Diklat yang perlu Anda selesaikan. Status hutang Diklat Anda saat ini adalah 'Usulan'.\n\nMohon segera mempersiapkan berkas administrasi dan melengkapinya agar dapat diproses oleh Admin Kepegawaian.\n\nTerima kasih.",
+            'DIKLAT_ANOMALI' => "Yth. {nama},\n\nTerdapat anomali pada data Diklat Anda. Status Diklat Anda saat ini adalah 'Usulan'.\n\nMohon segera mempersiapkan berkas administrasi dan melengkapinya agar dapat diproses oleh Admin Kepegawaian.\n\nTerima kasih.",
+            'KJ_Jafung' => "Yth. {nama},\n\nAngka Kredit / Syarat Anda telah mencukupi untuk Kenaikan Jenjang. Status KJ Jafung Anda saat ini adalah 'Usulan'.\n\nMohon segera mempersiapkan berkas administrasi dan melengkapinya agar dapat diproses oleh Admin Kepegawaian.\n\nTerima kasih.",
+            'KP_Jafung' => "Yth. {nama},\n\nAngka Kredit / Syarat Anda telah mencukupi untuk Kenaikan Pangkat Fungsional. Status KP Jafung Anda saat ini adalah 'Usulan'.\n\nMohon segera mempersiapkan berkas administrasi dan melengkapinya agar dapat diproses oleh Admin Kepegawaian.\n\nTerima kasih.",
+            'UKOM' => "Yth. {nama},\n\nSyarat Anda telah mencukupi untuk Uji Kompetensi. Status UKOM Anda saat ini adalah 'Usulan'.\n\nMohon segera mempersiapkan berkas administrasi dan melengkapinya agar dapat diproses oleh Admin Kepegawaian.\n\nTerima kasih.",
+        ];
+
+        foreach ($autoCategories as $kategori => $pesan) {
+            NotifikasiRules::updateOrCreate(
+                ['kategori' => $kategori],
+                [
+                    'template_pesan' => $pesan,
+                    'interval_hari' => 0, // 0 = Kirim sekali by trigger (dan juga aman dimasukkan kategori Template)
+                    'is_active' => true,
+                ]
+            );
+        }
     }
 }
