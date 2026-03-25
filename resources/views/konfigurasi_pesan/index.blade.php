@@ -279,8 +279,8 @@
                         <label class="info-label">Jenis</label>
                         <select id="pilihJenis" class="form-select" onchange="toggleJadwal()" required>
                             <option value="" disabled selected>Pilih</option>
-                            <option value="Penjadwalan">Jadwal</option>
-                            <option value="Template">Template</option>
+                            <option value="Penjadwalan">Otomatis</option>
+                            <option value="Template">Manual / Template</option>
                         </select>
                     </div>
                     <div>
@@ -386,7 +386,10 @@
 
     // === TAMBAH ===
     function openModal() {
+        document.getElementById('formTambah').reset();
+        document.getElementById('pilihJenis').selectedIndex = 0;
         document.getElementById('modalTambahPesan').style.display = 'flex';
+        toggleJadwal();
     }
     function closeModal() {
         document.getElementById('modalTambahPesan').style.display = 'none';
@@ -396,7 +399,7 @@
         var jenis = document.getElementById("pilihJenis").value;
         var intervalInput = document.getElementById("inputInterval");
         
-        if (jenis === "Template") {
+        if (jenis === "Template" || jenis === "") {
             intervalInput.disabled = true;
             intervalInput.value = "";
             intervalInput.style.backgroundColor = "#f3f4f6";
