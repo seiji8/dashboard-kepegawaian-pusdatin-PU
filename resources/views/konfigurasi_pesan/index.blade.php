@@ -328,8 +328,8 @@
                     <div>
                         <label class="info-label">Jenis</label>
                         <select id="editJenis" name="jenis" class="form-select" onchange="toggleJadwalEdit()">
-                            <option value="Penjadwalan">Jadwal</option>
-                            <option value="Template">Template</option>
+                            <option value="Penjadwalan">Otomatis</option>
+                            <option value="Template">Manual / Template</option>
                         </select>
                     </div>
                     <div>
@@ -477,7 +477,7 @@
             jenisSelect.value = 'Template';
             jadwalSelect.disabled = true;
             jadwalSelect.style.backgroundColor = "#f3f4f6";
-            jadwalSelect.value = "30"; // Default reset
+            jadwalSelect.value = "0"; 
         } else {
             jenisSelect.value = 'Penjadwalan';
             jadwalSelect.disabled = false;
@@ -528,6 +528,7 @@
                 ...Object.fromEntries(formData)
             })
         })
+        .then(res => res.json())
         .then(data => {
             if(data.success) {
                 closeEditModal();

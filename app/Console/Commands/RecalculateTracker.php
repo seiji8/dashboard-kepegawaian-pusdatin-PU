@@ -149,7 +149,7 @@ class RecalculateTracker extends Command
                                             $ruleUpload->template_pesan
                                         );
                                     } else {
-                                        $content = "Selamat! Waktunya proses KGB untuk periode {$bulanTahun}.\n\nSegera lengkapi berkas dan upload SK Terakhir & SKP Anda ke sistem sekarang agar dapat diproses lebih lanjut oleh admin.";
+                                        $content = "Waktunya proses KGB untuk periode {$bulanTahun}.\n\nSegera lengkapi berkas dan upload SK Terakhir & SKP Anda ke sistem sekarang agar dapat diproses lebih lanjut oleh admin.";
                                     }
                                     
                                     $notifiable->notify(new SystemAlertNotification($pegawai, $subject, $content));
@@ -744,19 +744,19 @@ class RecalculateTracker extends Command
                             // Fallback jika rule terhapus dari DB
                             switch ($tracker->kategori) {
                                 case 'KGB':
-                                    $empMessage = "Anda telah mendekati jadwal Kenaikan Gaji Berkala (KGB). Status KGB Anda saat ini adalah 'Usulan'.\n\nMohon segera mempersiapkan berkas administrasi dan melengkapinya agar dapat diproses oleh Admin Kepegawaian.\n\nTerima kasih.";
+                                    $empMessage = "Anda telah mendekati jadwal Kenaikan Gaji Berkala (KGB). Status KGB Anda saat ini adalah 'Usulan'.\n\nMohon segera mempersiapkan berkas administrasi dan melengkapinya agar dapat diproses oleh Admin Kepegawaian.";
                                     break;
                                 case 'KP_Reguler':
                                 case 'KP_Struktural':
-                                    $empMessage = "Masa pangkat Anda telah memenuhi syarat Kenaikan Pangkat (KP). Status KP Anda saat ini adalah 'Usulan'.\n\nMohon segera mempersiapkan berkas administrasi dan melengkapinya agar dapat diproses oleh Admin Kepegawaian.\n\nTerima kasih.";
+                                    $empMessage = "Masa pangkat Anda telah memenuhi syarat Kenaikan Pangkat (KP). Status KP Anda saat ini adalah 'Usulan'.\n\nMohon segera mempersiapkan berkas administrasi dan melengkapinya agar dapat diproses oleh Admin Kepegawaian.";
                                     break;
                                 case 'DIKLAT_HUTANG':
                                 case 'DIKLAT_ANOMALI':
-                                    $empMessage = "Terdapat kewajiban Diklat yang perlu Anda selesaikan. Status Diklat Anda saat ini adalah 'Usulan'.\n\nMohon segera mempersiapkan berkas administrasi dan melengkapinya agar dapat diproses oleh Admin Kepegawaian.\n\nTerima kasih.";
+                                    $empMessage = "Terdapat kewajiban Diklat yang perlu Anda selesaikan. Status Diklat Anda saat ini adalah 'Usulan'.\n\nMohon segera mempersiapkan berkas administrasi dan melengkapinya agar dapat diproses oleh Admin Kepegawaian.";
                                     break;
                                 default:
                                     // Fallback for KJ or other categories like the user's example
-                                    $empMessage = "Angka Kredit / Syarat Anda telah mencukupi. Status {$namaKategori} Anda saat ini adalah 'Usulan'.\n\nMohon segera mempersiapkan berkas administrasi dan melengkapinya agar dapat diproses oleh Admin Kepegawaian.\n\nTerima kasih.";
+                                    $empMessage = "Angka Kredit / Syarat Anda telah mencukupi. Status {$namaKategori} Anda saat ini adalah 'Usulan'.\n\nMohon segera mempersiapkan berkas administrasi dan melengkapinya agar dapat diproses oleh Admin Kepegawaian.";
                                     break;
                             }
                         }

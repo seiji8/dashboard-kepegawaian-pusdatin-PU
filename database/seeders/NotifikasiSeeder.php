@@ -16,7 +16,7 @@ class NotifikasiSeeder extends Seeder
         NotifikasiRules::updateOrCreate(
             ['kategori' => 'Notifikasi Triwulan'],
             [
-                'template_pesan' => "Yth. Bapak/Ibu {nama},\n\nBerdasarkan data pada sistem E-HRM, Bapak/Ibu diharapkan untuk segera memperbarui dokumen SKP triwulan periode ini.\n\n- NIP: {nip}\n- Batas Waktu: {deadline}\n\nSilakan unggah dokumen melalui tautan berikut: [Link E-HRM]\n\nPesan ini dikirimkan secara otomatis oleh Sistem Notifikasi Pusdatin.",
+                'template_pesan' => "Berdasarkan data pada sistem E-HRM, Anda diharapkan untuk segera memperbarui dokumen SKP triwulan periode ini.\n\n- NIP: {nip}\n- Batas Waktu: {deadline}\n\nSilakan unggah dokumen melalui tautan berikut: [Link E-HRM]\n\nPesan ini dikirimkan secara otomatis oleh Sistem Notifikasi Pusdatin.",
                 'interval_hari' => 90, // 3 Bulan
                 'is_active' => true,
             ]
@@ -26,7 +26,7 @@ class NotifikasiSeeder extends Seeder
         NotifikasiRules::updateOrCreate(
             ['kategori' => 'Notifikasi Tahunan'],
             [
-                'template_pesan' => "Yth. Bapak/Ibu {nama},\n\nMohon segera melengkapi Laporan Kinerja Tahunan Anda dan menyusun SKP untuk tahun berikutnya.\n\n- NIP: {nip}\n- Periode: {tahun}\n\nDokumen yang lengkap akan memperlancar proses administrasi kepegawaian Anda. Terima kasih.\n\nSalam,\nAdmin Kepegawaian",
+                'template_pesan' => "Mohon segera melengkapi Laporan Kinerja Tahunan Anda dan menyusun SKP untuk tahun berikutnya.\n\n- NIP: {nip}\n- Periode: {tahun}\n\nDokumen yang lengkap akan memperlancar proses administrasi kepegawaian Anda.",
                 'interval_hari' => 365, // 1 Tahun
                 'is_active' => true,
             ]
@@ -36,7 +36,7 @@ class NotifikasiSeeder extends Seeder
         NotifikasiRules::updateOrCreate(
             ['kategori' => 'Template SKP'],
             [
-                'template_pesan' => "Ini adalah pengingat manual untuk melengkapi berkas SKP Anda yang masih kurang lengkap. Mohon segera dicek kembali.\n\nTerima kasih.",
+                'template_pesan' => "Ini adalah pengingat manual untuk melengkapi berkas SKP Anda yang masih kurang lengkap. Mohon segera dicek kembali.",
                 'interval_hari' => 0, // Manual
                 'is_active' => true,
             ]
@@ -46,7 +46,7 @@ class NotifikasiSeeder extends Seeder
         NotifikasiRules::updateOrCreate(
             ['kategori' => 'Info Kenaikan Pangkat'],
             [
-                'template_pesan' => "Selamat {nama},\n\nAngka Kredit Anda ({poin}) sudah mencukupi untuk proses Kenaikan Pangkat ke {next_pangkat}. Mohon persiapkan berkas fisik dan serahkan ke bagian Tata Usaha paling lambat tanggal {deadline}.\n\nTerima kasih.",
+                'template_pesan' => "Angka Kredit Anda ({poin}) sudah mencukupi untuk proses Kenaikan Pangkat ke {next_pangkat}. Mohon persiapkan berkas fisik dan serahkan ke bagian Tata Usaha paling lambat tanggal {deadline}.",
                 'interval_hari' => 1, // Harian Check
                 'is_active' => true,
             ]
@@ -66,7 +66,7 @@ class NotifikasiSeeder extends Seeder
         NotifikasiRules::updateOrCreate(
             ['kategori' => 'KGB Upload Dokumen'],
             [
-                'template_pesan' => "Yth. Bapak/Ibu {nama},\n\nBerdasarkan data pada sistem E-HRM, masa KGB Anda telah tiba per tanggal {deadline}.\n\nMohon segera mengunggah dokumen yang diperlukan:\n- SK Terakhir\n- SKP Periode Berjalan\n\nSilakan unggah dokumen melalui tautan pada sistem E-HRM.\n\nTerima kasih.\nAdmin Kepegawaian Pusdatin",
+                'template_pesan' => "Berdasarkan data pada sistem E-HRM, masa KGB Anda telah tiba per tanggal {deadline}.\n\nMohon segera mengunggah dokumen yang diperlukan:\n- SK Terakhir\n- SKP Periode Berjalan\n\nSilakan unggah dokumen melalui tautan pada sistem E-HRM.",
                 'interval_hari' => 1, // Default: Setiap 1 Hari (Sampai dokumen lengkap)
                 'is_active' => true,
             ]
@@ -74,14 +74,14 @@ class NotifikasiSeeder extends Seeder
 
         // 7. Pesan Otomatis (Triggered Once)
         $autoCategories = [
-            'KGB' => "Yth. {nama},\n\nAnda telah mendekati jadwal Kenaikan Gaji Berkala (KGB). Status KGB Anda saat ini adalah 'Usulan'.\n\nMohon segera mempersiapkan berkas administrasi dan melengkapinya agar dapat diproses oleh Admin Kepegawaian.\n\nTerima kasih.",
-            'KP_Reguler' => "Yth. {nama},\n\nMasa pangkat Anda telah memenuhi syarat Kenaikan Pangkat (KP Reguler). Status KP Anda saat ini adalah 'Usulan'.\n\nMohon segera mempersiapkan berkas administrasi dan melengkapinya agar dapat diproses oleh Admin Kepegawaian.\n\nTerima kasih.",
-            'KP_Struktural' => "Yth. {nama},\n\nMasa pangkat Anda telah memenuhi syarat Kenaikan Pangkat (KP Struktural). Status KP Anda saat ini adalah 'Usulan'.\n\nMohon segera mempersiapkan berkas administrasi dan melengkapinya agar dapat diproses oleh Admin Kepegawaian.\n\nTerima kasih.",
-            'DIKLAT_HUTANG' => "Yth. {nama},\n\nTerdapat kewajiban Diklat yang perlu Anda selesaikan. Status hutang Diklat Anda saat ini adalah 'Usulan'.\n\nMohon segera mempersiapkan berkas administrasi dan melengkapinya agar dapat diproses oleh Admin Kepegawaian.\n\nTerima kasih.",
-            'DIKLAT_ANOMALI' => "Yth. {nama},\n\nTerdapat anomali pada data Diklat Anda. Status Diklat Anda saat ini adalah 'Usulan'.\n\nMohon segera mempersiapkan berkas administrasi dan melengkapinya agar dapat diproses oleh Admin Kepegawaian.\n\nTerima kasih.",
-            'KJ_Jafung' => "Yth. {nama},\n\nAngka Kredit / Syarat Anda telah mencukupi untuk Kenaikan Jenjang. Status KJ Jafung Anda saat ini adalah 'Usulan'.\n\nMohon segera mempersiapkan berkas administrasi dan melengkapinya agar dapat diproses oleh Admin Kepegawaian.\n\nTerima kasih.",
-            'KP_Jafung' => "Yth. {nama},\n\nAngka Kredit / Syarat Anda telah mencukupi untuk Kenaikan Pangkat Fungsional. Status KP Jafung Anda saat ini adalah 'Usulan'.\n\nMohon segera mempersiapkan berkas administrasi dan melengkapinya agar dapat diproses oleh Admin Kepegawaian.\n\nTerima kasih.",
-            'UKOM' => "Yth. {nama},\n\nSyarat Anda telah mencukupi untuk Uji Kompetensi. Status UKOM Anda saat ini adalah 'Usulan'.\n\nMohon segera mempersiapkan berkas administrasi dan melengkapinya agar dapat diproses oleh Admin Kepegawaian.\n\nTerima kasih.",
+            'KGB' => "Anda telah mendekati jadwal Kenaikan Gaji Berkala (KGB). Status KGB Anda saat ini adalah 'Usulan'.\n\nMohon segera mempersiapkan berkas administrasi dan melengkapinya agar dapat diproses oleh Admin Kepegawaian.",
+            'KP_Reguler' => "Masa pangkat Anda telah memenuhi syarat Kenaikan Pangkat (KP Reguler). Status KP Anda saat ini adalah 'Usulan'.\n\nMohon segera mempersiapkan berkas administrasi dan melengkapinya agar dapat diproses oleh Admin Kepegawaian.",
+            'KP_Struktural' => "Masa pangkat Anda telah memenuhi syarat Kenaikan Pangkat (KP Struktural). Status KP Anda saat ini adalah 'Usulan'.\n\nMohon segera mempersiapkan berkas administrasi dan melengkapinya agar dapat diproses oleh Admin Kepegawaian.",
+            'DIKLAT_HUTANG' => "Terdapat kewajiban Diklat yang perlu Anda selesaikan. Status hutang Diklat Anda saat ini adalah 'Usulan'.\n\nMohon segera mempersiapkan berkas administrasi dan melengkapinya agar dapat diproses oleh Admin Kepegawaian.",
+            'DIKLAT_ANOMALI' => "Terdapat anomali pada data Diklat Anda. Status Diklat Anda saat ini adalah 'Usulan'.\n\nMohon segera mempersiapkan berkas administrasi dan melengkapinya agar dapat diproses oleh Admin Kepegawaian.",
+            'KJ_Jafung' => "Angka Kredit / Syarat Anda telah mencukupi untuk Kenaikan Jenjang. Status KJ Jafung Anda saat ini adalah 'Usulan'.\n\nMohon segera mempersiapkan berkas administrasi dan melengkapinya agar dapat diproses oleh Admin Kepegawaian.",
+            'KP_Jafung' => "Angka Kredit / Syarat Anda telah mencukupi untuk Kenaikan Pangkat Fungsional. Status KP Jafung Anda saat ini adalah 'Usulan'.\n\nMohon segera mempersiapkan berkas administrasi dan melengkapinya agar dapat diproses oleh Admin Kepegawaian.",
+            'UKOM' => "Syarat Anda telah mencukupi untuk Uji Kompetensi. Status UKOM Anda saat ini adalah 'Usulan'.\n\nMohon segera mempersiapkan berkas administrasi dan melengkapinya agar dapat diproses oleh Admin Kepegawaian.",
         ];
 
         foreach ($autoCategories as $kategori => $pesan) {
