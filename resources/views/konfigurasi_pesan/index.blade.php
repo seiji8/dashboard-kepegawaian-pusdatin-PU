@@ -139,7 +139,7 @@
                     'KGB', 'KGB Penjadwalan', 'KGB Upload Dokumen', 'KP_Reguler', 
                     'KP_Struktural', 'DIKLAT_HUTANG', 'DIKLAT_ANOMALI', 'KJ_Jafung', 
                     'KP_Jafung', 'UKOM', 'Notifikasi Triwulan', 'Notifikasi Tahunan', 
-                    'Info Kenaikan Pangkat', 'Template SKP'
+                    'Info Kenaikan Pangkat'
                 ];
                 $isSystem = in_array($rule->kategori, $systemCategories);
             @endphp
