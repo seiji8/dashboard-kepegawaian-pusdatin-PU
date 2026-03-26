@@ -82,9 +82,20 @@
         <div class="content-area">
         <div class="content-header">
             <h2 class="page-title">Data Pegawai</h2>
-            <form id="searchForm" method="GET" action="{{ route('data-pegawai') }}" class="search-box">
-                <i class="ph-bold ph-magnifying-glass search-icon-inside"></i>
-                <input type="search" id="searchInput" name="search" placeholder="Cari pegawai" class="search-input" value="{{ request('search') }}">
+            <form id="searchForm" method="GET" action="{{ route('data-pegawai') }}" style="display:flex; gap:12px; align-items:center;">
+                <!-- Filter Dropdown -->
+                <select name="filter_tipe" id="filterTipe" class="select-filter" style="width: 170px;" onchange="document.getElementById('searchForm').submit();">
+                    <option value="">Semua Jabatan</option>
+                    <option value="struktural" {{ request('filter_tipe') == 'struktural' ? 'selected' : '' }}>Struktural</option>
+                    <option value="fungsional" {{ request('filter_tipe') == 'fungsional' ? 'selected' : '' }}>Fungsional</option>
+                    <option value="pelaksana" {{ request('filter_tipe') == 'pelaksana' ? 'selected' : '' }}>Pelaksana</option>
+                </select>
+
+                <!-- Search Box -->
+                <div class="search-box" style="margin:0;">
+                    <i class="ph-bold ph-magnifying-glass search-icon-inside"></i>
+                    <input type="search" id="searchInput" name="search" placeholder="Cari pegawai" class="search-input" value="{{ request('search') }}">
+                </div>
             </form>
         </div>
 

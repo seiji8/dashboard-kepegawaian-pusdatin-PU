@@ -25,8 +25,14 @@ class DataPegawaiController extends Controller
             });
         }
 
-        // Pagination 10 per halaman
-        $pegawais = $query->paginate(10);
+        // Filter Tipe Jabatan
+        if ($request->has('filter_tipe') && $request->filter_tipe != '') {
+            $filterTipe = $request->filter_tipe;
+            $query->where('tipe_jabatan', 'like', "%{$filterTipe}%");
+        }
+
+        // Pagination 10 per halaman (dengan cache query terlampir)
+        $pegawais = $query->paginate(10)->withQueryString();
 
         // Ambil template manual
         $templates = NotifikasiRules::where('interval_hari', 0)->get();
