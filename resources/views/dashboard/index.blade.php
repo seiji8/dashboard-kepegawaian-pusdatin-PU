@@ -201,7 +201,7 @@
                                                         </span>
                                                     </td>
                                                     <td style="display: flex; gap: 6px;">
-                                                        <button class="btn-action-view" onclick="openDetailModal('{{ $item->pegawai->nip }}')">
+                                                        <button class="btn-action-view" onclick="openDashboardDetail('{{ $item->pegawai->nip }}', '{{ $item->kategori }}')">
                                                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
                                                         </button>
                                                         @if($item->status_saat_ini == 'Usulan')
@@ -260,7 +260,7 @@
                                                         </span>
                                                     </td>
                                                     <td style="display: flex; gap: 6px;">
-                                                        <button class="btn-action-view" onclick="openDetailModal('{{ $item->pegawai->nip }}')">
+                                                        <button class="btn-action-view" onclick="openDashboardDetail('{{ $item->pegawai->nip }}', '{{ $item->kategori }}')">
                                                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
                                                         </button>
                                                         @if($item->status_saat_ini == 'Usulan')
@@ -319,7 +319,7 @@
                                                         </span>
                                                     </td>
                                                     <td style="display: flex; gap: 6px;">
-                                                        <button class="btn-action-view" onclick="openDetailModal('{{ $item->pegawai->nip }}')" title="Lihat Profil">
+                                                        <button class="btn-action-view" onclick="openDashboardDetail('{{ $item->pegawai->nip }}', '{{ $item->kategori }}')" title="Lihat Profil">
                                                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
                                                         </button>
                                                         @if($item->status_saat_ini == 'Usulan')
@@ -383,7 +383,7 @@
                                                     </span>
                                                 </td>
                                                 <td style="display: flex; gap: 6px;">
-                                                    <button class="btn-action-view" onclick="openDetailModal('{{ $item->pegawai->nip }}')">
+                                                    <button class="btn-action-view" onclick="openDashboardDetail('{{ $item->pegawai->nip }}', '{{ $item->kategori }}')">
                                                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
                                                     </button>
                                                     @if($item->status_saat_ini == 'Usulan')
@@ -448,7 +448,7 @@
                                                         </span>
                                                     </td>
                                                     <td style="display: flex; gap: 6px;">
-                                                        <button class="btn-action-view" onclick="openDetailModal('{{ $kgb->pegawai->nip }}')">
+                                                        <button class="btn-action-view" onclick="openDashboardDetail('{{ $kgb->pegawai->nip }}', '{{ $kgb->kategori }}')">
                                                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
                                                         </button>
                                                         {{-- Tombol Confirm hanya muncul saat status Usulan (Merah) --}}
@@ -562,7 +562,7 @@
                                                         <span class="status-badge status-warning">{{ $ukom->status_saat_ini }}</span>
                                                     </td>
                                                     <td style="display: flex; gap: 6px;">
-                                                        <button class="btn-action-view" onclick="openDetailModal('{{ $ukom->pegawai->nip }}')">
+                                                        <button class="btn-action-view" onclick="openDashboardDetail('{{ $ukom->pegawai->nip }}', '{{ $ukom->kategori }}')">
                                                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
                                                         </button>
                                                     </td>
@@ -678,31 +678,125 @@
         </div>
     </div>
 
-    <!-- REMINDER MODAL -->
-    <div id="reminderModal" class="modal-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2100; justify-content: center; align-items: center;">
-        <div class="modal-content" style="background: white; width: 600px; padding: 30px; border-radius: 12px; position: relative;">
-            <h2 style="text-align: center; color: #1e3a8a; margin-bottom: 30px;">Pengingat Manual</h2>
+    <!-- MODAL DASHBOARD DETAIL (KHUSUS KATEGORI) -->
+    <div id="dashboardDetailModal" class="modal-overlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:2300; justify-content:center; align-items:center;">
+        <div style="background:#fff; width:650px; max-width:92vw; border-radius:12px; box-shadow:0 10px 40px rgba(0,0,0,0.15); display:flex; flex-direction:column; overflow:hidden;">
             
-            <label style="display: block; font-weight: 600; margin-bottom: 8px;">Pilih Template</label>
-            <select id="reminderTemplate" style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 8px; margin-bottom: 20px; color: #9ca3af;" onchange="toggleMessageMode()">
-                <option value="" disabled selected>Pilih</option>
-                @foreach($templates as $template)
-                    <option value="{{ $template->id }}">{{ $template->kategori }}</option>
-                @endforeach
-            </select>
-
-            <div style="display: flex; align-items: center; margin-bottom: 20px;">
-                <input type="checkbox" id="checkCustom" onchange="toggleMessageMode()" style="margin-right: 10px; width: 18px; height: 18px;">
-                <label for="checkCustom">Apakah anda ingin menambahkan pesan custom?</label>
+            <!-- Header -->
+            <div style="padding:20px 25px; border-bottom:1px solid #e2e8f0; display:flex; justify-content:space-between; align-items:flex-start; background:#f8fafc;">
+                <div style="display:flex; align-items:center; gap:15px;">
+                    <div id="dashModalAvatar" style="background:#1e40af; color:#fff; width:50px; height:50px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:18px; font-weight:700;">
+                    </div>
+                    <div style="display:flex; flex-direction:column; gap:8px; padding-top:2px;">
+                        <h3 id="dashModalNama" style="margin:0; font-size:18px; font-weight:700; color:#1e293b; line-height:1.1;">Memuat...</h3>
+                        <div style="display:flex; align-items:center; gap:10px;">
+                            <p id="dashModalKategori" style="margin:0; font-size:12px; font-weight:600; color:#3b82f6; background:#eff6ff; padding:4px 10px; border-radius:12px; border:1px solid #bfdbfe; line-height:1;">-</p>
+                            <div style="width:2px; height:14px; background-color:#cbd5e1; border-radius:1px;"></div>
+                            <p id="dashModalNip" style="margin:0; font-size:13px; font-weight:500; color:#64748b; line-height:1;">-</p>
+                        </div>
+                    </div>
+                </div>
+                <button onclick="closeDashboardDetail()" style="background:none; border:none; cursor:pointer; padding:5px; color:#94a3b8; transition:color 0.2s;" onmouseover="this.style.color='#ef4444'" onmouseout="this.style.color='#94a3b8'">
+                    <i class="ph-bold ph-x" style="font-size:20px;"></i>
+                </button>
             </div>
 
-            <label style="display: block; font-weight: 600; margin-bottom: 8px;">Isi Pesan</label>
-            <textarea id="reminderMessage" disabled style="width: 100%; height: 120px; padding: 10px; border: 1px solid #d1d5db; border-radius: 8px; margin-bottom: 30px; resize: none;"></textarea>
+            <!-- Body -->
+            <div style="padding:25px; overflow-y:auto; max-height:60vh;">
+                <div id="dashModalLoading" style="text-align:center; padding:30px; color:#64748b;">
+                    <i class="ph-bold ph-spinner" style="font-size:32px; color:#1e3a8a; animation:spin 1s linear infinite;"></i>
+                    <p style="margin-top:10px;">Mengambil data dokumen...</p>
+                </div>
 
-            <div style="display: flex; justify-content: flex-end; gap: 15px;">
-                <button onclick="closeReminderModal()" style="padding: 10px 30px; background: #fca5a5; color: #991b1b; border: none; border-radius: 8px; cursor: pointer; font-weight: 600;">Batal</button>
-                <button onclick="sendReminder()" id="btnSendManual" style="padding: 10px 30px; background: #cbd5e1; color: #1e3a8a; border: none; border-radius: 8px; cursor: pointer; font-weight: 600;">Kirim</button>
+                <div id="dashModalContentBody" style="display:none;">
+                    <!-- Info Grid -->
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:15px; margin-bottom:25px; background:#f1f5f9; padding:15px; border-radius:8px; border:1px solid #e2e8f0;">
+                        <div>
+                            <div style="font-size:11px; color:#64748b; font-weight:700; margin-bottom:4px; letter-spacing:0.5px;">EMAIL</div>
+                            <div id="dashModalEmail" style="font-size:14px; color:#0f172a; font-weight:500;">-</div>
+                        </div>
+                        
+                        <!-- Dynamic fields based on category -->
+                        <div id="dashModalAKWrapper" style="display:none;">
+                            <div style="font-size:11px; color:#64748b; font-weight:700; margin-bottom:4px; letter-spacing:0.5px;">ANGKA KREDIT</div>
+                            <div id="dashModalAK" style="font-size:14px; color:#0f172a; font-weight:500;">-</div>
+                        </div>
+                        <div id="dashModalKGBWrapper" style="display:none;">
+                            <div style="font-size:11px; color:#64748b; font-weight:700; margin-bottom:4px; letter-spacing:0.5px;">PROYEKSI KGB</div>
+                            <div id="dashModalKGB" style="font-size:14px; color:#0f172a; font-weight:500;">-</div>
+                        </div>
+                        <div id="dashModalPangkatWrapper" style="display:none;">
+                            <div style="font-size:11px; color:#64748b; font-weight:700; margin-bottom:4px; letter-spacing:0.5px;">PANGKAT/GOLONGAN</div>
+                            <div id="dashModalPangkat" style="font-size:14px; color:#0f172a; font-weight:500;">-</div>
+                        </div>
+                    </div>
+
+                    <!-- Document Requirements -->
+                    <div style="display:flex; align-items:center; gap:8px; margin-bottom:15px;">
+                        <i class="ph-fill ph-check-square-offset" style="color:#1e40af; font-size:18px;"></i>
+                        <h4 style="margin:0; font-size:15px; font-weight:700; color:#1e293b;">Dokumen Persyaratan</h4>
+                    </div>
+                    
+                    <div id="dashModalDocsContainer" style="display:flex; flex-direction:column; gap:10px;">
+                        <!-- Injected by JS -->
+                    </div>
+                </div>
             </div>
+
+            <!-- Footer -->
+            <div id="dashModalFooter" style="padding:15px 25px; border-top:1px solid #e2e8f0; background:#f8fafc; display:none; justify-content:flex-end;">
+                <button class="btn-reminder-yellow" onclick="openReminderModal()" style="width:auto; padding:8px 20px; margin:0; display:flex; align-items:center; gap:8px;">
+                    <i class="ph-bold ph-bell-ringing"></i> Kirim Pengingat
+                </button>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- REMINDER MODAL -->
+    <div id="reminderModal" class="modal-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2400; justify-content: center; align-items: center;">
+        <div class="modal-content" style="background: white; width: 600px; padding: 0; border-radius: 12px; box-shadow: 0 10px 40px rgba(0,0,0,0.2); position: relative; overflow: hidden; display: flex; flex-direction: column;">
+            
+            <!-- Header -->
+            <div style="padding: 20px 25px; border-bottom: 1px solid #e2e8f0; background: #f8fafc; display: flex; justify-content: space-between; align-items: center;">
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <div style="background: #fef3c7; color: #d97706; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                        <i class="ph-bold ph-bell-ringing" style="font-size: 20px;"></i>
+                    </div>
+                    <h2 style="margin: 0; color: #1e293b; font-size: 18px; font-weight: 700;">Kirim Pengingat Manual</h2>
+                </div>
+                <button onclick="closeReminderModal()" style="background: none; border: none; cursor: pointer; color: #94a3b8; transition: color 0.2s;" onmouseover="this.style.color='#ef4444'" onmouseout="this.style.color='#94a3b8'">
+                    <i class="ph-bold ph-x" style="font-size: 20px;"></i>
+                </button>
+            </div>
+            
+            <!-- Body -->
+            <div style="padding: 25px;">
+                <label style="display: block; font-size: 13px; font-weight: 700; color: #475569; margin-bottom: 8px; letter-spacing: 0.5px;">PILIH TEMPLATE PESAN</label>
+                <select id="reminderTemplate" style="width: 100%; padding: 12px 15px; border: 1px solid #cbd5e1; border-radius: 8px; margin-bottom: 20px; color: #1e293b; font-size: 14px; outline: none; transition: all 0.2s; box-shadow: 0 1px 2px rgba(0,0,0,0.05);" onchange="toggleMessageMode()" onfocus="this.style.borderColor='#3b82f6'; this.style.boxShadow='0 0 0 3px rgba(59,130,246,0.1)'" onblur="this.style.borderColor='#cbd5e1'; this.style.boxShadow='0 1px 2px rgba(0,0,0,0.05)'">
+                    <option value="" disabled selected>Pilih Template Pengingat</option>
+                    @foreach($templates as $template)
+                        <option value="{{ $template->id }}">{{ $template->kategori }}</option>
+                    @endforeach
+                </select>
+
+                <div style="display: flex; align-items: center; margin-bottom: 20px; background: #f1f5f9; padding: 12px 15px; border-radius: 8px; border: 1px solid #e2e8f0;">
+                    <input type="checkbox" id="checkCustom" onchange="toggleMessageMode()" style="margin-right: 12px; width: 18px; height: 18px; cursor: pointer; accent-color: #3b82f6;">
+                    <label for="checkCustom" style="font-size: 14px; font-weight: 600; color: #334155; cursor: pointer; user-select: none;">Apakah anda ingin menambahkan/mengedit pesan bawaan?</label>
+                </div>
+
+                <label style="display: block; font-size: 13px; font-weight: 700; color: #475569; margin-bottom: 8px; letter-spacing: 0.5px;">ISI PESAN</label>
+                <textarea id="reminderMessage" disabled style="width: 100%; height: 120px; padding: 15px; border: 1px solid #cbd5e1; border-radius: 8px; margin-bottom: 10px; resize: none; font-size: 14px; color: #1e293b; outline: none; transition: all 0.2s; background: #f8fafc;" onfocus="this.style.borderColor='#3b82f6'; this.style.boxShadow='0 0 0 3px rgba(59,130,246,0.1)'; this.style.background='#ffffff'" onblur="this.style.borderColor='#cbd5e1'; this.style.boxShadow='none'; if(this.disabled) this.style.background='#f8fafc'"></textarea>
+            </div>
+
+            <!-- Footer -->
+            <div style="padding: 20px 25px; border-top: 1px solid #e2e8f0; background: #f8fafc; display: flex; justify-content: flex-end; gap: 12px;">
+                <button onclick="closeReminderModal()" style="padding: 10px 24px; background: white; color: #64748b; border: 1px solid #cbd5e1; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 14px; transition: all 0.2s;" onmouseover="this.style.background='#f1f5f9'; this.style.color='#475569'" onmouseout="this.style.background='white'; this.style.color='#64748b'">Batal</button>
+                <button onclick="sendReminder()" id="btnSendManual" style="padding: 10px 24px; background: #f59e0b; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 14px; display: flex; align-items: center; gap: 8px; transition: all 0.2s; box-shadow: 0 4px 6px -1px rgba(245, 158, 11, 0.2), 0 2px 4px -1px rgba(245, 158, 11, 0.1);" onmouseover="this.style.background='#d97706'; this.style.transform='translateY(-1px)'" onmouseout="this.style.background='#f59e0b'; this.style.transform='translateY(0)'">
+                    <i class="ph-bold ph-paper-plane-right"></i> Kirim
+                </button>
+            </div>
+
         </div>
     </div>
 
@@ -828,7 +922,7 @@
     @include('partials.sync_loading')
 
     <script src="{{ asset('js/app-common.js') }}"></script>
-    <script src="{{ asset('js/dashboard.js') }}"></script>
+    <script src="{{ asset('js/dashboard.js') }}?v={{ time() }}"></script>
     <!-- JS Loaded via external file -->
     @include('partials.change_password_modal')
 </body>

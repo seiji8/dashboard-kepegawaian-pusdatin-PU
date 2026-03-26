@@ -315,3 +315,132 @@ function submitConfirm() {
 document.addEventListener('DOMContentLoaded', function () {
     fetchNotifications();
 });
+
+function openDashboardDetail(nip, kategori) {
+    currentDetailNip = nip;
+
+    const modal = document.getElementById('dashboardDetailModal');
+    if (modal) modal.style.display = 'flex';
+
+    const loadingSpinner = document.getElementById('dashModalLoading');
+    const contentBody = document.getElementById('dashModalContentBody');
+    const modalFooter = document.getElementById('dashModalFooter');
+    const docsContainer = document.getElementById('dashModalDocsContainer');
+
+    // Reset fields
+    document.getElementById('dashModalNama').innerText = 'Memuat...';
+    document.getElementById('dashModalKategori').innerText = kategori ? kategori.replace(/_/g, ' ') : '-';
+    
+    document.getElementById('dashModalNip').innerText = '-';
+    document.getElementById('dashModalEmail').innerText = '-';
+    
+    // Hide dynamic wrappers initially
+    document.getElementById('dashModalAKWrapper').style.display = 'none';
+    document.getElementById('dashModalKGBWrapper').style.display = 'none';
+    document.getElementById('dashModalPangkatWrapper').style.display = 'none';
+
+    if (loadingSpinner) loadingSpinner.style.display = 'block';
+    if (contentBody) contentBody.style.display = 'none';
+    if (modalFooter) modalFooter.style.display = 'none';
+    if (docsContainer) docsContainer.innerHTML = '';
+
+    fetch(`/data-pegawai/${nip}`)
+        .then(response => response.json())
+        .then(res => {
+            if (res.success) {
+                const data = res.data;
+                const initials = data.nama.split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase();
+                
+                // Populate Header
+                document.getElementById('dashModalNama').innerText = data.nama;
+                document.getElementById('dashModalAvatar').innerText = initials;
+
+                // Populate Info Grid
+                document.getElementById('dashModalNip').innerText = data.nip ? 'NIP: ' + data.nip : '-';
+                document.getElementById('dashModalEmail').innerText = data.email || '-';
+                
+                // Dynamic fields logic
+                if (kategori && kategori.includes('Jafung')) {
+                    document.getElementById('dashModalAKWrapper').style.display = 'block';
+                    document.getElementById('dashModalAK').innerText = data.angka_kredit || '0';
+                }
+                if (kategori === 'KGB') {
+                    document.getElementById('dashModalKGBWrapper').style.display = 'block';
+                    document.getElementById('dashModalKGB').innerText = data.next_kgb || '-';
+                }
+                if (kategori && kategori.includes('KP_')) {
+                    document.getElementById('dashModalPangkatWrapper').style.display = 'block';
+                    document.getElementById('dashModalPangkat').innerText = data.pangkat || '-';
+                }
+
+                // Populate Documents (filtered by category)
+                if (docsContainer) {
+                    let missingCount = 0;
+                    if (data.missing_documents && data.missing_documents.length > 0) {
+                        const filteredDocs = kategori ? data.missing_documents.filter(doc => doc.kategori == kategori) : data.missing_documents;
+                        missingCount = filteredDocs.length;
+                        
+                        if (missingCount > 0) {
+                            let docsHtml = '';
+                            filteredDocs.forEach((doc, index) => {
+                                docsHtml += `
+                                    <div style="display:flex; align-items:center; justify-content:space-between; background:#fff; padding:12px 15px; border-radius:8px; border:1px solid #e2e8f0;">
+                                        <div style="display:flex; align-items:center; gap:12px;">
+                                            <div style="width:28px; height:28px; background:#f1f5f9; color:#64748b; font-weight:700; font-size:12px; display:flex; align-items:center; justify-content:center; border-radius:6px;">
+                                                ${index + 1}
+                                            </div>
+                                            <div style="font-weight:600; color:#1e293b; font-size:14px;">
+                                                ${doc.nama_dokumen}
+                                            </div>
+                                        </div>
+                                        <span style="background:#fee2e2; color:#dc2626; padding:4px 10px; border-radius:20px; font-size:12px; font-weight:700; display:flex; align-items:center; gap:4px;">
+                                            <i class="ph-bold ph-warning"></i> Tidak Lengkap
+                                        </span>
+                                    </div>
+                                `;
+                            });
+                            docsContainer.innerHTML = docsHtml;
+                        }
+                    }
+
+                    if (missingCount === 0) {
+                        docsContainer.innerHTML = `
+                            <div style="text-align:center; padding:30px 20px; background:#f0fdf4; border:1px dashed #bbf7d0; border-radius:8px;">
+                                <div style="background:#d1fae5; width:48px; height:48px; border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 10px;">
+                                    <i class="ph-bold ph-check" style="font-size:24px; color:#059669;"></i>
+                                </div>
+                                <p style="margin:0; font-weight:700; color:#166534; font-size:14px;">Seluruh Syarat Dokumen Telah Lengkap</p>
+                            </div>
+                        `;
+                    }
+                    
+                    if (modalFooter && missingCount > 0) modalFooter.style.display = 'flex';
+                }
+
+                // Show Content
+                if (loadingSpinner) loadingSpinner.style.display = 'none';
+                if (contentBody) contentBody.style.display = 'block';
+
+            } else {
+                showCustomToast('Gagal memuat data.', 'error');
+                closeDashboardDetail();
+            }
+        })
+        .catch(err => {
+            console.error(err);
+            showCustomToast('Terjadi kesalahan koneksi.', 'error');
+            closeDashboardDetail();
+        });
+}
+
+function closeDashboardDetail() {
+    const modal = document.getElementById('dashboardDetailModal');
+    if (modal) modal.style.display = 'none';
+}
+
+window.addEventListener('click', function(event) {
+    const dashModal = document.getElementById('dashboardDetailModal');
+    if (dashModal && event.target === dashModal) {
+        closeDashboardDetail();
+    }
+});
