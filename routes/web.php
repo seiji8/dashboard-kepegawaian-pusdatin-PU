@@ -69,15 +69,3 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/notifications/{id}/read', [NotificationController::class, 'markAsRead'])->name('notifications.read');
 
 });
-
-// Route untuk mendownload file rekap usulan dari Email
-Route::get('/download-rekap/{filename}', function ($filename) {
-    if (!preg_match('/^Rekap_Usulan_.*\.pdf$/', $filename)) {
-        abort(404, 'File tidak valid.');
-    }
-    $path = public_path('exports/rekap/' . $filename);
-    if (!file_exists($path)) {
-        abort(404, 'File PDF tidak ditemukan.');
-    }
-    return response()->download($path);
-})->name('download.rekap');

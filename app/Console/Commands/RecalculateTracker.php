@@ -635,13 +635,20 @@ class RecalculateTracker extends Command
             }
             $dbTotalUsulan[$kat]++;
 
-            // Simpan detail (Nama, NIP, Jabatan) untuk PDF
+            // Simpan detail RINCI (Nama, NIP, Pangkat/Gol, Jabatan, TMT Target, Keterangan) untuk PDF
             $pegawaiInfo = $t->pegawai;
             if ($pegawaiInfo) {
+                $tmtTarget = $t->tanggal_target 
+                    ? Carbon::parse($t->tanggal_target)->format('d-m-Y') 
+                    : '-';
+
                 $detailUsulan[$kat][] = [
-                    'nama' => $pegawaiInfo->nama,
-                    'nip' => $pegawaiInfo->nip,
-                    'jabatan' => $pegawaiInfo->jabatan_saat_ini ?? $pegawaiInfo->tipe_jabatan ?? '-'
+                    'nama'              => $pegawaiInfo->nama,
+                    'nip'               => $pegawaiInfo->nip,
+                    'pangkat_golongan'  => $pegawaiInfo->pangkat_golongan ?? '-',
+                    'jabatan'           => $pegawaiInfo->jabatan_saat_ini ?? $pegawaiInfo->tipe_jabatan ?? '-',
+                    'tmt_target'        => $tmtTarget,
+                    'keterangan'        => $t->keterangan ?? '-',
                 ];
             }
         }
@@ -673,44 +680,17 @@ class RecalculateTracker extends Command
 
                 $messageBody .= "\nSilakan cek tabel daftar usulan untuk memproses verifikasi dokumen ini secara kolektif.";
 
-                // Siapkan data untuk PDF
+                // Siapkan data untuk PDF (hanya untuk attachment email, TIDAK simpan file ke disk)
                 $pdfData = [
                     'summary' => $dbTotalUsulan,
                     'new_usulan' => $daftarUsulanBaru,
-                    'details' => $detailUsulan // Data detail baru untuk PDF
+                    'details' => $detailUsulan
                 ];
-
-                $pdfUrl = null;
-                if (!empty($pdfData['summary'])) {
-                    $dirPath = public_path('exports/rekap');
-                    
-                    // OPSI 1: Bersihkan semua PDF lama di folder ini sebelum membuat yang baru
-                    if (file_exists($dirPath)) {
-                        $oldFiles = glob($dirPath . '/*.pdf');
-                        foreach ($oldFiles as $file) {
-                            if (is_file($file)) {
-                                unlink($file);
-                            }
-                        }
-                    } else {
-                        mkdir($dirPath, 0777, true);
-                    }
-
-                    // Generate and save PDF physically so we can link to it
-                    $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('emails.rekap_usulan_pdf', ['data' => $pdfData]);
-                    
-                    $fileName = 'Rekap_Usulan_' . date('Ymd_His') . '.pdf';
-                    $filePath = $dirPath . '/' . $fileName;
-                    $pdf->save($filePath);
-                    
-                    // Gunakan route khusus download agar file otomatis terunduh saat di-klik
-                    $pdfUrl = route('download.rekap', ['filename' => $fileName]);
-                }
 
                 foreach ($admins as $admin) {
                      if ($admin->email) {
                          try {
-                              $admin->notify(new SystemAlertNotification($dummyPegawai, $subject, $messageBody, $pdfUrl, $pdfData));
+                              $admin->notify(new SystemAlertNotification($dummyPegawai, $subject, $messageBody, null, $pdfData));
                          } catch (\Exception $e) {
                               \Log::error("Gagal mengirim notifikasi rekap usulan ke Admin {$admin->email}: " . $e->getMessage());
                          }
