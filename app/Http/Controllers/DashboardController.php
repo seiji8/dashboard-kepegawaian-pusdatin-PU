@@ -52,14 +52,19 @@ class DashboardController extends Controller
         $listKenaikanPangkat = $trackers->whereIn('kategori', ['KP_Jafung', 'KP_Struktural', 'KP_Reguler']);
         $listKenaikanJenjang = $trackers->where('kategori', 'KJ_Jafung');
         $listUkom            = $trackers->where('kategori', 'UKOM');
+        $ukomMadya = $listUkom->filter(function($item) {
+            return str_contains(strtolower($item->pegawai->tipe_jabatan ?? ''), 'fungsional') && 
+                   str_contains(strtolower($item->pegawai->jenjang ?? ''), 'ahli muda');
+        });
+        $ukomBiasa = $listUkom->reject(function($item) use ($ukomMadya) {
+            return $ukomMadya->contains('id', $item->id);
+        });
         
         $listKGB             = $trackers->where('kategori', 'KGB')->sortBy(function($item) {
-            switch ($item->status_saat_ini) {
-                case 'Usulan': return 1;
-                case 'Upload E-HRM': return 2;
-                case 'Proses': return 3;
-                default: return 4;
-            }
+            if ($item->status_saat_ini === 'Usulan') return 1;
+            if ($item->status_saat_ini === 'Upload E-HRM') return 2;
+            if ($item->status_saat_ini === 'Proses') return 3;
+            return 4;
         });
         
         // Pisahkan berdasarkan tipe_jabatan
@@ -92,6 +97,8 @@ class DashboardController extends Controller
             'listKenaikanPangkat',
             'listKenaikanJenjang',
             'listUkom',
+            'ukomBiasa',
+            'ukomMadya',
             'listKGB',
             'diklatHutang',
             'diklatAnomali',

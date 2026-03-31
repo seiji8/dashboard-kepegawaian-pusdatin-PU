@@ -542,8 +542,13 @@
                                 <svg class="arrow-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
                             </div>
                             <div id="task-kompetensi" class="task-sub-container">
-                                <div class="sub-table-container active" style="display:block;">
-                                    @if(isset($listUkom) && $listUkom->count() > 0)
+                                <!-- Sub: UKOM Biasa -->
+                                <div class="sub-item">
+                                    <div class="sub-task-btn" onclick="toggleSubTask('sub-ukom-biasa')">
+                                        <span class="sub-badge">{{ isset($ukomBiasa) ? $ukomBiasa->count() : 0 }}</span>
+                                        <span style="flex:1;">UKOM Biasa</span>
+                                    </div>
+                                    <div id="sub-ukom-biasa" class="sub-table-container">
                                         <table class="custom-table">
                                             <thead>
                                                 <tr>
@@ -554,7 +559,7 @@
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                @foreach($listUkom as $ukom)
+                                                @forelse($ukomBiasa ?? [] as $ukom)
                                                 <tr>
                                                     <td>{{ $ukom->pegawai->nama }}</td>
                                                     <td>{{ $ukom->pegawai->jenjang ?? '-' }}</td>
@@ -567,14 +572,50 @@
                                                         </button>
                                                     </td>
                                                 </tr>
-                                                @endforeach
+                                                @empty
+                                                <tr><td colspan="4" style="text-align:center;">Tidak ada data.</td></tr>
+                                                @endforelse
                                             </tbody>
                                         </table>
-                                    @else
-                                        <div style="padding: 25px; text-align: center; color: #64748b; font-style: italic; background-color: #f8fafc;">
-                                            Belum ada pegawai dalam tahapan Uji Kompetensi
-                                        </div>
-                                    @endif
+                                    </div>
+                                </div>
+
+                                <!-- Sub: UKOM Madya -->
+                                <div class="sub-item">
+                                    <div class="sub-task-btn" onclick="toggleSubTask('sub-ukom-madya')">
+                                        <span class="sub-badge">{{ isset($ukomMadya) ? $ukomMadya->count() : 0 }}</span>
+                                        <span style="flex:1;">UKOM Madya</span>
+                                    </div>
+                                    <div id="sub-ukom-madya" class="sub-table-container">
+                                        <table class="custom-table">
+                                            <thead>
+                                                <tr>
+                                                    <th>Nama</th>
+                                                    <th>Jenjang Saat Ini</th>
+                                                    <th>Status</th>
+                                                    <th>Aksi</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @forelse($ukomMadya ?? [] as $ukom)
+                                                <tr>
+                                                    <td>{{ $ukom->pegawai->nama }}</td>
+                                                    <td>{{ $ukom->pegawai->jenjang ?? '-' }}</td>
+                                                    <td>
+                                                        <span class="status-badge status-warning">{{ $ukom->status_saat_ini }}</span>
+                                                    </td>
+                                                    <td style="display: flex; gap: 6px;">
+                                                        <button class="btn-action-view" onclick="openDashboardDetail('{{ $ukom->pegawai->nip }}', '{{ $ukom->kategori }}')">
+                                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                                @empty
+                                                <tr><td colspan="4" style="text-align:center;">Tidak ada data.</td></tr>
+                                                @endforelse
+                                            </tbody>
+                                        </table>
+                                    </div>
                                 </div>
                             </div>
                         </div>
