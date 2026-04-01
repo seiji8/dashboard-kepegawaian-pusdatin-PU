@@ -73,22 +73,21 @@ class RecalculateTracker extends Command
                     
                     $isConfirmed = $existingTracker && $existingTracker->dikonfirmasi_at;
                     $isUploaded  = $existingTracker && ($existingTracker->dokumen_terupload >= $existingTracker->dokumen_total);
+                    $currentStatus = $existingTracker ? $existingTracker->status_saat_ini : null;
                     
-                    if ($today->greaterThanOrEqualTo($nextKGB)) {
-                        if ($isUploaded) {
-                            $status = 'Aman';
-                        } else {
-                            $status = 'Upload E-HRM';
-                            $keterangan = 'SK KGB sudah terbit? Silakan upload E-HRM.';
-                        }
+                    if ($today->greaterThanOrEqualTo($nextKGB) && $isUploaded) {
+                        $status = 'Aman';
+                    } elseif ($currentStatus === 'Upload E-HRM' || $isConfirmed) {
+                        $status = 'Upload E-HRM';
+                        $keterangan = 'TTE Selesai. Menunggu upload SK E-HRM.';
+                    } elseif ($currentStatus === 'Proses') {
+                        $status = 'Proses';
+                        $keterangan = 'Usulan sedang diproses (TTE) oleh admin.';
                     } elseif ($today->greaterThanOrEqualTo($startNotify)) {
-                        if ($isConfirmed) {
-                            $status = 'Proses';
-                            $keterangan = 'Usulan sedang diproses oleh admin.';
-                        } else {
-                            $status = 'Usulan';
-                            $keterangan = 'Segera ajukan usulan KGB.';
-                        }
+                        $status = 'Usulan';
+                        $keterangan = $today->greaterThanOrEqualTo($nextKGB) ? 'Masa KGB telah tiba. Segera ajukan usulan KGB.' : 'Segera ajukan usulan KGB.';
+                    } else {
+                        $status = 'Aman';
                     }
 
                     if ($status != 'Aman') {
@@ -239,16 +238,21 @@ class RecalculateTracker extends Command
                                 ->whereIn('kategori', [$kategoriSekarang, 'UKOM'])
                                 ->first();
 
-                            $isProses = $existingAK && (
-                                $existingAK->status_saat_ini === 'Proses' || 
-                                $existingAK->dikonfirmasi_at ||
-                                $existingAK->kategori === 'UKOM'
-                            );
+                            $currentAKStatus = $existingAK ? $existingAK->status_saat_ini : null;
+                            $isConfirmedAK = $existingAK && $existingAK->dikonfirmasi_at;
+                            $isUploadedAK = $existingAK && ($existingAK->dokumen_terupload >= $existingAK->dokumen_total);
 
                             $skipTrackerUpdate = false;
 
                             // Penentuan Status Tracker
-                            if ($isProses) {
+                            if ($isUploadedAK) {
+                                $statusAK = 'Aman';
+                                $keteranganAK = ''; // Akan dihapus nanti
+                            } elseif ($currentAKStatus === 'Upload E-HRM' || $isConfirmedAK) {
+                                $statusAK = 'Upload E-HRM';
+                                $keteranganAK = 'TTE Selesai. Menunggu upload E-HRM.';
+                                if ($existingAK->kategori === 'UKOM') $skipTrackerUpdate = true;
+                            } elseif ($currentAKStatus === 'Proses') {
                                 $statusAK = 'Proses';
                                 $keteranganAK = 'Sedang diproses admin';
                                 if ($existingAK->kategori === 'UKOM') {
@@ -401,12 +405,17 @@ class RecalculateTracker extends Command
                             ->where('kategori', 'KP_Struktural')
                             ->first();
 
-                        $isProsesStruct = $existingKPStruct && (
-                            $existingKPStruct->status_saat_ini === 'Proses' ||
-                            $existingKPStruct->dikonfirmasi_at
-                        );
+                        $currentStructStatus = $existingKPStruct ? $existingKPStruct->status_saat_ini : null;
+                        $isConfirmedStruct = $existingKPStruct && $existingKPStruct->dikonfirmasi_at;
+                        $isUploadedStruct = $existingKPStruct && ($existingKPStruct->dokumen_terupload >= $existingKPStruct->dokumen_total);
 
-                        if ($isProsesStruct) {
+                        if ($isUploadedStruct) {
+                            $statusStruktural = 'Aman';
+                            $keteranganStruktural = '';
+                        } elseif ($currentStructStatus === 'Upload E-HRM' || $isConfirmedStruct) {
+                            $statusStruktural = 'Upload E-HRM';
+                            $keteranganStruktural = 'TTE Selesai. Menunggu upload SK E-HRM.';
+                        } elseif ($currentStructStatus === 'Proses') {
                             $statusStruktural    = 'Proses';
                             $keteranganStruktural = 'Sedang diproses admin';
 
@@ -489,17 +498,22 @@ class RecalculateTracker extends Command
                     $statusReguler    = 'Aman';
                     $keteranganReguler = $masaKerjaLabel;
 
-                    // Cek apakah sudah dikonfirmasi admin
+                    // Cek history/status sebelumnya
                     $existingKPReguler = DashboardTracker::where('pegawai_id', $pegawai->id_pegawai_api)
                         ->where('kategori', 'KP_Reguler')
                         ->first();
 
-                    $isProsesReguler = $existingKPReguler && (
-                        $existingKPReguler->status_saat_ini === 'Proses' ||
-                        $existingKPReguler->dikonfirmasi_at
-                    );
+                    $currentRegulerStatus = $existingKPReguler ? $existingKPReguler->status_saat_ini : null;
+                    $isConfirmedReguler   = $existingKPReguler && $existingKPReguler->dikonfirmasi_at;
+                    $isUploadedReguler    = $existingKPReguler && ($existingKPReguler->dokumen_terupload >= $existingKPReguler->dokumen_total);
 
-                    if ($isProsesReguler) {
+                    if ($isUploadedReguler) {
+                        $statusReguler = 'Aman';
+                        $keteranganReguler = '';
+                    } elseif ($currentRegulerStatus === 'Upload E-HRM' || $isConfirmedReguler) {
+                        $statusReguler = 'Upload E-HRM';
+                        $keteranganReguler = 'TTE Selesai. Menunggu upload SK E-HRM.';
+                    } elseif ($currentRegulerStatus === 'Proses') {
                         $statusReguler    = 'Proses';
                         $keteranganReguler = "Sedang diproses admin ({$masaKerjaLabel})";
                     } elseif ($masaPangkatReguler >= 48) {
@@ -508,7 +522,11 @@ class RecalculateTracker extends Command
                         $keteranganReguler = $masaKerjaLabel;
                     }
 
-                    if ($statusReguler != 'Aman') {
+                    if ($statusReguler == 'Aman') {
+                        DashboardTracker::where('pegawai_id', $pegawai->id_pegawai_api)
+                            ->where('kategori', 'KP_Reguler')
+                            ->delete();
+                    } else {
                         $trackerReg = DashboardTracker::updateOrCreate(
                             [
                                 'pegawai_id' => $pegawai->id_pegawai_api,
@@ -517,7 +535,7 @@ class RecalculateTracker extends Command
                             [
                                 'status_saat_ini' => $statusReguler,
                                 'keterangan'      => $keteranganReguler,
-                                'dokumen_total'   => 0,
+                                'dokumen_total'   => 1, // atau sesuai kebutuhan reguler
                                 'tanggal_target'  => $tanggalTargetReguler->format('Y-m-d'),
                             ]
                         );
@@ -531,10 +549,6 @@ class RecalculateTracker extends Command
                             ];
                             $trackerReg->update(['notified_at' => now()]);
                         }
-                    } else {
-                        DashboardTracker::where('pegawai_id', $pegawai->id_pegawai_api)
-                            ->where('kategori', 'KP_Reguler')
-                            ->delete();
                     }
                 } else {
                     // Bukan pelaksana atau gak punya tmt_pangkat → hapus KP_Reguler jika ada
