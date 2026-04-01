@@ -165,6 +165,11 @@
                                         <span style="flex:1;">Jabatan Struktural</span>
                                     </div>
                                     <div id="sub-struktural" class="sub-table-container">
+                                        <div class="surat-btn-row">
+                                            <button class="btn-cetak-surat" onclick="openSuratModal('KP_Struktural')">
+                                                <i class="ph-bold ph-file-text"></i> Cetak Surat Pengajuan
+                                            </button>
+                                        </div>
                                         <table class="custom-table">
                                             <thead>
                                                 <tr>
@@ -186,9 +191,11 @@
                                                     <td>{{ $item->pegawai->pangkat_golongan ?? '-' }}</td>
                                                     <td>
                                                         @if($item->status_saat_ini == 'Usulan')
-                                                            <span class="status-badge status-missing">Usulan</span>
-                                                        @elseif($item->status_saat_ini == 'Mendekati' || $item->status_saat_ini == 'Proses')
-                                                            <span class="status-badge status-warning">{{ $item->status_saat_ini }}</span>
+                                                            <span class="status-badge status-missing">Usulan Pengajuan</span>
+                                                        @elseif($item->status_saat_ini == 'Mendekati')
+                                                            <span class="status-badge status-warning">Mendekati</span>
+                                                        @elseif($item->status_saat_ini == 'Proses')
+                                                            <span class="status-badge status-warning">Proses TTE</span>
                                                         @elseif($item->status_saat_ini == 'Upload E-HRM')
                                                             <span class="status-badge status-ok">Upload E-HRM</span>
                                                         @else
@@ -204,8 +211,8 @@
                                                         <button class="btn-action-view" onclick="openDashboardDetail('{{ $item->pegawai->nip }}', '{{ $item->kategori }}')">
                                                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
                                                         </button>
-                                                        @if($item->status_saat_ini == 'Usulan')
-                                                        <button class="btn-action-confirm" onclick="openConfirmModal({{ $item->id }}, '{{ $item->pegawai->nama }}')" title="Konfirmasi Proses">
+                                                        @if($item->status_saat_ini == 'Proses')
+                                                        <button class="btn-action-confirm" onclick="openConfirmModal({{ $item->id }}, '{{ $item->pegawai->nama }}')" title="Konfirmasi TTE Selesai">
                                                             <i class="ph-bold ph-check" style="font-size: 16px;"></i>
                                                         </button>
                                                         @endif
@@ -226,6 +233,11 @@
                                         <span style="flex:1;">Jabatan Fungsional</span>
                                     </div>
                                     <div id="sub-fungsional" class="sub-table-container">
+                                        <div class="surat-btn-row">
+                                            <button class="btn-cetak-surat" onclick="openSuratModal('KP_Jafung')">
+                                                <i class="ph-bold ph-file-text"></i> Cetak Surat Pengajuan
+                                            </button>
+                                        </div>
                                         <table class="custom-table">
                                             <thead>
                                                 <tr>
@@ -245,9 +257,11 @@
                                                     <td>{{ $item->pegawai->pangkat_golongan ?? '-' }}</td>
                                                     <td>
                                                         @if($item->status_saat_ini == 'Usulan')
-                                                            <span class="status-badge status-missing">Usulan</span>
-                                                        @elseif($item->status_saat_ini == 'Mendekati' || $item->status_saat_ini == 'Proses')
-                                                            <span class="status-badge status-warning">{{ $item->status_saat_ini }}</span>
+                                                            <span class="status-badge status-missing">Usulan Pengajuan</span>
+                                                        @elseif($item->status_saat_ini == 'Mendekati')
+                                                            <span class="status-badge status-warning">Mendekati</span>
+                                                        @elseif($item->status_saat_ini == 'Proses')
+                                                            <span class="status-badge status-warning">Proses TTE</span>
                                                         @elseif($item->status_saat_ini == 'Upload E-HRM')
                                                             <span class="status-badge status-ok">Upload E-HRM</span>
                                                         @else
@@ -263,8 +277,8 @@
                                                         <button class="btn-action-view" onclick="openDashboardDetail('{{ $item->pegawai->nip }}', '{{ $item->kategori }}')">
                                                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
                                                         </button>
-                                                        @if($item->status_saat_ini == 'Usulan')
-                                                        <button class="btn-action-confirm" onclick="openConfirmModal({{ $item->id }}, '{{ $item->pegawai->nama }}')" title="Konfirmasi Proses">
+                                                        @if($item->status_saat_ini == 'Proses')
+                                                        <button class="btn-action-confirm" onclick="openConfirmModal({{ $item->id }}, '{{ $item->pegawai->nama }}')" title="Konfirmasi TTE Selesai">
                                                             <i class="ph-bold ph-check" style="font-size: 16px;"></i>
                                                         </button>
                                                         @endif
@@ -285,6 +299,11 @@
                                         <span style="flex:1;">Reguler</span>
                                     </div>
                                     <div id="sub-reguler" class="sub-table-container">
+                                        <div class="surat-btn-row">
+                                            <button class="btn-cetak-surat" onclick="openSuratModal('KP_Reguler')">
+                                                <i class="ph-bold ph-file-text"></i> Cetak Surat Pengajuan
+                                            </button>
+                                        </div>
                                         <table class="custom-table">
                                             <thead>
                                                 <tr>
@@ -306,9 +325,9 @@
                                                     <td>{{ $item->pegawai->tmt_pangkat_terakhir ? \Carbon\Carbon::parse($item->pegawai->tmt_pangkat_terakhir)->format('d M Y') : '-' }}</td>
                                                     <td>
                                                         @if($item->status_saat_ini == 'Usulan')
-                                                            <span class="status-badge status-missing">Usulan</span>
+                                                            <span class="status-badge status-missing">Usulan Pengajuan</span>
                                                         @elseif($item->status_saat_ini == 'Proses')
-                                                            <span class="status-badge status-warning">Proses</span>
+                                                            <span class="status-badge status-warning">Proses TTE</span>
                                                         @else
                                                             <span class="status-badge status-secondary">{{ $item->status_saat_ini }}</span>
                                                         @endif
@@ -322,8 +341,8 @@
                                                         <button class="btn-action-view" onclick="openDashboardDetail('{{ $item->pegawai->nip }}', '{{ $item->kategori }}')" title="Lihat Profil">
                                                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
                                                         </button>
-                                                        @if($item->status_saat_ini == 'Usulan')
-                                                        <button class="btn-action-confirm" onclick="openConfirmModal({{ $item->id }}, '{{ $item->pegawai->nama }}')" title="Konfirmasi Proses">
+                                                        @if($item->status_saat_ini == 'Proses')
+                                                        <button class="btn-action-confirm" onclick="openConfirmModal({{ $item->id }}, '{{ $item->pegawai->nama }}')" title="Konfirmasi TTE Selesai">
                                                             <i class="ph-bold ph-check" style="font-size: 16px;"></i>
                                                         </button>
                                                         @endif
@@ -349,6 +368,11 @@
                             </div>
                             <div id="task-jenjang" class="task-sub-container">
                                 <div class="sub-table-container active" style="display:block;">
+                                    <div class="surat-btn-row">
+                                        <button class="btn-cetak-surat" onclick="openSuratModal('KJ_Jafung')">
+                                            <i class="ph-bold ph-file-text"></i> Cetak Surat Pengajuan
+                                        </button>
+                                    </div>
                                     <table class="custom-table">
                                         <thead>
                                             <tr>
@@ -368,9 +392,11 @@
                                                 <td>{{ $item->pegawai->jenjang ?? '-' }}</td>
                                                 <td>
                                                     @if($item->status_saat_ini == 'Usulan')
-                                                        <span class="status-badge status-missing">Usulan</span>
-                                                    @elseif($item->status_saat_ini == 'Mendekati' || $item->status_saat_ini == 'Proses')
-                                                        <span class="status-badge status-warning">{{ $item->status_saat_ini }}</span>
+                                                        <span class="status-badge status-missing">Usulan Pengajuan</span>
+                                                    @elseif($item->status_saat_ini == 'Mendekati')
+                                                        <span class="status-badge status-warning">Mendekati</span>
+                                                    @elseif($item->status_saat_ini == 'Proses')
+                                                        <span class="status-badge status-warning">Proses TTE</span>
                                                     @elseif($item->status_saat_ini == 'Upload E-HRM')
                                                         <span class="status-badge status-ok">Upload E-HRM</span>
                                                     @else
@@ -386,8 +412,8 @@
                                                     <button class="btn-action-view" onclick="openDashboardDetail('{{ $item->pegawai->nip }}', '{{ $item->kategori }}')">
                                                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
                                                     </button>
-                                                    @if($item->status_saat_ini == 'Usulan')
-                                                    <button class="btn-action-confirm" onclick="openUkomModal({{ $item->id }}, '{{ $item->pegawai->nama }}')" title="Daftarkan Uji Kompetensi">
+                                                    @if($item->status_saat_ini == 'Proses')
+                                                    <button class="btn-action-confirm" onclick="openUkomModal({{ $item->id }}, '{{ $item->pegawai->nama }}')" title="Konfirmasi TTE Selesai">
                                                         <i class="ph-bold ph-check" style="font-size: 16px;"></i>
                                                     </button>
                                                     @endif
@@ -414,6 +440,11 @@
                             <div id="task-gaji" class="task-sub-container">
                                 <div class="sub-table-container active" style="display:block;">
                                     @if($listKGB->count() > 0)
+                                        <div class="surat-btn-row">
+                                            <button class="btn-cetak-surat" onclick="openSuratModal('KGB')">
+                                                <i class="ph-bold ph-file-text"></i> Cetak Surat Pengajuan
+                                            </button>
+                                        </div>
                                         <table class="custom-table">
                                             <thead>
                                                 <tr>
@@ -433,9 +464,9 @@
                                                     <td>{{ optional($kgb->pegawai->tmt_kgb_terakhir)->format('d M Y') ?? '-' }}</td>
                                                     <td>
                                                         @if($kgb->status_saat_ini == 'Usulan')
-                                                            <span class="status-badge status-missing">Usulan</span>
+                                                            <span class="status-badge status-missing">Usulan Pengajuan</span>
                                                         @elseif($kgb->status_saat_ini == 'Proses')
-                                                            <span class="status-badge status-warning">Proses</span>
+                                                            <span class="status-badge status-warning">Proses TTE</span>
                                                         @elseif($kgb->status_saat_ini == 'Upload E-HRM')
                                                             <span class="status-badge status-ok">Upload E-HRM</span>
                                                         @else
@@ -451,9 +482,9 @@
                                                         <button class="btn-action-view" onclick="openDashboardDetail('{{ $kgb->pegawai->nip }}', '{{ $kgb->kategori }}')">
                                                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
                                                         </button>
-                                                        {{-- Tombol Confirm hanya muncul saat status Usulan (Merah) --}}
-                                                        @if($kgb->status_saat_ini == 'Usulan')
-                                                        <button class="btn-action-confirm" onclick="openConfirmModal({{ $kgb->id }}, '{{ $kgb->pegawai->nama }}')" title="Konfirmasi Proses">
+                                                        {{-- Tombol Confirm hanya muncul saat status Proses TTE --}}
+                                                        @if($kgb->status_saat_ini == 'Proses')
+                                                        <button class="btn-action-confirm" onclick="openConfirmModal({{ $kgb->id }}, '{{ $kgb->pegawai->nama }}')" title="Konfirmasi TTE Selesai">
                                                             <i class="ph-bold ph-check" style="font-size: 16px;"></i>
                                                         </button>
                                                         @endif
@@ -546,9 +577,14 @@
                                 <div class="sub-item">
                                     <div class="sub-task-btn" onclick="toggleSubTask('sub-ukom-biasa')">
                                         <span class="sub-badge">{{ isset($ukomBiasa) ? $ukomBiasa->count() : 0 }}</span>
-                                        <span style="flex:1;">UKOM Biasa</span>
+                                        <span style="flex:1;">UKOM</span>
                                     </div>
                                     <div id="sub-ukom-biasa" class="sub-table-container">
+                                        <div class="surat-btn-row">
+                                            <button class="btn-cetak-surat" onclick="openSuratModal('UKOM')">
+                                                <i class="ph-bold ph-file-text"></i> Cetak Surat Pengajuan
+                                            </button>
+                                        </div>
                                         <table class="custom-table">
                                             <thead>
                                                 <tr>
@@ -564,7 +600,15 @@
                                                     <td>{{ $ukom->pegawai->nama }}</td>
                                                     <td>{{ $ukom->pegawai->jenjang ?? '-' }}</td>
                                                     <td>
-                                                        <span class="status-badge status-warning">{{ $ukom->status_saat_ini }}</span>
+                                                        @if($ukom->status_saat_ini == 'Usulan')
+                                                            <span class="status-badge status-missing">Usulan Pengajuan</span>
+                                                        @elseif($ukom->status_saat_ini == 'Proses')
+                                                            <span class="status-badge status-warning">Proses TTE</span>
+                                                        @elseif($ukom->status_saat_ini == 'Upload E-HRM')
+                                                            <span class="status-badge status-ok">Upload E-HRM</span>
+                                                        @else
+                                                            <span class="status-badge status-warning">{{ $ukom->status_saat_ini }}</span>
+                                                        @endif
                                                     </td>
                                                     <td style="display: flex; gap: 6px;">
                                                         <button class="btn-action-view" onclick="openDashboardDetail('{{ $ukom->pegawai->nip }}', '{{ $ukom->kategori }}')">
@@ -587,6 +631,11 @@
                                         <span style="flex:1;">UKOM Madya</span>
                                     </div>
                                     <div id="sub-ukom-madya" class="sub-table-container">
+                                        <div class="surat-btn-row">
+                                            <button class="btn-cetak-surat" onclick="openSuratModal('UKOM')">
+                                                <i class="ph-bold ph-file-text"></i> Cetak Surat Pengajuan
+                                            </button>
+                                        </div>
                                         <table class="custom-table">
                                             <thead>
                                                 <tr>
@@ -602,7 +651,15 @@
                                                     <td>{{ $ukom->pegawai->nama }}</td>
                                                     <td>{{ $ukom->pegawai->jenjang ?? '-' }}</td>
                                                     <td>
-                                                        <span class="status-badge status-warning">{{ $ukom->status_saat_ini }}</span>
+                                                        @if($ukom->status_saat_ini == 'Usulan')
+                                                            <span class="status-badge status-missing">Usulan Pengajuan</span>
+                                                        @elseif($ukom->status_saat_ini == 'Proses')
+                                                            <span class="status-badge status-warning">Proses TTE</span>
+                                                        @elseif($ukom->status_saat_ini == 'Upload E-HRM')
+                                                            <span class="status-badge status-ok">Upload E-HRM</span>
+                                                        @else
+                                                            <span class="status-badge status-warning">{{ $ukom->status_saat_ini }}</span>
+                                                        @endif
                                                     </td>
                                                     <td style="display: flex; gap: 6px;">
                                                         <button class="btn-action-view" onclick="openDashboardDetail('{{ $ukom->pegawai->nip }}', '{{ $ukom->kategori }}')">
@@ -959,6 +1016,100 @@
         if (e.target === this) closeDiklatModal();
     });
     </script>
+
+    <!-- SURAT PENGAJUAN MODAL -->
+    <div id="suratModal" class="modal-overlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:2500; justify-content:center; align-items:center;">
+        <div style="background:#fff; width:800px; max-width:94vw; max-height:90vh; border-radius:14px; box-shadow:0 20px 60px rgba(0,0,0,0.2); overflow:hidden; display:flex; flex-direction:column;">
+            
+            <!-- Header -->
+            <div style="padding:20px 25px; border-bottom:1px solid #e2e8f0; background:#f8fafc; display:flex; align-items:center; justify-content:space-between; flex-shrink:0;">
+                <div style="display:flex; align-items:center; gap:12px;">
+                    <div style="background:#dbeafe; color:#1e3a8a; width:42px; height:42px; border-radius:10px; display:flex; align-items:center; justify-content:center;">
+                        <i class="ph-bold ph-file-text" style="font-size:22px;"></i>
+                    </div>
+                    <div>
+                        <h3 id="suratModalTitle" style="margin:0; font-size:17px; font-weight:700; color:#1e293b;">Cetak Surat Pengajuan</h3>
+                        <p id="suratModalSub" style="margin:2px 0 0; font-size:12px; color:#64748b;">Pilih pegawai dan isi data surat</p>
+                    </div>
+                </div>
+                <button onclick="closeSuratModal()" style="background:none; border:none; cursor:pointer; padding:5px; color:#94a3b8; transition:color 0.2s;" onmouseover="this.style.color='#ef4444'" onmouseout="this.style.color='#94a3b8'">
+                    <i class="ph-bold ph-x" style="font-size:22px;"></i>
+                </button>
+            </div>
+
+            <!-- Body -->
+            <div style="padding:20px 25px; overflow-y:auto; flex:1;">
+
+                <!-- Loading -->
+                <div id="suratLoading" style="text-align:center; padding:40px; color:#64748b;">
+                    <i class="ph-bold ph-spinner" style="font-size:32px; color:#1e3a8a; animation:spin 1s linear infinite;"></i>
+                    <p style="margin-top:10px;">Mengambil data pegawai...</p>
+                </div>
+
+                <!-- Content (hidden until loaded) -->
+                <div id="suratContent" style="display:none;">
+
+                    <!-- STEP 1: Pilih Pegawai -->
+                    <div style="margin-bottom:20px;">
+                        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px;">
+                            <h4 style="margin:0; font-size:14px; font-weight:700; color:#1e293b;">1. Pilih Pegawai</h4>
+                            <label style="display:flex; align-items:center; gap:8px; cursor:pointer; font-size:13px; font-weight:600; color:#3b82f6;">
+                                <input type="checkbox" id="suratSelectAll" onchange="suratToggleAll()" style="width:16px; height:16px; accent-color:#1e3a8a; cursor:pointer;">
+                                Pilih Semua
+                            </label>
+                        </div>
+
+                        <div id="suratGroupsContainer">
+                            <!-- Groups injected by JS -->
+                        </div>
+                    </div>
+
+                    <!-- STEP 2: Data Surat -->
+                    <div style="border-top:1px solid #e2e8f0; padding-top:20px;">
+                        <h4 style="margin:0 0 15px; font-size:14px; font-weight:700; color:#1e293b;">2. Data Surat</h4>
+                        
+                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:15px;">
+                            <div>
+                                <label style="display:block; font-size:12px; font-weight:700; color:#475569; margin-bottom:5px; letter-spacing:0.3px;">NOMOR SURAT</label>
+                                <input type="text" id="suratNomor" placeholder="Contoh: B-123/KP.01/04/2026" style="width:100%; padding:10px 14px; border:1px solid #cbd5e1; border-radius:8px; font-size:13px; outline:none; transition:border 0.2s; box-sizing:border-box;" onfocus="this.style.borderColor='#3b82f6'" onblur="this.style.borderColor='#cbd5e1'">
+                            </div>
+                            <div>
+                                <label style="display:block; font-size:12px; font-weight:700; color:#475569; margin-bottom:5px; letter-spacing:0.3px;">TANGGAL SURAT</label>
+                                <input type="date" id="suratTanggal" style="width:100%; padding:10px 14px; border:1px solid #cbd5e1; border-radius:8px; font-size:13px; outline:none; transition:border 0.2s; box-sizing:border-box;" onfocus="this.style.borderColor='#3b82f6'" onblur="this.style.borderColor='#cbd5e1'">
+                            </div>
+                            <div style="grid-column: 1 / -1;">
+                                <label style="display:block; font-size:12px; font-weight:700; color:#475569; margin-bottom:5px; letter-spacing:0.3px;">TUJUAN SURAT (KEPADA YTH.)</label>
+                                <input type="text" id="suratTujuan" placeholder="Contoh: Kepala Biro Kepegawaian" style="width:100%; padding:10px 14px; border:1px solid #cbd5e1; border-radius:8px; font-size:13px; outline:none; transition:border 0.2s; box-sizing:border-box;" onfocus="this.style.borderColor='#3b82f6'" onblur="this.style.borderColor='#cbd5e1'">
+                            </div>
+                            <div>
+                                <label style="display:block; font-size:12px; font-weight:700; color:#475569; margin-bottom:5px; letter-spacing:0.3px;">NAMA PENANDATANGAN</label>
+                                <input type="text" id="suratNamaTTD" placeholder="Nama lengkap pejabat" style="width:100%; padding:10px 14px; border:1px solid #cbd5e1; border-radius:8px; font-size:13px; outline:none; transition:border 0.2s; box-sizing:border-box;" onfocus="this.style.borderColor='#3b82f6'" onblur="this.style.borderColor='#cbd5e1'">
+                            </div>
+                            <div>
+                                <label style="display:block; font-size:12px; font-weight:700; color:#475569; margin-bottom:5px; letter-spacing:0.3px;">NIP PENANDATANGAN</label>
+                                <input type="text" id="suratNipTTD" placeholder="NIP pejabat" style="width:100%; padding:10px 14px; border:1px solid #cbd5e1; border-radius:8px; font-size:13px; outline:none; transition:border 0.2s; box-sizing:border-box;" onfocus="this.style.borderColor='#3b82f6'" onblur="this.style.borderColor='#cbd5e1'">
+                            </div>
+                            <div style="grid-column: 1 / -1;">
+                                <label style="display:block; font-size:12px; font-weight:700; color:#475569; margin-bottom:5px; letter-spacing:0.3px;">JABATAN PENANDATANGAN</label>
+                                <input type="text" id="suratJabatanTTD" placeholder="Contoh: Kepala Sub Bagian Kepegawaian" value="Kepala Sub Bagian Kepegawaian" style="width:100%; padding:10px 14px; border:1px solid #cbd5e1; border-radius:8px; font-size:13px; outline:none; transition:border 0.2s; box-sizing:border-box;" onfocus="this.style.borderColor='#3b82f6'" onblur="this.style.borderColor='#cbd5e1'">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <div id="suratFooter" style="display:none; padding:16px 25px; border-top:1px solid #e2e8f0; background:#f8fafc; justify-content:space-between; align-items:center; flex-shrink:0;">
+                <span id="suratSelectedCount" style="font-size:13px; font-weight:600; color:#64748b;">0 pegawai terpilih</span>
+                <div style="display:flex; gap:10px;">
+                    <button onclick="closeSuratModal()" style="padding:10px 22px; background:white; color:#64748b; border:1px solid #cbd5e1; border-radius:8px; cursor:pointer; font-weight:600; font-size:13px; transition:all 0.2s; font-family:'Poppins',sans-serif;" onmouseover="this.style.background='#f1f5f9'" onmouseout="this.style.background='white'">Batal</button>
+                    <button id="btnGenerateSurat" onclick="generateSurat()" style="padding:10px 22px; background:linear-gradient(135deg,#1e3a8a,#2563eb); color:white; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:13px; display:flex; align-items:center; gap:8px; transition:all 0.2s; box-shadow:0 4px 6px -1px rgba(30,58,138,0.2); font-family:'Poppins',sans-serif;" onmouseover="this.style.transform='translateY(-1px)'" onmouseout="this.style.transform='translateY(0)'">
+                        <i class="ph-bold ph-download-simple"></i> Download PDF
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     @include('partials.sync_loading')
 

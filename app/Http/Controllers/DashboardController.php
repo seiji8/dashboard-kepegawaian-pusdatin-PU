@@ -191,16 +191,16 @@ public function confirmTracker(Request $request, $id)
     $tracker->update([
         'dikonfirmasi_at'   => now(),
         'dikonfirmasi_oleh' => auth()->id(),
-        'status_saat_ini'   => 'Proses', // Update status agar langsung berubah di UI
+        'status_saat_ini'   => 'Upload E-HRM', // Proses TTE → Upload E-HRM
     ]);
 
     ActivityLogger::logAdminAction(
-        "Mengkonfirmasi {$tracker->kategori} untuk pegawai {$tracker->pegawai->nama} (NIP: {$tracker->nip})"
+        "Mengkonfirmasi TTE selesai untuk {$tracker->kategori} pegawai {$tracker->pegawai->nama} (NIP: {$tracker->nip})"
     );
 
     return response()->json([
         'success' => true,
-        'message' => 'Tugas berhasil dikonfirmasi!',
+        'message' => 'TTE berhasil dikonfirmasi! Status diperbarui ke Upload E-HRM.',
     ]);
 }
 

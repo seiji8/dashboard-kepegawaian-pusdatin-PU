@@ -443,4 +443,255 @@ window.addEventListener('click', function(event) {
     if (dashModal && event.target === dashModal) {
         closeDashboardDetail();
     }
+
+    const suratModal = document.getElementById('suratModal');
+    if (suratModal && event.target === suratModal) {
+        closeSuratModal();
+    }
 });
+
+// ==========================================
+// SURAT PENGAJUAN LOGIC
+// ==========================================
+let suratKategori = null;
+let suratGroupsData = [];
+
+function openSuratModal(kategori) {
+    suratKategori = kategori;
+    suratGroupsData = [];
+
+    const modal = document.getElementById('suratModal');
+    const loading = document.getElementById('suratLoading');
+    const content = document.getElementById('suratContent');
+    const footer = document.getElementById('suratFooter');
+
+    if (modal) modal.style.display = 'flex';
+    if (loading) loading.style.display = 'block';
+    if (content) content.style.display = 'none';
+    if (footer) footer.style.display = 'none';
+
+    // Reset form fields
+    document.getElementById('suratNomor').value = '';
+    document.getElementById('suratTanggal').value = new Date().toISOString().split('T')[0];
+    document.getElementById('suratTujuan').value = '';
+    document.getElementById('suratNamaTTD').value = '';
+    document.getElementById('suratNipTTD').value = '';
+    document.getElementById('suratJabatanTTD').value = 'Kepala Sub Bagian Kepegawaian';
+    document.getElementById('suratSelectAll').checked = false;
+
+    // Fetch data
+    fetch(`/surat-pengajuan/preview/${kategori}`)
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                // Update modal title
+                document.getElementById('suratModalTitle').textContent = 'Surat Pengajuan ' + data.kategori_label;
+                document.getElementById('suratModalSub').textContent = data.total + ' pegawai tersedia';
+
+                suratGroupsData = data.groups;
+                renderSuratGroups(data.groups);
+
+                if (loading) loading.style.display = 'none';
+                if (content) content.style.display = 'block';
+                if (footer) footer.style.display = 'flex';
+                updateSuratCount();
+            } else {
+                if (loading) loading.innerHTML = '<p style="color:#dc2626;">Gagal memuat data: ' + (data.message || 'Unknown error') + '</p>';
+            }
+        })
+        .catch(err => {
+            console.error('Error fetching surat data:', err);
+            if (loading) loading.innerHTML = '<p style="color:#dc2626;">Gagal memuat data pegawai.</p>';
+        });
+}
+
+function closeSuratModal() {
+    const modal = document.getElementById('suratModal');
+    if (modal) modal.style.display = 'none';
+    suratKategori = null;
+    suratGroupsData = [];
+}
+
+function renderSuratGroups(groups) {
+    const container = document.getElementById('suratGroupsContainer');
+    if (!container) return;
+
+    // Flatten all pegawai and separate by status
+    let belumDicetak = []; // status Usulan
+    let sudahDicetak = []; // status Proses (reprint)
+    let globalIdx = 0;
+
+    groups.forEach(group => {
+        group.pegawai.forEach(p => {
+            const item = { ...p, periode_label: group.periode_label, gIdx: globalIdx };
+            if (p.status === 'Usulan' || p.status === 'Mendekati') {
+                belumDicetak.push(item);
+            } else if (p.status === 'Proses') {
+                sudahDicetak.push(item);
+            }
+        });
+        globalIdx++;
+    });
+
+    if (belumDicetak.length === 0 && sudahDicetak.length === 0) {
+        container.innerHTML = `
+            <div style="text-align:center; padding:30px; background:#f8fafc; border:1px dashed #cbd5e1; border-radius:8px; color:#64748b;">
+                <i class="ph-bold ph-info" style="font-size:24px; display:block; margin-bottom:8px;"></i>
+                <p style="margin:0; font-weight:600;">Tidak ada pegawai yang tersedia untuk surat pengajuan.</p>
+            </div>`;
+        return;
+    }
+
+    let html = '';
+
+    // SECTION: Belum Dicetak
+    if (belumDicetak.length > 0) {
+        html += `
+        <div style="margin-bottom:16px;">
+            <div style="display:flex; align-items:center; gap:8px; margin-bottom:10px;">
+                <span style="background:#dc2626; width:8px; height:8px; border-radius:50; display:inline-block;"></span>
+                <span style="font-weight:700; font-size:13px; color:#dc2626;">Belum Dicetak</span>
+                <span style="background:#fee2e2; color:#dc2626; padding:2px 10px; border-radius:10px; font-size:11px; font-weight:700;">${belumDicetak.length} Orang</span>
+            </div>
+            <div style="border:1px solid #fecaca; border-radius:10px; overflow:hidden;">`;
+
+        belumDicetak.forEach(p => {
+            html += renderPegawaiRow(p, 'Usulan Pengajuan', '#dc2626', '#fee2e2');
+        });
+
+        html += `</div></div>`;
+    }
+
+    // SECTION: Sudah Dicetak (Cetak Ulang)
+    if (sudahDicetak.length > 0) {
+        html += `
+        <div style="margin-bottom:16px;">
+            <div style="display:flex; align-items:center; gap:8px; margin-bottom:10px;">
+                <span style="background:#d97706; width:8px; height:8px; border-radius:50; display:inline-block;"></span>
+                <span style="font-weight:700; font-size:13px; color:#d97706;">Sudah Dicetak — Cetak Ulang</span>
+                <span style="background:#fef3c7; color:#d97706; padding:2px 10px; border-radius:10px; font-size:11px; font-weight:700;">${sudahDicetak.length} Orang</span>
+            </div>
+            <div style="border:1px solid #fde68a; border-radius:10px; overflow:hidden; opacity:0.85;">`;
+
+        sudahDicetak.forEach(p => {
+            html += renderPegawaiRow(p, 'Proses TTE', '#d97706', '#fef3c7');
+        });
+
+        html += `</div></div>`;
+    }
+
+    container.innerHTML = html;
+}
+
+function renderPegawaiRow(p, statusLabel, statusColor, statusBg) {
+    return `
+        <label style="display:flex; align-items:center; gap:12px; padding:10px 15px; border-bottom:1px solid #f1f5f9; cursor:pointer; transition:background 0.15s;" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='transparent'">
+            <input type="checkbox" class="surat-pegawai-cb" data-tracker-id="${p.tracker_id}" onchange="updateSuratCount()" style="width:16px; height:16px; accent-color:#1e3a8a; cursor:pointer; flex-shrink:0;">
+            <div style="flex:1; min-width:0;">
+                <div style="font-weight:600; font-size:13px; color:#1e293b;">${p.nama}</div>
+                <div style="font-size:11px; color:#64748b; margin-top:2px;">NIP: ${p.nip} · ${p.pangkat_golongan} · ${p.jabatan}</div>
+            </div>
+            <span style="background:${statusBg}; color:${statusColor}; padding:3px 10px; border-radius:12px; font-size:10px; font-weight:700; white-space:nowrap;">${statusLabel}</span>
+        </label>`;
+}
+
+function suratToggleAll() {
+    const isChecked = document.getElementById('suratSelectAll').checked;
+    document.querySelectorAll('.surat-pegawai-cb').forEach(cb => cb.checked = isChecked);
+    updateSuratCount();
+}
+
+function suratToggleGroup(groupIdx) {
+    // Legacy - no longer used but kept for safety
+    updateSuratCount();
+}
+
+function updateSuratCount() {
+    const checked = document.querySelectorAll('.surat-pegawai-cb:checked');
+    const countEl = document.getElementById('suratSelectedCount');
+    const btn = document.getElementById('btnGenerateSurat');
+    if (countEl) countEl.textContent = checked.length + ' pegawai terpilih';
+    if (btn) btn.disabled = checked.length === 0;
+
+    // Sync "select all" checkbox
+    const allCbs = document.querySelectorAll('.surat-pegawai-cb');
+    const selectAll = document.getElementById('suratSelectAll');
+    if (selectAll) selectAll.checked = allCbs.length > 0 && checked.length === allCbs.length;
+}
+
+function generateSurat() {
+    const selectedIds = [];
+    document.querySelectorAll('.surat-pegawai-cb:checked').forEach(cb => {
+        selectedIds.push(parseInt(cb.dataset.trackerId));
+    });
+
+    if (selectedIds.length === 0) {
+        showCustomToast('Pilih minimal 1 pegawai!', 'error');
+        return;
+    }
+
+    const btn = document.getElementById('btnGenerateSurat');
+    const originalHTML = btn.innerHTML;
+    btn.innerHTML = '<i class="ph-bold ph-spinner ph-spin"></i> Generating...';
+    btn.disabled = true;
+
+    const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+    // Use form submission approach for file download
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = '/surat-pengajuan/generate';
+    form.style.display = 'none';
+
+    // CSRF
+    const csrfInput = document.createElement('input');
+    csrfInput.type = 'hidden';
+    csrfInput.name = '_token';
+    csrfInput.value = csrfToken;
+    form.appendChild(csrfInput);
+
+    // Kategori
+    const katInput = document.createElement('input');
+    katInput.type = 'hidden';
+    katInput.name = 'kategori';
+    katInput.value = suratKategori;
+    form.appendChild(katInput);
+
+    // Tracker IDs
+    selectedIds.forEach(id => {
+        const idInput = document.createElement('input');
+        idInput.type = 'hidden';
+        idInput.name = 'tracker_ids[]';
+        idInput.value = id;
+        form.appendChild(idInput);
+    });
+
+    // Form fields
+    const fields = {
+        'nomor_surat': document.getElementById('suratNomor').value,
+        'tanggal_surat': document.getElementById('suratTanggal').value,
+        'tujuan_surat': document.getElementById('suratTujuan').value,
+        'nama_ttd': document.getElementById('suratNamaTTD').value,
+        'nip_ttd': document.getElementById('suratNipTTD').value,
+        'jabatan_ttd': document.getElementById('suratJabatanTTD').value,
+    };
+
+    Object.keys(fields).forEach(key => {
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = key;
+        input.value = fields[key];
+        form.appendChild(input);
+    });
+
+    document.body.appendChild(form);
+    form.submit();
+
+    // Reset button after a delay (form submit won't trigger normal callbacks)
+    setTimeout(() => {
+        btn.innerHTML = originalHTML;
+        btn.disabled = false;
+        document.body.removeChild(form);
+    }, 3000);
+}
+

@@ -1031,6 +1031,50 @@ body {
     transform: translateY(0);
 }
 
+/* Tombol Cetak Surat (di atas tabel) */
+.btn-cetak-surat {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 8px 18px;
+    background: white;
+    color: #1e3a8a;
+    border: 1.5px solid #1e3a8a;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 12px;
+    font-family: 'Poppins', sans-serif;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+    letter-spacing: 0.2px;
+}
+
+.btn-cetak-surat:hover {
+    background: #1e3a8a;
+    color: #fbbf24;
+    border-color: #1e3a8a;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(30, 58, 138, 0.3);
+}
+
+.btn-cetak-surat:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 4px rgba(30, 58, 138, 0.2);
+}
+
+.btn-cetak-surat i {
+    font-size: 15px;
+}
+
+/* Container for Cetak Surat button above table */
+.surat-btn-row {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 14px;
+    padding-bottom: 0;
+}
+
 /* Confirm Modal */
 .confirm-modal-content {
     background: white;

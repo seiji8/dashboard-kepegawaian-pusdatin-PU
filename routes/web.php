@@ -8,6 +8,7 @@ use App\Http\Controllers\AdminController;
 use App\Http\Controllers\DataPegawaiController;
 use App\Http\Controllers\KonfigurasiPesanController;
 use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\SuratPengajuanController;
 
 // 1. Halaman Depan (Redirect ke Login aja)
 Route::get('/', function () {
@@ -67,5 +68,9 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
     Route::post('/notifications/mark-read', [NotificationController::class, 'markAllRead'])->name('notifications.mark-read');
     Route::post('/notifications/{id}/read', [NotificationController::class, 'markAsRead'])->name('notifications.read');
+
+    // Surat Pengajuan
+    Route::get('/surat-pengajuan/preview/{kategori}', [SuratPengajuanController::class, 'preview'])->name('surat-pengajuan.preview');
+    Route::post('/surat-pengajuan/generate', [SuratPengajuanController::class, 'generate'])->name('surat-pengajuan.generate');
 
 });
