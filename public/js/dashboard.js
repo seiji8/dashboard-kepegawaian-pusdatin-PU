@@ -637,36 +637,11 @@ function generateSurat() {
 
     const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
 
-    // Use form submission approach for file download
-    const form = document.createElement('form');
-    form.method = 'POST';
-    form.action = '/surat-pengajuan/generate';
-    form.style.display = 'none';
+    const payload = new FormData();
+    payload.append('_token', csrfToken);
+    payload.append('kategori', suratKategori);
+    selectedIds.forEach(id => payload.append('tracker_ids[]', id));
 
-    // CSRF
-    const csrfInput = document.createElement('input');
-    csrfInput.type = 'hidden';
-    csrfInput.name = '_token';
-    csrfInput.value = csrfToken;
-    form.appendChild(csrfInput);
-
-    // Kategori
-    const katInput = document.createElement('input');
-    katInput.type = 'hidden';
-    katInput.name = 'kategori';
-    katInput.value = suratKategori;
-    form.appendChild(katInput);
-
-    // Tracker IDs
-    selectedIds.forEach(id => {
-        const idInput = document.createElement('input');
-        idInput.type = 'hidden';
-        idInput.name = 'tracker_ids[]';
-        idInput.value = id;
-        form.appendChild(idInput);
-    });
-
-    // Form fields
     const fields = {
         'nomor_surat': document.getElementById('suratNomor').value,
         'tanggal_surat': document.getElementById('suratTanggal').value,
@@ -677,21 +652,52 @@ function generateSurat() {
     };
 
     Object.keys(fields).forEach(key => {
-        const input = document.createElement('input');
-        input.type = 'hidden';
-        input.name = key;
-        input.value = fields[key];
-        form.appendChild(input);
+        payload.append(key, fields[key]);
     });
 
-    document.body.appendChild(form);
-    form.submit();
+    fetch('/surat-pengajuan/generate', {
+        method: 'POST',
+        body: payload
+    })
+    .then(response => {
+        if (response.ok) {
+            let filename = `Surat_Pengajuan_${suratKategori}_${new Date().getTime()}.pdf`;
+            const disposition = response.headers.get('Content-Disposition');
+            if (disposition && disposition.indexOf('attachment') !== -1) {
+                const filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/;
+                const matches = filenameRegex.exec(disposition);
+                if (matches != null && matches[1]) { 
+                  filename = matches[1].replace(/['"]/g, '');
+                }
+            }
+            return response.blob().then(blob => ({ blob, filename }));
+        }
+        throw new Error('Terjadi kesalahan saat mencetak surat.');
+    })
+    .then(({ blob, filename }) => {
+        // Trigger manual file download
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        window.URL.revokeObjectURL(url);
 
-    // Reset button after a delay (form submit won't trigger normal callbacks)
-    setTimeout(() => {
+        closeSuratModal();
+        showCustomToast('Surat berhasil dicetak. Segera memperbarui halaman...', 'success');
+        
+        // Auto refresh halaman setelah jeda sebentar agar download sempat dimulai
+        setTimeout(() => {
+            window.location.reload();
+        }, 1500);
+    })
+    .catch(error => {
+        console.error('Error generating surat:', error);
+        showCustomToast(error.message, 'error');
         btn.innerHTML = originalHTML;
         btn.disabled = false;
-        document.body.removeChild(form);
-    }, 3000);
+    });
 }
 
