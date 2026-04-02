@@ -781,22 +781,50 @@
         <div style="background:#fff; width:650px; max-width:92vw; border-radius:12px; box-shadow:0 10px 40px rgba(0,0,0,0.15); display:flex; flex-direction:column; overflow:hidden;">
             
             <!-- Header -->
-            <div style="padding:20px 25px; border-bottom:1px solid #e2e8f0; display:flex; justify-content:space-between; align-items:flex-start; background:#f8fafc;">
-                <div style="display:flex; align-items:center; gap:15px;">
-                    <div id="dashModalAvatar" style="background:#1e40af; color:#fff; width:50px; height:50px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:18px; font-weight:700;">
-                    </div>
-                    <div style="display:flex; flex-direction:column; gap:8px; padding-top:2px;">
-                        <h3 id="dashModalNama" style="margin:0; font-size:18px; font-weight:700; color:#1e293b; line-height:1.1;">Memuat...</h3>
-                        <div style="display:flex; align-items:center; gap:10px;">
-                            <p id="dashModalKategori" style="margin:0; font-size:12px; font-weight:600; color:#3b82f6; background:#eff6ff; padding:4px 10px; border-radius:12px; border:1px solid #bfdbfe; line-height:1;">-</p>
-                            <div style="width:2px; height:14px; background-color:#cbd5e1; border-radius:1px;"></div>
-                            <p id="dashModalNip" style="margin:0; font-size:13px; font-weight:500; color:#64748b; line-height:1;">-</p>
+            <div style="padding:20px 25px; border-bottom:1px solid #e2e8f0; display:flex; flex-direction:column; background:#f8fafc;">
+                <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+                    <div style="display:flex; align-items:center; gap:15px;">
+                        <div id="dashModalAvatar" style="background:#1e40af; color:#fff; width:50px; height:50px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:18px; font-weight:700;">
+                        </div>
+                        <div style="display:flex; flex-direction:column; gap:8px; padding-top:2px;">
+                            <h3 id="dashModalNama" style="margin:0; font-size:18px; font-weight:700; color:#1e293b; line-height:1.1;">Memuat...</h3>
+                            <div style="display:flex; align-items:center; gap:10px;">
+                                <p id="dashModalKategori" style="margin:0; font-size:12px; font-weight:600; color:#3b82f6; background:#eff6ff; padding:4px 10px; border-radius:12px; border:1px solid #bfdbfe; line-height:1;">-</p>
+                                <div style="width:2px; height:14px; background-color:#cbd5e1; border-radius:1px;"></div>
+                                <p id="dashModalNip" style="margin:0; font-size:13px; font-weight:500; color:#64748b; line-height:1;">-</p>
+                            </div>
                         </div>
                     </div>
+                    <button onclick="closeDashboardDetail()" style="background:none; border:none; cursor:pointer; padding:5px; color:#94a3b8; transition:color 0.2s;" onmouseover="this.style.color='#ef4444'" onmouseout="this.style.color='#94a3b8'">
+                        <i class="ph-bold ph-x" style="font-size:20px;"></i>
+                    </button>
                 </div>
-                <button onclick="closeDashboardDetail()" style="background:none; border:none; cursor:pointer; padding:5px; color:#94a3b8; transition:color 0.2s;" onmouseover="this.style.color='#ef4444'" onmouseout="this.style.color='#94a3b8'">
-                    <i class="ph-bold ph-x" style="font-size:20px;"></i>
-                </button>
+                
+                <!-- PROGRESS TRACKER SECTION -->
+                <style>
+                .tracker-step { display:flex; flex-direction:column; align-items:center; justify-content:flex-start; position:relative; z-index:1; flex:1; }
+                .tracker-step .circle { width:32px; height:32px; border-radius:50%; background:#eff6ff; display:flex; align-items:center; justify-content:center; border:2px solid #bfdbfe; z-index:2; position:relative; transition:all 0.3s; flex-shrink:0; }
+                .tracker-step.done .circle { background:#3b82f6; border-color:#3b82f6; }
+                .tracker-step.done .circle::after { content:''; width:10px; height:10px; background:#fff; border-radius:50%; }
+                .tracker-step.active .circle { background:#bfdbfe; border-color:#3b82f6; box-shadow:0 0 0 4px #eff6ff; }
+                .tracker-step.active-inner .circle::after { content:''; width:12px; height:12px; background:#3b82f6; border-radius:50%; }
+                
+                .tracker-step .label { font-size:13px; font-weight:700; color:#1e293b; margin-top:10px; text-align:center; transition:color 0.3s; line-height: 1.2; }
+                .tracker-step .sub-label { font-size:11px; color:#64748b; text-align:center; margin-top:4px; }
+                
+                .tracker-step:not(.done):not(.active) .label { color:#94a3b8; }
+                .tracker-step:not(.done):not(.active) .sub-label { color:#cbd5e1; }
+                
+                .tracker-line { height:4px; flex:1; margin:14px -10px 0 -10px; z-index:0; transition:all 0.3s; }
+                .tracker-line.done { background:#3b82f6; }
+                .tracker-line.dashed { border-top:4px dashed #cbd5e1; background:transparent; }
+                </style>
+                <div id="dashModalTrackerContainer" style="margin-top:25px; display:none; width: 100%; border-top: 1px dashed #e2e8f0; padding-top: 20px;">
+                    <h4 style="font-size:14px; font-weight:700; color:#1e293b; margin:0 0 15px 0; text-align:center;">Progres Status</h4>
+                    <div id="dashModalTracker" style="display:flex; align-items:flex-start; width:100%; margin:0 auto;">
+                        <!-- Tracker steps will be injected by JS -->
+                    </div>
+                </div>
             </div>
 
             <!-- Body -->

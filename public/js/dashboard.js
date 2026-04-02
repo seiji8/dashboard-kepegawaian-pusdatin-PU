@@ -344,7 +344,7 @@ function openDashboardDetail(nip, kategori) {
     if (modalFooter) modalFooter.style.display = 'none';
     if (docsContainer) docsContainer.innerHTML = '';
 
-    fetch(`/data-pegawai/${nip}`)
+    fetch(`/data-pegawai/${nip}?kategori=${kategori || ''}`)
         .then(response => response.json())
         .then(res => {
             if (res.success) {
@@ -354,6 +354,56 @@ function openDashboardDetail(nip, kategori) {
                 // Populate Header
                 document.getElementById('dashModalNama').innerText = data.nama;
                 document.getElementById('dashModalAvatar').innerText = initials;
+
+                // Build Progress Tracker
+                const trackerContainer = document.getElementById('dashModalTrackerContainer');
+                const trackerEl = document.getElementById('dashModalTracker');
+                if (trackerContainer && trackerEl) {
+                    if (data.tracker_status) {
+                        trackerContainer.style.display = 'block';
+                        
+                        let s = data.tracker_status;
+                        let step1 = (s === 'Usulan' || s === 'Proses' || s === 'Upload E-HRM' || s === 'Selesai');
+                        let step2 = (s === 'Proses' || s === 'Upload E-HRM' || s === 'Selesai');
+                        let step3 = (s === 'Upload E-HRM' || s === 'Selesai');
+                        
+                        // Active inner logic for the current running step
+                        let act1 = (s === 'Usulan');
+                        let act2 = (s === 'Proses');
+                        let act3 = (s === 'Upload E-HRM' || s === 'Selesai');
+                        
+                        // Wait, looking at image: 3 steps
+                        // Step 1: Langkah Pertama (Usulan Pengajuan)
+                        // Step 2: Langkah Kedua (Proses TTE) -> The text in user image
+                        // Step 3: Langkah Ketiga (Upload E-HRM) -> The text in user image
+                        
+                        let html = `
+                            <div class="tracker-step ${step1 ? (act1 ? 'active active-inner' : 'done') : ''}">
+                                <div class="circle"></div>
+                                <div class="label">Usulan Pengajuan</div>
+                                <div class="sub-label" style="padding: 0 10px; line-height: 1.4;">Pegawai ini sudah dalam status Usulan, segera cetak surat untuk melakukan proses pengajuan</div>
+                            </div>
+                            <div class="tracker-line ${step2 ? 'done' : 'dashed'}"></div>
+                            
+                            <div class="tracker-step ${step2 ? (act2 ? 'active active-inner' : 'done') : ''}">
+                                <div class="circle"></div>
+                                <div class="label">Proses TTE</div>
+                                <div class="sub-label" style="padding: 0 10px; line-height: 1.4;">Pengajuan untuk pegawai ini sedang dalam proses TTE mohon tunggu</div>
+                            </div>
+                            <div class="tracker-line ${step3 ? 'done' : 'dashed'}"></div>
+                            
+                            <div class="tracker-step ${step3 ? (act3 ? 'active active-inner' : 'done') : ''}">
+                                <div class="circle"></div>
+                                <div class="label">Upload E-HRM</div>
+                                <div class="sub-label" style="padding: 0 10px; line-height: 1.4;">Pegawai berhasil diusulkan ingatkan pegawai untuk segera upload berkas ke E-HRM</div>
+                            </div>
+                        `;
+                        trackerEl.innerHTML = html;
+                    } else {
+                        trackerContainer.style.display = 'none';
+                        trackerEl.innerHTML = '';
+                    }
+                }
 
                 // Populate Info Grid
                 document.getElementById('dashModalNip').innerText = data.nip ? 'NIP: ' + data.nip : '-';

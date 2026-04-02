@@ -40,7 +40,7 @@ class DataPegawaiController extends Controller
         return view('data_pegawai.index', compact('pegawais', 'templates'));
     }
 
-    public function show($nip)
+    public function show(Request $request, $nip)
     {
         $pegawai = Pegawai::with(['riwayat_angka_kredit'])->where('nip', $nip)->first();
 
@@ -136,6 +136,15 @@ class DataPegawaiController extends Controller
             }
         }
 
+        $trackerStatus = null;
+        if ($request->has('kategori')) {
+            $cat = $request->kategori;
+            $specificTracker = collect($activeTrackers)->where('kategori', $cat)->first();
+            if ($specificTracker) {
+                $trackerStatus = $specificTracker->status_saat_ini;
+            }
+        }
+
         return response()->json([
             'success' => true,
             'data' => [
@@ -150,7 +159,8 @@ class DataPegawaiController extends Controller
                 'no_hp' => $pegawai->no_hp ?? '-',
                 'email' => $pegawai->email ?? '-',
                 'next_kgb' => $nextKgb,
-                'missing_documents' => $missingDocs
+                'missing_documents' => $missingDocs,
+                'tracker_status' => $trackerStatus
             ]
         ]);
     }
