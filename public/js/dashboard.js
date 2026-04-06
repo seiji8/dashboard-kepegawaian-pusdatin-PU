@@ -381,21 +381,21 @@ function openDashboardDetail(nip, kategori) {
                             <div class="tracker-step ${step1 ? (act1 ? 'active active-inner' : 'done') : ''}">
                                 <div class="circle"></div>
                                 <div class="label">Usulan Pengajuan</div>
-                                <div class="sub-label" style="padding: 0 10px; line-height: 1.4;">Pegawai ini sudah dalam status Usulan, segera cetak surat untuk melakukan proses pengajuan</div>
+                                <div class="sub-label" style="padding: 0 10px; line-height: 1.4;">Segera cetak surat pengajuan</div>
                             </div>
                             <div class="tracker-line ${step2 ? 'done' : 'dashed'}"></div>
                             
                             <div class="tracker-step ${step2 ? (act2 ? 'active active-inner' : 'done') : ''}">
                                 <div class="circle"></div>
                                 <div class="label">Proses TTE</div>
-                                <div class="sub-label" style="padding: 0 10px; line-height: 1.4;">Pengajuan untuk pegawai ini sedang dalam proses TTE mohon tunggu</div>
+                                <div class="sub-label" style="padding: 0 10px; line-height: 1.4;">Sedang dalam proses TTE</div>
                             </div>
                             <div class="tracker-line ${step3 ? 'done' : 'dashed'}"></div>
                             
                             <div class="tracker-step ${step3 ? (act3 ? 'active active-inner' : 'done') : ''}">
                                 <div class="circle"></div>
                                 <div class="label">Upload E-HRM</div>
-                                <div class="sub-label" style="padding: 0 10px; line-height: 1.4;">Pegawai berhasil diusulkan ingatkan pegawai untuk segera upload berkas ke E-HRM</div>
+                                <div class="sub-label" style="padding: 0 10px; line-height: 1.4;">Ingatkan pegawai untuk segera upload berkas</div>
                             </div>
                         `;
                         trackerEl.innerHTML = html;
