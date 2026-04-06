@@ -13,6 +13,71 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css"> -->
     <link rel="icon" type="image/png" href="{{ asset('assets/Logo_PU.png') }}">
+    <style>
+        /* Tooltip Bantuan */
+        .tooltip {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            margin-left: 8px;
+            cursor: help;
+        }
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            width: 250px;
+            background-color: #1e293b;
+            color: #f8fafc;
+            text-align: left;
+            border-radius: 8px;
+            padding: 10px 14px;
+            position: absolute;
+            z-index: 100;
+            bottom: 150%;
+            left: 50%;
+            transform: translateX(-50%);
+            opacity: 0;
+            transition: all 0.3s ease;
+            font-size: 12px;
+            font-weight: 400;
+            line-height: 1.5;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            pointer-events: none;
+            white-space: normal;
+        }
+        .tooltip .tooltiptext::after {
+            content: "";
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            margin-left: -6px;
+            border-width: 6px;
+            border-style: solid;
+            border-color: #1e293b transparent transparent transparent;
+        }
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+            bottom: 135%;
+        }
+        .icon-help {
+            background: #e2e8f0;
+            color: #64748b;
+            border-radius: 50%;
+            width: 16px;
+            height: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            font-weight: 700;
+            transition: all 0.2s;
+        }
+        .tooltip:hover .icon-help {
+            background: #3b82f6;
+            color: white;
+            transform: scale(1.1);
+        }
+    </style>
 </head>
 <body>
     <div class="container">
@@ -85,7 +150,12 @@
                     <div class="summary-card">
                         <div class="card-text">
                             <div class="card-header-group">
-                                <span class="card-label">Total Pegawai</span>
+                                <span class="card-label" style="display:flex; align-items:center;">Total Pegawai
+                                    <div class="tooltip">
+                                        <span class="icon-help">?</span>
+                                        <span class="tooltiptext">Jumlah keseluruhan pegawai aktif yang terdata di sistem.</span>
+                                    </div>
+                                </span>
                                 <h3 class="card-value">{{ $totalPegawai }}</h3>
                             </div>
                             <span class="card-tag">Aktif</span>
@@ -98,7 +168,12 @@
                     <div class="summary-card">
                         <div class="card-text">
                             <div class="card-header-group">
-                                <span class="card-label">Tingkat Kepatuhan</span>
+                                <span class="card-label" style="display:flex; align-items:center;">Tingkat Kepatuhan
+                                    <div class="tooltip">
+                                        <span class="icon-help">?</span>
+                                        <span class="tooltiptext">Persentase dokumen wajib persyaratan yang sukses terunggah ke sistem.</span>
+                                    </div>
+                                </span>
                                 <h3 class="card-value">{{ $tingkatKepatuhan }}%</h3>
                             </div>
                             <span class="card-tag">Bulan ini</span>
@@ -111,7 +186,12 @@
                     <div class="summary-card">
                         <div class="card-text">
                             <div class="card-header-group">
-                                <span class="card-label">Tenggat Mendesak</span>
+                                <span class="card-label" style="display:flex; align-items:center;">Tenggat Mendesak
+                                    <div class="tooltip">
+                                        <span class="icon-help">?</span>
+                                        <span class="tooltiptext">Jumlah usulan pegawai yang paling mendekati batas waktu (deadline) pemrosesan.</span>
+                                    </div>
+                                </span>
                                 <h3 class="card-value">{{ $tenggatMendesak }}</h3>
                             </div>
                             <span class="card-tag">Perlu Atensi</span>
@@ -130,7 +210,12 @@
                     <div class="summary-card">
                         <div class="card-text">
                             <div class="card-header-group">
-                                <span class="card-label">Jumlah Usulan</span>
+                                <span class="card-label" style="display:flex; align-items:center;">Jumlah Usulan
+                                    <div class="tooltip">
+                                        <span class="icon-help">?</span>
+                                        <span class="tooltiptext">Jumlah pegawai yang telah dicetak surat pengajuannya (Proses TTE) dan sedang menunggu di-upload ke E-HRM.</span>
+                                    </div>
+                                </span>
                                 <h3 class="card-value">{{ $jumlahUsulan }}</h3>
                             </div>
                             <span class="card-tag">Sedang Proses</span>
