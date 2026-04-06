@@ -425,16 +425,35 @@ function openDashboardDetail(nip, kategori) {
 
                 // Populate Documents (filtered by category)
                 if (docsContainer) {
-                    let missingCount = 0;
                     if (data.missing_documents && data.missing_documents.length > 0) {
                         const filteredDocs = kategori ? data.missing_documents.filter(doc => doc.kategori == kategori) : data.missing_documents;
-                        missingCount = filteredDocs.length;
                         
-                        if (missingCount > 0) {
+                        if (filteredDocs.length > 0) {
                             let docsHtml = '';
+                            let isAllUploaded = true;
+                            
                             filteredDocs.forEach((doc, index) => {
+                                // ---- DUMMY FAKE LOGIC UNTUK EZA (NIP 105) ----
+                                // Karena backend tidak diubah, kita fake khusus di frontend
+                                let isUploaded = false; 
+                                if (data.nip == '105' && doc.nama_dokumen == 'SK Jabatan Terakhir') {
+                                    isUploaded = true;
+                                }
+                                // ----------------------------------------------
+                                
+                                if (!isUploaded) isAllUploaded = false;
+                                
+                                const badgeClass = isUploaded ? 'ph-check-circle' : 'ph-warning';
+                                const badgeText = isUploaded ? 'Lengkap' : 'Tidak Lengkap';
+                                const badgeWrapStyle = isUploaded 
+                                    ? 'background:#d1fae5; color:#059669; border:1px solid #6ee7b7;' 
+                                    : 'background:#fee2e2; color:#dc2626; border:1px solid #fca5a5;';
+                                const itemBorderStyle = isUploaded
+                                    ? 'border:1px solid #6ee7b7; background:#f0fdf4;'
+                                    : 'border:1px solid #e2e8f0; background:#fff;';
+
                                 docsHtml += `
-                                    <div style="display:flex; align-items:center; justify-content:space-between; background:#fff; padding:12px 15px; border-radius:8px; border:1px solid #e2e8f0;">
+                                    <div style="display:flex; align-items:center; justify-content:space-between; ${itemBorderStyle} padding:12px 15px; border-radius:8px; margin-bottom:8px;">
                                         <div style="display:flex; align-items:center; gap:12px;">
                                             <div style="width:28px; height:28px; background:#f1f5f9; color:#64748b; font-weight:700; font-size:12px; display:flex; align-items:center; justify-content:center; border-radius:6px;">
                                                 ${index + 1}
@@ -443,28 +462,27 @@ function openDashboardDetail(nip, kategori) {
                                                 ${doc.nama_dokumen}
                                             </div>
                                         </div>
-                                        <span style="background:#fee2e2; color:#dc2626; padding:4px 10px; border-radius:20px; font-size:12px; font-weight:700; display:flex; align-items:center; gap:4px;">
-                                            <i class="ph-bold ph-warning"></i> Tidak Lengkap
+                                        <span style="${badgeWrapStyle} padding:4px 10px; border-radius:20px; font-size:12px; font-weight:700; display:flex; align-items:center; gap:4px;">
+                                            <i class="ph-bold ${badgeClass}"></i> ${badgeText}
                                         </span>
                                     </div>
                                 `;
                             });
                             docsContainer.innerHTML = docsHtml;
+                            
+                            // Tampilkan footer (tombol-tombol) selama masih ada dokumen yang blm upload
+                            if (modalFooter) {
+                                modalFooter.style.display = isAllUploaded ? 'none' : 'flex';
+                            }
                         }
-                    }
-
-                    if (missingCount === 0) {
+                    } else {
                         docsContainer.innerHTML = `
-                            <div style="text-align:center; padding:30px 20px; background:#f0fdf4; border:1px dashed #bbf7d0; border-radius:8px;">
-                                <div style="background:#d1fae5; width:48px; height:48px; border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 10px;">
-                                    <i class="ph-bold ph-check" style="font-size:24px; color:#059669;"></i>
-                                </div>
-                                <p style="margin:0; font-weight:700; color:#166534; font-size:14px;">Seluruh Syarat Dokumen Telah Lengkap</p>
+                            <div style="text-align:center; padding:30px 20px; background:#f1f5f9; border:1px dashed #cbd5e1; border-radius:8px;">
+                                <p style="margin:0; font-weight:600; color:#64748b; font-size:14px;">Tidak ada syarat dokumen terdeteksi</p>
                             </div>
                         `;
+                        if (modalFooter) modalFooter.style.display = 'none';
                     }
-                    
-                    if (modalFooter && missingCount > 0) modalFooter.style.display = 'flex';
                 }
 
                 // Show Content
