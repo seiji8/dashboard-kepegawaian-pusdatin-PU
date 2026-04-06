@@ -270,28 +270,11 @@
             
             <div class="modal-body">
                 
-                <div style="display: grid; grid-template-columns: 3fr 2fr 1fr; gap: 16px; align-items: start;">
-                    <div>
-                        <label class="info-label">Nama Notifikasi</label>
-                        <input type="text" name="kategori" class="form-input" placeholder="Contoh: SKP" required>
-                    </div>
-                    <div>
-                        <label class="info-label">Jenis</label>
-                        <select id="pilihJenis" class="form-select" onchange="toggleJadwal()" required>
-                            <option value="" disabled selected>Pilih</option>
-                            <option value="Penjadwalan">Otomatis</option>
-                            <option value="Template">Manual / Template</option>
-                        </select>
-                    </div>
-                    <div>
-                         <label class="info-label">Jeda (Hari)</label>
-                        <input type="number" id="inputInterval" name="interval_hari" class="form-input" placeholder="0" required>
-                    </div>
-                </div>
-                <div style="margin-top: 4px; margin-bottom: 16px;">
-                    <p class="helper-text" style="margin: 0;">
-                        <span style="color: #d97706; font-weight: 600;">* Info:</span> Isi <b>1</b> (Harian), <b>7</b> (Mingguan), <b>30</b> (Bulanan).
-                    </p>
+                <div style="margin-bottom: 16px;">
+                    <label class="info-label">Nama Template Pesan</label>
+                    <input type="text" name="kategori" class="form-input" placeholder="Contoh: Pengingat Berkas SKP" required>
+                    <!-- Force it as Manual / Template implicitly -->
+                    <input type="hidden" name="interval_hari" value="0">
                 </div>
 
                 <div class="input-group">
@@ -387,37 +370,17 @@
     // === TAMBAH ===
     function openModal() {
         document.getElementById('formTambah').reset();
-        document.getElementById('pilihJenis').selectedIndex = 0;
         document.getElementById('modalTambahPesan').style.display = 'flex';
-        toggleJadwal();
     }
     function closeModal() {
         document.getElementById('modalTambahPesan').style.display = 'none';
         document.getElementById('formTambah').reset();
-    }
-    function toggleJadwal() {
-        var jenis = document.getElementById("pilihJenis").value;
-        var intervalInput = document.getElementById("inputInterval");
-        
-        if (jenis === "Template" || jenis === "") {
-            intervalInput.disabled = true;
-            intervalInput.value = "";
-            intervalInput.style.backgroundColor = "#f3f4f6";
-            intervalInput.removeAttribute('required');
-        } else {
-            intervalInput.disabled = false;
-            intervalInput.style.backgroundColor = "white";
-            intervalInput.setAttribute('required', 'required');
-        }
     }
 
     document.getElementById('formTambah').addEventListener('submit', function(e) {
         e.preventDefault();
         
         const formData = new FormData(this);
-        if (document.getElementById('pilihJenis').value === 'Template') {
-            formData.set('interval_hari', '0');
-        }
 
         fetch("{{ route('konfigurasi-pesan.store') }}", {
             method: "POST",
