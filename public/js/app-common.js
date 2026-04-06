@@ -302,8 +302,15 @@ function markNotifRead(notifId) {
 
 // === CUSTOM TOAST NOTIFICATION ===
 function showCustomToast(message, type = 'success') {
-    const toast = document.getElementById("syncToast");
-    if (!toast) return;
+    // Cari toast element yang ada, atau buat baru jika tidak ada
+    let toast = document.getElementById("syncToast");
+    if (!toast) {
+        toast = document.createElement('div');
+        toast.id = 'syncToast';
+        toast.className = 'toast-notification';
+        toast.innerHTML = '<i class="ph-bold ph-check-circle"></i> <span></span>';
+        document.body.appendChild(toast);
+    }
 
     const icon = toast.querySelector("i");
     const text = toast.querySelector("span");
@@ -312,17 +319,17 @@ function showCustomToast(message, type = 'success') {
     toast.className = "toast-notification";
     
     if (type === 'error') {
-        toast.style.backgroundColor = "#fee2e2";
-        toast.style.color = "#ef4444";
-        toast.style.border = "1px solid #fca5a5";
+        toast.style.backgroundColor = "#ef4444";
+        toast.style.color = "#ffffff";
+        toast.style.border = "none";
         if (icon) icon.className = "ph-bold ph-warning-circle";
     } else {
-        toast.style.backgroundColor = "#dcfce7";
-        toast.style.color = "#166534";
-        toast.style.border = "1px solid #86efac";
+        toast.style.backgroundColor = "#10b981";
+        toast.style.color = "#ffffff";
+        toast.style.border = "none";
         if (icon) icon.className = "ph-bold ph-check-circle";
     }
 
     toast.classList.add("show");
-    setTimeout(() => toast.classList.remove("show"), 3000);
+    setTimeout(() => toast.classList.remove("show"), 3500);
 }

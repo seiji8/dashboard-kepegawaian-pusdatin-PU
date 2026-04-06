@@ -736,7 +736,7 @@ function generateSurat() {
         window.URL.revokeObjectURL(url);
 
         closeSuratModal();
-        showCustomToast('Surat berhasil dicetak. Segera memperbarui halaman...', 'success');
+        showCustomToast('Surat berhasil dicetak!', 'success');
         
         // Auto refresh halaman setelah jeda sebentar agar download sempat dimulai
         setTimeout(() => {
