@@ -11,6 +11,41 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <link rel="icon" type="image/png" href="{{ asset('assets/Logo_PU.png') }}">
+    
+    <!-- TomSelect CSS (Dropdown Pencarian) -->
+    <link href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.default.css" rel="stylesheet">
+    <style>
+        /* Penyesuaian Style TomSelect agar membaur dengan desain mewah */
+        .ts-control {
+            padding: 12px 14px !important;
+            border: 2px solid #e2e8f0 !important;
+            border-radius: 8px !important;
+            font-size: 14.5px !important;
+            color: #1e293b !important;
+            font-family: 'Poppins', sans-serif !important;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05) !important;
+            transition: all 0.2s ease !important;
+        }
+        .ts-control.focus {
+            border-color: #3b82f6 !important;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1) !important;
+        }
+        .ts-dropdown {
+            font-family: 'Poppins', sans-serif !important;
+            font-size: 14px !important;
+            border-radius: 8px !important;
+            border: 1px solid #e2e8f0 !important;
+            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1) !important;
+            margin-top: 5px !important;
+        }
+        .ts-dropdown .option {
+            padding: 10px 14px !important;
+            border-bottom: 1px solid #f1f5f9;
+        }
+        .ts-dropdown .option:last-child {
+            border-bottom: none;
+        }
+    </style>
 </head>
 <body>
 
@@ -173,27 +208,32 @@
     <!-- MODAL EDIT ADMIN -->
     <div id="modalEditAdmin" class="modal-overlay">
         <div class="modal-box">
-            <div class="modal-header">
-                <h2>Edit Admin</h2>
+            <div class="modal-header" style="border-bottom: 1px solid #e2e8f0; padding-bottom: 15px; margin-bottom: 20px; display: flex; align-items: center; gap: 10px;">
+                <i class="ph-bold ph-pencil-simple" style="font-size: 24px; color: #1e3a8a;"></i>
+                <h2 style="font-size: 20px; color: #1e293b; margin: 0;">Edit Peran Admin</h2>
             </div>
             
             <div class="modal-body">
-                <div class="info-group">
-                    <h3>Identitas Pegawai</h3>
-                    <div class="info-row">
-                        <span class="info-label">Nama :</span>
-                        <span id="modalNama" class="info-value">-</span>
-                    </div>
-                    <div class="info-row">
-                        <span class="info-label">NIP :</span>
-                        <span id="modalNip" class="info-value">-</span>
+                <!-- Info Identitas Modern -->
+                <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; padding: 14px 16px; border-radius: 8px; margin-bottom: 24px;">
+                    <p style="font-size: 13px; color: #64748b; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 12px; margin-top: 0;">Identitas Pegawai</p>
+                    <div style="display: flex; flex-direction: column; gap: 8px;">
+                        <div style="display: flex; align-items: flex-start;">
+                            <span style="font-size: 14px; color: #475569; width: 60px; font-weight: 500;">Nama</span>
+                            <span style="font-size: 14px; color: #1e293b; font-weight: 600;">: <span id="modalNama">-</span></span>
+                        </div>
+                        <div style="display: flex; align-items: flex-start;">
+                            <span style="font-size: 14px; color: #475569; width: 60px; font-weight: 500;">NIP</span>
+                            <span style="font-size: 14px; color: #1e293b; font-weight: 600;">: <span id="modalNip">-</span></span>
+                        </div>
                     </div>
                 </div>
 
-                <div class="input-group">
-                    <h3>Edit Peran</h3>
-                    <div class="select-wrapper">
-                        <select id="modalSelectPeran" class="form-select">
+                <div class="input-group" style="margin-bottom: 15px;">
+                    <label style="display:block; margin-bottom:8px; font-weight:600; color: #334155; font-size: 14px;">Edit Peran (Role):</label>
+                    <div style="position: relative;">
+                        <!-- Menggunakan TomSelect agar seragam, menghilangkan class form-select agar tidak tabrakan border -->
+                        <select id="modalSelectPeran">
                             <option value="0">Admin Kepegawaian</option>
                             <option value="1">Admin Super</option>
                         </select>
@@ -201,9 +241,11 @@
                 </div>
             </div>
 
-            <div class="modal-footer">
-                <button class="btn-modal-cancel" onclick="closeEditModal()">Batal</button>
-                <button class="btn-modal-save" onclick="saveRole()">Simpan</button>
+            <div class="modal-footer" style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 30px; border-top: none; padding-top: 0;">
+                <button onclick="closeEditModal()" style="padding: 10px 20px; background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; border-radius: 8px; font-weight: 600; cursor: pointer; font-family: 'Poppins', sans-serif; transition: all 0.2s; font-size: 14px;">Batal</button>
+                <button onclick="saveRole()" style="display: flex; align-items: center; gap: 8px; padding: 10px 24px; background: #1e3a8a; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; font-family: 'Poppins', sans-serif; transition: all 0.2s; box-shadow: 0 4px 6px rgba(30, 58, 138, 0.2); font-size: 14px;">
+                    <i class="ph-bold ph-floppy-disk"></i> Simpan
+                </button>
             </div>
         </div>
     </div>
@@ -211,21 +253,31 @@
     <!-- MODAL TAMBAH ADMIN -->
     <div id="modalTambahAdmin" class="modal-overlay">
         <div class="modal-box">
-            <div class="modal-header">
-                <h2>Tambah Admin Baru</h2>
+            <div class="modal-header" style="border-bottom: 1px solid #e2e8f0; padding-bottom: 15px; margin-bottom: 20px; display: flex; align-items: center; gap: 10px;">
+                <i class="ph-bold ph-user-plus" style="font-size: 24px; color: #1e3a8a;"></i>
+                <h2 style="font-size: 20px; color: #1e293b; margin: 0;">Tambah Admin Baru</h2>
             </div>
             
             <div class="modal-body">
-                <div class="info-group">
-                    <p style="font-size: 14px; color: #6b7280; margin-bottom: 15px;">
-                        Pilih pegawai untuk dijadikan admin. <br>
-                        <strong>Username:</strong> NIP Pegawai <br>
-                        <strong>Password Default:</strong> NIP Pegawai
-                    </p>
-                    
-                    <div class="select-wrapper">
-                        <label for="selectPegawai" style="display:block; margin-bottom:5px; font-weight:500;">Pilih Pegawai:</label>
-                        <select id="selectPegawai" class="form-select" style="width: 100%;">
+                <!-- Info Peringatan Modern -->
+                <div style="background-color: #eff6ff; border-left: 4px solid #3b82f6; padding: 14px 16px; border-radius: 4px 8px 8px 4px; margin-bottom: 24px;">
+                    <div style="display: flex; align-items: flex-start; gap: 12px;">
+                        <i class="ph-fill ph-info" style="color: #3b82f6; font-size: 20px; margin-top: 2px;"></i>
+                        <p style="font-size: 13.5px; color: #1e293b; line-height: 1.6; margin: 0;">
+                            Pilih pegawai yang akan diberikan akses ke <strong>Dashboard</strong>.<br>
+                            <span style="display: block; margin-top: 6px;">
+                                &bull; <strong>Email Login:</strong> Email Pegawai<br>
+                                &bull; <strong>Kata Sandi Default:</strong> <span style="font-family: monospace; background: #e2e8f0; padding: 2px 6px; border-radius: 4px; color: #0f172a; font-weight: 600; white-space: nowrap;">NIP Pegawai</span>
+                            </span>
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="input-group" style="margin-bottom: 15px;">
+                    <label style="display:block; margin-bottom:8px; font-weight:600; color: #334155; font-size: 14px;">Pilih Calon Admin:</label>
+                    <div style="position: relative;">
+                        <!-- Dihapus class="form-select" agar tidak tercopy oleh TomSelect yang menyebabkan border dobel -->
+                        <select id="selectPegawai">
                             <option value="">-- Cari Pegawai --</option>
                             @foreach($candidates as $candidate)
                                 <option value="{{ $candidate->nip }}">
@@ -237,9 +289,11 @@
                 </div>
             </div>
 
-            <div class="modal-footer">
-                <button class="btn-modal-cancel" onclick="closeAddModal()">Batal</button>
-                <button class="btn-modal-save" onclick="saveNewAdmin()">Simpan</button>
+            <div class="modal-footer" style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 30px; border-top: none; padding-top: 0;">
+                <button onclick="closeAddModal()" style="padding: 10px 20px; background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; border-radius: 8px; font-weight: 600; cursor: pointer; font-family: 'Poppins', sans-serif; transition: all 0.2s; font-size: 14px;">Batal</button>
+                <button onclick="saveNewAdmin()" style="display: flex; align-items: center; gap: 8px; padding: 10px 24px; background: #1e3a8a; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; font-family: 'Poppins', sans-serif; transition: all 0.2s; box-shadow: 0 4px 6px rgba(30, 58, 138, 0.2); font-size: 14px;">
+                    <i class="ph-bold ph-floppy-disk"></i> Simpan Akses
+                </button>
             </div>
         </div>
     </div>
@@ -413,6 +467,28 @@
     </script>
 
     @include('partials.sync_loading')
+
+    <!-- TomSelect JS (Logika Pencarian Inti) -->
+    <script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            // Inisialisasi TomSelect pada kolom dropdown Tambah Admin
+            new TomSelect("#selectPegawai", {
+                create: false,
+                sortField: {
+                    field: "text",
+                    direction: "asc"
+                },
+                placeholder: "Ketik Nama atau NIP untuk mencari..."
+            });
+
+            // Inisialisasi TomSelect pada dropdown Edit Peran (Tanpa kotak pencarian)
+            new TomSelect("#modalSelectPeran", {
+                create: false,
+                controlInput: null, // Mematikan keyboard/input ketik karena isiannya hanya 2 opsi statis
+            });
+        });
+    </script>
 
     <script src="{{ asset('js/app-common.js') }}"></script>
     @include('partials.change_password_modal')

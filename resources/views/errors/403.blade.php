@@ -32,11 +32,9 @@
         }
         @keyframes slideUpFade { to { opacity: 1; transform: translateY(0); } }
 
-        /* Angka Raksasa Samar-samar di background container */
-        .big-number { position: absolute; top: -30px; left: 50%; transform: translateX(-50%); font-size: 160px; font-weight: 800; color: rgba(254, 226, 226, 0.8); z-index: -1; line-height: 1; pointer-events: none; user-select: none; }
+        /* Angka Raksasa Samar-samar dihapus sesuai permintaan agar tidak bertabrakan dengan logo */
         
-        .logo { width: 80px; margin-bottom: 25px; animation: floatLogo 3.5s ease-in-out infinite; }
-        @keyframes floatLogo { 0% { transform: translateY(0px); } 50% { transform: translateY(-8px); } 100% { transform: translateY(0px); } }
+        .logo { width: 80px; margin-bottom: 25px; }
 
         /* Icon Gembok Terkunci */
         .icon-wrapper { background-color: #fef2f2; color: #dc2626; width: 70px; height: 70px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px auto; }
@@ -54,7 +52,6 @@
     <div class="blob blob-2"></div>
     
     <div class="container">
-        <div class="big-number">403</div>
         <img src="{{ asset('assets/Logo_PU.png') }}" alt="Logo Instansi" class="logo">
         
         <div class="icon-wrapper">
@@ -66,7 +63,7 @@
         <h1>MOHON MAAF, AKSES DITOLAK!</h1>
         <p>Anda tidak memiliki otoritas/izin yang memadai untuk mengakses halaman atau konfigurasi spesifik ini.</p>
         
-        <a href="{{ url('/') }}" class="btn-back">
+        <a href="{{ route('dashboard') }}" class="btn-back">
             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 256 256">
                 <path d="M224,128a8,8,0,0,1-8,8H59.31l58.35,58.34a8,8,0,0,1-11.32,11.32l-72-72a8,8,0,0,1,0-11.32l72-72a8,8,0,0,1,11.32,11.32L59.31,120H216A8,8,0,0,1,224,128Z"></path>
             </svg>

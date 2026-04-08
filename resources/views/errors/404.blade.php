@@ -32,11 +32,9 @@
         }
         @keyframes slideUpFade { to { opacity: 1; transform: translateY(0); } }
 
-        /* Angka Raksasa Samar-samar di background container */
-        .big-number { position: absolute; top: -30px; left: 50%; transform: translateX(-50%); font-size: 160px; font-weight: 800; color: rgba(241, 245, 249, 0.6); z-index: -1; line-height: 1; pointer-events: none; user-select: none; }
+        /* Angka Raksasa Samar-samar dihapus sesuai permintaan agar tidak bertabrakan dengan logo */
         
-        .logo { width: 80px; margin-bottom: 25px; animation: floatLogo 3.5s ease-in-out infinite; }
-        @keyframes floatLogo { 0% { transform: translateY(0px); } 50% { transform: translateY(-8px); } 100% { transform: translateY(0px); } }
+        .logo { width: 80px; margin-bottom: 25px; }
 
         /* Icon Kaca Pembesar Unik */
         .icon-wrapper { background-color: #fffbeb; color: #d97706; width: 70px; height: 70px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px auto; }
@@ -54,7 +52,6 @@
     <div class="blob blob-2"></div>
     
     <div class="container">
-        <div class="big-number">404</div>
         <img src="{{ asset('assets/Logo_PU.png') }}" alt="Logo Instansi" class="logo">
         
         <div class="icon-wrapper">
