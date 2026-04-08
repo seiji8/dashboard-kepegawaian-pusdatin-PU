@@ -381,7 +381,7 @@
                                                     </td>
                                                 </tr>
                                                 @empty
-                                                <tr><td colspan="7" style="text-align:center;">Tidak ada data.</td></tr>
+                                                <tr><td colspan="7" style="padding:0; border:none;"><x-empty-state title="Tugas Struktural Beres!" message="Tidak ada antrean pengajuan Surat Keputusan untuk Jabatan Struktural saat ini." icon="ph-check-circle" /></td></tr>
                                                 @endforelse
                                             </tbody>
                                         </table>
@@ -447,7 +447,7 @@
                                                     </td>
                                                 </tr>
                                                 @empty
-                                                <tr><td colspan="6" style="text-align:center;">Tidak ada data.</td></tr>
+                                                <tr><td colspan="6" style="padding:0; border:none;"><x-empty-state title="Tugas Fungsional Beres!" message="Belum ada fungsional yang harus diproses cetak surat keputusannya." icon="ph-check-circle" /></td></tr>
                                                 @endforelse
                                             </tbody>
                                         </table>
@@ -511,7 +511,7 @@
                                                     </td>
                                                 </tr>
                                                 @empty
-                                                <tr><td colspan="7" style="text-align:center;">Tidak ada data usulan reguler.</td></tr>
+                                                <tr><td colspan="7" style="padding:0; border:none;"><x-empty-state title="Reguler Aman Terkendali" message="Tidak ada usulan kenaikan pangkat reguler yang antre." icon="ph-check-circle" /></td></tr>
                                                 @endforelse
                                             </tbody>
                                         </table>
@@ -582,7 +582,7 @@
                                                 </td>
                                             </tr>
                                             @empty
-                                            <tr><td colspan="6" style="text-align:center;">Tidak ada usulan kenaikan jenjang.</td></tr>
+                                            <tr><td colspan="6" style="padding:0; border:none;"><x-empty-state title="Antrean Jenjang Kosong" message="Tidak ada pegawai yang menanti proses Uji Kompetensi Kenaikan Jenjang." icon="ph-check-circle" /></td></tr>
                                             @endforelse
                                         </tbody>
                                     </table>
@@ -656,9 +656,9 @@
                                             </tbody>
                                         </table>
                                     @else
-                                        <div style="padding: 25px; text-align: center; color: #64748b; font-style: italic; background-color: #f8fafc;">
-                                            Belum ada tugas untuk saat ini
-                                        </div>
+                                        <table class="custom-table">
+                                            <tr><td style="padding:0; border:none;"><x-empty-state title="KGB Terpantau Sepi" message="Tidak ada jadwal Kenaikan Gaji Berkala untuk bulan ini. Selamat bersantai!" icon="ph-coffee" /></td></tr>
+                                        </table>
                                     @endif
                                 </div>
                             </div>
@@ -720,7 +720,7 @@
                                             </td>
                                         </tr>
                                         @empty
-                                        <tr><td colspan="6" style="text-align:center;">Tidak ada data monitoring diklat.</td></tr>
+                                        <tr><td colspan="6" style="padding:0; border:none;"><x-empty-state title="Diklat Tertib & Bersih" message="Semua jajaran pegawai sudah melapor. Tidak ada temuan hutang atau anomali diklat bulan ini!" icon="ph-certificate" /></td></tr>
                                         @endforelse
                                     </tbody>
                                 </table>
@@ -779,7 +779,7 @@
                                                     </td>
                                                 </tr>
                                                 @empty
-                                                <tr><td colspan="4" style="text-align:center;">Tidak ada data.</td></tr>
+                                                <tr><td colspan="4" style="padding:0; border:none;"><x-empty-state title="Antrean UKOM Kosong" message="Belum ada satupun antrean peserta Uji Kompetensi yang memerlukan proses pengajuan saat ini." icon="ph-medal" /></td></tr>
                                                 @endforelse
                                             </tbody>
                                         </table>
@@ -830,7 +830,7 @@
                                                     </td>
                                                 </tr>
                                                 @empty
-                                                <tr><td colspan="4" style="text-align:center;">Tidak ada data.</td></tr>
+                                                <tr><td colspan="4" style="padding:0; border:none;"><x-empty-state title="UKOM Madya Aman" message="Tidak ada antrean Uji Kompetensi tingkat Madya. Meja kerja Anda terpantau bersih!" icon="ph-medal" /></td></tr>
                                                 @endforelse
                                             </tbody>
                                         </table>
