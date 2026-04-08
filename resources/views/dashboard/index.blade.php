@@ -13,7 +13,79 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css"> -->
     <link rel="icon" type="image/png" href="{{ asset('assets/Logo_PU.png') }}">
+    
+    <!-- Driver.js CSS untuk Panduan Tour -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/driver.js@1.3.1/dist/driver.css"/>
     <style>
+        /* Kustomisasi Mewah Driver.js (Panduan Tour) */
+        .driver-popover {
+            font-family: 'Poppins', sans-serif !important;
+            border-radius: 14px !important;
+            padding: 24px !important;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(0, 0, 0, 0.05) !important;
+            border: none !important;
+            max-width: 350px !important;
+        }
+        .driver-popover-title {
+            font-size: 17.5px !important;
+            font-weight: 700 !important;
+            color: #1e3a8a !important; /* Biru Logo PU */
+            margin-bottom: 12px !important;
+            letter-spacing: -0.3px;
+        }
+        .driver-popover-description {
+            font-size: 14px !important;
+            color: #475569 !important;
+            line-height: 1.6 !important;
+        }
+        .driver-popover-footer {
+            margin-top: 24px !important;
+            display: flex !important;
+            align-items: center !important;
+        }
+        .driver-popover-progress-text {
+            font-size: 13px !important;
+            color: #64748b !important;
+            font-weight: 600 !important;
+        }
+        .driver-popover-next-btn, .driver-popover-prev-btn {
+            font-family: 'Poppins', sans-serif !important;
+            font-weight: 600 !important;
+            border-radius: 8px !important;
+            padding: 8px 18px !important;
+            font-size: 13.5px !important;
+            transition: all 0.2s ease !important;
+            text-shadow: none !important;
+        }
+        .driver-popover-next-btn {
+            background-color: #1e3a8a !important;
+            color: #ffffff !important;
+            border: none !important;
+            box-shadow: 0 4px 6px -1px rgba(30, 58, 138, 0.2) !important;
+        }
+        .driver-popover-next-btn:hover {
+            background-color: #1e40af !important;
+            transform: translateY(-1px);
+            box-shadow: 0 6px 8px -1px rgba(30, 58, 138, 0.3) !important;
+        }
+        .driver-popover-prev-btn {
+            background-color: #f8fafc !important;
+            color: #475569 !important;
+            border: 1px solid #cbd5e1 !important;
+            margin-right: 12px !important;
+        }
+        .driver-popover-prev-btn:hover {
+            background-color: #f1f5f9 !important;
+            color: #0f172a !important;
+        }
+        .driver-popover-close-btn {
+            color: #94a3b8 !important;
+            transition: color 0.2s !important;
+        }
+        .driver-popover-close-btn:hover {
+            color: #ef4444 !important;
+        }
+
         /* Tooltip Bantuan */
         .tooltip {
             position: relative;
@@ -91,6 +163,11 @@
                 </div>
 
                 <div class="user-actions">
+                    <!-- Tombol Panduan (Tour) -->
+                    <button onclick="mulaiTourDashboard()" title="Mulai Panduan" style="margin-right: 15px; background: #eff6ff; border: 1px solid #bfdbfe; color: #1e3a8a; border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s; box-shadow: 0 1px 2px rgba(0,0,0,0.05);" onmouseover="this.style.background='#dbeafe'; this.style.transform='scale(1.05)';" onmouseout="this.style.background='#eff6ff'; this.style.transform='scale(1)';">
+                        <i class="ph-bold ph-question" style="font-size: 22px;"></i>
+                    </button>
+
                     <div class="notif-wrapper">
                         <button class="btn-icon-header" onclick="toggleNotifDropdown()">
                             <i class="ph-fill ph-bell" style="font-size: 24px; color: #1e3a8a;"></i>
@@ -1230,5 +1307,64 @@
     <script src="{{ asset('js/dashboard.js') }}?v={{ time() }}"></script>
     <!-- JS Loaded via external file -->
     @include('partials.change_password_modal')
+
+    <!-- Driver.js (Logika Panduan Tour Interaktif) -->
+    <script src="https://cdn.jsdelivr.net/npm/driver.js@1.3.1/dist/driver.js.iife.js"></script>
+    <script>
+        function mulaiTourDashboard() {
+            const driver = window.driver.js.driver;
+            const tour = driver({
+                showProgress: true,
+                animate: true,
+                nextBtnText: 'Lanjut &rarr;',
+                prevBtnText: '&larr; Kembali',
+                doneBtnText: 'Selesai',
+                steps: [
+                    {
+                        element: '.top-navbar',
+                        popover: {
+                            title: 'Area Profil & Notifikasi 👋',
+                            description: 'Dari sudut sini, Anda bisa mengecek Lonceng Notifikasi yang masuk, mengganti kata sandi, atau mengakses tombol [?] ini lagi jika butuh panduan.',
+                            side: "bottom",
+                            align: 'end'
+                        }
+                    },
+                    {
+                        element: '.dashboard-cards',
+                        popover: {
+                            title: 'Statistik Instan 📊',
+                            description: 'Empat kartu ini memberikan Anda pandangan helikopter (Helicopter View) terhadap ringkasan status administrasi seluruh pegawai saat ini.',
+                            side: "bottom",
+                            align: 'center'
+                        }
+                    },
+                    {
+                        element: '.task-section',
+                        popover: {
+                            title: 'Daftar Tugas Utama 📑',
+                            description: 'Di sinilah pusat operasi Anda. Seluruh antrean pegawai yang butuh pemrosesan berkas (KGB, KP, Pensiun) akan dikumpulkan rapi di berbagai tabel ini.',
+                            side: "top",
+                            align: 'center'
+                        }
+                    },
+                    {
+                        element: '.task-header',
+                        popover: {
+                            title: 'Kategori Berkas 📂',
+                            description: 'Semua antrean usulan dikelompokkan rapat di sini. Silakan klik baris biru ini nanti untuk membuka daftar pegawai.<br><br>' +
+                                         '<div style="background: #f8fafc; padding: 12px; border: 1px solid #e2e8f0; border-radius: 8px; margin-top: 10px; font-size: 13px;">' +
+                                         '<strong style="color: #1e3a8a; display: block; margin-bottom: 8px; font-size: 12px; letter-spacing: 0.5px;">💡 TIPS ISI TABEL:</strong>' +
+                                         '<div style="display: flex; align-items: start; margin-bottom: 6px;"><span style="margin-right: 8px;">🖨️</span><span><strong>Cetak PDF:</strong> Tombol sakti untuk generate surat massal & otomatis pindah fase.</span></div>' +
+                                         '<div style="display: flex; align-items: start;"><span style="margin-right: 8px;">🚦</span><span><strong>Status:</strong> Merah (Usulan Baru), Kuning (TTE), Hijau/Biru (Tembus E-HRM).</span></div>' +
+                                         '</div>',
+                            side: "bottom",
+                            align: 'start'
+                        }
+                    }
+                ]
+            });
+            tour.drive();
+        }
+    </script>
 </body>
 </html>

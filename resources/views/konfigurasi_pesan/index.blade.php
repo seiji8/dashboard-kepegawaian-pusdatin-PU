@@ -550,5 +550,7 @@
     <script src="{{ asset('js/app-common.js') }}"></script>
     <script src="{{ asset('js/data-pegawai.js') }}"></script>
     @include('partials.change_password_modal')
+
+    @include('partials.change_password_modal')
 </body>
 </html>
