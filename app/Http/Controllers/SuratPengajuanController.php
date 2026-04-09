@@ -101,7 +101,7 @@ class SuratPengajuanController extends Controller
      */
     public function generate(Request $request)
     {
-        $request->validate([
+         $request->validate([
             'kategori'      => 'required|string',
             'tracker_ids'   => 'required|array|min:1',
             'tracker_ids.*' => 'integer|exists:dashboard_tracker,id',
@@ -111,6 +111,8 @@ class SuratPengajuanController extends Controller
             'nama_ttd'      => 'nullable|string|max:150',
             'nip_ttd'       => 'nullable|string|max:30',
             'jabatan_ttd'   => 'nullable|string|max:150',
+            'kppn'          => 'nullable|string|max:100',
+            'masa_kerja'    => 'nullable|array',
         ]);
 
         $kategori   = $request->kategori;
@@ -148,6 +150,9 @@ class SuratPengajuanController extends Controller
             );
         }
 
+        // Masa kerja dari modal form (key = tracker_id, value = string masa kerja)
+        $masaKerjaInput = $request->masa_kerja ?? [];
+
         // Siapkan data untuk template
         $data = [
             'kategori'       => $kategori,
@@ -156,11 +161,22 @@ class SuratPengajuanController extends Controller
             'tanggal_surat'  => $request->tanggal_surat 
                 ? Carbon::parse($request->tanggal_surat)->isoFormat('D MMMM Y')
                 : Carbon::now()->isoFormat('D MMMM Y'),
-            'tujuan_surat'   => $request->tujuan_surat ?? '........................................',
-            'nama_ttd'       => $request->nama_ttd ?? '........................................',
+            'tujuan_surat'   => $request->tujuan_surat ?? "Kepala Biro Kepegawaian, Organisasi, dan Tata\nLaksana, Sekretariat Jenderal, Kementerian\nPekerjaan Umum",
+            'nama_ttd'       => $request->nama_ttd ?? 'Komang Sri Hartini',
             'nip_ttd'        => $request->nip_ttd ?? '........................',
-            'jabatan_ttd'    => $request->jabatan_ttd ?? 'Kepala Sub Bagian Kepegawaian',
-            'pegawai_list'   => $trackers->map(function ($t) {
+            'jabatan_ttd'    => $request->jabatan_ttd ?? 'Kepala Pusat Data dan Teknologi Informasi',
+            'kppn'           => $request->kppn ?? '',
+            'pegawai_list'   => $trackers->map(function ($t) use ($masaKerjaInput) {
+                // Hitung masa kerja: prioritas input manual > auto dari tmt_cpns
+                $masaKerja = $masaKerjaInput[$t->id] ?? '';
+                if (empty($masaKerja) && $t->pegawai && $t->pegawai->tmt_cpns) {
+                    $tmtCpns = Carbon::parse($t->pegawai->tmt_cpns);
+                    $now = Carbon::now();
+                    $years = $tmtCpns->diffInYears($now);
+                    $months = $tmtCpns->copy()->addYears($years)->diffInMonths($now);
+                    $masaKerja = sprintf('%02d Th / %02d Bln', $years, $months);
+                }
+
                 return [
                     'nama'             => $t->pegawai->nama ?? '-',
                     'nip'              => $t->pegawai->nip ?? '-',
@@ -172,14 +188,21 @@ class SuratPengajuanController extends Controller
                         : '-',
                     'keterangan'       => $t->keterangan ?? '-',
                     'kategori'         => $t->kategori,
+                    'masa_kerja'       => $masaKerja,
+                    'tracker_id'       => $t->id,
                 ];
             })->toArray(),
             'total_pegawai' => $trackers->count(),
         ];
 
         // Generate PDF
-        $pdf = Pdf::loadView('surat.surat_pengajuan_pdf', ['data' => $data]);
-        $pdf->setPaper('A4', 'portrait');
+        if (in_array($data['kategori'], ['KP', 'KP_Jafung', 'KP_Struktural', 'KP_Reguler'])) {
+            $pdf = Pdf::loadView('surat.surat_pengajuan_kp_pdf', ['data' => $data]);
+            $pdf->setPaper('A4', 'portrait');
+        } else {
+            $pdf = Pdf::loadView('surat.surat_pengajuan_pdf', ['data' => $data]);
+            $pdf->setPaper('A4', 'portrait');
+        }
 
         $filename = 'Surat_Pengajuan_' . str_replace(' ', '_', $data['kategori_label']) . '_' . date('Ymd_His') . '.pdf';
 

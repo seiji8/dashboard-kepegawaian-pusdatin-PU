@@ -541,11 +541,20 @@ function openSuratModal(kategori) {
     // Reset form fields
     document.getElementById('suratNomor').value = '';
     document.getElementById('suratTanggal').value = new Date().toISOString().split('T')[0];
-    document.getElementById('suratTujuan').value = '';
-    document.getElementById('suratNamaTTD').value = '';
-    document.getElementById('suratNipTTD').value = '';
-    document.getElementById('suratJabatanTTD').value = 'Kepala Sub Bagian Kepegawaian';
+    document.getElementById('suratTujuan').value = 'Kepala Biro Kepegawaian, Organisasi, dan Tata Laksana, Sekretariat Jenderal, Kementerian Pekerjaan Umum';
+    document.getElementById('suratNamaTTD').value = 'Komang Sri Hartini';
+    document.getElementById('suratNipTTD').value = '196811201994032001';
+    document.getElementById('suratJabatanTTD').value = 'Kepala Pusat Data dan Teknologi Informasi';
     document.getElementById('suratSelectAll').checked = false;
+
+    // Show/hide KP-only fields (Masa Kerja & KPPN)
+    const kpFields = document.getElementById('suratKPFields');
+    const isKP = ['KP', 'KP_Jafung', 'KP_Struktural', 'KP_Reguler'].includes(kategori);
+    kpFields.style.display = isKP ? 'block' : 'none';
+    if (isKP) {
+        document.getElementById('suratMasaKerja').value = '';
+        document.getElementById('suratKPPN').value = 'Jakarta';
+    }
 
     // Fetch data
     fetch(`/surat-pengajuan/preview/${kategori}`)
@@ -718,6 +727,15 @@ function generateSurat() {
         'nip_ttd': document.getElementById('suratNipTTD').value,
         'jabatan_ttd': document.getElementById('suratJabatanTTD').value,
     };
+
+    // KP-only: kirim KPPN & Masa Kerja
+    if (['KP', 'KP_Jafung', 'KP_Struktural', 'KP_Reguler'].includes(suratKategori)) {
+        fields['kppn'] = document.getElementById('suratKPPN').value;
+        const masaKerjaVal = document.getElementById('suratMasaKerja').value;
+        if (masaKerjaVal) {
+            selectedIds.forEach(id => payload.append(`masa_kerja[${id}]`, masaKerjaVal));
+        }
+    }
 
     Object.keys(fields).forEach(key => {
         payload.append(key, fields[key]);

@@ -1269,19 +1269,32 @@
                             </div>
                             <div style="grid-column: 1 / -1;">
                                 <label style="display:block; font-size:12px; font-weight:700; color:#475569; margin-bottom:5px; letter-spacing:0.3px;">TUJUAN SURAT (KEPADA YTH.)</label>
-                                <input type="text" id="suratTujuan" placeholder="Contoh: Kepala Biro Kepegawaian" style="width:100%; padding:10px 14px; border:1px solid #cbd5e1; border-radius:8px; font-size:13px; outline:none; transition:border 0.2s; box-sizing:border-box;" onfocus="this.style.borderColor='#3b82f6'" onblur="this.style.borderColor='#cbd5e1'">
+                                <input type="text" id="suratTujuan" placeholder="Contoh: Kepala Biro Kepegawaian" value="Kepala Biro Kepegawaian, Organisasi, dan Tata Laksana, Sekretariat Jenderal, Kementerian Pekerjaan Umum" style="width:100%; padding:10px 14px; border:1px solid #cbd5e1; border-radius:8px; font-size:13px; outline:none; transition:border 0.2s; box-sizing:border-box;" onfocus="this.style.borderColor='#3b82f6'" onblur="this.style.borderColor='#cbd5e1'">
+                            </div>
+                            <div id="suratKPFields" style="display:none; grid-column: 1 / -1;">
+                                <div style="display:grid; grid-template-columns:1fr 1fr; gap:15px;">
+                                    <div>
+                                        <label style="display:block; font-size:12px; font-weight:700; color:#475569; margin-bottom:5px; letter-spacing:0.3px;">MASA KERJA (TH/BLN)</label>
+                                        <input type="text" id="suratMasaKerja" placeholder="Kosongkan untuk hitung otomatis" style="width:100%; padding:10px 14px; border:1px solid #cbd5e1; border-radius:8px; font-size:13px; outline:none; transition:border 0.2s; box-sizing:border-box;" onfocus="this.style.borderColor='#3b82f6'" onblur="this.style.borderColor='#cbd5e1'">
+                                        <span style="font-size:10px; color:#94a3b8; margin-top:3px; display:block;">Kosongkan = otomatis dari data CPNS</span>
+                                    </div>
+                                    <div>
+                                        <label style="display:block; font-size:12px; font-weight:700; color:#475569; margin-bottom:5px; letter-spacing:0.3px;">KPPN</label>
+                                        <input type="text" id="suratKPPN" placeholder="Contoh: Jakarta" value="Jakarta" style="width:100%; padding:10px 14px; border:1px solid #cbd5e1; border-radius:8px; font-size:13px; outline:none; transition:border 0.2s; box-sizing:border-box;" onfocus="this.style.borderColor='#3b82f6'" onblur="this.style.borderColor='#cbd5e1'">
+                                    </div>
+                                </div>
                             </div>
                             <div>
                                 <label style="display:block; font-size:12px; font-weight:700; color:#475569; margin-bottom:5px; letter-spacing:0.3px;">NAMA PENANDATANGAN</label>
-                                <input type="text" id="suratNamaTTD" placeholder="Nama lengkap pejabat" style="width:100%; padding:10px 14px; border:1px solid #cbd5e1; border-radius:8px; font-size:13px; outline:none; transition:border 0.2s; box-sizing:border-box;" onfocus="this.style.borderColor='#3b82f6'" onblur="this.style.borderColor='#cbd5e1'">
+                                <input type="text" id="suratNamaTTD" placeholder="Nama lengkap pejabat" value="Komang Sri Hartini" style="width:100%; padding:10px 14px; border:1px solid #cbd5e1; border-radius:8px; font-size:13px; outline:none; transition:border 0.2s; box-sizing:border-box;" onfocus="this.style.borderColor='#3b82f6'" onblur="this.style.borderColor='#cbd5e1'">
                             </div>
                             <div>
                                 <label style="display:block; font-size:12px; font-weight:700; color:#475569; margin-bottom:5px; letter-spacing:0.3px;">NIP PENANDATANGAN</label>
-                                <input type="text" id="suratNipTTD" placeholder="NIP pejabat" style="width:100%; padding:10px 14px; border:1px solid #cbd5e1; border-radius:8px; font-size:13px; outline:none; transition:border 0.2s; box-sizing:border-box;" onfocus="this.style.borderColor='#3b82f6'" onblur="this.style.borderColor='#cbd5e1'">
+                                <input type="text" id="suratNipTTD" placeholder="NIP pejabat" value="196811201994032001" style="width:100%; padding:10px 14px; border:1px solid #cbd5e1; border-radius:8px; font-size:13px; outline:none; transition:border 0.2s; box-sizing:border-box;" onfocus="this.style.borderColor='#3b82f6'" onblur="this.style.borderColor='#cbd5e1'">
                             </div>
                             <div style="grid-column: 1 / -1;">
                                 <label style="display:block; font-size:12px; font-weight:700; color:#475569; margin-bottom:5px; letter-spacing:0.3px;">JABATAN PENANDATANGAN</label>
-                                <input type="text" id="suratJabatanTTD" placeholder="Contoh: Kepala Sub Bagian Kepegawaian" value="Kepala Sub Bagian Kepegawaian" style="width:100%; padding:10px 14px; border:1px solid #cbd5e1; border-radius:8px; font-size:13px; outline:none; transition:border 0.2s; box-sizing:border-box;" onfocus="this.style.borderColor='#3b82f6'" onblur="this.style.borderColor='#cbd5e1'">
+                                <input type="text" id="suratJabatanTTD" placeholder="Contoh: Kepala Pusat Data dan Teknologi Informasi" value="Kepala Pusat Data dan Teknologi Informasi" style="width:100%; padding:10px 14px; border:1px solid #cbd5e1; border-radius:8px; font-size:13px; outline:none; transition:border 0.2s; box-sizing:border-box;" onfocus="this.style.borderColor='#3b82f6'" onblur="this.style.borderColor='#cbd5e1'">
                             </div>
                         </div>
                     </div>
