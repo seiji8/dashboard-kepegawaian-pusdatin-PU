@@ -15,3 +15,6 @@ Schedule::call(function () {
         ->where('created_at', '<', now()->subDays(30))
         ->delete();
 })->daily();
+
+// Penjadwalan Periodik (Triwulan & Tahunan)
+Schedule::command('notify:periodic')->dailyAt('07:00');
