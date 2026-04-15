@@ -170,7 +170,7 @@ class RecalculateTracker extends Command
                 // ==========================================
                 // Syarat kinerja logis: pegawai Fungsional
                 $tipeJabatan = strtolower(trim($pegawai->tipe_jabatan ?? ''));
-                $isFungsional = in_array($tipeJabatan, ['fungsional', 'jafung']);
+                $isFungsional = in_array($tipeJabatan, ['fungsional', 'jafung', 'jabatan fungsional']);
 
                 if ($isFungsional && !empty($pegawai->pangkat_golongan) && !empty($pegawai->jabatan_saat_ini)) { 
 
@@ -497,7 +497,7 @@ class RecalculateTracker extends Command
                 // Pegawai Pelaksana yang masa pangkat >= 4 tahun → USULAN
                 // Tidak perlu validasi SKP
                 $tipeJabatanReg = strtolower(trim($pegawai->tipe_jabatan ?? ''));
-                $isPelaksana = in_array($tipeJabatanReg, ['pelaksana', 'reguler']);
+                $isPelaksana = in_array($tipeJabatanReg, ['pelaksana', 'reguler', 'jabatan pelaksana']);
                 if ($isPelaksana && $pegawai->tmt_pangkat_terakhir) {
                     $tmtPangkat = Carbon::parse($pegawai->tmt_pangkat_terakhir);
                     $masaPangkatReguler = (int) $tmtPangkat->diffInMonths($today);

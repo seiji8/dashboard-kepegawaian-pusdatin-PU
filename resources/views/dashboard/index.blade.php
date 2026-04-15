@@ -1353,7 +1353,7 @@
                         element: '.dashboard-cards',
                         popover: {
                             title: 'Statistik Instan 📊',
-                            description: 'Empat kartu ini memberikan Anda pandangan helikopter (Helicopter View) terhadap ringkasan status administrasi seluruh pegawai saat ini.',
+                            description: 'Empat kartu ini memberikan Anda pandangan terhadap ringkasan status administrasi seluruh pegawai saat ini.',
                             side: "bottom",
                             align: 'center'
                         }
@@ -1362,23 +1362,9 @@
                         element: '.task-section',
                         popover: {
                             title: 'Daftar Tugas Utama 📑',
-                            description: 'Di sinilah pusat operasi Anda. Seluruh antrean pegawai yang butuh pemrosesan berkas (KGB, KP, Pensiun) akan dikumpulkan rapi di berbagai tabel ini.',
+                            description: 'Di sinilah pusat operasi Anda. Seluruh antrean pegawai yang butuh pemrosesan berkas (KGB, KP, KJ, & dll) akan dikumpulkan rapi di berbagai tabel ini.',
                             side: "top",
                             align: 'center'
-                        }
-                    },
-                    {
-                        element: '.task-header',
-                        popover: {
-                            title: 'Kategori Berkas 📂',
-                            description: 'Semua antrean usulan dikelompokkan rapat di sini. Silakan klik baris biru ini nanti untuk membuka daftar pegawai.<br><br>' +
-                                         '<div style="background: #f8fafc; padding: 12px; border: 1px solid #e2e8f0; border-radius: 8px; margin-top: 10px; font-size: 13px;">' +
-                                         '<strong style="color: #1e3a8a; display: block; margin-bottom: 8px; font-size: 12px; letter-spacing: 0.5px;">💡 TIPS ISI TABEL:</strong>' +
-                                         '<div style="display: flex; align-items: start; margin-bottom: 6px;"><span style="margin-right: 8px;">🖨️</span><span><strong>Cetak PDF:</strong> Tombol sakti untuk generate surat massal & otomatis pindah fase.</span></div>' +
-                                         '<div style="display: flex; align-items: start;"><span style="margin-right: 8px;">🚦</span><span><strong>Status:</strong> Merah (Usulan Baru), Kuning (TTE), Hijau/Biru (Tembus E-HRM).</span></div>' +
-                                         '</div>',
-                            side: "bottom",
-                            align: 'start'
                         }
                     }
                 ]

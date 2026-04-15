@@ -67,9 +67,10 @@ class SendPeriodicNotifications extends Command
     private function getEligiblePegawai()
     {
         // POINT 4: Normalisasi Jabatan
-        // Menggunakan exact match untuk tipe_jabatan (Bukan LIKE %Fungsional% lagi bebas teks)
-        // untuk mencegah terjadinya bug "Staf mantan Fungsional" masuk daftar notifikasi
-        return Pegawai::whereIn('tipe_jabatan', ['Fungsional', 'Struktural', 'Jafung'])->get();
+        // Match kedua format: "Fungsional" (manual) dan "JABATAN FUNGSIONAL" (API E-HRM)
+        return Pegawai::where(function ($q) {
+            $q->whereIn('tipe_jabatan', ['Fungsional', 'Struktural', 'Jafung', 'JABATAN FUNGSIONAL', 'JABATAN STRUKTURAL']);
+        })->get();
     }
 
     /**
