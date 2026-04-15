@@ -67,13 +67,15 @@ class DashboardController extends Controller
             return 4;
         });
         
-        // Pisahkan berdasarkan tipe_jabatan
+        // Pisahkan berdasarkan tipe_jabatan (Exact Match Normalization)
         $kpStruktural = $listKenaikanPangkat->filter(function($item) {
-            return str_contains(strtolower($item->pegawai->tipe_jabatan), 'struktural');
+            $tipe = strtolower(trim($item->pegawai->tipe_jabatan ?? ''));
+            return in_array($tipe, ['struktural']);
         });
 
         $kpFungsional = $listKenaikanPangkat->filter(function($item) {
-            return str_contains(strtolower($item->pegawai->tipe_jabatan), 'fungsional');
+            $tipe = strtolower(trim($item->pegawai->tipe_jabatan ?? ''));
+            return in_array($tipe, ['fungsional', 'jafung']);
         });
 
         $kpReguler = $trackers->where('kategori', 'KP_Reguler')->sortBy('tanggal_target');

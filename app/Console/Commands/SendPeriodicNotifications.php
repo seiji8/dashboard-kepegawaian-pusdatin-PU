@@ -66,11 +66,10 @@ class SendPeriodicNotifications extends Command
      */
     private function getEligiblePegawai()
     {
-        return Pegawai::where(function ($q) {
-            $q->where('tipe_jabatan', 'LIKE', '%Fungsional%')
-              ->orWhere('tipe_jabatan', 'LIKE', '%Struktural%')
-              ->orWhere('tipe_jabatan', 'LIKE', '%Jafung%');
-        })->get();
+        // POINT 4: Normalisasi Jabatan
+        // Menggunakan exact match untuk tipe_jabatan (Bukan LIKE %Fungsional% lagi bebas teks)
+        // untuk mencegah terjadinya bug "Staf mantan Fungsional" masuk daftar notifikasi
+        return Pegawai::whereIn('tipe_jabatan', ['Fungsional', 'Struktural', 'Jafung'])->get();
     }
 
     /**

@@ -169,10 +169,10 @@ class RecalculateTracker extends Command
                 // LOGIKA AK FUNGSIONAL & UKOM (Berdasarkan Proyeksi Triwulan)
                 // ==========================================
                 // Syarat kinerja logis: pegawai Fungsional
-                if (!empty($pegawai->pangkat_golongan) && !empty($pegawai->jabatan_saat_ini)) { 
-                    // Kita tidak menggunakan where('tipe_jabatan', 'Fungsional') dengan ketat karena ada kemungkinan 
-                    // pegawai dummy belum diset tipe jabatannya. Namun ref_matriks_jf hanya mengakomodir jabatan Fungsional.
-                    // Jika ingin ketat, buka komen: if ($pegawai->tipe_jabatan == 'Fungsional') 
+                $tipeJabatan = strtolower(trim($pegawai->tipe_jabatan ?? ''));
+                $isFungsional = in_array($tipeJabatan, ['fungsional', 'jafung']);
+
+                if ($isFungsional && !empty($pegawai->pangkat_golongan) && !empty($pegawai->jabatan_saat_ini)) { 
 
                     // Normalisasi case karena API bisa mengembalikan "AHLI MADYA" (all caps) sedangkan matriks kita "Ahli Madya"
                     $normalizedJenjang = ucwords(strtolower(trim($pegawai->jenjang)));
@@ -485,7 +485,8 @@ class RecalculateTracker extends Command
                 // ==========================================
                 // Pegawai Pelaksana yang masa pangkat >= 4 tahun → USULAN
                 // Tidak perlu validasi SKP
-                $isPelaksana = $pegawai->tipe_jabatan && str_contains(strtolower($pegawai->tipe_jabatan), 'pelaksana');
+                $tipeJabatanReg = strtolower(trim($pegawai->tipe_jabatan ?? ''));
+                $isPelaksana = in_array($tipeJabatanReg, ['pelaksana', 'reguler']);
                 if ($isPelaksana && $pegawai->tmt_pangkat_terakhir) {
                     $tmtPangkat = Carbon::parse($pegawai->tmt_pangkat_terakhir);
                     $masaPangkatReguler = (int) $tmtPangkat->diffInMonths($today);
