@@ -770,7 +770,7 @@
                                                     <td>{{ $ukom->pegawai->jenjang ?? '-' }}</td>
                                                     <td>
                                                         @if($ukom->status_saat_ini == 'Usulan')
-                                                            <span class="status-badge status-missing">Usulan Pengajuan</span>
+                                                            <span class="status-badge status-warning">Proses UKOM</span>
                                                         @elseif($ukom->status_saat_ini == 'Proses')
                                                             <span class="status-badge status-warning">Proses TTE</span>
                                                         @elseif($ukom->status_saat_ini == 'Upload E-HRM')
@@ -783,6 +783,11 @@
                                                         <button class="btn-action-view" onclick="openDashboardDetail('{{ $ukom->pegawai->nip }}', '{{ $ukom->kategori }}')">
                                                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
                                                         </button>
+                                                        @if($ukom->status_saat_ini == 'Usulan')
+                                                        <button class="btn-action-confirm" onclick="setKelulusanUkom({{ $ukom->id }}, true)" title="Set Lulus UKOM">
+                                                            <i class="ph-bold ph-check" style="font-size: 16px;"></i>
+                                                        </button>
+                                                        @endif
                                                     </td>
                                                 </tr>
                                                 @empty
@@ -821,7 +826,7 @@
                                                     <td>{{ $ukom->pegawai->jenjang ?? '-' }}</td>
                                                     <td>
                                                         @if($ukom->status_saat_ini == 'Usulan')
-                                                            <span class="status-badge status-missing">Usulan Pengajuan</span>
+                                                            <span class="status-badge status-warning">Proses UKOM</span>
                                                         @elseif($ukom->status_saat_ini == 'Proses')
                                                             <span class="status-badge status-warning">Proses TTE</span>
                                                         @elseif($ukom->status_saat_ini == 'Upload E-HRM')
@@ -834,6 +839,11 @@
                                                         <button class="btn-action-view" onclick="openDashboardDetail('{{ $ukom->pegawai->nip }}', '{{ $ukom->kategori }}')">
                                                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
                                                         </button>
+                                                        @if($ukom->status_saat_ini == 'Usulan')
+                                                        <button class="btn-action-confirm" onclick="setKelulusanUkom({{ $ukom->id }}, true)" title="Set Lulus UKOM">
+                                                            <i class="ph-bold ph-check" style="font-size: 16px;"></i>
+                                                        </button>
+                                                        @endif
                                                     </td>
                                                 </tr>
                                                 @empty
@@ -947,7 +957,7 @@
 
     <!-- MODAL DASHBOARD DETAIL (KHUSUS KATEGORI) -->
     <div id="dashboardDetailModal" class="modal-overlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:2300; justify-content:center; align-items:center;">
-        <div style="background:#fff; width:650px; max-width:92vw; border-radius:12px; box-shadow:0 10px 40px rgba(0,0,0,0.15); display:flex; flex-direction:column; overflow:hidden;">
+        <div style="background:#fff; width:860px; max-width:95vw; border-radius:12px; box-shadow:0 10px 40px rgba(0,0,0,0.15); display:flex; flex-direction:column; overflow:hidden;">
             
             <!-- Header -->
             <div style="padding:20px 25px; border-bottom:1px solid #e2e8f0; display:flex; flex-direction:column; background:#f8fafc;">
@@ -971,24 +981,24 @@
                 
                 <!-- PROGRESS TRACKER SECTION -->
                 <style>
-                .tracker-step { display:flex; flex-direction:column; align-items:center; justify-content:flex-start; position:relative; z-index:1; flex:1; }
-                .tracker-step .circle { width:32px; height:32px; border-radius:50%; background:#eff6ff; display:flex; align-items:center; justify-content:center; border:2px solid #bfdbfe; z-index:2; position:relative; transition:all 0.3s; flex-shrink:0; }
+                .tracker-step { display:flex; flex-direction:column; align-items:center; justify-content:flex-start; position:relative; z-index:1; flex:1; min-width:0; }
+                .tracker-step .circle { width:30px; height:30px; border-radius:50%; background:#eff6ff; display:flex; align-items:center; justify-content:center; border:2px solid #bfdbfe; z-index:2; position:relative; transition:all 0.3s; flex-shrink:0; }
                 .tracker-step.done .circle { background:#3b82f6; border-color:#3b82f6; }
-                .tracker-step.done .circle::after { content:''; width:10px; height:10px; background:#fff; border-radius:50%; }
+                .tracker-step.done .circle::after { content:''; width:9px; height:9px; background:#fff; border-radius:50%; }
                 .tracker-step.active .circle { background:#bfdbfe; border-color:#3b82f6; box-shadow:0 0 0 4px #eff6ff; }
-                .tracker-step.active-inner .circle::after { content:''; width:12px; height:12px; background:#3b82f6; border-radius:50%; }
+                .tracker-step.active-inner .circle::after { content:''; width:11px; height:11px; background:#3b82f6; border-radius:50%; }
                 
-                .tracker-step .label { font-size:13px; font-weight:700; color:#1e293b; margin-top:10px; text-align:center; transition:color 0.3s; line-height: 1.2; }
-                .tracker-step .sub-label { font-size:11px; color:#64748b; text-align:center; margin-top:4px; }
+                .tracker-step .label { font-size:11px; font-weight:700; color:#1e293b; margin-top:8px; text-align:center; transition:color 0.3s; line-height:1.2; }
+                .tracker-step .sub-label { font-size:9.5px; color:#64748b; text-align:center; margin-top:3px; line-height:1.3; padding:0 3px; }
                 
                 .tracker-step:not(.done):not(.active) .label { color:#94a3b8; }
                 .tracker-step:not(.done):not(.active) .sub-label { color:#cbd5e1; }
                 
-                .tracker-line { height:4px; flex:1; margin:14px -10px 0 -10px; z-index:0; transition:all 0.3s; }
+                .tracker-line { height:3px; flex:1; align-self:flex-start; margin-top:13px; z-index:0; transition:all 0.3s; min-width:20px; }
                 .tracker-line.done { background:#3b82f6; }
-                .tracker-line.dashed { border-top:4px dashed #cbd5e1; background:transparent; }
+                .tracker-line.dashed { background:repeating-linear-gradient(90deg, #bfdbfe 0, #bfdbfe 6px, transparent 6px, transparent 14px); }
                 </style>
-                <div id="dashModalTrackerContainer" style="margin-top:25px; display:none; width: 100%; border-top: 1px dashed #e2e8f0; padding-top: 20px;">
+                <div id="dashModalTrackerContainer" style="margin-top:15px; display:none; width: 100%; border-top: 1px dashed #e2e8f0; padding-top: 15px;">
                     <h4 style="font-size:14px; font-weight:700; color:#1e293b; margin:0 0 15px 0; text-align:center;">Progres Status</h4>
                     <div id="dashModalTracker" style="display:flex; align-items:flex-start; width:100%; margin:0 auto;">
                         <!-- Tracker steps will be injected by JS -->
@@ -997,7 +1007,7 @@
             </div>
 
             <!-- Body -->
-            <div style="padding:25px; overflow-y:auto; max-height:60vh;">
+            <div style="padding:20px 25px; overflow-y:auto; max-height:38vh;">
                 <div id="dashModalLoading" style="text-align:center; padding:30px; color:#64748b;">
                     <i class="ph-bold ph-spinner" style="font-size:32px; color:#1e3a8a; animation:spin 1s linear infinite;"></i>
                     <p style="margin-top:10px;">Mengambil data dokumen...</p>
