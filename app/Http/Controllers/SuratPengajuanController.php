@@ -199,6 +199,9 @@ class SuratPengajuanController extends Controller
         if (in_array($data['kategori'], ['KP', 'KP_Jafung', 'KP_Struktural', 'KP_Reguler'])) {
             $pdf = Pdf::loadView('surat.surat_pengajuan_kp_pdf', ['data' => $data]);
             $pdf->setPaper('A4', 'portrait');
+        } elseif ($data['kategori'] === 'KGB') {
+            $pdf = Pdf::loadView('surat.surat_pengajuan_kgb_pdf', ['data' => $data]);
+            $pdf->setPaper('A4', 'portrait');
         } else {
             $pdf = Pdf::loadView('surat.surat_pengajuan_pdf', ['data' => $data]);
             $pdf->setPaper('A4', 'portrait');

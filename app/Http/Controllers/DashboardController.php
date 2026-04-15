@@ -205,6 +205,46 @@ public function confirmTracker(Request $request, $id)
 }
 
 /**
+ * Handle kelulusan UKOM
+ */
+public function setKelulusanUkom(Request $request, $id)
+{
+    $tracker = DashboardTracker::with('pegawai')->findOrFail($id);
+    $isLulus = $request->input('lulus');
+
+    if ($isLulus) {
+        $tracker->update([
+            'kategori'          => 'KJ_Jafung',
+            'status_saat_ini'   => 'Usulan',
+            'keterangan'        => 'Lulus UKOM, dilanjutkan ke pengejuan Kenaikan Jenjang'
+        ]);
+
+        ActivityLogger::logAdminAction(
+            "Mengesahkan Kelulusan UKOM untuk {$tracker->pegawai->nama} (NIP: {$tracker->pegawai->nip}) dan mengirim ke antrean KJ_Jafung"
+        );
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Pegawai Lulus UKOM dan masuk antrean (Usulan) Kenaikan Jenjang!',
+        ]);
+    } else {
+        $tracker->update([
+            'keterangan'        => 'Tidak Lulus UKOM'
+        ]);
+
+        ActivityLogger::logAdminAction(
+            "Mengatur Tidak Lulus UKOM untuk {$tracker->pegawai->nama} (NIP: {$tracker->pegawai->nip})"
+        );
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Pegawai ditandai Tidak Lulus UKOM',
+        ]);
+    }
+}
+
+
+/**
  * Sinkronisasi Data Manual (E-HRM -> Seeder -> Tracker)
  */
 public function syncData()

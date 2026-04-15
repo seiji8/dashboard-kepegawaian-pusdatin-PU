@@ -557,6 +557,8 @@
                                                         <span class="status-badge status-missing">Usulan Pengajuan</span>
                                                     @elseif($item->status_saat_ini == 'Mendekati')
                                                         <span class="status-badge status-warning">Mendekati</span>
+                                                    @elseif($item->status_saat_ini == 'Menunggu UKOM')
+                                                        <span class="status-badge status-warning">Pengajuan UKOM</span>
                                                     @elseif($item->status_saat_ini == 'Proses')
                                                         <span class="status-badge status-warning">Proses TTE</span>
                                                     @elseif($item->status_saat_ini == 'Upload E-HRM')
@@ -574,6 +576,11 @@
                                                     <button class="btn-action-view" onclick="openDashboardDetail('{{ $item->pegawai->nip }}', '{{ $item->kategori }}')">
                                                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
                                                     </button>
+                                                    @if($item->status_saat_ini == 'Mendekati' || $item->status_saat_ini == 'Menunggu UKOM')
+                                                    <button class="btn-action-confirm" onclick="moveToUkomFromKJ({{ $item->id }})" title="Kirim ke Modul UKOM">
+                                                        <i class="ph-bold ph-check" style="font-size: 16px;"></i>
+                                                    </button>
+                                                    @endif
                                                     @if($item->status_saat_ini == 'Proses')
                                                     <button class="btn-action-confirm" onclick="openUkomModal({{ $item->id }}, '{{ $item->pegawai->nama }}')" title="Konfirmasi TTE Selesai">
                                                         <i class="ph-bold ph-check" style="font-size: 16px;"></i>

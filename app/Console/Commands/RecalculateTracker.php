@@ -264,8 +264,19 @@ class RecalculateTracker extends Command
                                 $keteranganAK = 'Peringatan: Data Riwayat AK tidak ditemukan di e-HRM atau bernilai 0. Segera upload/update SK PAK Anda.';
                             } else {
                                 if ($kekuranganAK <= 0) {
-                                    $statusAK = 'Usulan';
-                                    $keteranganAK = "AK memenuhi target. Segera usulkan {$namaProses} ke {$tujuanProses}";
+                                    if ($isKenaikanJenjang) {
+                                        $sudahLulus = $existingAK && str_contains($existingAK->keterangan, 'Lulus UKOM');
+                                        if ($currentAKStatus === 'Usulan' && $sudahLulus) {
+                                            $statusAK = 'Usulan';
+                                            $keteranganAK = "Lulus UKOM. Segera usulkan {$namaProses} ke {$tujuanProses}";
+                                        } else {
+                                            $statusAK = 'Menunggu UKOM';
+                                            $keteranganAK = "AK memenuhi target. Segera daftarkan Uji Kompetensi";
+                                        }
+                                    } else {
+                                        $statusAK = 'Usulan';
+                                        $keteranganAK = "AK memenuhi target. Segera usulkan {$namaProses} ke {$tujuanProses}";
+                                    }
                                 } elseif ($kekuranganAK <= $akTriwulanBaik) {
                                     $statusAK = 'Mendekati';
                                     $keteranganAK = "Kurang {$kurangFormat} AK. Dapat dicapai dalam 1 Triwulan ke depan dengan predikat minimal BAIK";
@@ -280,7 +291,7 @@ class RecalculateTracker extends Command
 
                             // Tentukan tanggal target notifikasi (saat AK mencukupi / mendekati)
                             $targetDate = null;
-                            if (in_array($statusAK, ['Usulan', 'Mendekati', 'Proses'])) {
+                            if (in_array($statusAK, ['Usulan', 'Mendekati', 'Proses', 'Menunggu UKOM'])) {
                                 if ($existingAK && $existingAK->tanggal_target) {
                                     $targetDate = $existingAK->tanggal_target;
                                 } else {
@@ -290,7 +301,7 @@ class RecalculateTracker extends Command
 
                             // Manajemen Database Tracker
                             if (!$skipTrackerUpdate) {
-                                if (in_array($statusAK, ['Usulan', 'Mendekati', 'Proses'])) {
+                                if (in_array($statusAK, ['Usulan', 'Mendekati', 'Proses', 'Menunggu UKOM'])) {
                                     $tracker = DashboardTracker::updateOrCreate(
                                         [
                                             'pegawai_id' => $pegawai->id_pegawai_api,

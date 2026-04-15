@@ -39,6 +39,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::post('/tracker/{id}/confirm', [DashboardController::class, 'confirmTracker'])->name('tracker.confirm');
     Route::post('/tracker/{id}/move-to-ukom', [DashboardController::class, 'moveToUkom'])->name('tracker.move-to-ukom');
+    Route::post('/tracker/{id}/set-kelulusan-ukom', [DashboardController::class, 'setKelulusanUkom'])->name('tracker.set-kelulusan-ukom');
     Route::post('/sync-now', [DashboardController::class, 'syncData'])->name('sync.now');
     Route::get('/sync-progress', [DashboardController::class, 'syncProgress'])->name('sync.progress');
     Route::get('/dashboard/diklat-detail/{nip}/{kategori}', [DashboardController::class, 'diklatDetail'])->name('dashboard.diklat-detail');

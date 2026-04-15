@@ -213,6 +213,59 @@ function toggleMessageMode() {
     }
 }
 
+function moveToUkomFromKJ(trackerId) {
+    if (!confirm("Kirim pegawai ini ke antrean Uji Kompetensi?")) return;
+    
+    // Gunakan fungsi submitUkom/moveToUkom API yang sudah ada
+    const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+    
+    fetch('/tracker/' + trackerId + '/move-to-ukom', {
+        method: 'POST',
+        headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': csrfToken,
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            showCustomToast('Berhasil dipindah ke modul UKOM', 'success');
+            setTimeout(() => window.location.reload(), 1000);
+        } else {
+            showCustomToast(data.message || 'Gagal', 'error');
+        }
+    });
+}
+
+function setKelulusanUkom(trackerId, statusLulus) {
+    let msg = statusLulus ? "Set Lulus UKOM dan kembalikan ke Kenaikan Jenjang (Usulan)?" : "Set Tidak Lulus (Tetap di antrean UKOM)?";
+    if (!confirm(msg)) return;
+    
+    const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+    
+    fetch('/tracker/' + trackerId + '/set-kelulusan-ukom', {
+        method: 'POST',
+        headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': csrfToken,
+            'X-Requested-With': 'XMLHttpRequest'
+        },
+        body: JSON.stringify({ lulus: statusLulus })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            showCustomToast(data.message, 'success');
+            setTimeout(() => window.location.reload(), 1000);
+        } else {
+            showCustomToast(data.message || 'Gagal', 'error');
+        }
+    });
+}
+
 function sendReminder() {
     if (!currentDetailNip) return;
 
@@ -361,44 +414,126 @@ function openDashboardDetail(nip, kategori) {
                 if (trackerContainer && trackerEl) {
                     if (data.tracker_status) {
                         trackerContainer.style.display = 'block';
-                        
                         let s = data.tracker_status;
-                        let step1 = (s === 'Usulan' || s === 'Proses' || s === 'Upload E-HRM' || s === 'Selesai');
-                        let step2 = (s === 'Proses' || s === 'Upload E-HRM' || s === 'Selesai');
-                        let step3 = (s === 'Upload E-HRM' || s === 'Selesai');
                         
-                        // Active inner logic for the current running step
-                        let act1 = (s === 'Usulan');
-                        let act2 = (s === 'Proses');
-                        let act3 = (s === 'Upload E-HRM' || s === 'Selesai');
-                        
-                        // Wait, looking at image: 3 steps
-                        // Step 1: Langkah Pertama (Usulan Pengajuan)
-                        // Step 2: Langkah Kedua (Proses TTE) -> The text in user image
-                        // Step 3: Langkah Ketiga (Upload E-HRM) -> The text in user image
-                        
-                        let html = `
-                            <div class="tracker-step ${step1 ? (act1 ? 'active active-inner' : 'done') : ''}">
-                                <div class="circle"></div>
-                                <div class="label">Usulan Pengajuan</div>
-                                <div class="sub-label" style="padding: 0 10px; line-height: 1.4;">Segera cetak surat pengajuan</div>
-                            </div>
-                            <div class="tracker-line ${step2 ? 'done' : 'dashed'}"></div>
+                        if (kategori === 'UKOM' || kategori === 'KJ_Jafung') {
+                            // 5-Step Tracker for KJ and UKOM
+                            // Step 1: KJ_Jafung + (Mendekati / Menunggu UKOM)
+                            // Step 2: UKOM + Proses
+                            // Step 3: KJ_Jafung + Usulan
+                            // Step 4: KJ_Jafung + Proses
+                            // Step 5: KJ_Jafung + (Upload E-HRM / Selesai)
                             
-                            <div class="tracker-step ${step2 ? (act2 ? 'active active-inner' : 'done') : ''}">
-                                <div class="circle"></div>
-                                <div class="label">Proses TTE</div>
-                                <div class="sub-label" style="padding: 0 10px; line-height: 1.4;">Sedang dalam proses TTE</div>
-                            </div>
-                            <div class="tracker-line ${step3 ? 'done' : 'dashed'}"></div>
+                            let isStep1 = (kategori === 'KJ_Jafung' && (s === 'Mendekati' || s === 'Menunggu UKOM'));
+                            let isStep2 = (kategori === 'UKOM');
+                            let isStep3 = (kategori === 'KJ_Jafung' && s === 'Usulan');
+                            let isStep4 = (kategori === 'KJ_Jafung' && s === 'Proses');
+                            let isStep5 = (kategori === 'KJ_Jafung' && (s === 'Upload E-HRM' || s === 'Selesai'));
                             
-                            <div class="tracker-step ${step3 ? (act3 ? 'active active-inner' : 'done') : ''}">
-                                <div class="circle"></div>
-                                <div class="label">Upload E-HRM</div>
-                                <div class="sub-label" style="padding: 0 10px; line-height: 1.4;">Ingatkan pegawai untuk segera upload berkas</div>
-                            </div>
-                        `;
-                        trackerEl.innerHTML = html;
+                            let pass1 = isStep2 || isStep3 || isStep4 || isStep5;
+                            let pass2 = isStep3 || isStep4 || isStep5;
+                            let pass3 = isStep4 || isStep5;
+                            let pass4 = isStep5;
+                            
+                            let html = `
+                                <div class="tracker-step ${pass1 ? 'done' : (isStep1 ? 'active active-inner' : '')}">
+                                    <div class="circle"></div>
+                                    <div class="label" style="font-size:11px;">Pengajuan UKOM</div>
+                                </div>
+                                <div class="tracker-line ${pass1 ? 'done' : 'dashed'}"></div>
+                                
+                                <div class="tracker-step ${pass2 ? 'done' : (isStep2 ? 'active active-inner' : '')}">
+                                    <div class="circle"></div>
+                                    <div class="label" style="font-size:11px;">Proses UKOM</div>
+                                </div>
+                                <div class="tracker-line ${pass2 ? 'done' : 'dashed'}"></div>
+                                
+                                <div class="tracker-step ${pass3 ? 'done' : (isStep3 ? 'active active-inner' : '')}">
+                                    <div class="circle"></div>
+                                    <div class="label" style="font-size:11px;">Usulan Pengajuan</div>
+                                </div>
+                                <div class="tracker-line ${pass3 ? 'done' : 'dashed'}"></div>
+                                
+                                <div class="tracker-step ${pass4 ? 'done' : (isStep4 ? 'active active-inner' : '')}">
+                                    <div class="circle"></div>
+                                    <div class="label" style="font-size:11px;">Proses TTE</div>
+                                </div>
+                                <div class="tracker-line ${pass4 ? 'done' : 'dashed'}"></div>
+                                
+                                <div class="tracker-step ${isStep5 ? 'active active-inner' : ''}">
+                                    <div class="circle"></div>
+                                    <div class="label" style="font-size:11px;">Upload E-HRM</div>
+                                </div>
+                            `;
+                            trackerEl.innerHTML = html;
+                            
+                            // Inject Custom Buttons
+                            if (modalFooter) {
+                                let actionButtons = '';
+                                if (isStep2) {
+                                    actionButtons = `
+                                        <button onclick="setKelulusanUkom(${data.tracker_id}, false)" style="padding:8px 20px; background:white; color:#ef4444; border:1px solid #ef4444; border-radius:8px; cursor:pointer; font-weight:600; font-size:13px;">
+                                            Tidak Lulus
+                                        </button>
+                                        <button onclick="setKelulusanUkom(${data.tracker_id}, true)" style="padding:8px 20px; background:#3b82f6; color:white; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:13px; margin-left:10px;">
+                                            <i class="ph-bold ph-check"></i> Set Lulus UKOM
+                                        </button>
+                                    `;
+                                }
+                                
+                                // Append to modalFooter (keeping reminder button)
+                                modalFooter.innerHTML = `
+                                    <div style="display:flex; justify-content:space-between; width:100%; align-items:center;">
+                                        <button class="btn-reminder-yellow" onclick="openReminderModal()" style="width:auto; padding:8px 20px; margin:0; display:flex; align-items:center; gap:8px;">
+                                            <i class="ph-bold ph-bell-ringing"></i> Kirim Pengingat
+                                        </button>
+                                        <div style="display:flex; align-items:center;">
+                                            ${actionButtons}
+                                        </div>
+                                    </div>
+                                `;
+                            }
+                        } else {
+                            // DEFAULT 3-STEP TRACKER
+                            let step1 = (s === 'Usulan' || s === 'Proses' || s === 'Upload E-HRM' || s === 'Selesai');
+                            let step2 = (s === 'Proses' || s === 'Upload E-HRM' || s === 'Selesai');
+                            let step3 = (s === 'Upload E-HRM' || s === 'Selesai');
+                            
+                            let act1 = (s === 'Usulan');
+                            let act2 = (s === 'Proses');
+                            let act3 = (s === 'Upload E-HRM' || s === 'Selesai');
+                            
+                            let html = `
+                                <div class="tracker-step ${step1 ? (act1 ? 'active active-inner' : 'done') : ''}">
+                                    <div class="circle"></div>
+                                    <div class="label">Usulan Pengajuan</div>
+                                    <div class="sub-label" style="padding: 0 10px; line-height: 1.4;">Segera cetak surat pengajuan</div>
+                                </div>
+                                <div class="tracker-line ${step2 ? 'done' : 'dashed'}"></div>
+                                
+                                <div class="tracker-step ${step2 ? (act2 ? 'active active-inner' : 'done') : ''}">
+                                    <div class="circle"></div>
+                                    <div class="label">Proses TTE</div>
+                                    <div class="sub-label" style="padding: 0 10px; line-height: 1.4;">Sedang dalam proses TTE</div>
+                                </div>
+                                <div class="tracker-line ${step3 ? 'done' : 'dashed'}"></div>
+                                
+                                <div class="tracker-step ${step3 ? (act3 ? 'active active-inner' : 'done') : ''}">
+                                    <div class="circle"></div>
+                                    <div class="label">Upload E-HRM</div>
+                                    <div class="sub-label" style="padding: 0 10px; line-height: 1.4;">Ingatkan pegawai untuk segera upload berkas</div>
+                                </div>
+                            `;
+                            trackerEl.innerHTML = html;
+                            
+                            if (modalFooter) {
+                                modalFooter.innerHTML = `
+                                    <button class="btn-reminder-yellow" onclick="openReminderModal()" style="width:auto; padding:8px 20px; margin:0; display:flex; align-items:center; gap:8px; margin-left:auto;">
+                                        <i class="ph-bold ph-bell-ringing"></i> Kirim Pengingat
+                                    </button>
+                                `;
+                            }
+                        }
                     } else {
                         trackerContainer.style.display = 'none';
                         trackerEl.innerHTML = '';
