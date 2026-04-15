@@ -438,31 +438,36 @@ function openDashboardDetail(nip, kategori) {
                             let html = `
                                 <div class="tracker-step ${pass1 ? 'done' : (isStep1 ? 'active active-inner' : '')}">
                                     <div class="circle"></div>
-                                    <div class="label" style="font-size:11px;">Pengajuan UKOM</div>
+                                    <div class="label" style="font-size:12px;">Pengajuan UKOM</div>
+                                    <div class="sub-label" style="padding: 0 10px; line-height: 1.4; font-size:10px;">Sedang proses pengajuan UKOM</div>
                                 </div>
                                 <div class="tracker-line ${pass1 ? 'done' : 'dashed'}"></div>
                                 
                                 <div class="tracker-step ${pass2 ? 'done' : (isStep2 ? 'active active-inner' : '')}">
                                     <div class="circle"></div>
-                                    <div class="label" style="font-size:11px;">Proses UKOM</div>
+                                    <div class="label" style="font-size:12px;">Proses UKOM</div>
+                                    <div class="sub-label" style="padding: 0 10px; line-height: 1.4; font-size:10px;">Sedang Melakukan UKOM</div>
                                 </div>
                                 <div class="tracker-line ${pass2 ? 'done' : 'dashed'}"></div>
                                 
                                 <div class="tracker-step ${pass3 ? 'done' : (isStep3 ? 'active active-inner' : '')}">
                                     <div class="circle"></div>
-                                    <div class="label" style="font-size:11px;">Usulan Pengajuan</div>
+                                    <div class="label" style="font-size:12px;">Usulan Pengajuan</div>
+                                    <div class="sub-label" style="padding: 0 10px; line-height: 1.4; font-size:10px;">Segera cetak surat Pengajuan</div>
                                 </div>
                                 <div class="tracker-line ${pass3 ? 'done' : 'dashed'}"></div>
                                 
                                 <div class="tracker-step ${pass4 ? 'done' : (isStep4 ? 'active active-inner' : '')}">
                                     <div class="circle"></div>
-                                    <div class="label" style="font-size:11px;">Proses TTE</div>
+                                    <div class="label" style="font-size:12px;">Proses TTE</div>
+                                    <div class="sub-label" style="padding: 0 10px; line-height: 1.4; font-size:10px;">Sedang dalam proses TTE</div>
                                 </div>
                                 <div class="tracker-line ${pass4 ? 'done' : 'dashed'}"></div>
                                 
                                 <div class="tracker-step ${isStep5 ? 'active active-inner' : ''}">
                                     <div class="circle"></div>
-                                    <div class="label" style="font-size:11px;">Upload E-HRM</div>
+                                    <div class="label" style="font-size:12px;">Upload E-HRM</div>
+                                    <div class="sub-label" style="padding: 0 10px; line-height: 1.4; font-size:10px;">Ingatkan pegawai untuk segera upload berkas</div>
                                 </div>
                             `;
                             trackerEl.innerHTML = html;
