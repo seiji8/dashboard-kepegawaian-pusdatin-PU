@@ -693,7 +693,7 @@ function openSuratModal(kategori) {
     kpFields.style.display = isKP ? 'block' : 'none';
     if (isKP) {
         document.getElementById('suratMasaKerja').value = '';
-        document.getElementById('suratKPPN').value = 'Jakarta';
+        document.getElementById('suratKPPN').value = 'V Jakarta';
     }
 
     // Fetch data

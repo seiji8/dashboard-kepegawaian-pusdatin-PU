@@ -1297,7 +1297,7 @@
                                     </div>
                                     <div>
                                         <label style="display:block; font-size:12px; font-weight:700; color:#475569; margin-bottom:5px; letter-spacing:0.3px;">KPPN</label>
-                                        <input type="text" id="suratKPPN" placeholder="Contoh: Jakarta" value="Jakarta" style="width:100%; padding:10px 14px; border:1px solid #cbd5e1; border-radius:8px; font-size:13px; outline:none; transition:border 0.2s; box-sizing:border-box;" onfocus="this.style.borderColor='#3b82f6'" onblur="this.style.borderColor='#cbd5e1'">
+                                        <input type="text" id="suratKPPN" placeholder="Contoh: V Jakarta" value="V Jakarta" style="width:100%; padding:10px 14px; border:1px solid #cbd5e1; border-radius:8px; font-size:13px; outline:none; transition:border 0.2s; box-sizing:border-box;" onfocus="this.style.borderColor='#3b82f6'" onblur="this.style.borderColor='#cbd5e1'">
                                     </div>
                                 </div>
                             </div>
