@@ -128,7 +128,7 @@ class SuratPengajuanController extends Controller
             return response()->json(['success' => false, 'message' => 'Data tidak ditemukan'], 404);
         }
 
-        // AUTO UPDATE STATUS: Usulan → Proses (trigger oleh cetak surat)
+        // AUTO UPDATE STATUS: Usulan → Proses (trigger oleh cetak surat)  
         // Yang sudah Proses = cetak ulang, status TIDAK berubah
         $updatedCount = 0;
         foreach ($trackers as $tracker) {
@@ -188,7 +188,7 @@ class SuratPengajuanController extends Controller
                         : '-',
                     'keterangan'       => $t->keterangan ?? '-',
                     'kategori'         => $t->kategori,
-                    'masa_kerja'       => $masaKerja,
+                    'masa_kerja'       => $masaKerja,  
                     'tracker_id'       => $t->id,
                 ];
             })->toArray(),
@@ -196,9 +196,58 @@ class SuratPengajuanController extends Controller
         ];
 
         // Generate PDF
+        $filename = 'Surat_Pengajuan_' . str_replace(' ', '_', $data['kategori_label']) . '_' . date('Ymd_His') . '.pdf';
+
         if (in_array($data['kategori'], ['KP', 'KP_Jafung', 'KP_Struktural', 'KP_Reguler'])) {
-            $pdf = Pdf::loadView('surat.surat_pengajuan_kp_pdf', ['data' => $data]);
-            $pdf->setPaper('A4', 'portrait');
+            
+            // Generate Hal 1 (Portrait)
+            $pdf1 = Pdf::loadView('surat.surat_pengajuan_kp_hal1', ['data' => $data]);
+            $pdf1->setPaper('A4', 'portrait');
+            
+            // Generate Hal 2 (Landscape)
+            $pdf2 = Pdf::loadView('surat.surat_pengajuan_kp_hal2', ['data' => $data]);
+            $pdf2->setPaper('A4', 'landscape');
+            
+            // Folder sementara untuk menampung PDF
+            $tempDir = storage_path('app/temp');
+            if (!file_exists($tempDir)) {
+                mkdir($tempDir, 0755, true);
+            }
+            
+            $file1 = $tempDir . '/hal1_' . time() . '_' . uniqid() . '.pdf';
+            $file2 = $tempDir . '/hal2_' . time() . '_' . uniqid() . '.pdf';
+            
+            file_put_contents($file1, $pdf1->output());
+            file_put_contents($file2, $pdf2->output());
+            
+            // Merge menggunakan FPDI
+            $fpdi = new \setasign\Fpdi\Fpdi();
+            $filesToMerge = [$file1, $file2];
+            
+            foreach ($filesToMerge as $file) {
+                $pageCount = $fpdi->setSourceFile($file);
+                for ($pageNo = 1; $pageNo <= $pageCount; $pageNo++) {
+                    $templateId = $fpdi->importPage($pageNo);
+                    $size = $fpdi->getTemplateSize($templateId);
+                    
+                    // Deteksi orientasi otomatis dari dokumen aslinya
+                    $orientation = $size['width'] > $size['height'] ? 'L' : 'P';
+                    
+                    $fpdi->AddPage($orientation, [$size['width'], $size['height']]);
+                    $fpdi->useTemplate($templateId);
+                }
+            }
+            
+            $mergedFile = $tempDir . '/' . $filename;
+            $fpdi->Output('F', $mergedFile);
+            
+            // Bersihkan sampah halaman awal
+            @unlink($file1);
+            @unlink($file2);
+            
+            // Download hasil merge dan hapus saat selesai dikirim
+            return response()->download($mergedFile)->deleteFileAfterSend(true);
+            
         } elseif ($data['kategori'] === 'KGB') {
             $pdf = Pdf::loadView('surat.surat_pengajuan_kgb_pdf', ['data' => $data]);
             $pdf->setPaper('A4', 'portrait');
@@ -206,8 +255,6 @@ class SuratPengajuanController extends Controller
             $pdf = Pdf::loadView('surat.surat_pengajuan_pdf', ['data' => $data]);
             $pdf->setPaper('A4', 'portrait');
         }
-
-        $filename = 'Surat_Pengajuan_' . str_replace(' ', '_', $data['kategori_label']) . '_' . date('Ymd_His') . '.pdf';
 
         return $pdf->download($filename);
     }
