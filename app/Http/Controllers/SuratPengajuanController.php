@@ -113,6 +113,11 @@ class SuratPengajuanController extends Controller
             'jabatan_ttd'   => 'nullable|string|max:150',
             'kppn'          => 'nullable|string|max:100',
             'masa_kerja'    => 'nullable|array',
+            'sk_lama_pejabat' => 'nullable|string',
+            'sk_lama_nomor'   => 'nullable|string',
+            'sk_lama_tanggal' => 'nullable|string',
+            'gaji_lama'       => 'nullable|numeric',
+            'gaji_baru'       => 'nullable|numeric',
         ]);
 
         $kategori   = $request->kategori;
@@ -166,15 +171,46 @@ class SuratPengajuanController extends Controller
             'nip_ttd'        => $request->nip_ttd ?? '........................',
             'jabatan_ttd'    => $request->jabatan_ttd ?? 'Kepala Pusat Data dan Teknologi Informasi',
             'kppn'           => $request->kppn ?? '',
-            'pegawai_list'   => $trackers->map(function ($t) use ($masaKerjaInput) {
+            'kgb_sk_pejabat' => $request->sk_lama_pejabat ?? 'Kepala Biro Kepegawaian, Organisasi dan Tata Laksana',
+            'kgb_sk_nomor'   => $request->sk_lama_nomor ?? '318/KPTS/M/2026',
+            'kgb_sk_tanggal' => $request->sk_lama_tanggal ?? '20 Februari 2026',
+            'kgb_gaji_lama_angka'     => $request->gaji_lama ? number_format($request->gaji_lama, 0, ',', '.') : '',
+            'kgb_gaji_lama_terbilang' => $request->gaji_lama ? ucwords($this->terbilang($request->gaji_lama)) . ' Rupiah' : '',
+            'kgb_gaji_baru_angka'     => $request->gaji_baru ? number_format($request->gaji_baru, 0, ',', '.') : '',
+            'kgb_gaji_baru_terbilang' => $request->gaji_baru ? ucwords($this->terbilang($request->gaji_baru)) . ' Rupiah' : '',
+            'pegawai_list'   => $trackers->map(function ($t) use ($masaKerjaInput, $kategori) {
                 // Hitung masa kerja: prioritas input manual > auto dari tmt_cpns
                 $masaKerja = $masaKerjaInput[$t->id] ?? '';
-                if (empty($masaKerja) && $t->pegawai && $t->pegawai->tmt_cpns) {
+                $kgbMasaKerjaLama = '';
+                $kgbMasaKerjaBaru = '';
+
+                if ($t->pegawai && $t->pegawai->tmt_cpns) {
                     $tmtCpns = Carbon::parse($t->pegawai->tmt_cpns);
                     $now = Carbon::now();
-                    $years = $tmtCpns->diffInYears($now);
-                    $months = $tmtCpns->copy()->addYears($years)->diffInMonths($now);
-                    $masaKerja = sprintf('%02d Th / %02d Bln', $years, $months);
+                    
+                    // Masa Kerja standard (sampai hari ini)
+                    if (empty($masaKerja)) {
+                        $years = $tmtCpns->diffInYears($now);
+                        $months = $tmtCpns->copy()->addYears($years)->diffInMonths($now);
+                        $masaKerja = sprintf('%02d Th / %02d Bln', $years, $months);
+                    }
+
+                    // Khusus KGB: Hitung Masa Kerja Golongan (Lama) dan Masa Kerja (Baru)
+                    if ($kategori === 'KGB') {
+                        // Lama: dari CPNS sampai tmt_kgb_terakhir
+                        if ($t->pegawai->tmt_kgb_terakhir) {
+                            $tmtKgbLama = Carbon::parse($t->pegawai->tmt_kgb_terakhir);
+                            $yearsLama = $tmtCpns->diffInYears($tmtKgbLama);
+                            $monthsLama = $tmtCpns->copy()->addYears($yearsLama)->diffInMonths($tmtKgbLama);
+                            $kgbMasaKerjaLama = sprintf('%02d tahun %02d bulan', $yearsLama, $monthsLama);
+                        }
+                        
+                        // Baru: dari CPNS sampai tanggal target KGB (atau tanggal surat jika kosong)
+                        $tmtKgbBaru = $t->tanggal_target ? Carbon::parse($t->tanggal_target) : $now;
+                        $yearsBaru = $tmtCpns->diffInYears($tmtKgbBaru);
+                        $monthsBaru = $tmtCpns->copy()->addYears($yearsBaru)->diffInMonths($tmtKgbBaru);
+                        $kgbMasaKerjaBaru = sprintf('%02d tahun %02d bulan', $yearsBaru, $monthsBaru);
+                    }
                 }
 
                 return [
@@ -188,7 +224,9 @@ class SuratPengajuanController extends Controller
                         : '-',
                     'keterangan'       => $t->keterangan ?? '-',
                     'kategori'         => $t->kategori,
-                    'masa_kerja'       => $masaKerja,  
+                    'masa_kerja'       => $masaKerja,
+                    'kgb_masa_kerja_lama' => $kgbMasaKerjaLama,
+                    'kgb_masa_kerja_baru' => $kgbMasaKerjaBaru,
                     'tracker_id'       => $t->id,
                 ];
             })->toArray(),
@@ -257,5 +295,38 @@ class SuratPengajuanController extends Controller
         }
 
         return $pdf->download($filename);
+    }
+
+    /**
+     * Helper Fungsi Terbilang
+     */
+    private function terbilang($x) {
+        return trim($this->_terbilang($x));
+    }
+
+    private function _terbilang($x) {
+        $x = abs($x);
+        $angka = ["", "satu", "dua", "tiga", "empat", "lima", "enam", "tujuh", "delapan", "sembilan", "sepuluh", "sebelas"];
+        $temp = "";
+
+        if ($x < 12) {
+            $temp = " " . $angka[$x];
+        } else if ($x < 20) {
+            $temp = $this->_terbilang($x - 10) . " belas";
+        } else if ($x < 100) {
+            $temp = $this->_terbilang(floor($x / 10)) . " puluh" . $this->_terbilang($x % 10);
+        } else if ($x < 200) {
+            $temp = " seratus" . $this->_terbilang($x - 100);
+        } else if ($x < 1000) {
+            $temp = $this->_terbilang(floor($x / 100)) . " ratus" . $this->_terbilang($x % 100);
+        } else if ($x < 2000) {
+            $temp = " seribu" . $this->_terbilang($x - 1000);
+        } else if ($x < 1000000) {
+            $temp = $this->_terbilang(floor($x / 1000)) . " ribu" . $this->_terbilang($x % 1000);
+        } else if ($x < 1000000000) {
+            $temp = $this->_terbilang(floor($x / 1000000)) . " juta" . $this->_terbilang($x % 1000000);
+        }
+
+        return $temp;
     }
 }

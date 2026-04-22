@@ -696,6 +696,25 @@ function openSuratModal(kategori) {
         document.getElementById('suratKPPN').value = 'V Jakarta';
     }
 
+    // Show/hide KGB-only fields
+    const kgbFields = document.getElementById('suratKGBFields');
+    const isKGB = kategori === 'KGB';
+    kgbFields.style.display = isKGB ? 'block' : 'none';
+    
+    // Hide "Pilih Semua" for KGB
+    const labelSelectAll = document.getElementById('labelSelectAllSurat');
+    if (labelSelectAll) {
+        labelSelectAll.style.display = isKGB ? 'none' : 'flex';
+    }
+
+    if (isKGB) {
+        document.getElementById('kgbSkPejabat').value = 'Kepala Biro Kepegawaian, Organisasi dan Tata Laksana';
+        document.getElementById('kgbSkNomor').value = '318/KPTS/M/2026';
+        document.getElementById('kgbSkTanggal').value = '20 Februari 2026';
+        document.getElementById('kgbGajiLama').value = '';
+        document.getElementById('kgbGajiBaru').value = '';
+    }
+
     // Fetch data
     fetch(`/surat-pengajuan/preview/${kategori}`)
         .then(res => res.json())
@@ -803,7 +822,7 @@ function renderSuratGroups(groups) {
 function renderPegawaiRow(p, statusLabel, statusColor, statusBg) {
     return `
         <label style="display:flex; align-items:center; gap:12px; padding:10px 15px; border-bottom:1px solid #f1f5f9; cursor:pointer; transition:background 0.15s;" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='transparent'">
-            <input type="checkbox" class="surat-pegawai-cb" data-tracker-id="${p.tracker_id}" onchange="updateSuratCount()" style="width:16px; height:16px; accent-color:#1e3a8a; cursor:pointer; flex-shrink:0;">
+            <input type="checkbox" class="surat-pegawai-cb" data-tracker-id="${p.tracker_id}" onchange="handleSuratCbChange(this)" style="width:16px; height:16px; accent-color:#1e3a8a; cursor:pointer; flex-shrink:0;">
             <div style="flex:1; min-width:0;">
                 <div style="font-weight:600; font-size:13px; color:#1e293b;">${p.nama}</div>
                 <div style="font-size:11px; color:#64748b; margin-top:2px;">NIP: ${p.nip} · ${p.pangkat_golongan} · ${p.jabatan}</div>
@@ -815,6 +834,16 @@ function renderPegawaiRow(p, statusLabel, statusColor, statusBg) {
 function suratToggleAll() {
     const isChecked = document.getElementById('suratSelectAll').checked;
     document.querySelectorAll('.surat-pegawai-cb').forEach(cb => cb.checked = isChecked);
+    updateSuratCount();
+}
+
+function handleSuratCbChange(cb) {
+    // KGB: Enforce single selection
+    if (suratKategori === 'KGB' && cb.checked) {
+        document.querySelectorAll('.surat-pegawai-cb').forEach(other => {
+            if (other !== cb) other.checked = false;
+        });
+    }
     updateSuratCount();
 }
 
@@ -875,6 +904,15 @@ function generateSurat() {
         if (masaKerjaVal) {
             selectedIds.forEach(id => payload.append(`masa_kerja[${id}]`, masaKerjaVal));
         }
+    }
+
+    // KGB-only: kirim field manual KGB
+    if (suratKategori === 'KGB') {
+        fields['sk_lama_pejabat'] = document.getElementById('kgbSkPejabat').value;
+        fields['sk_lama_nomor'] = document.getElementById('kgbSkNomor').value;
+        fields['sk_lama_tanggal'] = document.getElementById('kgbSkTanggal').value;
+        fields['gaji_lama'] = document.getElementById('kgbGajiLama').value;
+        fields['gaji_baru'] = document.getElementById('kgbGajiBaru').value;
     }
 
     Object.keys(fields).forEach(key => {

@@ -23,12 +23,12 @@
         .tabel-kop {
             width: 100%;
             border-bottom: 3px solid #000;
-            padding-bottom: 8px;
-            margin-bottom: 15px;
+            margin-bottom: 2px;
             border-collapse: collapse;
         }
         .tabel-kop td {
             vertical-align: middle;
+            padding-bottom: 12px;
         }
         .logo-pu {
             width: 80px;
@@ -83,7 +83,7 @@
         .footer-bssn {
             margin-top: 15px;
             font-size: 8pt;
-            text-align: justify;
+            text-align: center;
             line-height: 1.2;
         }
     </style>
@@ -99,38 +99,38 @@
         $namaLengkap = $p['nama'] ?? '....................................';
         $nip = $p['nip'] ?? '....................................';
         $pangkatGol = $p['pangkat_golongan'] ?? '....................................';
-        $unitKerja = $p['unit_kerja'] ?? '....................................';
         
-        $gajiLamaAngka = isset($p['gaji_pokok_lama']) ? number_format($p['gaji_pokok_lama'], 0, ',', '.') : '';
-        $gajiLamaTerbilang = $p['gaji_pokok_lama_terbilang'] ?? 'Tiga Juta Seratus Delapan Puluh Enam Ribu Enam Ratus Rupiah';
+        $gajiLamaAngka = $data['kgb_gaji_lama_angka'] ?? '';
+        $gajiLamaTerbilang = $data['kgb_gaji_lama_terbilang'] ?? 'Tiga Juta Seratus Delapan Puluh Enam Ribu Enam Ratus Rupiah';
         
-        $gajiBaruAngka = isset($p['gaji_pokok_baru']) ? number_format($p['gaji_pokok_baru'], 0, ',', '.') : '3.287.000';
-        $gajiBaruTerbilang = $p['gaji_pokok_baru_terbilang'] ?? 'Tiga Juta Dua Ratus Delapan Puluh Tujuh Ribu Rupiah';
+        $gajiBaruAngka = $data['kgb_gaji_baru_angka'] ?? '';
+        $gajiBaruTerbilang = $data['kgb_gaji_baru_terbilang'] ?? 'Tiga Juta Dua Ratus Delapan Puluh Tujuh Ribu Rupiah';
     @endphp
 
     <table class="tabel-kop">
         <tr>
-            <td style="width: 12%; text-align: center;">
+            <td style="width: 14%; text-align: center;">
                 @if($logoBase64)
                     <img src="{{ $logoBase64 }}" class="logo-pu" alt="Logo PU">
                 @endif
             </td>
-            <td class="teks-kop" style="width: 76%;">
+            <td class="teks-kop" style="width: 72%;">
                 <p class="kop-instansi">KEMENTERIAN PEKERJAAN UMUM</p>
-                <p class="kop-instansi">SEKRETARIAT JENDERAL</p>
+                <p class="kop-instansi" style="font-weight: bold;">SEKRETARIAT JENDERAL</p>
                 <p class="kop-instansi">PUSAT DATA DAN TEKNOLOGI INFORMASI</p>
                 <p class="kop-alamat">Jalan Pattimura Nomor 20, Kebayoran Baru, Jakarta 12110, Telepon 7232366 Faksimili 7220219</p>
             </td>
-            <td style="width: 12%;"></td>
+            <td style="width: 14%;"></td>
         </tr>
     </table>
+    <div style="border-bottom: 1px solid #000; margin-bottom: 15px;"></div>
 
     <table style="margin-bottom: 15px;">
         <tr>
             <td style="width: 12%;">Nomor</td>
             <td style="width: 3%; text-align: center;">:</td>
             <td style="width: 50%;">{{ $data['nomor_surat'] ?? '' }}</td>
-            <td style="width: 35%; text-align: right;">Jakarta, {{ $data['tanggal_surat'] ?? '09 Maret 2026' }}</td>
+            <td style="width: 35%; text-align: left; padding-left: 20px;">Jakarta, {{ $data['tanggal_surat'] ?? '09 Maret 2026' }}</td>
         </tr>
         <tr>
             <td>Lampiran</td>
@@ -148,7 +148,7 @@
         Yth.<br>
         Kepala Kantor Pelayanan Perbendaharaan Negara<br>
         di-<br>
-        <span style="padding-left: 20px;">Jakarta</span>
+        Jakarta
     </div>
 
     <p class="paragraf">
@@ -158,33 +158,33 @@
     <table style="margin-bottom: 8px;">
         <tr>
             <td style="width: 4%;">1.</td>
-            <td style="width: 30%;">Nama</td>
+            <td style="width: 33%;">Nama</td>
             <td style="width: 3%; text-align: center;">:</td>
-            <td style="text-align: justify;">{{ $namaLengkap }}</td>
+            <td style="text-align: left; width: 60%;">{{ $namaLengkap }}</td>
         </tr>
         <tr>
             <td>2.</td>
             <td>NIP</td>
             <td style="text-align: center;">:</td>
-            <td style="text-align: justify;">{{ $nip }}</td>
+            <td style="text-align: left;">{{ $nip }}</td>
         </tr>
         <tr>
             <td>3.</td>
             <td>Pangkat. Gol/Ruang</td>
             <td style="text-align: center;">:</td>
-            <td style="text-align: justify;">{{ $pangkatGol }}</td>
+            <td style="text-align: left;">{{ $pangkatGol }}</td>
         </tr>
         <tr>
             <td>4.</td>
             <td>Kantor/Tempat</td>
             <td style="text-align: center;">:</td>
-            <td style="text-align: justify;">{{ $unitKerja }}</td>
+            <td style="text-align: left;">Pusat Data dan Teknologi Informasi, Kementerian PU</td>
         </tr>
         <tr>
             <td>5.</td>
             <td>Gaji Pokok Lama</td>
             <td style="text-align: center;">:</td>
-            <td style="text-align: justify;">{{ $gajiLamaAngka != '' ? $gajiLamaAngka . ',- ' : '' }}({{ $gajiLamaTerbilang }})</td>
+            <td style="text-align: left;">{{ $gajiLamaAngka != '' ? $gajiLamaAngka . ',- ' : '..................,- ' }}({{ $gajiLamaTerbilang }})</td>
         </tr>
     </table>
 
@@ -195,27 +195,30 @@
     <table style="margin-bottom: 8px;">
         <tr>
             <td style="width: 4%;">a.</td>
-            <td style="width: 30%;">Oleh Pejabat</td>
+            <td style="width: 33%;">Oleh Pejabat</td>
             <td style="width: 3%; text-align: center;">:</td>
-            <td style="text-align: justify;">{{ $p['sk_lama_pejabat'] ?? 'Kepala Biro Kepegawaian, Organisasi dan Tata Laksana' }}</td>
+            <td style="text-align: left; width: 60%;">{{ $data['kgb_sk_pejabat'] ?? 'Kepala Biro Kepegawaian, Organisasi dan Tata Laksana' }}</td>
         </tr>
         <tr>
             <td>b.</td>
             <td>Nomor/Tanggal</td>
             <td style="text-align: center;">:</td>
-            <td style="text-align: justify;">{{ $p['sk_lama_nomor'] ?? '318/KPTS/M/2026' }} &nbsp;tgl. {{ $p['sk_lama_tanggal'] ?? '20 Februari 2026' }}</td>
+            <td style="text-align: left;">
+                {{ $data['kgb_sk_nomor'] ?? '318/KPTS/M/2026' }} 
+                <span style="float: right;">tgl. {{ $data['kgb_sk_tanggal'] ?? '20 Februari 2026' }}</span>
+            </td>
         </tr>
         <tr>
             <td>c.</td>
             <td>Tgl mulai berlaku gaji tersebut</td>
             <td style="text-align: center;">:</td>
-            <td style="text-align: justify;">{{ $p['sk_lama_tmt'] ?? '01 Maret 2026' }}</td>
+            <td style="text-align: left;">{{ $p['tmt_target'] ?? '01 Maret 2026' }}</td>
         </tr>
         <tr>
             <td>d.</td>
             <td>Masa kerja golongan</td>
             <td style="text-align: center;">:</td>
-            <td style="text-align: justify;">{{ $p['sk_lama_masa_kerja'] ?? '07 tahun 10 bulan' }}</td>
+            <td style="text-align: left;">{{ !empty($p['kgb_masa_kerja_lama']) ? $p['kgb_masa_kerja_lama'] : '...... tahun ...... bulan' }}</td>
         </tr>
     </table>
 
@@ -226,27 +229,27 @@
     <table style="margin-bottom: 10px;">
         <tr>
             <td style="width: 4%;">1.</td>
-            <td style="width: 30%;">Gaji Pokok Baru</td>
+            <td style="width: 33%;">Gaji Pokok Baru</td>
             <td style="width: 3%; text-align: center;">:</td>
-            <td style="text-align: justify;">{{ $gajiBaruAngka }},- ({{ $gajiBaruTerbilang }})</td>
+            <td style="text-align: left; width: 60%;">{{ $gajiBaruAngka != '' ? $gajiBaruAngka . ',- ' : '..................,- ' }}({{ $gajiBaruTerbilang }})</td>
         </tr>
         <tr>
             <td>2.</td>
             <td>Berdasarkan masa kerja</td>
             <td style="text-align: center;">:</td>
-            <td style="text-align: justify;">{{ $p['gaji_baru_masa_kerja'] ?? '08 tahun 00 bulan' }}</td>
+            <td style="text-align: left;">{{ !empty($p['kgb_masa_kerja_baru']) ? $p['kgb_masa_kerja_baru'] : '...... tahun ...... bulan' }}</td>
         </tr>
         <tr>
             <td>3.</td>
             <td>Dalam Pangkat. Gol/Ruang</td>
             <td style="text-align: center;">:</td>
-            <td style="text-align: justify;">{{ $pangkatGol ?? 'III/a' }}</td>
+            <td style="text-align: left;">{{ $pangkatGol ?? 'III/a' }}</td>
         </tr>
         <tr>
             <td>4.</td>
             <td>Terhitung mulai tanggal</td>
             <td style="text-align: center;">:</td>
-            <td style="text-align: justify;">{{ $p['gaji_baru_tmt'] ?? '01 Mei 2026' }}</td>
+            <td style="text-align: left;">{{ $p['tmt_target'] ?? '01 Mei 2026' }}</td>
         </tr>
     </table>
 
@@ -256,9 +259,11 @@
 
     <table style="margin-top: 15px;">
         <tr>
-            <td style="width: 55%;"></td> <td style="width: 45%; text-align: left;">
+            <td style="width: 55%;"></td> 
+            <td style="width: 45%; text-align: center;">
                 {{ $data['jabatan_ttd'] ?? 'Kepala Pusat Data dan Teknologi Informasi,' }}
-                <br><br><br><br><br> <span style="font-weight: bold; text-decoration: underline;">
+                <br><br><br><br><br><br><br><br> 
+                <span style="font-weight: bold; text-decoration: underline;">
                     {{ $data['nama_ttd'] ?? 'Komang Sri Hartini' }}
                 </span>
             </td>
@@ -277,7 +282,7 @@
 
     <div class="footer-bssn">
         Dokumen ini telah ditandatangani menggunakan sertifikasi elektronik yang diterbitkan oleh Balai Sertifikasi (BSrE) BSSN.<br>
-        Untuk memastikan keaslian tanda tangan elektronik, silahkan unggah dokumen pada laman https://tte.komdigi.go.id/verifyPDF.
+        Untuk memastikan keaslian tanda tangan elektronik, silahkan unggah dokumen pada laman <a href="https://tte.komdigi.go.id/verifyPDF" style="color: blue; text-decoration: underline;">https://tte.komdigi.go.id/verifyPDF</a>.
     </div>
 
 </body>

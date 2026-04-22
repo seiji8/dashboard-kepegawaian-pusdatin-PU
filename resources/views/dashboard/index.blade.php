@@ -1260,7 +1260,7 @@
                     <div style="margin-bottom:20px;">
                         <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px;">
                             <h4 style="margin:0; font-size:14px; font-weight:700; color:#1e293b;">1. Pilih Pegawai</h4>
-                            <label style="display:flex; align-items:center; gap:8px; cursor:pointer; font-size:13px; font-weight:600; color:#3b82f6;">
+                            <label id="labelSelectAllSurat" style="display:flex; align-items:center; gap:8px; cursor:pointer; font-size:13px; font-weight:600; color:#3b82f6;">
                                 <input type="checkbox" id="suratSelectAll" onchange="suratToggleAll()" style="width:16px; height:16px; accent-color:#1e3a8a; cursor:pointer;">
                                 Pilih Semua
                             </label>
@@ -1298,6 +1298,31 @@
                                     <div>
                                         <label style="display:block; font-size:12px; font-weight:700; color:#475569; margin-bottom:5px; letter-spacing:0.3px;">KPPN</label>
                                         <input type="text" id="suratKPPN" placeholder="Contoh: V Jakarta" value="V Jakarta" style="width:100%; padding:10px 14px; border:1px solid #cbd5e1; border-radius:8px; font-size:13px; outline:none; transition:border 0.2s; box-sizing:border-box;" onfocus="this.style.borderColor='#3b82f6'" onblur="this.style.borderColor='#cbd5e1'">
+                                    </div>
+                                </div>
+                            </div>
+                            <div id="suratKGBFields" style="display:none; grid-column: 1 / -1;">
+                                <div style="display:grid; grid-template-columns:1fr 1fr; gap:15px;">
+                                    <div style="grid-column: 1 / -1;">
+                                        <label style="display:block; font-size:12px; font-weight:700; color:#475569; margin-bottom:5px; letter-spacing:0.3px;">OLEH PEJABAT (SK LAMA)</label>
+                                        <input type="text" id="kgbSkPejabat" placeholder="Contoh: Kepala Biro Kepegawaian..." value="Kepala Biro Kepegawaian, Organisasi dan Tata Laksana" style="width:100%; padding:10px 14px; border:1px solid #cbd5e1; border-radius:8px; font-size:13px; outline:none; transition:border 0.2s; box-sizing:border-box;" onfocus="this.style.borderColor='#3b82f6'" onblur="this.style.borderColor='#cbd5e1'">
+                                    </div>
+                                    <div style="grid-column: 1 / -1;">
+                                        <label style="display:block; font-size:12px; font-weight:700; color:#475569; margin-bottom:5px; letter-spacing:0.3px;">NOMOR & TANGGAL SK LAMA</label>
+                                        <div style="display:flex; gap:10px;">
+                                            <input type="text" id="kgbSkNomor" placeholder="No. SK Lama" value="318/KPTS/M/2026" style="flex:1; padding:10px 14px; border:1px solid #cbd5e1; border-radius:8px; font-size:13px; outline:none; transition:border 0.2s; box-sizing:border-box;" onfocus="this.style.borderColor='#3b82f6'" onblur="this.style.borderColor='#cbd5e1'">
+                                            <input type="text" id="kgbSkTanggal" placeholder="Tgl. SK Lama" value="20 Februari 2026" style="flex:1; padding:10px 14px; border:1px solid #cbd5e1; border-radius:8px; font-size:13px; outline:none; transition:border 0.2s; box-sizing:border-box;" onfocus="this.style.borderColor='#3b82f6'" onblur="this.style.borderColor='#cbd5e1'">
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label style="display:block; font-size:12px; font-weight:700; color:#475569; margin-bottom:5px; letter-spacing:0.3px;">GAJI POKOK LAMA (ANGKA)</label>
+                                        <input type="number" id="kgbGajiLama" placeholder="Contoh: 3186600" style="width:100%; padding:10px 14px; border:1px solid #cbd5e1; border-radius:8px; font-size:13px; outline:none; transition:border 0.2s; box-sizing:border-box;" onfocus="this.style.borderColor='#3b82f6'" onblur="this.style.borderColor='#cbd5e1'">
+                                        <span style="font-size:10px; color:#94a3b8; margin-top:3px; display:block;">Hanya angka, tanpa titik/koma. Teks terbilang otomatis di-generate.</span>
+                                    </div>
+                                    <div>
+                                        <label style="display:block; font-size:12px; font-weight:700; color:#475569; margin-bottom:5px; letter-spacing:0.3px;">GAJI POKOK BARU (ANGKA)</label>
+                                        <input type="number" id="kgbGajiBaru" placeholder="Contoh: 3287000" style="width:100%; padding:10px 14px; border:1px solid #cbd5e1; border-radius:8px; font-size:13px; outline:none; transition:border 0.2s; box-sizing:border-box;" onfocus="this.style.borderColor='#3b82f6'" onblur="this.style.borderColor='#cbd5e1'">
+                                        <span style="font-size:10px; color:#94a3b8; margin-top:3px; display:block;">Hanya angka, tanpa titik/koma. Teks terbilang otomatis di-generate.</span>
                                     </div>
                                 </div>
                             </div>
