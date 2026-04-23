@@ -95,10 +95,14 @@
                     </button>
 
                     <div id="profileDropdown" class="dropdown-menu">
-                        <a href="#" onclick="openChangePasswordModal(); return false;" class="dropdown-item">
-                            <i class="ph-fill ph-lock-key" style="font-size: 18px; margin-right: 8px;"></i>
-                            Ganti Kata Sandi
-                        </a>
+                            <a href="{{ route('database.backup') }}" class="dropdown-item" style="color: #059669; font-weight: 500;">
+                                <i class="ph-fill ph-database" style="font-size: 18px; margin-right: 8px;"></i>
+                                Backup Database
+                            </a>
+                            <a href="#" onclick="openChangePasswordModal(); return false;" class="dropdown-item">
+                                <i class="ph-fill ph-lock-key" style="font-size: 18px; margin-right: 8px;"></i>
+                                Ganti Kata Sandi
+                            </a>
                         <form action="{{ route('logout') }}" method="POST">
                             @csrf
                             <button type="submit" class="dropdown-item text-red" style="width:100%; border:none; background:none; cursor:pointer;">

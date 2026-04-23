@@ -9,6 +9,7 @@ use App\Http\Controllers\DataPegawaiController;
 use App\Http\Controllers\KonfigurasiPesanController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\SuratPengajuanController;
+use App\Http\Controllers\DatabaseBackupController;
 
 // 1. Halaman Depan (Redirect ke Login aja)
 Route::get('/', function () {
@@ -28,9 +29,8 @@ Route::post('/reset-password', [AuthController::class, 'resetPassword'])->name('
 
 // Change Password Routes (Authenticated Custom)
 Route::middleware(['auth'])->group(function () {
-
-
     Route::post('/change-password', [AuthController::class, 'changePassword'])->name('change-password.update');
+    Route::get('/backup-database', [DatabaseBackupController::class, 'download'])->name('database.backup');
 });
 
 // 3. Rute Halaman Admin (Harus Login Dulu)
