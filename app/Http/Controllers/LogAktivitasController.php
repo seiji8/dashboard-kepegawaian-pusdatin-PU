@@ -11,7 +11,28 @@ class LogAktivitasController extends Controller
     public function index(Request $request)
     {
         $query = Logs::with(['admin', 'pegawai'])->orderBy('waktu', 'desc');
+        $query = $this->applyFilters($query, $request);
 
+        // Pagination (simpan query params agar filter tetap aktif saat paginasi)
+        $logs = $query->paginate(10)->appends($request->all());
+
+        return view('log_aktivitas.index', compact('logs'));
+    }
+
+    public function exportPdf(Request $request)
+    {
+        $query = Logs::with(['admin', 'pegawai'])->orderBy('waktu', 'desc');
+        $query = $this->applyFilters($query, $request);
+        
+        $logs = $query->get(); // Ambil semua data sesuai filter, tanpa paginasi
+
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('log_aktivitas.pdf', compact('logs', 'request'));
+        
+        return $pdf->download('Log_Aktivitas_' . date('Y-m-d_H-i') . '.pdf');
+    }
+
+    private function applyFilters($query, Request $request)
+    {
         // Filter: Jenis Pengguna (berdasarkan role admin atau sistem)
         if ($request->filled('jenis_pengguna')) {
             $jenis = $request->jenis_pengguna;
@@ -39,10 +60,7 @@ class LogAktivitasController extends Controller
             $query->whereDate('waktu', '<=', $request->sampai_tanggal);
         }
 
-        // Pagination (simpan query params agar filter tetap aktif saat paginasi)
-        $logs = $query->paginate(10)->appends($request->all());
-
-        return view('log_aktivitas.index', compact('logs'));
+        return $query;
     }
 
 }

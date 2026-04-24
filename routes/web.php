@@ -46,6 +46,7 @@ Route::middleware(['auth'])->group(function () {
     
     // Log Aktivitas
     Route::get('/log-aktivitas', [LogAktivitasController::class, 'index'])->name('log-aktivitas');
+    Route::get('/log-aktivitas/export-pdf', [LogAktivitasController::class, 'exportPdf'])->name('log-aktivitas.export-pdf');
 
     // Daftar Admin
     Route::get('/daftar-admin', [AdminController::class, 'index'])->name('daftar-admin');
