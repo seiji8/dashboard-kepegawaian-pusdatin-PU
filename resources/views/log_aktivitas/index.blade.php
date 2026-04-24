@@ -128,8 +128,8 @@
                         Filter
                     </button>
                     <button type="button" class="btn-reset" onclick="resetFilter()">Reset</button>
-                    <button type="submit" formaction="{{ route('log-aktivitas.export-pdf') }}" formtarget="_blank" class="btn-filter" style="background-color: #dc2626; color: white; margin-left: auto;">
-                        <i class="ph-fill ph-file-pdf"></i>
+                    <button type="submit" formaction="{{ route('log-aktivitas.export-pdf') }}" formtarget="_blank" class="btn-filter" style="background-color: #dc2626; color: white; margin-left: auto; display: flex; align-items: center; gap: 6px;">
+                        <i class="ph-fill ph-file-pdf" style="font-size: 20px;"></i>
                         Export PDF
                     </button>
                 </div>
