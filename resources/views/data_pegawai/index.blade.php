@@ -14,6 +14,7 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <link rel="icon" type="image/png" href="{{ asset('assets/Logo_PU.png') }}">
+    @include('partials.tour_styles')
 </head>
 <body>
 
@@ -28,6 +29,7 @@
             </div>
 
             <div class="user-actions">
+                @include('partials.tour_button')
                 <div class="notif-wrapper">
                     <button class="btn-icon-header" onclick="toggleNotifDropdown()">
                         <i class="ph-fill ph-bell" style="font-size: 24px; color: #1e3a8a;"></i>
@@ -380,5 +382,49 @@
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
     @include('partials.change_password_modal')
+    <!-- Driver.js (Logika Panduan Tour Interaktif) -->
+    <script src="https://cdn.jsdelivr.net/npm/driver.js@1.3.1/dist/driver.js.iife.js"></script>
+    <script>
+        function mulaiTour() {
+            const driver = window.driver.js.driver;
+            const tour = driver({
+                showProgress: true,
+                animate: true,
+                nextBtnText: 'Lanjut &rarr;',
+                prevBtnText: '&larr; Kembali',
+                doneBtnText: 'Selesai',
+                steps: [
+                    {
+                        element: '.top-navbar',
+                        popover: {
+                            title: 'Area Profil & Notifikasi 👋',
+                            description: 'Di sini Anda dapat mengecek notifikasi, mengubah profil, dan mengganti kata sandi.',
+                            side: "bottom",
+                            align: 'end'
+                        }
+                    },
+                    {
+                        element: '.content-header',
+                        popover: {
+                            title: 'Pencarian & Filter 🔍',
+                            description: 'Gunakan fitur ini untuk mencari pegawai berdasarkan nama atau memfilter berdasarkan tipe jabatan.',
+                            side: "bottom",
+                            align: 'center'
+                        }
+                    },
+                    {
+                        element: '.data-table',
+                        popover: {
+                            title: 'Data Pegawai 📑',
+                            description: 'Tabel ini menampilkan daftar seluruh pegawai. Anda dapat melihat detail atau menghapus data dari sini.',
+                            side: "top",
+                            align: 'center'
+                        }
+                    }
+                ]
+            });
+            tour.drive();
+        }
+    </script>
 </body>
 </html>

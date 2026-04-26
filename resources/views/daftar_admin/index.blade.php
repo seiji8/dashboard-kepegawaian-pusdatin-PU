@@ -46,6 +46,7 @@
             border-bottom: none;
         }
     </style>
+    @include('partials.tour_styles')
 </head>
 <body>
 
@@ -60,6 +61,7 @@
             </div>
 
             <div class="user-actions">
+                @include('partials.tour_button')
                 <div class="notif-wrapper">
                     <button class="btn-icon-header" onclick="toggleNotifDropdown()">
                         <i class="ph-fill ph-bell" style="font-size: 24px; color: #1e3a8a;"></i>
@@ -496,5 +498,49 @@
 
     <script src="{{ asset('js/app-common.js') }}"></script>
     @include('partials.change_password_modal')
+    <!-- Driver.js (Logika Panduan Tour Interaktif) -->
+    <script src="https://cdn.jsdelivr.net/npm/driver.js@1.3.1/dist/driver.js.iife.js"></script>
+    <script>
+        function mulaiTour() {
+            const driver = window.driver.js.driver;
+            const tour = driver({
+                showProgress: true,
+                animate: true,
+                nextBtnText: 'Lanjut &rarr;',
+                prevBtnText: '&larr; Kembali',
+                doneBtnText: 'Selesai',
+                steps: [
+                    {
+                        element: '.top-navbar',
+                        popover: {
+                            title: 'Area Profil & Notifikasi 👋',
+                            description: 'Akses notifikasi dan pengaturan akun Anda di sini.',
+                            side: "bottom",
+                            align: 'end'
+                        }
+                    },
+                    {
+                        element: '.header-actions',
+                        popover: {
+                            title: 'Manajemen Admin 🛡️',
+                            description: 'Anda bisa mencari admin spesifik atau menambahkan admin baru jika memiliki hak akses Super Admin.',
+                            side: "bottom",
+                            align: 'center'
+                        }
+                    },
+                    {
+                        element: '.data-table',
+                        popover: {
+                            title: 'Daftar Role Admin 📋',
+                            description: 'Menampilkan semua admin beserta peran mereka. Anda dapat mengubah peran atau menghapus admin pada tabel ini.',
+                            side: "top",
+                            align: 'center'
+                        }
+                    }
+                ]
+            });
+            tour.drive();
+        }
+    </script>
 </body>
 </html>

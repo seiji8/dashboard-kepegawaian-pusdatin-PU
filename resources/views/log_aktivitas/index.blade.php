@@ -11,6 +11,7 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <link rel="icon" type="image/png" href="{{ asset('assets/Logo_PU.png') }}">
+    @include('partials.tour_styles')
 </head>
 <body>
 
@@ -25,6 +26,7 @@
             </div>
 
             <div class="user-actions">
+                @include('partials.tour_button')
                 <div class="notif-wrapper">
                     <button class="btn-icon-header" onclick="toggleNotifDropdown()">
                         <i class="ph-fill ph-bell" style="font-size: 24px; color: #1e3a8a;"></i>
@@ -264,5 +266,49 @@
     <script src="{{ asset('js/app-common.js') }}"></script>
     <script src="{{ asset('js/dashboard.js') }}"></script>
     @include('partials.change_password_modal')
+    <!-- Driver.js (Logika Panduan Tour Interaktif) -->
+    <script src="https://cdn.jsdelivr.net/npm/driver.js@1.3.1/dist/driver.js.iife.js"></script>
+    <script>
+        function mulaiTour() {
+            const driver = window.driver.js.driver;
+            const tour = driver({
+                showProgress: true,
+                animate: true,
+                nextBtnText: 'Lanjut &rarr;',
+                prevBtnText: '&larr; Kembali',
+                doneBtnText: 'Selesai',
+                steps: [
+                    {
+                        element: '.top-navbar',
+                        popover: {
+                            title: 'Area Profil & Notifikasi 👋',
+                            description: 'Akses notifikasi dan pengaturan akun Anda di sini.',
+                            side: "bottom",
+                            align: 'end'
+                        }
+                    },
+                    {
+                        element: '.filter-section',
+                        popover: {
+                            title: 'Filter Pencarian 🔍',
+                            description: 'Gunakan fitur ini untuk mencari log spesifik berdasarkan jenis pengguna, tanggal, atau aksi tertentu.',
+                            side: "bottom",
+                            align: 'center'
+                        }
+                    },
+                    {
+                        element: '.content-section',
+                        popover: {
+                            title: 'Data Log Aktivitas 📑',
+                            description: 'Tabel ini menampilkan seluruh histori aktivitas yang terjadi di dalam sistem.',
+                            side: "top",
+                            align: 'center'
+                        }
+                    }
+                ]
+            });
+            tour.drive();
+        }
+    </script>
 </body>
 </html>
