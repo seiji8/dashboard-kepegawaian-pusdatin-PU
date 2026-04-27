@@ -68,25 +68,28 @@ class SyncEhrmData extends Command
 
         $currentPegawai = 0;
         foreach ($dataPegawai as $item) {
-            Pegawai::updateOrCreate(
-                ['nip' => $item['nip']], 
-                [
-                    'id_pegawai_api' => $item['id'] ?? null, 
-                    'nama' => $item['nama_lengkap'] ?? $item['nama'] ?? 'Tanpa Nama',
-                    'email' => $item['email_pu'] ?? $item['email'] ?? null,
-                    'no_hp' => $item['telphp'] ?? null,
-                    
-                    'jabatan_saat_ini' => $item['jabatan_lengkap'] ?? null,
-                    'pangkat_golongan' => $item['golongan'] ?? null,
-                    'jenjang' => $item['jenjang'] ?? null,
-                    'kd_eselon' => $item['kd_eselon'] ?? null,
-                ] + array_filter([
-                    // Hanya update tanggal jika API mengembalikan nilai (tidak timpa data manual dgn NULL)
-                    'tmt_cpns' => $this->parseDate($item['tmt_cpns'] ?? null),
-                    'tmt_pangkat_terakhir' => $this->parseDate($item['tmt_pangkat'] ?? null),
-                    'tmt_kgb_terakhir' => $this->parseDate($item['tmt_kgb'] ?? null),
-                ])
-            );
+            $updateData = [
+                'nama' => $item['nama_lengkap'] ?? $item['nama'] ?? 'Tanpa Nama',
+                'email' => $item['email_pu'] ?? $item['email'] ?? null,
+                'no_hp' => $item['telphp'] ?? null,
+                'jabatan_saat_ini' => $item['jabatan_lengkap'] ?? null,
+                'pangkat_golongan' => $item['golongan'] ?? null,
+                'jenjang' => $item['jenjang'] ?? null,
+                'kd_eselon' => $item['kd_eselon'] ?? null,
+            ] + array_filter([
+                'tmt_cpns' => $this->parseDate($item['tmt_cpns'] ?? null),
+                'tmt_pangkat_terakhir' => $this->parseDate($item['tmt_pangkat'] ?? null),
+                'tmt_kgb_terakhir' => $this->parseDate($item['tmt_kgb'] ?? null),
+            ]);
+
+            $pegawai = Pegawai::where('nip', $item['nip'])->first();
+            if ($pegawai) {
+                $pegawai->update($updateData);
+            } else {
+                $updateData['nip'] = $item['nip'];
+                $updateData['id_pegawai_api'] = $item['id'] ?? $item['nip'];
+                Pegawai::create($updateData);
+            }
             $currentPegawai++;
             // Calculate progress: Step 1 goes from 5% to 25% (20% total)
             $stepProgress = 5 + intval(($currentPegawai / $totalPegawai) * 20);
