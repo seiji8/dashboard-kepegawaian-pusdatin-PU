@@ -101,7 +101,8 @@ class AuthController extends Controller
         $user = User::where('email', $request->email)->first();
 
         if (!$user) {
-            return back()->withErrors(['email' => 'Email tidak terdaftar dalam sistem.']);
+            // Kembalikan pesan yang SAMA agar attacker tidak bisa menebak email mana yang terdaftar
+            return back()->with('status', 'Jika email terdaftar, link reset password akan dikirim. Silakan cek inbox Anda.');
         }
 
         // Generate token
@@ -127,7 +128,8 @@ class AuthController extends Controller
         // Log activity
         ActivityLogger::logSystem('Reset password diminta untuk email: ' . $request->email);
 
-        return back()->with('status', 'Link reset password telah dikirim ke email Anda! (Token: ' . $token . ')');
+        // TODO: Aktifkan pengiriman email reset password yang sesungguhnya sebelum deploy production
+        return back()->with('status', 'Jika email terdaftar, link reset password akan dikirim. Silakan cek inbox Anda.');
     }
 
     public function showResetPasswordForm($token)
