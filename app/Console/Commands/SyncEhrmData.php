@@ -84,10 +84,23 @@ class SyncEhrmData extends Command
 
             $pegawai = Pegawai::where('nip', $item['nip'])->first();
             if ($pegawai) {
+                // FIX: Update id_pegawai_api jika masih berisi NIP (bukan numeric API ID)
+                // Harus pakai raw SQL karena id_pegawai_api adalah PRIMARY KEY
+                $realApiId = $item['id_pegawai'] ?? $item['id'] ?? null;
+                if ($realApiId && $pegawai->id_pegawai_api != $realApiId) {
+                    $oldId = $pegawai->id_pegawai_api;
+                    // Matikan FK check sementara karena kita update PK + FK sekaligus
+                    \DB::statement('SET FOREIGN_KEY_CHECKS=0');
+                    \DB::table('pegawai')->where('id_pegawai_api', $oldId)->update(['id_pegawai_api' => $realApiId]);
+                    \DB::table('dashboard_tracker')->where('pegawai_id', $oldId)->update(['pegawai_id' => $realApiId]);
+                    \DB::table('riwayat_angka_kredit')->where('id_pegawai_api', $oldId)->update(['id_pegawai_api' => $realApiId]);
+                    \DB::statement('SET FOREIGN_KEY_CHECKS=1');
+                    $pegawai = Pegawai::where('nip', $item['nip'])->first();
+                }
                 $pegawai->update($updateData);
             } else {
                 $updateData['nip'] = $item['nip'];
-                $updateData['id_pegawai_api'] = $item['id'] ?? $item['nip'];
+                $updateData['id_pegawai_api'] = $item['id_pegawai'] ?? $item['id'] ?? $item['nip'];
                 Pegawai::create($updateData);
             }
             $currentPegawai++;
@@ -126,6 +139,11 @@ class SyncEhrmData extends Command
                 if (!$apiId) continue;
 
                 $pegawai = Pegawai::where('id_pegawai_api', $apiId)->first();
+                
+                // FALLBACK: Jika tidak ketemu by API ID, cari by NIP (safety net)
+                if (!$pegawai && isset($item['riwjabatan'][0]['nipbaru'])) {
+                    $pegawai = Pegawai::where('nip', $item['riwjabatan'][0]['nipbaru'])->first();
+                }
                 if (!$pegawai) continue;
 
                 if (isset($item['riwjabatan']) && is_array($item['riwjabatan'])) {
