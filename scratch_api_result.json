@@ -1,0 +1,172 @@
+{
+    "kgb": {
+        "http_code": 200,
+        "response": {
+            "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZF91bml0IjoiMDExMzAwMDAiLCJpYXQiOjE3NzY5NjA4MTgsImV4cCI6MTgwODUxODQxOH0.Hzcy8DM9l57nV-Vz24WzlQkxbSLpXgCT6bIBWNpYSqI",
+            "data": {
+                "197912172005021002": [
+                    {
+                        "tanggal_berlaku": "2022-04-01T00:00:00+00:00",
+                        "arsip": "\/ehrmpath\/pupr\/assets\/file\/pegawai\/61000\/GAPOK\/197912172005021002_GAPOK_20221104153500.pdf",
+                        "dasar_gaji_pokok": "Kenaikan Pangkat"
+                    }
+                ]
+            }
+        }
+    },
+    "kp": {
+        "http_code": 200,
+        "response": {
+            "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZF91bml0IjoiMDExMzAwMDAiLCJpYXQiOjE3NzY5NjA4MTgsImV4cCI6MTgwODUxODQxOH0.Hzcy8DM9l57nV-Vz24WzlQkxbSLpXgCT6bIBWNpYSqI",
+            "data": {
+                "197912172005021002": [
+                    {
+                        "tahun": 2024,
+                        "status": "Triwulan 1",
+                        "nilai_kinerja": "SESUAI EKSPEKTASI",
+                        "nilai_skp": "BAIK",
+                        "arsip_skp": "https:\/\/kinerja.pu.go.id\/ekin_v3\/uploads\/197912172005021002\/912315646\/dokevaluasi-triwulan-1\/20241101100918_dokevaluasi-triwulan-1_SKP Kapusdatin_Nazib Faizal 2024 Tw I-2.pdf"
+                    },
+                    {
+                        "tahun": 2024,
+                        "status": "Triwulan 2",
+                        "nilai_kinerja": "SESUAI EKSPEKTASI",
+                        "nilai_skp": "BAIK",
+                        "arsip_skp": "https:\/\/kinerja.pu.go.id\/ekin_v3\/uploads\/197912172005021002\/912315646\/dokevaluasi-triwulan-2\/20241101102438_dokevaluasi-triwulan-2_SKP Kapusdatin_Nazib Faizal 2024 Tw II-7.pdf"
+                    },
+                    {
+                        "tahun": 2024,
+                        "status": "Triwulan 3",
+                        "nilai_kinerja": "SESUAI EKSPEKTASI",
+                        "nilai_skp": "BAIK",
+                        "arsip_skp": null
+                    },
+                    {
+                        "tahun": 2024,
+                        "status": "Tahunan",
+                        "nilai_kinerja": "DIATAS EKSPEKTASI",
+                        "nilai_skp": "SANGAT BAIK",
+                        "arsip_skp": null
+                    }
+                ]
+            }
+        }
+    },
+    "diklat": {
+        "http_code": 200,
+        "response": {
+            "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZF91bml0IjoiMDExMzAwMDAiLCJpYXQiOjE3NzY5NjA4MTgsImV4cCI6MTgwODUxODQxOH0.Hzcy8DM9l57nV-Vz24WzlQkxbSLpXgCT6bIBWNpYSqI",
+            "data": {
+                "197912172005021002": [
+                    {
+                        "jenis_diklat": "UMUM",
+                        "arsip": "\/ehrmpath\/pupr\/assets\/file\/pegawai\/61000\/DIKLAT\/197912172005021002_DIKLATPIM_180326044537.pdf",
+                        "arsip_bpsdm": null
+                    },
+                    {
+                        "jenis_diklat": "STRUKTURAL",
+                        "arsip": "\/ehrmpath\/pupr\/assets\/file\/pegawai\/61000\/DIKLAT\/197912172005021002_DIKLATPIM_180326044323.pdf",
+                        "arsip_bpsdm": null
+                    },
+                    {
+                        "jenis_diklat": "STRUKTURAL",
+                        "arsip": "\/ehrmpath\/pupr\/assets\/file\/pegawai\/61000\/DIKLAT\/197912172005021002_DIKLATPIM_171204122353.pdf",
+                        "arsip_bpsdm": null
+                    },
+                    {
+                        "jenis_diklat": "TEKNIS",
+                        "arsip": "\/ehrmpath\/pupr\/assets\/file\/pegawai\/61000\/DIKLAT\/197912172005021002_DIKLATPIM_180702105003.pdf",
+                        "arsip_bpsdm": null
+                    },
+                    {
+                        "jenis_diklat": "TEKNIS",
+                        "arsip": "\/ehrmpath\/pupr\/assets\/file\/pegawai\/61000\/DIKLAT\/197912172005021002_DIKLAT_190814100809.pdf",
+                        "arsip_bpsdm": null
+                    },
+                    {
+                        "jenis_diklat": "UMUM",
+                        "arsip": null,
+                        "arsip_bpsdm": "https:\/\/sibangkoman.pu.go.id\/center\/pelatihan\/ui-ediklat\/assets\/pdf_digital\/hasil\/2022\/09\/68286\/nazib_faizal__s_t___m_sc__19791217200502100220220926150139_9256_seminar_signed.pdf"
+                    },
+                    {
+                        "jenis_diklat": "STRUKTURAL",
+                        "arsip": null,
+                        "arsip_bpsdm": null
+                    },
+                    {
+                        "jenis_diklat": "STRUKTURAL",
+                        "arsip": null,
+                        "arsip_bpsdm": "https:\/\/sibangkoman.pu.go.id\/center\/pelatihan\/ui-ediklat\/assets\/pdf_digital\/hasil\/2024\/01\/68512\/01133_nazib-faizal-cert-627458.pdf"
+                    },
+                    {
+                        "jenis_diklat": "UMUM",
+                        "arsip": null,
+                        "arsip_bpsdm": "https:\/\/bpsdm.pu.go.id\/center\/pelatihan\/ui-ediklat\/assets\/pdf_digital\/hasil\/2024\/01\/68793\/nazib_faizal_19791217200502100220240118140739_5492_seminar_signed.pdf"
+                    },
+                    {
+                        "jenis_diklat": "UMUM",
+                        "arsip": null,
+                        "arsip_bpsdm": "https:\/\/sibangkoman.pu.go.id\/center\/pelatihan\/ui-ediklat\/assets\/pdf_digital\/hasil\/2024\/01\/68512\/01133_nazib-faizal-cert-627458.pdf"
+                    },
+                    {
+                        "jenis_diklat": "TEKNIS",
+                        "arsip": null,
+                        "arsip_bpsdm": "https:\/\/sibangkoman.pu.go.id\/center\/pelatihan\/ui-ediklat\/assets\/pdf_digital\/hasil\/2024\/11\/69076\/nazib_faizal__19791217200502100220241115170318_8790_signed.pdf"
+                    },
+                    {
+                        "jenis_diklat": "TEKNIS",
+                        "arsip": null,
+                        "arsip_bpsdm": "https:\/\/sibangkoman.pu.go.id\/center\/pelatihan\/ui-ediklat\/assets\/pdf_digital\/hasil\/2024\/11\/69334\/nazib_faizal_19791217200502100220241126080705_3685_seminar_signed.pdf"
+                    },
+                    {
+                        "jenis_diklat": "TEKNIS",
+                        "arsip": null,
+                        "arsip_bpsdm": null
+                    }
+                ]
+            }
+        }
+    },
+    "jabatan": {
+        "http_code": 200,
+        "response": {
+            "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZF91bml0IjoiMDExMzAwMDAiLCJpYXQiOjE3NzY5NjA4MTgsImV4cCI6MTgwODUxODQxOH0.Hzcy8DM9l57nV-Vz24WzlQkxbSLpXgCT6bIBWNpYSqI",
+            "data": {
+                "197912172005021002": [
+                    {
+                        "arsip": "\/ehrmpath\/pupr\/assets\/file\/pegawai\/61000\/JABATAN\/197912172005021002_JABATAN_201222015050.pdf",
+                        "no_sk": "1793\/KPTS\/M\/2020",
+                        "tanggal_mulai": "2020-12-22T00:00:00+00:00",
+                        "tanggal_selesai": null,
+                        "jabatan_utama": "JPT PRATAMA",
+                        "jabatan_nama": "JABATAN STRUKTURAL"
+                    }
+                ]
+            }
+        }
+    },
+    "tubel": {
+        "http_code": 200,
+        "response": {
+            "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZF91bml0IjoiMDExMzAwMDAiLCJpYXQiOjE3NzY5NjA4MTgsImV4cCI6MTgwODUxODQxOH0.Hzcy8DM9l57nV-Vz24WzlQkxbSLpXgCT6bIBWNpYSqI",
+            "data": {
+                "197912172005021002": [
+                    {
+                        "keterangan": "Tugas Belajar",
+                        "pendidikan": "S2",
+                        "tanggal_mulai": "2010-07-28T00:00:00+00:00",
+                        "tanggal_selesai": "2011-07-28T00:00:00+00:00",
+                        "perpanjangan1_tanggal_mulai": null,
+                        "perpanjangan2_tanggal_mulai": null,
+                        "no_izin": "482\/KPTS\/M\/2010",
+                        "arsip_izin_belajar": null,
+                        "arsip_perpanjangan1": null,
+                        "arsip_perpanjangan2": null,
+                        "arsip_pengembalian": null,
+                        "status_tubel": "Nominasi"
+                    }
+                ]
+            }
+        }
+    }
+}

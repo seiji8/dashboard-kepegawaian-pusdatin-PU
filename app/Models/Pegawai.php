@@ -39,6 +39,18 @@ class Pegawai extends Model
         return $this->hasMany(RiwayatDiklat::class, 'nip', 'nip');
     }
 
+    // Satu Pegawai punya BANYAK Riwayat SKP
+    public function riwayat_skp()
+    {
+        return $this->hasMany(RiwayatSkp::class, 'nip', 'nip');
+    }
+
+    // Satu Pegawai punya BANYAK Riwayat Tubel
+    public function riwayat_tubel()
+    {
+        return $this->hasMany(RiwayatTubel::class, 'nip', 'nip');
+    }
+
     // Satu Pegawai punya BANYAK Riwayat Angka Kredit (Fase 2)
     public function riwayatAngkaKredit()
     {
