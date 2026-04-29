@@ -408,7 +408,8 @@ class SyncEhrmData extends Command
         if (!$newToken) {
             $this->error('❌ EHRM_NEW_TOKEN tidak ditemukan di .env. Lewati tahap ini.');
         } else {
-            $allPegawai = Pegawai::select('nip', 'nama')->get();
+            // PENTING: sertakan 'id_pegawai_api' (PRIMARY KEY model Pegawai) agar $peg->update() tidak silently fail
+            $allPegawai = Pegawai::select('nip', 'nama', 'id_pegawai_api')->get();
             $totalBaru = $allPegawai->count();
             $bar5 = $this->output->createProgressBar($totalBaru);
             $bar5->start();
