@@ -82,7 +82,7 @@ class SyncEhrmData extends Command
             ] + array_filter([
                 'tmt_cpns'            => $this->parseDate($item['tmt_cpns'] ?? null),
                 'tmt_pangkat_terakhir'=> $this->parseDate($item['tmt_pangkat'] ?? null),
-                'tmt_kgb_terakhir'    => $this->parseDate($item['tmt_kgb'] ?? null),
+                // tmt_kgb_terakhir TIDAK diambil dari API lama — sumber kebenaran adalah Tahap 5 (API baru /gaji-pokok-latest)
             ]);
 
             // Simpan ID numerik ke kolom terpisah (tanpa mengubah PK id_pegawai_api)
@@ -97,12 +97,14 @@ class SyncEhrmData extends Command
                 $realApiId = $item['id_pegawai'] ?? $item['id'] ?? null;
                 if ($realApiId && $pegawai->id_pegawai_api != $realApiId) {
                     $oldId = $pegawai->id_pegawai_api;
-                    // Matikan FK check sementara karena kita update PK + FK sekaligus
-                    \DB::statement('SET FOREIGN_KEY_CHECKS=0');
-                    \DB::table('pegawai')->where('id_pegawai_api', $oldId)->update(['id_pegawai_api' => $realApiId]);
-                    \DB::table('dashboard_tracker')->where('pegawai_id', $oldId)->update(['pegawai_id' => $realApiId]);
-                    \DB::table('riwayat_angka_kredit')->where('id_pegawai_api', $oldId)->update(['id_pegawai_api' => $realApiId]);
-                    \DB::statement('SET FOREIGN_KEY_CHECKS=1');
+                    // Wrap dalam transaction agar FK_CHECKS tidak stuck di 0 jika terjadi error
+                    \DB::transaction(function () use ($oldId, $realApiId) {
+                        \DB::statement('SET FOREIGN_KEY_CHECKS=0');
+                        \DB::table('pegawai')->where('id_pegawai_api', $oldId)->update(['id_pegawai_api' => $realApiId]);
+                        \DB::table('dashboard_tracker')->where('pegawai_id', $oldId)->update(['pegawai_id' => $realApiId]);
+                        \DB::table('riwayat_angka_kredit')->where('id_pegawai_api', $oldId)->update(['id_pegawai_api' => $realApiId]);
+                        \DB::statement('SET FOREIGN_KEY_CHECKS=1');
+                    });
                     $pegawai = Pegawai::where('nip', $item['nip'])->first();
                 }
                 $pegawai->update($updateData);
@@ -143,13 +145,19 @@ class SyncEhrmData extends Command
 
             $currentRiw = 0;
             foreach ($dataRiw as $item) {
+                $currentRiw++;
+                $bar2->advance();
+
                 $apiId = $item['id'] ?? null;
                 if (!$apiId) continue;
 
-                // Ambil NIP dari nipbaru di riwjabatan / riwpangkat
-                $nipFromRiw = $item['riwjabatan'][0]['nipbaru']
-                    ?? $item['riwpangkat'][0]['nipbaru']
-                    ?? null;
+                // Sort riwjabatan by tglmulai desc agar [0] selalu yang terbaru
+                $riwJabatanSorted = collect($item['riwjabatan'] ?? [])->sortByDesc('tglmulai')->values()->all();
+                $riwPangkatArr    = $item['riwpangkat'] ?? [];
+
+                // Ambil NIP dari nipbaru di riwjabatan / riwpangkat (sudah sorted)
+                $nipFromRiw = $riwJabatanSorted[0]['nipbaru']
+                    ?? ($riwPangkatArr[0]['nipbaru'] ?? null);
 
                 // Cari pegawai: prioritaskan NIP dari riwayat, fallback ke numeric_api_id
                 $pegawai = null;
@@ -166,43 +174,40 @@ class SyncEhrmData extends Command
                     $pegawai->update(['numeric_api_id' => (int)$apiId]);
                 }
 
-                if (isset($item['riwjabatan']) && is_array($item['riwjabatan'])) {
-                    // Update Tipe Jabatan & kd_eselon di Pegawai (ambil data terbaru)
-                    if (count($item['riwjabatan']) > 0) {
-                        $latest = $item['riwjabatan'][0];
-                        $updateData = ['tipe_jabatan' => $latest['tipejabatan'] ?? null];
+                if (!empty($riwJabatanSorted)) {
+                    // Update Tipe Jabatan & kd_eselon di Pegawai (sudah sorted, [0] = terbaru)
+                    $latest = $riwJabatanSorted[0];
+                    $updateData = ['tipe_jabatan' => $latest['tipejabatan'] ?? null];
 
-                        // Ambil kd_eselon dari riwayat jabatan terbaru (hanya ada di riwjabatan, bukan data utama)
-                        if (isset($latest['kd_eselon']) && $latest['kd_eselon']) {
-                            $updateData['kd_eselon'] = $latest['kd_eselon'];
-                        }
-
-                        $pegawai->update($updateData);
+                    // Ambil kd_eselon dari riwayat jabatan terbaru
+                    if (!empty($latest['kd_eselon'])) {
+                        $updateData['kd_eselon'] = $latest['kd_eselon'];
                     }
 
-                    foreach ($item['riwjabatan'] as $jab) {
+                    $pegawai->update($updateData);
+
+                    foreach ($riwJabatanSorted as $jab) {
                         \App\Models\RiwayatJabatan::updateOrCreate(
                             [
-                                'nip' => $pegawai->nip,
-                                'nosk' => $jab['nosk'] ?? '-',
+                                'nip'     => $pegawai->nip,
+                                'nosk'    => $jab['nosk'] ?? '-',
                                 'jabatan' => $jab['jabatan'] ?? '-',
                             ],
                             [
-                                'tgl_sk' => $this->parseDate($jab['tgl_sk'] ?? null),
-                                'tmt_jabatan' => $this->parseDate($jab['tglmulai'] ?? null),
-                                'tgl_selesai' => $this->parseDate($jab['tglselesai'] ?? null),
+                                'tgl_sk'       => $this->parseDate($jab['tgl_sk'] ?? null),
+                                'tmt_jabatan'  => $this->parseDate($jab['tglmulai'] ?? null),
+                                'tgl_selesai'  => $this->parseDate($jab['tglselesai'] ?? null),
                                 'tipe_jabatan' => $jab['tipejabatan'] ?? null,
-                                'file_sk' => $jab['sk'] ?? null,
+                                'file_sk'      => $jab['sk'] ?? null,
                             ]
                         );
                     }
                 }
 
-                // Sync tmt_pangkat_terakhir dari riwpangkat (jika ada)
-                if (isset($item['riwpangkat']) && is_array($item['riwpangkat']) && count($item['riwpangkat']) > 0) {
-                    // Sort by tglmulai desc → ambil yang terbaru
-                    $riwPangkatSorted = collect($item['riwpangkat'])->sortByDesc('tglmulai');
-                    $latestPangkat = $riwPangkatSorted->first();
+                // Sync tmt_pangkat_terakhir dari riwpangkat (sudah sorted di atas)
+                if (!empty($riwPangkatArr)) {
+                    $riwPangkatSorted2 = collect($riwPangkatArr)->sortByDesc('tglmulai');
+                    $latestPangkat = $riwPangkatSorted2->first();
 
                     if ($latestPangkat && !empty($latestPangkat['tglmulai'])) {
                         $tmtParsed = $this->parseDate($latestPangkat['tglmulai']);
@@ -212,13 +217,11 @@ class SyncEhrmData extends Command
                     }
                 }
 
-                $currentRiw++;
-                // Calculate progress: Step 2 goes from 25% to 45% (20% total)
+                // Progress sudah di-increment di atas (sebelum continue)
                 $stepProgress = 25 + intval(($currentRiw / max(1, $totalRiw)) * 20);
                 if ($currentRiw % 50 === 0 || $currentRiw === $totalRiw) {
                     $this->updateProgressCache($stepProgress, 2, 'processing', "Memproses riwayat jabatan $currentRiw / $totalRiw pegawai...");
                 }
-                $bar2->advance();
             }
             $this->updateProgressCache(45, 2, 'done', 'Riwayat Jabatan Selesai');
             $bar2->finish();
@@ -380,7 +383,8 @@ class SyncEhrmData extends Command
                 }
 
                 $currentDiklat++;
-                $stepProgress = 70 + intval(($currentDiklat / max(1, $totalDiklat)) * 25);
+                // Tahap 4: progress 70% → 80% (bukan 95%, sisakan 80-100 untuk Tahap 5)
+                $stepProgress = 70 + intval(($currentDiklat / max(1, $totalDiklat)) * 10);
                 if ($currentDiklat % 5 === 0 || $currentDiklat === $totalDiklat) {
                     $this->updateProgressCache($stepProgress, 4, 'processing', "Memproses riwayat diklat $currentDiklat / $totalDiklat pegawai...");
                 }
@@ -389,6 +393,7 @@ class SyncEhrmData extends Command
             // Beri jeda 1 detik tiap 3 request bersamaan
             sleep(1);
         }
+        $this->updateProgressCache(80, 4, 'done', 'Riwayat Diklat Selesai');
         $bar4->finish();
         $this->newLine();
 
@@ -408,7 +413,7 @@ class SyncEhrmData extends Command
             $bar5 = $this->output->createProgressBar($totalBaru);
             $bar5->start();
 
-            $this->updateProgressCache(85, 5, 'processing', 'Memulai sinkronisasi data tambahan...');
+            $this->updateProgressCache(80, 5, 'processing', 'Memulai sinkronisasi data tambahan...');
 
             $currentBaru = 0;
             $baruChunks = $allPegawai->chunk(3);
@@ -434,14 +439,18 @@ class SyncEhrmData extends Command
                 foreach ($chunk as $peg) {
                     $nip = $peg->nip;
                     
-                    // 1. KGB
+                    // 1. KGB — sumber kebenaran tmt_kgb_terakhir (API baru lebih akurat dari API lama)
                     $kgbResp = $responses["kgb_".$nip] ?? null;
                     if ($kgbResp instanceof \Illuminate\Http\Client\Response && $kgbResp->successful()) {
                         $dataKgb = $kgbResp->json()['data'][$nip] ?? [];
-                        if (is_array($dataKgb) && !empty($dataKgb) && isset($dataKgb[0]['tanggal_berlaku'])) {
-                            $peg->update([
-                                'tmt_kgb_terakhir' => $this->parseDate($dataKgb[0]['tanggal_berlaku'])
-                            ]);
+                        if (is_array($dataKgb) && !empty($dataKgb)) {
+                            // Sort by tanggal_berlaku desc agar [0] selalu KGB terbaru
+                            $latestKgb = collect($dataKgb)->sortByDesc('tanggal_berlaku')->first();
+                            if ($latestKgb && !empty($latestKgb['tanggal_berlaku'])) {
+                                $peg->update([
+                                    'tmt_kgb_terakhir' => $this->parseDate($latestKgb['tanggal_berlaku'])
+                                ]);
+                            }
                         }
                     }
 
@@ -463,7 +472,8 @@ class SyncEhrmData extends Command
                             }
 
                             // Tempatkan arsip SKP di modul KJ jika ada
-                            $kjTracker = \App\Models\DashboardTracker::where('pegawai_id', $nip)->where('kategori', 'KJ_Jafung')->first();
+                            // Gunakan id_pegawai_api (bisa berisi numeric ID setelah Tahap 1)
+                            $kjTracker = \App\Models\DashboardTracker::where('pegawai_id', $peg->id_pegawai_api)->where('kategori', 'KJ_Jafung')->first();
                             if ($kjTracker) {
                                 $latestSkp = collect($dataKp)->whereNotNull('arsip_skp')->sortByDesc('tahun')->first();
                                 if ($latestSkp) {
@@ -532,7 +542,8 @@ class SyncEhrmData extends Command
                             );
 
                             // Tempatkan arsip jabatan di modul KJ
-                            $kjTracker = \App\Models\DashboardTracker::where('pegawai_id', $nip)->where('kategori', 'KJ_Jafung')->first();
+                            // Gunakan id_pegawai_api (bisa berisi numeric ID setelah Tahap 1)
+                            $kjTracker = \App\Models\DashboardTracker::where('pegawai_id', $peg->id_pegawai_api)->where('kategori', 'KJ_Jafung')->first();
                             if ($kjTracker && !empty($j['arsip'])) {
                                 \App\Models\KelengkapanDokumen::updateOrCreate(
                                     [
@@ -576,7 +587,8 @@ class SyncEhrmData extends Command
                     }
                     
                     $currentBaru++;
-                    $stepProgress = 85 + intval(($currentBaru / max(1, $totalBaru)) * 15);
+                    // Tahap 5: progress 80% → 100%
+                    $stepProgress = 80 + intval(($currentBaru / max(1, $totalBaru)) * 20);
                     if ($currentBaru % 5 === 0 || $currentBaru === $totalBaru) {
                         $this->updateProgressCache($stepProgress, 5, 'processing', "Memproses data tambahan $currentBaru / $totalBaru pegawai...");
                     }
@@ -595,9 +607,12 @@ class SyncEhrmData extends Command
 
     private function parseDate($dateString)
     {
-        if (!$dateString) return null;
+        // Guard: null, false, 0, atau string kosong/whitespace → return null
+        if (!$dateString || trim((string) $dateString) === '') return null;
         try {
-            return Carbon::parse($dateString)->format('Y-m-d');
+            $parsed = Carbon::parse($dateString);
+            // Guard tambahan: Carbon::parse('') bisa return 'today', reject jika input tidak bermakna
+            return $parsed->format('Y-m-d');
         } catch (\Exception $e) {
             return null;
         }
