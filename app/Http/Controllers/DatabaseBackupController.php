@@ -14,10 +14,10 @@ class DatabaseBackupController extends Controller
      */
     public function download(Request $request)
     {
-        // Pastikan hanya Super Admin yang bisa mengakses fitur ini jika RBAC diimplementasikan
-        // if (!auth()->user() || !auth()->user()->isSuperAdmin()) {
-        //    abort(403, 'Unauthorized action.');
-        // }
+        // SECURITY: Hanya Super Admin yang bisa mengakses fitur backup database
+        if (!auth()->user() || !auth()->user()->isSuperAdmin()) {
+            abort(403, 'Anda tidak memiliki hak akses untuk fitur ini.');
+        }
 
         $databaseName = env('DB_DATABASE');
         $fileName = 'Backup_' . $databaseName . '_' . Carbon::now()->format('Y-m-d_H-i-s') . '.sql';
@@ -92,6 +92,9 @@ class DatabaseBackupController extends Controller
 
         // Write to file
         file_put_contents($filePath, $sqlScript);
+
+        // Log aktivitas backup
+        \App\Helpers\ActivityLogger::logAdminAction('Mengunduh backup database');
 
         // Download and delete
         return response()->download($filePath)->deleteFileAfterSend(true);
