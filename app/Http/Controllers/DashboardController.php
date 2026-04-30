@@ -22,7 +22,7 @@ class DashboardController extends Controller
         
         $tenggatMendesak = DashboardTracker::whereNull('dikonfirmasi_at')
                                        ->where(function($q) {
-                                           $q->whereIn('status_saat_ini', ['Usulan', 'Upload E-HRM', 'Mendekati', 'Menunggu SKP']);
+                                           $q->whereIn('status_saat_ini', ['Usulan', 'Upload E-HRM', 'Menunggu SKP']);
                                        })
                                        ->count();
                                            
@@ -46,6 +46,7 @@ class DashboardController extends Controller
                         $query->whereNull('dikonfirmasi_at')
                               ->orWhere('kategori', 'KGB'); 
                     })
+                    ->where('status_saat_ini', '!=', 'Mendekati') // Mendekati hanya kirim notif, tidak tampil di dashboard
                     ->get();
 
         // Kelompokkan berdasarkan Kategori untuk Accordion

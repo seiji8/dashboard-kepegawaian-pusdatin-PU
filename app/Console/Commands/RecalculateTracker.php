@@ -25,6 +25,13 @@ class RecalculateTracker extends Command
     {
         $this->info('⚙️  Memulai perhitungan tracker & notifikasi...');
         ActivityLogger::logSystem('Memulai perhitungan tracker & pengiriman notifikasi');
+
+        // Bersihkan semua tracker ber-status 'Mendekati' yang mungkin masih tersisa
+        // (Status ini tidak lagi disimpan ke DB — hanya kirim notifikasi ke pegawai)
+        $deletedMendekati = DashboardTracker::where('status_saat_ini', 'Mendekati')->delete();
+        if ($deletedMendekati > 0) {
+            $this->info("🧹 Membersihkan {$deletedMendekati} tracker lama ber-status 'Mendekati'...");
+        }
         
         // --- AMBIL CONFIG RULE DARI DB ---
         $rulePenjadwalan = NotifikasiRules::where('kategori', 'KGB Penjadwalan')->first();
@@ -289,9 +296,49 @@ class RecalculateTracker extends Command
                                 }
                             }
 
-                            // Tentukan tanggal target notifikasi (saat AK mencukupi / mendekati)
+                            // --- PENANGANAN STATUS MENDEKATI ---
+                            // Status 'Mendekati' TIDAK disimpan ke DashboardTracker (tidak tampil di dashboard).
+                            // Sebagai gantinya, kirim notifikasi email SATU KALI ke pegawai (throttle via Cache).
+                            if ($statusAK === 'Mendekati') {
+                                // Hapus tracker lama jika sebelumnya ada tracker Mendekati
+                                DashboardTracker::where('pegawai_id', $pegawai->id_pegawai_api)
+                                    ->whereIn('kategori', [$kategoriSekarang, $kategoriLawan])
+                                    ->where('status_saat_ini', 'Mendekati')
+                                    ->delete();
+
+                                // Kirim notifikasi ke pegawai (throttle: 1x per 30 hari)
+                                $notifCacheKey = 'mendekati_notif_' . $pegawai->id_pegawai_api . '_' . $kategoriSekarang;
+                                if (!Cache::has($notifCacheKey)) {
+                                    $notifiable = User::where('email', $pegawai->email)->first();
+                                    if (!$notifiable && $pegawai->email) {
+                                        $notifiable = Notification::route('mail', $pegawai->email);
+                                    }
+                                    if ($notifiable) {
+                                        $namaProsesMendekati = $isKenaikanJenjang ? 'Kenaikan Jenjang' : 'Kenaikan Pangkat';
+                                        $subjekMendekati = "🔔 Informasi Angka Kredit: Mendekati Target {$namaProsesMendekati}";
+                                        $pesanMendekati = "Yth. {$pegawai->nama} (NIP: {$pegawai->nip}),\n\n"
+                                            . "Angka Kredit (AK) Anda saat ini telah mendekati target untuk {$namaProsesMendekati}.\n"
+                                            . "{$keteranganAK}\n\n"
+                                            . "Harap terus tingkatkan kinerja Anda agar target AK dapat segera tercapai.\n\n"
+                                            . "Terima kasih.";
+                                        try {
+                                            $notifiable->notify(new SystemAlertNotification($pegawai, $subjekMendekati, $pesanMendekati));
+                                            Cache::put($notifCacheKey, true, now()->addDays(30));
+                                            ActivityLogger::logSystem("Mengirim notifikasi 'Mendekati' AK ke pegawai {$pegawai->nama} ({$kategoriSekarang})", $pegawai->nip);
+                                        } catch (\Exception $e) {
+                                            \Log::error("Gagal mengirim notifikasi Mendekati ke {$pegawai->email}: " . $e->getMessage());
+                                        }
+                                    }
+                                }
+                                // Lanjut ke pegawai berikutnya — tidak perlu update tracker
+                                $bar->advance();
+                                continue;
+                            }
+                            // --- AKHIR PENANGANAN MENDEKATI ---
+
+                            // Tentukan tanggal target notifikasi (saat AK mencukupi)
                             $targetDate = null;
-                            if (in_array($statusAK, ['Usulan', 'Mendekati', 'Proses', 'Menunggu UKOM'])) {
+                            if (in_array($statusAK, ['Usulan', 'Proses', 'Menunggu UKOM'])) {
                                 if ($existingAK && $existingAK->tanggal_target) {
                                     $targetDate = $existingAK->tanggal_target;
                                 } else {
@@ -301,7 +348,7 @@ class RecalculateTracker extends Command
 
                             // Manajemen Database Tracker
                             if (!$skipTrackerUpdate) {
-                                if (in_array($statusAK, ['Usulan', 'Mendekati', 'Proses', 'Menunggu UKOM'])) {
+                                if (in_array($statusAK, ['Usulan', 'Proses', 'Menunggu UKOM'])) {
                                     $tracker = DashboardTracker::updateOrCreate(
                                         [
                                             'pegawai_id' => $pegawai->id_pegawai_api,
