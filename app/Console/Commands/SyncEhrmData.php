@@ -403,7 +403,7 @@ class SyncEhrmData extends Command
         if (!$newToken) {
             $this->error('❌ EHRM_NEW_TOKEN tidak ditemukan di .env. Lewati tahap ini.');
         } else {
-            $allPegawai = Pegawai::select('nip', 'nama')->get();
+            $allPegawai = Pegawai::all(); // Load full model agar update() bisa jalan
             $totalBaru = $allPegawai->count();
             $bar5 = $this->output->createProgressBar($totalBaru);
             $bar5->start();
