@@ -968,7 +968,7 @@ function generateSurat() {
 
 
 // ============================================================
-// KONFIRMASI USULAN Ã¢â‚¬â€ KP & KGB (tanpa cetak surat)
+// KONFIRMASI USULAN KP & KGB (tanpa cetak surat)
 // ============================================================
 
 let _konfirmasiKategori = null;
@@ -1060,7 +1060,7 @@ function submitKonfirmasi() {
 }
 
 // ============================================================
-// KONFIRMASI PER-BARIS Ã¢â‚¬â€ KP & KGB
+// KONFIRMASI PER-BARIS KP & KGB
 // ============================================================
 function konfirmasiPerBaris(btnElement, trackerId, nama, kategori) {
     window._currentBtnElement = btnElement;

@@ -1009,7 +1009,7 @@
         <div style="background:#fff; width:900px; max-width:92vw; max-height:85vh; border-radius:12px; box-shadow:0 10px 40px rgba(0,0,0,0.15); overflow:hidden; display:flex; flex-direction:column;">
             <div style="padding:20px 25px; border-bottom:1px solid #e2e8f0; display:flex; align-items:center; justify-content:space-between; flex-shrink:0;">
                 <div>
-                    <h3 id="diklatModalTitle" style="margin:0; font-size:17px; font-weight:700; color:#16a34a;"></h3>
+                    <h3 id="diklatModalTitle" style="margin:0; font-size:17px; font-weight:700; color:#0f172a;"></h3>
                     <p id="diklatModalSub" style="margin:4px 0 0; font-size:13px; color:#64748b;"></p>
                 </div>
                 <button onclick="closeDiklatModal()" style="background:none; border:none; cursor:pointer; padding:5px;">
@@ -1056,8 +1056,10 @@
         fetch(`/dashboard/diklat-detail/${nip}/${kategori}`)
             .then(res => res.json())
             .then(data => {
+                loading.style.display = 'none';
+                table.style.display = 'table';
                 document.getElementById('diklatModalTitle').textContent = data.pegawai;
-                document.getElementById('diklatModalSub').textContent = `NIP: ${data.nip} â€” ${data.total} diklat (${label})`;
+                document.getElementById('diklatModalSub').textContent = `NIP: ${data.nip} - ${data.total} diklat (${label})`;
 
                 data.data.forEach((d, i) => {
                     const arsipClass = d.arsip === 'Ada'
