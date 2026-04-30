@@ -771,7 +771,7 @@
 
             <!-- Fallback Spinner (Optional, hidden by JS logic usually) -->
             <div id="detailLoading" style="text-align: center; padding: 50px; display: none;">
-                <i class="ph-bold ph-spinner" style="font-size: 40px; color: #16a34a; animation: spin 1s linear infinite;"></i>
+                <i class="ph-bold ph-spinner" style="font-size: 40px; color: #0f172a; animation: spin 1s linear infinite;"></i>
                 <p style="margin-top: 10px; color: #6b7280;">Memuat data...</p>
             </div>
 
@@ -876,7 +876,7 @@
             <!-- Body -->
             <div style="padding:20px 25px; overflow-y:auto; max-height:38vh;">
                 <div id="dashModalLoading" style="text-align:center; padding:30px; color:#64748b;">
-                    <i class="ph-bold ph-spinner" style="font-size:32px; color:#16a34a; animation:spin 1s linear infinite;"></i>
+                    <i class="ph-bold ph-spinner" style="font-size:32px; color:#0f172a; animation:spin 1s linear infinite;"></i>
                     <p style="margin-top:10px;">Mengambil data dokumen...</p>
                 </div>
 
@@ -1116,7 +1116,7 @@
 
                 <!-- Loading -->
                 <div id="suratLoading" style="text-align:center; padding:40px; color:#64748b;">
-                    <i class="ph-bold ph-spinner" style="font-size:32px; color:#16a34a; animation:spin 1s linear infinite;"></i>
+                    <i class="ph-bold ph-spinner" style="font-size:32px; color:#0f172a; animation:spin 1s linear infinite;"></i>
                     <p style="margin-top:10px;">Mengambil data pegawai...</p>
                 </div>
 

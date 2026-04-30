@@ -1069,7 +1069,7 @@ function konfirmasiPerBaris(btnElement, trackerId, nama, kategori) {
     if (existing) existing.remove();
 
     const labels = {
-        'KGB': 'Kenaikan Gaji Berkala', 'KP': 'Kenaikan Pangkat',
+        'KGB': 'KGB', 'KP': 'Kenaikan Pangkat',
         'KP_Jafung': 'KP Fungsional', 'KP_Struktural': 'KP Struktural', 'KP_Reguler': 'KP Reguler'
     };
 
@@ -1084,7 +1084,7 @@ function konfirmasiPerBaris(btnElement, trackerId, nama, kategori) {
             </div>
             <h3 class="confirm-modal-title">Konfirmasi Usulan</h3>
             <p class="confirm-modal-text">Apakah Anda yakin sudah memproses ${labels[kategori] || kategori} untuk:</p>
-            <p class="confirm-modal-name">${nama}</p>
+            <p class="confirm-modal-name" style="color: #0f172a;">${nama}</p>
             
             <div style="display:none;">
                 <textarea id="catatanInline" placeholder="Catatan"></textarea>
