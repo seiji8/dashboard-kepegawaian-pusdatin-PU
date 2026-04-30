@@ -1062,7 +1062,8 @@ function submitKonfirmasi() {
 // ============================================================
 // KONFIRMASI PER-BARIS Ã¢â‚¬â€ KP & KGB
 // ============================================================
-function konfirmasiPerBaris(trackerId, nama, kategori) {
+function konfirmasiPerBaris(btnElement, trackerId, nama, kategori) {
+    window._currentBtnElement = btnElement;
     // Buat popup kecil inline
     const existing = document.getElementById('popupKonfirmasiInline');
     if (existing) existing.remove();
@@ -1074,26 +1075,24 @@ function konfirmasiPerBaris(trackerId, nama, kategori) {
 
     const popup = document.createElement('div');
     popup.id = 'popupKonfirmasiInline';
-    popup.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:99999;display:flex;align-items:center;justify-content:center;';
+    popup.classList.add('modal-overlay');
+    popup.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:99999;display:flex;align-items:center;justify-content:center;';
     popup.innerHTML = `
-        <div style="background:#fff;border-radius:14px;width:420px;max-width:95vw;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,0.25);">
-            <div style="background:linear-gradient(135deg,#1e3a8a,#2563eb);padding:16px 20px;color:#fff;display:flex;justify-content:space-between;align-items:center;">
-                <div>
-                    <div style="font-weight:700;font-size:15px;">✅ Konfirmasi Usulan</div>
-                    <div style="font-size:11px;opacity:0.85;margin-top:2px;">${labels[kategori] || kategori}</div>
-                </div>
-                <button onclick="document.getElementById('popupKonfirmasiInline').remove()" style="background:rgba(255,255,255,0.2);border:none;border-radius:6px;color:#fff;width:28px;height:28px;cursor:pointer;font-size:15px;">×</button>
+        <div class="confirm-modal-content">
+            <div class="confirm-modal-icon">
+                <i class="ph-fill ph-check-circle" style="font-size: 48px; color: #10b981;"></i>
             </div>
-            <div style="padding:18px 20px;">
-                <p style="margin:0 0 12px;font-size:13px;color:#374151;">Konfirmasi bahwa usulan <strong>${nama}</strong> sudah diproses melalui E-HRM?</p>
-                <p style="margin:0 0 6px;font-size:12px;font-weight:600;color:#374151;">Catatan <span style="color:#9ca3af;font-weight:400;">(opsional)</span></p>
-                <textarea id="catatanInline" rows="2" placeholder="Contoh: Sudah diinput ke E-HRM..." style="width:100%;border:1.5px solid #d1d5db;border-radius:8px;padding:8px 10px;font-size:12px;font-family:inherit;resize:none;outline:none;box-sizing:border-box;" onfocus="this.style.borderColor='#1e3a8a'" onblur="this.style.borderColor='#d1d5db'"></textarea>
+            <h3 class="confirm-modal-title">Konfirmasi Usulan</h3>
+            <p class="confirm-modal-text">Apakah Anda yakin sudah memproses ${labels[kategori] || kategori} untuk:</p>
+            <p class="confirm-modal-name">${nama}</p>
+            
+            <div style="display:none;">
+                <textarea id="catatanInline" placeholder="Catatan"></textarea>
             </div>
-            <div style="padding:0 20px 18px;display:flex;justify-content:flex-end;gap:8px;">
-                <button onclick="document.getElementById('popupKonfirmasiInline').remove()" style="padding:8px 18px;background:#f1f5f9;color:#374151;border:none;border-radius:8px;cursor:pointer;font-weight:600;font-size:12px;">Batal</button>
-                <button id="btnKonfirmasiSubmit" onclick="submitKonfirmasiPerBaris(${trackerId},'${kategori}')" style="padding:8px 18px;background:linear-gradient(135deg,#16a34a,#15803d);color:#fff;border:none;border-radius:8px;cursor:pointer;font-weight:600;font-size:12px;display:flex;align-items:center;gap:6px;">
-                    <i class="ph-bold ph-check-circle"></i> Konfirmasi
-                </button>
+            
+            <div class="confirm-modal-actions">
+                <button class="confirm-btn-cancel" onclick="document.getElementById('popupKonfirmasiInline').remove()">Batal</button>
+                <button class="confirm-btn-yes" id="btnKonfirmasiSubmit" onclick="submitKonfirmasiPerBaris(${trackerId},'${kategori}')">Ya, Sudah Diproses</button>
             </div>
         </div>`;
     document.body.appendChild(popup);

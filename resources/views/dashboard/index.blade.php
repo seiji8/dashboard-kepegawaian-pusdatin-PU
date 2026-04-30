@@ -236,11 +236,11 @@
                                                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
                                                         </button>
                                                         @if(in_array($item->status_saat_ini, ['Usulan', 'Mendekati']))
-                                                        <button class="btn-action-confirm" onclick="konfirmasiPerBaris({{ $item->id }}, '{{ addslashes($item->pegawai->nama) }}', '{{ $item->kategori }}')" title="Konfirmasi Usulan ke Proses TTE">
+                                                        <button class="btn-action-confirm" onclick="konfirmasiPerBaris(this, {{ $item->id }}, '{{ addslashes($item->pegawai->nama) }}', '{{ $item->kategori }}')" title="Konfirmasi Usulan ke Proses TTE">
                                                             <i class="ph-bold ph-check" style="font-size: 16px;"></i>
                                                         </button>
                                                         @elseif($item->status_saat_ini == 'Proses')
-                                                        <button class="btn-action-confirm" onclick="openConfirmModal({{ $item->id }}, '{{ addslashes($item->pegawai->nama) }}')" title="Konfirmasi TTE Selesai">
+                                                        <button class="btn-action-confirm" onclick="openConfirmModal(this, {{ $item->id }}, '{{ addslashes($item->pegawai->nama) }}')" title="Konfirmasi TTE Selesai">
                                                             <i class="ph-bold ph-check" style="font-size: 16px;"></i>
                                                         </button>
                                                         @endif
@@ -302,11 +302,11 @@
                                                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
                                                         </button>
                                                         @if(in_array($item->status_saat_ini, ['Usulan', 'Mendekati']))
-                                                        <button class="btn-action-confirm" onclick="konfirmasiPerBaris({{ $item->id }}, '{{ addslashes($item->pegawai->nama) }}', '{{ $item->kategori }}')" title="Konfirmasi Usulan ke Proses TTE">
+                                                        <button class="btn-action-confirm" onclick="konfirmasiPerBaris(this, {{ $item->id }}, '{{ addslashes($item->pegawai->nama) }}', '{{ $item->kategori }}')" title="Konfirmasi Usulan ke Proses TTE">
                                                             <i class="ph-bold ph-check" style="font-size: 16px;"></i>
                                                         </button>
                                                         @elseif($item->status_saat_ini == 'Proses')
-                                                        <button class="btn-action-confirm" onclick="openConfirmModal({{ $item->id }}, '{{ addslashes($item->pegawai->nama) }}')" title="Konfirmasi TTE Selesai">
+                                                        <button class="btn-action-confirm" onclick="openConfirmModal(this, {{ $item->id }}, '{{ addslashes($item->pegawai->nama) }}')" title="Konfirmasi TTE Selesai">
                                                             <i class="ph-bold ph-check" style="font-size: 16px;"></i>
                                                         </button>
                                                         @endif
@@ -366,11 +366,11 @@
                                                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
                                                         </button>
                                                         @if(in_array($item->status_saat_ini, ['Usulan', 'Mendekati']))
-                                                        <button class="btn-action-confirm" onclick="konfirmasiPerBaris({{ $item->id }}, '{{ addslashes($item->pegawai->nama) }}', '{{ $item->kategori }}')" title="Konfirmasi Usulan ke Proses TTE">
+                                                        <button class="btn-action-confirm" onclick="konfirmasiPerBaris(this, {{ $item->id }}, '{{ addslashes($item->pegawai->nama) }}', '{{ $item->kategori }}')" title="Konfirmasi Usulan ke Proses TTE">
                                                             <i class="ph-bold ph-check" style="font-size: 16px;"></i>
                                                         </button>
                                                         @elseif($item->status_saat_ini == 'Proses')
-                                                        <button class="btn-action-confirm" onclick="openConfirmModal({{ $item->id }}, '{{ addslashes($item->pegawai->nama) }}')" title="Konfirmasi TTE Selesai">
+                                                        <button class="btn-action-confirm" onclick="openConfirmModal(this, {{ $item->id }}, '{{ addslashes($item->pegawai->nama) }}')" title="Konfirmasi TTE Selesai">
                                                             <i class="ph-bold ph-check" style="font-size: 16px;"></i>
                                                         </button>
                                                         @endif
@@ -443,12 +443,12 @@
                                                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
                                                     </button>
                                                     @if($item->status_saat_ini == 'Mendekati' || $item->status_saat_ini == 'Menunggu UKOM')
-                                                    <button class="btn-action-confirm" onclick="moveToUkomFromKJ({{ $item->id }})" title="Kirim ke Modul UKOM">
+                                                    <button class="btn-action-confirm" onclick="moveToUkomFromKJ(this, {{ $item->id }})" title="Kirim ke Modul UKOM">
                                                         <i class="ph-bold ph-check" style="font-size: 16px;"></i>
                                                     </button>
                                                     @endif
                                                     @if($item->status_saat_ini == 'Proses')
-                                                    <button class="btn-action-confirm" onclick="openUkomModal({{ $item->id }}, '{{ $item->pegawai->nama }}')" title="Konfirmasi TTE Selesai">
+                                                    <button class="btn-action-confirm" onclick="openUkomModal(this, {{ $item->id }}, '{{ $item->pegawai->nama }}')" title="Konfirmasi TTE Selesai">
                                                         <i class="ph-bold ph-check" style="font-size: 16px;"></i>
                                                     </button>
                                                     @endif
@@ -514,11 +514,11 @@
                                                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
                                                         </button>
                                                         @if(in_array($kgb->status_saat_ini, ['Usulan', 'Mendekati']))
-                                                        <button class="btn-action-confirm" onclick="konfirmasiPerBaris({{ $kgb->id }}, '{{ addslashes($kgb->pegawai->nama) }}', 'KGB')" title="Konfirmasi Usulan ke Proses TTE">
+                                                        <button class="btn-action-confirm" onclick="konfirmasiPerBaris(this, {{ $kgb->id }}, '{{ addslashes($kgb->pegawai->nama) }}', 'KGB')" title="Konfirmasi Usulan ke Proses TTE">
                                                             <i class="ph-bold ph-check" style="font-size: 16px;"></i>
                                                         </button>
                                                         @elseif($kgb->status_saat_ini == 'Proses')
-                                                        <button class="btn-action-confirm" onclick="openConfirmModal({{ $kgb->id }}, '{{ addslashes($kgb->pegawai->nama) }}')" title="Konfirmasi TTE Selesai">
+                                                        <button class="btn-action-confirm" onclick="openConfirmModal(this, {{ $kgb->id }}, '{{ addslashes($kgb->pegawai->nama) }}')" title="Konfirmasi TTE Selesai">
                                                             <i class="ph-bold ph-check" style="font-size: 16px;"></i>
                                                         </button>
                                                         @endif
@@ -649,7 +649,7 @@
                                                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
                                                         </button>
                                                         @if($ukom->status_saat_ini == 'Usulan')
-                                                        <button class="btn-action-confirm" onclick="setKelulusanUkom({{ $ukom->id }}, true)" title="Set Lulus UKOM">
+                                                        <button class="btn-action-confirm" onclick="setKelulusanUkom(this, {{ $ukom->id }}, true)" title="Set Lulus UKOM">
                                                             <i class="ph-bold ph-check" style="font-size: 16px;"></i>
                                                         </button>
                                                         @endif
@@ -705,7 +705,7 @@
                                                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
                                                         </button>
                                                         @if($ukom->status_saat_ini == 'Usulan')
-                                                        <button class="btn-action-confirm" onclick="setKelulusanUkom({{ $ukom->id }}, true)" title="Set Lulus UKOM">
+                                                        <button class="btn-action-confirm" onclick="setKelulusanUkom(this, {{ $ukom->id }}, true)" title="Set Lulus UKOM">
                                                             <i class="ph-bold ph-check" style="font-size: 16px;"></i>
                                                         </button>
                                                         @endif
