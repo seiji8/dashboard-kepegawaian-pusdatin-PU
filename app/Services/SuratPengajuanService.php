@@ -21,6 +21,12 @@ class SuratPengajuanService
         $kategori = $requestData['kategori'];
         $masaKerjaInput = $requestData['masa_kerja'] ?? [];
 
+        // Guard: KP & KGB tidak dicetak dari dashboard — suratnya dibuat langsung di E-HRM
+        $kategoriDilarang = ['KGB', 'KP', 'KP_Jafung', 'KP_Struktural', 'KP_Reguler'];
+        if (in_array($kategori, $kategoriDilarang)) {
+            throw new \InvalidArgumentException('Surat KP dan KGB dicetak langsung dari E-HRM, bukan dari dashboard ini.');
+        }
+
         // Siapkan data untuk template
         $data = [
             'kategori'       => $kategori,

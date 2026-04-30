@@ -1067,6 +1067,18 @@ body {
     font-size: 15px;
 }
 
+/* Variant biru: Konfirmasi Usulan (KP & KGB) — pakai warna primer dashboard */
+.btn-konfirmasi-usulan {
+    color: #1e3a8a !important;
+    border-color: #1e3a8a !important;
+}
+.btn-konfirmasi-usulan:hover {
+    background: #1e3a8a !important;
+    color: white !important;
+    border-color: #1e3a8a !important;
+    box-shadow: 0 4px 12px rgba(30, 58, 138, 0.3) !important;
+}
+
 /* Container for Cetak Surat button above table */
 .surat-btn-row {
     display: flex;

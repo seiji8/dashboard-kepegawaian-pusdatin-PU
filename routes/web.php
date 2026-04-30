@@ -74,5 +74,6 @@ Route::middleware(['auth'])->group(function () {
     // Surat Pengajuan
     Route::get('/surat-pengajuan/preview/{kategori}', [SuratPengajuanController::class, 'preview'])->name('surat-pengajuan.preview');
     Route::post('/surat-pengajuan/generate', [SuratPengajuanController::class, 'generate'])->name('surat-pengajuan.generate');
+    Route::post('/surat-pengajuan/konfirmasi', [SuratPengajuanController::class, 'konfirmasiUsulan'])->name('surat-pengajuan.konfirmasi');
 
 });

@@ -804,7 +804,7 @@ function renderSuratGroups(groups) {
         <div style="margin-bottom:16px;">
             <div style="display:flex; align-items:center; gap:8px; margin-bottom:10px;">
                 <span style="background:#d97706; width:8px; height:8px; border-radius:50; display:inline-block;"></span>
-                <span style="font-weight:700; font-size:13px; color:#d97706;">Sudah Dicetak — Cetak Ulang</span>
+                <span style="font-weight:700; font-size:13px; color:#d97706;">Sudah Dicetak Ã¢â‚¬â€ Cetak Ulang</span>
                 <span style="background:#fef3c7; color:#d97706; padding:2px 10px; border-radius:10px; font-size:11px; font-weight:700;">${sudahDicetak.length} Orang</span>
             </div>
             <div style="border:1px solid #fde68a; border-radius:10px; overflow:hidden; opacity:0.85;">`;
@@ -825,7 +825,7 @@ function renderPegawaiRow(p, statusLabel, statusColor, statusBg) {
             <input type="checkbox" class="surat-pegawai-cb" data-tracker-id="${p.tracker_id}" onchange="handleSuratCbChange(this)" style="width:16px; height:16px; accent-color:#1e3a8a; cursor:pointer; flex-shrink:0;">
             <div style="flex:1; min-width:0;">
                 <div style="font-weight:600; font-size:13px; color:#1e293b;">${p.nama}</div>
-                <div style="font-size:11px; color:#64748b; margin-top:2px;">NIP: ${p.nip} · ${p.pangkat_golongan} · ${p.jabatan}</div>
+                <div style="font-size:11px; color:#64748b; margin-top:2px;">NIP: ${p.nip} Ã‚Â· ${p.pangkat_golongan} Ã‚Â· ${p.jabatan}</div>
             </div>
             <span style="background:${statusBg}; color:${statusColor}; padding:3px 10px; border-radius:12px; font-size:10px; font-weight:700; white-space:nowrap;">${statusLabel}</span>
         </label>`;
@@ -964,4 +964,172 @@ function generateSurat() {
         btn.disabled = false;
     });
 }
+
+
+
+// ============================================================
+// KONFIRMASI USULAN Ã¢â‚¬â€ KP & KGB (tanpa cetak surat)
+// ============================================================
+
+let _konfirmasiKategori = null;
+const _konfirmasiLabels = {
+    'KGB': 'Kenaikan Gaji Berkala',
+    'KP': 'Kenaikan Pangkat',
+    'KP_Jafung': 'Kenaikan Pangkat Fungsional',
+    'KP_Struktural': 'Kenaikan Pangkat Struktural',
+    'KP_Reguler': 'Kenaikan Pangkat Reguler',
+};
+
+function openKonfirmasiModal(kategori) {
+    _konfirmasiKategori = kategori;
+    const modal = document.getElementById('modalKonfirmasiUsulan');
+    const subtitle = document.getElementById('konfirmasiSubtitle');
+    const listEl = document.getElementById('konfirmasiPegawaiList');
+    const catatanEl = document.getElementById('konfirmasiCatatan');
+    catatanEl.value = '';
+    listEl.innerHTML = '<div style="text-align:center; padding:20px; color:#9ca3af;">Memuat data...</div>';
+    subtitle.textContent = _konfirmasiLabels[kategori] || kategori;
+    modal.style.display = 'flex';
+    fetch(`/surat-pengajuan/preview/${kategori}`)
+        .then(res => res.json())
+        .then(data => {
+            if (!data.success || data.total === 0) {
+                listEl.innerHTML = '<div style="text-align:center; padding:20px; color:#9ca3af;">Tidak ada pegawai yang perlu dikonfirmasi.</div>';
+                return;
+            }
+            let html = '';
+            data.groups.forEach(group => {
+                html += `<div style="font-size:11px; font-weight:700; color:#6b7280; text-transform:uppercase; letter-spacing:0.05em; margin:8px 0 4px;">${group.periode_label}</div>`;
+                group.pegawai.forEach(p => {
+                    html += `<label style="display:flex; align-items:center; gap:12px; padding:10px 12px; border:1.5px solid #e5e7eb; border-radius:8px; cursor:pointer; background:#fff; margin-bottom:4px;" onmouseover="this.style.borderColor='#16a34a'; this.style.background='#f0fdf4';" onmouseout="this.style.borderColor='#e5e7eb'; this.style.background='#fff';">
+                        <input type="checkbox" value="${p.tracker_id}" class="konfirmasi-checkbox" style="width:16px; height:16px; accent-color:#16a34a; cursor:pointer;" checked>
+                        <div style="flex:1;">
+                            <div style="font-weight:600; font-size:13px; color:#111827;">${p.nama}</div>
+                            <div style="font-size:11px; color:#6b7280;">${p.nip} &bull; ${p.pangkat_golongan} &bull; TMT: ${p.tmt_target}</div>
+                        </div>
+                        <span style="font-size:11px; padding:3px 8px; border-radius:4px; background:#fef9c3; color:#854d0e; font-weight:600;">${p.status}</span>
+                    </label>`;
+                });
+            });
+            listEl.innerHTML = html;
+        })
+        .catch(() => { listEl.innerHTML = '<div style="text-align:center; padding:20px; color:#dc2626;">Gagal memuat data.</div>'; });
+}
+
+function closeKonfirmasiModal() {
+    document.getElementById('modalKonfirmasiUsulan').style.display = 'none';
+    _konfirmasiKategori = null;
+}
+
+function toggleSelectAllKonfirmasi(check) {
+    document.querySelectorAll('.konfirmasi-checkbox').forEach(cb => cb.checked = check);
+}
+
+function submitKonfirmasi() {
+    const checkboxes = document.querySelectorAll('.konfirmasi-checkbox:checked');
+    if (checkboxes.length === 0) { showCustomToast('Pilih minimal 1 pegawai untuk dikonfirmasi.', 'warning'); return; }
+    const trackerIds = Array.from(checkboxes).map(cb => cb.value);
+    const catatan = document.getElementById('konfirmasiCatatan').value.trim();
+    const btn = document.getElementById('btnSubmitKonfirmasi');
+    const originalHTML = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = '<i class="ph-bold ph-spinner"></i> Memproses...';
+    const formData = new FormData();
+    formData.append('kategori', _konfirmasiKategori);
+    formData.append('_token', document.querySelector('meta[name="csrf-token"]').getAttribute('content'));
+    if (catatan) formData.append('catatan', catatan);
+    trackerIds.forEach(id => formData.append('tracker_ids[]', id));
+    fetch('/surat-pengajuan/konfirmasi', { method: 'POST', body: formData })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                closeKonfirmasiModal();
+                showCustomToast(data.message, 'success');
+                setTimeout(() => window.location.reload(), 1200);
+            } else {
+                showCustomToast(data.message || 'Terjadi kesalahan.', 'error');
+                btn.innerHTML = originalHTML;
+                btn.disabled = false;
+            }
+        })
+        .catch(() => {
+            showCustomToast('Gagal terhubung ke server.', 'error');
+            btn.innerHTML = originalHTML;
+            btn.disabled = false;
+        });
+}
+
+// ============================================================
+// KONFIRMASI PER-BARIS Ã¢â‚¬â€ KP & KGB
+// ============================================================
+function konfirmasiPerBaris(trackerId, nama, kategori) {
+    // Buat popup kecil inline
+    const existing = document.getElementById('popupKonfirmasiInline');
+    if (existing) existing.remove();
+
+    const labels = {
+        'KGB': 'Kenaikan Gaji Berkala', 'KP': 'Kenaikan Pangkat',
+        'KP_Jafung': 'KP Fungsional', 'KP_Struktural': 'KP Struktural', 'KP_Reguler': 'KP Reguler'
+    };
+
+    const popup = document.createElement('div');
+    popup.id = 'popupKonfirmasiInline';
+    popup.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:99999;display:flex;align-items:center;justify-content:center;';
+    popup.innerHTML = `
+        <div style="background:#fff;border-radius:14px;width:420px;max-width:95vw;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,0.25);">
+            <div style="background:linear-gradient(135deg,#1e3a8a,#2563eb);padding:16px 20px;color:#fff;display:flex;justify-content:space-between;align-items:center;">
+                <div>
+                    <div style="font-weight:700;font-size:15px;">✅ Konfirmasi Usulan</div>
+                    <div style="font-size:11px;opacity:0.85;margin-top:2px;">${labels[kategori] || kategori}</div>
+                </div>
+                <button onclick="document.getElementById('popupKonfirmasiInline').remove()" style="background:rgba(255,255,255,0.2);border:none;border-radius:6px;color:#fff;width:28px;height:28px;cursor:pointer;font-size:15px;">×</button>
+            </div>
+            <div style="padding:18px 20px;">
+                <p style="margin:0 0 12px;font-size:13px;color:#374151;">Konfirmasi bahwa usulan <strong>${nama}</strong> sudah diproses melalui E-HRM?</p>
+                <p style="margin:0 0 6px;font-size:12px;font-weight:600;color:#374151;">Catatan <span style="color:#9ca3af;font-weight:400;">(opsional)</span></p>
+                <textarea id="catatanInline" rows="2" placeholder="Contoh: Sudah diinput ke E-HRM..." style="width:100%;border:1.5px solid #d1d5db;border-radius:8px;padding:8px 10px;font-size:12px;font-family:inherit;resize:none;outline:none;box-sizing:border-box;" onfocus="this.style.borderColor='#1e3a8a'" onblur="this.style.borderColor='#d1d5db'"></textarea>
+            </div>
+            <div style="padding:0 20px 18px;display:flex;justify-content:flex-end;gap:8px;">
+                <button onclick="document.getElementById('popupKonfirmasiInline').remove()" style="padding:8px 18px;background:#f1f5f9;color:#374151;border:none;border-radius:8px;cursor:pointer;font-weight:600;font-size:12px;">Batal</button>
+                <button id="btnKonfirmasiSubmit" onclick="submitKonfirmasiPerBaris(${trackerId},'${kategori}')" style="padding:8px 18px;background:linear-gradient(135deg,#16a34a,#15803d);color:#fff;border:none;border-radius:8px;cursor:pointer;font-weight:600;font-size:12px;display:flex;align-items:center;gap:6px;">
+                    <i class="ph-bold ph-check-circle"></i> Konfirmasi
+                </button>
+            </div>
+        </div>`;
+    document.body.appendChild(popup);
+    popup.addEventListener('click', e => { if (e.target === popup) popup.remove(); });
+}
+
+function submitKonfirmasiPerBaris(trackerId, kategori) {
+    const btn = document.getElementById('btnKonfirmasiSubmit');
+    const catatan = (document.getElementById('catatanInline').value || '').trim();
+    const originalHTML = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = '<i class="ph-bold ph-spinner"></i> Proses...';
+
+    const formData = new FormData();
+    formData.append('kategori', kategori);
+    formData.append('tracker_ids[]', trackerId);
+    formData.append('_token', document.querySelector('meta[name="csrf-token"]').getAttribute('content'));
+    if (catatan) formData.append('catatan', catatan);
+
+    fetch('/surat-pengajuan/konfirmasi', { method: 'POST', body: formData })
+        .then(r => r.json())
+        .then(data => {
+            const popup = document.getElementById('popupKonfirmasiInline');
+            if (popup) popup.remove();
+            if (data.success) {
+                showCustomToast(data.message, 'success');
+                setTimeout(() => window.location.reload(), 1000);
+            } else {
+                showCustomToast(data.message || 'Terjadi kesalahan.', 'error');
+            }
+        })
+        .catch(() => {
+            showCustomToast('Gagal terhubung ke server.', 'error');
+            btn.innerHTML = originalHTML;
+            btn.disabled = false;
+        });
+}
+
 

@@ -97,6 +97,63 @@ class SuratPengajuanController extends Controller
     }
 
     /**
+     * Konfirmasi Usulan KP & KGB (tanpa cetak surat — surat dibuat di E-HRM)
+     * Flow: Usulan → Proses TTE langsung
+     */
+    public function konfirmasiUsulan(Request $request)
+    {
+        $request->validate([
+            'kategori'    => 'required|string',
+            'tracker_ids' => 'required|array|min:1',
+            'tracker_ids.*' => 'integer|exists:dashboard_tracker,id',
+            'catatan'     => 'nullable|string|max:500',
+        ]);
+
+        // Hanya izinkan KP & KGB
+        $allowedKategori = ['KGB', 'KP', 'KP_Jafung', 'KP_Struktural', 'KP_Reguler'];
+        if (!in_array($request->kategori, $allowedKategori)) {
+            return response()->json(['success' => false, 'message' => 'Kategori tidak valid untuk konfirmasi usulan.'], 400);
+        }
+
+        $trackers = DashboardTracker::with('pegawai')
+            ->whereIn('id', $request->tracker_ids)
+            ->get();
+
+        if ($trackers->isEmpty()) {
+            return response()->json(['success' => false, 'message' => 'Data tidak ditemukan.'], 404);
+        }
+
+        $updatedCount = 0;
+        foreach ($trackers as $tracker) {
+            if ($tracker->status_saat_ini === 'Usulan' || $tracker->status_saat_ini === 'Mendekati') {
+                $tracker->update([
+                    'status_saat_ini' => 'Proses',
+                    'keterangan'      => $request->catatan ?? $tracker->keterangan,
+                    'dikonfirmasi_at' => now(),
+                ]);
+                $updatedCount++;
+            }
+        }
+
+        // Log aktivitas
+        if (function_exists('logActivity')) {
+            $pegawaiNames = $trackers->pluck('pegawai.nama')->filter()->implode(', ');
+            $label = $this->kategoriLabels[$request->kategori] ?? $request->kategori;
+            $catatan = $request->catatan ? " | Catatan: {$request->catatan}" : '';
+            logActivity(
+                'Konfirmasi Usulan',
+                "Konfirmasi usulan {$label} untuk {$trackers->count()} pegawai ({$updatedCount} status → Proses TTE): {$pegawaiNames}{$catatan}"
+            );
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => "{$updatedCount} pegawai berhasil dikonfirmasi dan masuk ke Proses TTE.",
+            'updated' => $updatedCount,
+        ]);
+    }
+
+    /**
      * Generate PDF Surat Pengajuan
      */
     public function generate(Request $request)

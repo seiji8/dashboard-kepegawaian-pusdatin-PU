@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="id">
 <head>
     <meta charset="UTF-8">
@@ -32,7 +32,7 @@
 
                     <div class="notif-wrapper">
                         <button class="btn-icon-header" onclick="toggleNotifDropdown()">
-                            <i class="ph-fill ph-bell" style="font-size: 24px; color: #1e3a8a;"></i>
+                            <i class="ph-fill ph-bell" style="font-size: 24px; color: #16a34a;"></i>
                             <span class="notif-badge" id="notifBadge" style="display: none;">0</span>
                         </button>
 
@@ -193,11 +193,7 @@
                                         <span style="flex:1;">Jabatan Struktural</span>
                                     </div>
                                     <div id="sub-struktural" class="sub-table-container">
-                                        <div class="surat-btn-row">
-                                            <button class="btn-cetak-surat" onclick="openSuratModal('KP_Struktural')">
-                                                <i class="ph-bold ph-file-text"></i> Cetak Surat Pengajuan
-                                            </button>
-                                        </div>
+
                                         <table class="custom-table">
                                             <thead>
                                                 <tr>
@@ -239,8 +235,12 @@
                                                         <button class="btn-action-view" onclick="openDashboardDetail('{{ $item->pegawai->nip }}', '{{ $item->kategori }}')">
                                                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
                                                         </button>
-                                                        @if($item->status_saat_ini == 'Proses')
-                                                        <button class="btn-action-confirm" onclick="openConfirmModal({{ $item->id }}, '{{ $item->pegawai->nama }}')" title="Konfirmasi TTE Selesai">
+                                                        @if(in_array($item->status_saat_ini, ['Usulan', 'Mendekati']))
+                                                        <button class="btn-action-confirm" onclick="konfirmasiPerBaris({{ $item->id }}, '{{ addslashes($item->pegawai->nama) }}', '{{ $item->kategori }}')" title="Konfirmasi Usulan ke Proses TTE">
+                                                            <i class="ph-bold ph-check" style="font-size: 16px;"></i>
+                                                        </button>
+                                                        @elseif($item->status_saat_ini == 'Proses')
+                                                        <button class="btn-action-confirm" onclick="openConfirmModal({{ $item->id }}, '{{ addslashes($item->pegawai->nama) }}')" title="Konfirmasi TTE Selesai">
                                                             <i class="ph-bold ph-check" style="font-size: 16px;"></i>
                                                         </button>
                                                         @endif
@@ -261,11 +261,7 @@
                                         <span style="flex:1;">Jabatan Fungsional</span>
                                     </div>
                                     <div id="sub-fungsional" class="sub-table-container">
-                                        <div class="surat-btn-row">
-                                            <button class="btn-cetak-surat" onclick="openSuratModal('KP_Jafung')">
-                                                <i class="ph-bold ph-file-text"></i> Cetak Surat Pengajuan
-                                            </button>
-                                        </div>
+
                                         <table class="custom-table">
                                             <thead>
                                                 <tr>
@@ -305,8 +301,12 @@
                                                         <button class="btn-action-view" onclick="openDashboardDetail('{{ $item->pegawai->nip }}', '{{ $item->kategori }}')">
                                                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
                                                         </button>
-                                                        @if($item->status_saat_ini == 'Proses')
-                                                        <button class="btn-action-confirm" onclick="openConfirmModal({{ $item->id }}, '{{ $item->pegawai->nama }}')" title="Konfirmasi TTE Selesai">
+                                                        @if(in_array($item->status_saat_ini, ['Usulan', 'Mendekati']))
+                                                        <button class="btn-action-confirm" onclick="konfirmasiPerBaris({{ $item->id }}, '{{ addslashes($item->pegawai->nama) }}', '{{ $item->kategori }}')" title="Konfirmasi Usulan ke Proses TTE">
+                                                            <i class="ph-bold ph-check" style="font-size: 16px;"></i>
+                                                        </button>
+                                                        @elseif($item->status_saat_ini == 'Proses')
+                                                        <button class="btn-action-confirm" onclick="openConfirmModal({{ $item->id }}, '{{ addslashes($item->pegawai->nama) }}')" title="Konfirmasi TTE Selesai">
                                                             <i class="ph-bold ph-check" style="font-size: 16px;"></i>
                                                         </button>
                                                         @endif
@@ -327,11 +327,7 @@
                                         <span style="flex:1;">Reguler</span>
                                     </div>
                                     <div id="sub-reguler" class="sub-table-container">
-                                        <div class="surat-btn-row">
-                                            <button class="btn-cetak-surat" onclick="openSuratModal('KP_Reguler')">
-                                                <i class="ph-bold ph-file-text"></i> Cetak Surat Pengajuan
-                                            </button>
-                                        </div>
+
                                         <table class="custom-table">
                                             <thead>
                                                 <tr>
@@ -369,8 +365,12 @@
                                                         <button class="btn-action-view" onclick="openDashboardDetail('{{ $item->pegawai->nip }}', '{{ $item->kategori }}')" title="Lihat Profil">
                                                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
                                                         </button>
-                                                        @if($item->status_saat_ini == 'Proses')
-                                                        <button class="btn-action-confirm" onclick="openConfirmModal({{ $item->id }}, '{{ $item->pegawai->nama }}')" title="Konfirmasi TTE Selesai">
+                                                        @if(in_array($item->status_saat_ini, ['Usulan', 'Mendekati']))
+                                                        <button class="btn-action-confirm" onclick="konfirmasiPerBaris({{ $item->id }}, '{{ addslashes($item->pegawai->nama) }}', '{{ $item->kategori }}')" title="Konfirmasi Usulan ke Proses TTE">
+                                                            <i class="ph-bold ph-check" style="font-size: 16px;"></i>
+                                                        </button>
+                                                        @elseif($item->status_saat_ini == 'Proses')
+                                                        <button class="btn-action-confirm" onclick="openConfirmModal({{ $item->id }}, '{{ addslashes($item->pegawai->nama) }}')" title="Konfirmasi TTE Selesai">
                                                             <i class="ph-bold ph-check" style="font-size: 16px;"></i>
                                                         </button>
                                                         @endif
@@ -475,11 +475,7 @@
                             <div id="task-gaji" class="task-sub-container">
                                 <div class="sub-table-container active" style="display:block;">
                                     @if($listKGB->count() > 0)
-                                        <div class="surat-btn-row">
-                                            <button class="btn-cetak-surat" onclick="openSuratModal('KGB')">
-                                                <i class="ph-bold ph-file-text"></i> Cetak Surat Pengajuan
-                                            </button>
-                                        </div>
+
                                         <table class="custom-table">
                                             <thead>
                                                 <tr>
@@ -517,9 +513,12 @@
                                                         <button class="btn-action-view" onclick="openDashboardDetail('{{ $kgb->pegawai->nip }}', '{{ $kgb->kategori }}')">
                                                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
                                                         </button>
-                                                        {{-- Tombol Confirm hanya muncul saat status Proses TTE --}}
-                                                        @if($kgb->status_saat_ini == 'Proses')
-                                                        <button class="btn-action-confirm" onclick="openConfirmModal({{ $kgb->id }}, '{{ $kgb->pegawai->nama }}')" title="Konfirmasi TTE Selesai">
+                                                        @if(in_array($kgb->status_saat_ini, ['Usulan', 'Mendekati']))
+                                                        <button class="btn-action-confirm" onclick="konfirmasiPerBaris({{ $kgb->id }}, '{{ addslashes($kgb->pegawai->nama) }}', 'KGB')" title="Konfirmasi Usulan ke Proses TTE">
+                                                            <i class="ph-bold ph-check" style="font-size: 16px;"></i>
+                                                        </button>
+                                                        @elseif($kgb->status_saat_ini == 'Proses')
+                                                        <button class="btn-action-confirm" onclick="openConfirmModal({{ $kgb->id }}, '{{ addslashes($kgb->pegawai->nama) }}')" title="Konfirmasi TTE Selesai">
                                                             <i class="ph-bold ph-check" style="font-size: 16px;"></i>
                                                         </button>
                                                         @endif
@@ -770,7 +769,7 @@
 
             <!-- Fallback Spinner (Optional, hidden by JS logic usually) -->
             <div id="detailLoading" style="text-align: center; padding: 50px; display: none;">
-                <i class="ph-bold ph-spinner" style="font-size: 40px; color: #1e3a8a; animation: spin 1s linear infinite;"></i>
+                <i class="ph-bold ph-spinner" style="font-size: 40px; color: #16a34a; animation: spin 1s linear infinite;"></i>
                 <p style="margin-top: 10px; color: #6b7280;">Memuat data...</p>
             </div>
 
@@ -875,7 +874,7 @@
             <!-- Body -->
             <div style="padding:20px 25px; overflow-y:auto; max-height:38vh;">
                 <div id="dashModalLoading" style="text-align:center; padding:30px; color:#64748b;">
-                    <i class="ph-bold ph-spinner" style="font-size:32px; color:#1e3a8a; animation:spin 1s linear infinite;"></i>
+                    <i class="ph-bold ph-spinner" style="font-size:32px; color:#16a34a; animation:spin 1s linear infinite;"></i>
                     <p style="margin-top:10px;">Mengambil data dokumen...</p>
                 </div>
 
@@ -991,14 +990,14 @@
     <div id="ukomModal" class="modal-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2200; justify-content: center; align-items: center;">
         <div class="confirm-modal-content">
             <div class="confirm-modal-icon" style="background:#dbeafe; width:80px; height:80px; border-radius:50%; display:flex; align-items:center; justify-content:center; margin-bottom:20px;">
-                <i class="ph-fill ph-medal" style="font-size: 48px; color: #1e3a8a;"></i>
+                <i class="ph-fill ph-medal" style="font-size: 48px; color: #16a34a;"></i>
             </div>
             <h3 class="confirm-modal-title">Daftarkan Uji Kompetensi</h3>
             <p class="confirm-modal-text">Pindahkan pegawai berikut ke kategori Uji Kompetensi (UKOM) dan kirimkan notifikasi pemberitahuan kepadanya via email?</p>
             <p class="confirm-modal-name" id="ukomPegawaiName">-</p>
             <div class="confirm-modal-actions">
                 <button class="confirm-btn-cancel" onclick="closeUkomModal()">Batal</button>
-                <button class="confirm-btn-yes" id="ukomYesBtn" onclick="submitUkom()" style="background:#1e3a8a; color:white;">Ya, Daftarkan UKOM</button>
+                <button class="confirm-btn-yes" id="ukomYesBtn" onclick="submitUkom()" style="background:#16a34a; color:white;">Ya, Daftarkan UKOM</button>
             </div>
         </div>
     </div>
@@ -1008,7 +1007,7 @@
         <div style="background:#fff; width:900px; max-width:92vw; max-height:85vh; border-radius:12px; box-shadow:0 10px 40px rgba(0,0,0,0.15); overflow:hidden; display:flex; flex-direction:column;">
             <div style="padding:20px 25px; border-bottom:1px solid #e2e8f0; display:flex; align-items:center; justify-content:space-between; flex-shrink:0;">
                 <div>
-                    <h3 id="diklatModalTitle" style="margin:0; font-size:17px; font-weight:700; color:#1e3a8a;"></h3>
+                    <h3 id="diklatModalTitle" style="margin:0; font-size:17px; font-weight:700; color:#16a34a;"></h3>
                     <p id="diklatModalSub" style="margin:4px 0 0; font-size:13px; color:#64748b;"></p>
                 </div>
                 <button onclick="closeDiklatModal()" style="background:none; border:none; cursor:pointer; padding:5px;">
@@ -1056,7 +1055,7 @@
             .then(res => res.json())
             .then(data => {
                 document.getElementById('diklatModalTitle').textContent = data.pegawai;
-                document.getElementById('diklatModalSub').textContent = `NIP: ${data.nip} — ${data.total} diklat (${label})`;
+                document.getElementById('diklatModalSub').textContent = `NIP: ${data.nip} â€” ${data.total} diklat (${label})`;
 
                 data.data.forEach((d, i) => {
                     const arsipClass = d.arsip === 'Ada'
@@ -1097,7 +1096,7 @@
             <!-- Header -->
             <div style="padding:20px 25px; border-bottom:1px solid #e2e8f0; background:#f8fafc; display:flex; align-items:center; justify-content:space-between; flex-shrink:0;">
                 <div style="display:flex; align-items:center; gap:12px;">
-                    <div style="background:#dbeafe; color:#1e3a8a; width:42px; height:42px; border-radius:10px; display:flex; align-items:center; justify-content:center;">
+                    <div style="background:#dbeafe; color:#16a34a; width:42px; height:42px; border-radius:10px; display:flex; align-items:center; justify-content:center;">
                         <i class="ph-bold ph-file-text" style="font-size:22px;"></i>
                     </div>
                     <div>
@@ -1115,7 +1114,7 @@
 
                 <!-- Loading -->
                 <div id="suratLoading" style="text-align:center; padding:40px; color:#64748b;">
-                    <i class="ph-bold ph-spinner" style="font-size:32px; color:#1e3a8a; animation:spin 1s linear infinite;"></i>
+                    <i class="ph-bold ph-spinner" style="font-size:32px; color:#16a34a; animation:spin 1s linear infinite;"></i>
                     <p style="margin-top:10px;">Mengambil data pegawai...</p>
                 </div>
 
@@ -1127,7 +1126,7 @@
                         <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px;">
                             <h4 style="margin:0; font-size:14px; font-weight:700; color:#1e293b;">1. Pilih Pegawai</h4>
                             <label id="labelSelectAllSurat" style="display:flex; align-items:center; gap:8px; cursor:pointer; font-size:13px; font-weight:600; color:#3b82f6;">
-                                <input type="checkbox" id="suratSelectAll" onchange="suratToggleAll()" style="width:16px; height:16px; accent-color:#1e3a8a; cursor:pointer;">
+                                <input type="checkbox" id="suratSelectAll" onchange="suratToggleAll()" style="width:16px; height:16px; accent-color:#16a34a; cursor:pointer;">
                                 Pilih Semua
                             </label>
                         </div>
@@ -1224,6 +1223,54 @@
 
     @include('partials.sync_loading')
 
+    {{-- MODAL: Konfirmasi Usulan KP & KGB --}}
+    <div id="modalKonfirmasiUsulan" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:9999; align-items:center; justify-content:center;">
+        <div style="background:#fff; border-radius:16px; width:620px; max-width:95vw; max-height:90vh; overflow:hidden; display:flex; flex-direction:column; box-shadow:0 20px 60px rgba(0,0,0,0.3);">
+            <!-- Header -->
+            <div style="background:linear-gradient(135deg,#1e3a8a,#15803d); padding:20px 24px; color:white; display:flex; justify-content:space-between; align-items:center; flex-shrink:0;">
+                <div>
+                    <h3 style="margin:0; font-size:17px; font-weight:700;">âœ… Konfirmasi Usulan</h3>
+                    <p id="konfirmasiSubtitle" style="margin:4px 0 0; font-size:12px; opacity:0.85;">Kenaikan Pangkat / KGB</p>
+                </div>
+                <button onclick="closeKonfirmasiModal()" style="background:rgba(255,255,255,0.2); border:none; border-radius:8px; color:white; width:32px; height:32px; cursor:pointer; font-size:16px; display:flex; align-items:center; justify-content:center;">&times;</button>
+            </div>
+            <!-- Info Banner -->
+            <div style="background:#f0fdf4; border-left:4px solid #16a34a; margin:16px 24px 0; padding:12px 16px; border-radius:0 8px 8px 0;">
+                <p style="margin:0; font-size:12px; color:#15803d; line-height:1.5;">
+                    <strong>â„¹ï¸ Informasi:</strong> Surat pengajuan untuk kategori ini dibuat langsung melalui <strong>E-HRM</strong>.
+                    Klik konfirmasi untuk menandai bahwa usulan sudah diproses dan mengubah status ke <strong>Proses TTE</strong>.
+                </p>
+            </div>
+            <!-- Body -->
+            <div style="padding:16px 24px; overflow-y:auto; flex:1;">
+                <!-- Catatan -->
+                <div style="margin-bottom:16px;">
+                    <label style="display:block; font-size:13px; font-weight:600; color:#374151; margin-bottom:6px;">Catatan / Keterangan <span style="color:#9ca3af; font-weight:400;">(opsional)</span></label>
+                    <textarea id="konfirmasiCatatan" rows="3" placeholder="Contoh: Sudah diinput ke E-HRM pada 30 April 2026 oleh Admin..." style="width:100%; border:1.5px solid #d1d5db; border-radius:8px; padding:10px 12px; font-size:13px; font-family:'Poppins',sans-serif; resize:vertical; outline:none; box-sizing:border-box; transition:border 0.2s;" onfocus="this.style.borderColor='#1e3a8a'" onblur="this.style.borderColor='#d1d5db'"></textarea>
+                </div>
+                <!-- Daftar Pegawai -->
+                <div style="font-size:13px; font-weight:600; color:#374151; margin-bottom:10px;">
+                    Pilih Pegawai yang akan Dikonfirmasi:
+                </div>
+                <div id="konfirmasiPegawaiList" style="display:flex; flex-direction:column; gap:6px; max-height:280px; overflow-y:auto;">
+                    <div style="text-align:center; padding:20px; color:#9ca3af;">Memuat data...</div>
+                </div>
+                <!-- Pilih Semua -->
+                <div style="margin-top:10px; display:flex; gap:8px;">
+                    <button onclick="toggleSelectAllKonfirmasi(true)" style="font-size:12px; padding:5px 12px; background:#f0fdf4; color:#16a34a; border:1px solid #bbf7d0; border-radius:6px; cursor:pointer;">âœ… Pilih Semua</button>
+                    <button onclick="toggleSelectAllKonfirmasi(false)" style="font-size:12px; padding:5px 12px; background:#f9fafb; color:#6b7280; border:1px solid #e5e7eb; border-radius:6px; cursor:pointer;">â˜ Batal Semua</button>
+                </div>
+            </div>
+            <!-- Footer -->
+            <div style="padding:16px 24px; border-top:1px solid #f1f5f9; display:flex; justify-content:flex-end; gap:10px; flex-shrink:0;">
+                <button onclick="closeKonfirmasiModal()" style="padding:10px 20px; background:#f1f5f9; color:#374151; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:13px;">Batal</button>
+                <button id="btnSubmitKonfirmasi" onclick="submitKonfirmasi()" style="padding:10px 22px; background:linear-gradient(135deg,#1e3a8a,#15803d); color:white; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:13px; display:flex; align-items:center; gap:8px;">
+                    <i class="ph-bold ph-check-circle"></i> Konfirmasi Usulan
+                </button>
+            </div>
+        </div>
+    </div>
+
     <script src="{{ asset('js/app-common.js') }}"></script>
     <script src="{{ asset('js/dashboard.js') }}?v={{ time() }}"></script>
     <!-- JS Loaded via external file -->
@@ -1244,7 +1291,7 @@
                     {
                         element: '.top-navbar',
                         popover: {
-                            title: 'Area Profil & Notifikasi 👋',
+                            title: 'Area Profil & Notifikasi ðŸ‘‹',
                             description: 'Dari sudut sini, Anda bisa mengecek Lonceng Notifikasi yang masuk, mengganti kata sandi, atau mengakses tombol [?] ini lagi jika butuh panduan.',
                             side: "bottom",
                             align: 'end'
@@ -1253,7 +1300,7 @@
                     {
                         element: '.dashboard-cards',
                         popover: {
-                            title: 'Statistik Instan 📊',
+                            title: 'Statistik Instan ðŸ“Š',
                             description: 'Empat kartu ini memberikan Anda pandangan terhadap ringkasan status administrasi seluruh pegawai saat ini.',
                             side: "bottom",
                             align: 'center'
@@ -1262,7 +1309,7 @@
                     {
                         element: '.task-section',
                         popover: {
-                            title: 'Daftar Tugas Utama 📑',
+                            title: 'Daftar Tugas Utama ðŸ“‘',
                             description: 'Di sinilah pusat operasi Anda. Seluruh antrean pegawai yang butuh pemrosesan berkas (KGB, KP, KJ, & dll) akan dikumpulkan rapi di berbagai tabel ini.',
                             side: "top",
                             align: 'center'
@@ -1275,3 +1322,6 @@
     </script>
 </body>
 </html>
+
+
+
