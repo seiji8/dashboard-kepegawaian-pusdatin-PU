@@ -38,13 +38,15 @@ class DashboardController extends Controller
                             ? round(($totalDokumenAda / $totalDokumenWajib) * 100) 
                             : 0;
 
-        // 2. DATA TUGAS (Task List)
-        // Kita ambil data tracker dan load relasi pegawainya
-        // REVISI KGB: Tampilkan juga yang sudah dikonfirmasi (status 'Proses') jika kategorinya KGB
+        // Tampilkan tracker yang:
+        // 1. Belum dikonfirmasi (dikonfirmasi_at = null) — semua kategori
+        // 2. Sudah dikonfirmasi tapi masih punya status aktif (Upload E-HRM, Proses, dll) — agar KP tidak hilang setelah ceklis
+        // 3. Kategori KGB selalu tampil (multi-step flow)
         $trackers = DashboardTracker::with('pegawai')
                     ->where(function($query) {
                         $query->whereNull('dikonfirmasi_at')
-                              ->orWhere('kategori', 'KGB'); 
+                              ->orWhere('kategori', 'KGB')
+                              ->orWhereIn('status_saat_ini', ['Upload E-HRM', 'Proses', 'Menunggu UKOM', 'Data Tidak Lengkap', 'Menunggu SKP']);
                     })
                     ->where('status_saat_ini', '!=', 'Mendekati') // Mendekati hanya kirim notif, tidak tampil di dashboard
                     ->get();

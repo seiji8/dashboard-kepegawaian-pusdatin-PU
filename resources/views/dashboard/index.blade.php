@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="id">
 <head>
     <meta charset="UTF-8">
@@ -347,11 +347,13 @@
                                                     <td>{{ $item->pegawai->nama }}</td>
                                                     <td>{{ $item->pegawai->pangkat_golongan ?? '-' }}</td>
                                                     <td>{{ $item->pegawai->tmt_pangkat_terakhir ? \Carbon\Carbon::parse($item->pegawai->tmt_pangkat_terakhir)->format('d M Y') : '-' }}</td>
-                                                    <td>
+                                                     <td>
                                                         @if($item->status_saat_ini == 'Usulan')
                                                             <span class="status-badge status-missing">Usulan Pengajuan</span>
                                                         @elseif($item->status_saat_ini == 'Proses')
                                                             <span class="status-badge status-warning">Proses TTE</span>
+                                                        @elseif($item->status_saat_ini == 'Upload E-HRM')
+                                                            <span class="status-badge status-ok">Upload E-HRM</span>
                                                         @else
                                                             <span class="status-badge status-secondary">{{ $item->status_saat_ini }}</span>
                                                         @endif
