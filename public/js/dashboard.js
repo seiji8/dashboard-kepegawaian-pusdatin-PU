@@ -919,6 +919,30 @@ function generateSurat() {
         payload.append(key, fields[key]);
     });
 
+    if (suratKategori === 'KJ_Jafung') {
+        const queryParams = new URLSearchParams({
+            nomor_surat: fields['nomor_surat'],
+            tanggal: fields['tanggal_surat']
+        }).toString();
+
+        selectedIds.forEach((id, index) => {
+            // Jeda 500ms per file untuk mencegah browser memblokir terlalu agresif
+            setTimeout(() => {
+                window.open(`/dashboard/cetak-surat-kj/${id}?${queryParams}`, '_blank');
+            }, index * 500); 
+        });
+
+        btn.innerHTML = originalHTML;
+        btn.disabled = false;
+        closeSuratModal();
+        showCustomToast(`Mencetak ${selectedIds.length} surat usulan KJ...`, 'success');
+        
+        setTimeout(() => {
+            window.location.reload();
+        }, 1500);
+        return;
+    }
+
     fetch('/surat-pengajuan/generate', {
         method: 'POST',
         body: payload

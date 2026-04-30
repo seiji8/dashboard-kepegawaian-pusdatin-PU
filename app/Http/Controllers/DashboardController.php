@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use App\Mail\ManualNotification;
 use Illuminate\Support\Facades\Mail;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class DashboardController extends Controller
 {
@@ -316,4 +317,40 @@ public function syncProgress()
 
     return response()->json($status);
 }
+
+    public function cetakSuratKj(Request $request, $id)
+    {
+        $tracker = DashboardTracker::with('pegawai')->findOrFail($id);
+        $pegawai = $tracker->pegawai;
+
+        if (!$pegawai) {
+            return redirect()->back()->with('error', 'Data pegawai tidak ditemukan.');
+        }
+
+        // Siapkan data untuk template
+        $data = [
+            'nomor_surat' => $request->query('nomor_surat', 'KP1003/T/Sd/' . date('Y') . '/...'),
+            'tanggal_surat' => $request->query('tanggal') ? \Carbon\Carbon::parse($request->query('tanggal'))->translatedFormat('d F Y') : \Carbon\Carbon::now()->translatedFormat('d F Y'),
+            'nama_pegawai' => $pegawai->nama . ($pegawai->gelar_belakang ? ', ' . $pegawai->gelar_belakang : ''),
+            'jabatan_fungsional' => $pegawai->jabatan_fungsional ?? $pegawai->jabatan,
+            'jenjang_baru' => $pegawai->jenjang_baru ?? 'Ahli Madya', // Diambil dari field yang sesuai (bisa disesuaikan)
+            'ref_nota_dinas' => 'KP0303/B/Sp/' . date('Y') . '/...', // Placeholder
+            'tgl_nota_dinas' => '31 Maret 2026', // Placeholder
+            'nomor_surat_bkn' => '1589/B-BJ.03.02/SD/C/' . date('Y'), // Placeholder
+            'tgl_surat_bkn' => '25 Maret 2026', // Placeholder
+            'narahubung_nama' => 'Julia',
+            'narahubung_hp' => '0822-9824-6907',
+            'narahubung_email' => 'julia.pujilestari@pu.go.id',
+        ];
+
+        $pdf = Pdf::loadView('surat.surat_usul_kj_pdf', ['data' => $data])
+                  ->setPaper('A4', 'portrait');
+
+        $filename = 'Surat_Usul_KJ_' . str_replace(' ', '_', $pegawai->nama) . '_' . date('Ymd') . '.pdf';
+        
+        // Log Aktivitas
+        ActivityLogger::logSystem('Mencetak Surat Usul Kenaikan Jenjang untuk: ' . $pegawai->nama, Auth::user()->name);
+
+        return $pdf->download($filename);
+    }
 }
