@@ -5,7 +5,7 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    font-family: 'Poppins', sans-serif;
+    font-family: "Poppins", sans-serif;
 }
 
 body {
@@ -84,7 +84,10 @@ body {
     user-select: none;
 }
 
-.sidebar a, .sidebar img, .sidebar i, .sidebar span {
+.sidebar a,
+.sidebar img,
+.sidebar i,
+.sidebar span {
     -webkit-user-drag: none;
     user-select: none;
 }
@@ -120,6 +123,9 @@ body {
 .sidebar-footer {
     margin-top: auto;
     padding-top: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
 }
 
 .sync-btn {
@@ -137,7 +143,7 @@ body {
     cursor: pointer;
     font-weight: 600;
     font-size: 14px;
-    font-family: 'Poppins', sans-serif;
+    font-family: "Poppins", sans-serif;
     transition: all 0.3s ease;
 }
 
@@ -160,7 +166,6 @@ body {
     font-size: 14px;
     /* Disesuaikan sedikit agar pas */
 }
-
 
 /* =========================================
    MAIN CONTENT & HEADER LAYOUT
@@ -317,7 +322,7 @@ body {
     font-size: 12px;
     font-weight: 600;
     cursor: pointer;
-    font-family: 'Poppins', sans-serif;
+    font-family: "Poppins", sans-serif;
     transition: color 0.2s;
 }
 
@@ -552,7 +557,9 @@ body {
 
 .summary-card:hover {
     transform: translateY(-4px);
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    box-shadow:
+        0 10px 15px -3px rgba(0, 0, 0, 0.1),
+        0 4px 6px -2px rgba(0, 0, 0, 0.05);
     border-color: #e5e7eb;
 }
 
@@ -633,8 +640,6 @@ body {
     align-items: center;
     justify-content: center;
 }
-
-
 
 .card-icon-box i {
     font-size: 24px;
@@ -929,7 +934,9 @@ body {
     background: white;
     padding: 40px;
     border-radius: 16px;
-    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    box-shadow:
+        0 20px 25px -5px rgba(0, 0, 0, 0.1),
+        0 10px 10px -5px rgba(0, 0, 0, 0.04);
     text-align: center;
     width: 320px;
     display: flex;
@@ -1044,7 +1051,7 @@ body {
     cursor: pointer;
     font-weight: 600;
     font-size: 12px;
-    font-family: 'Poppins', sans-serif;
+    font-family: "Poppins", sans-serif;
     transition: all 0.2s ease;
     white-space: nowrap;
     letter-spacing: 0.2px;
@@ -1137,7 +1144,7 @@ body {
     cursor: pointer;
     font-weight: 600;
     font-size: 14px;
-    font-family: 'Poppins', sans-serif;
+    font-family: "Poppins", sans-serif;
     transition: all 0.2s;
 }
 
@@ -1154,7 +1161,7 @@ body {
     cursor: pointer;
     font-weight: 600;
     font-size: 14px;
-    font-family: 'Poppins', sans-serif;
+    font-family: "Poppins", sans-serif;
     transition: all 0.2s;
 }
 
@@ -1190,7 +1197,7 @@ body {
 .toast-notification {
     visibility: hidden;
     min-width: 250px;
-    background-color: #10B981;
+    background-color: #10b981;
     /* Warna Hijau Sukses */
     color: #fff;
     text-align: center;
@@ -1206,7 +1213,9 @@ body {
     font-size: 14px;
     font-weight: 600;
     opacity: 0;
-    transition: opacity 0.5s, top 0.5s;
+    transition:
+        opacity 0.5s,
+        top 0.5s;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -1332,7 +1341,7 @@ body {
     font-size: 12px;
     font-weight: 600;
     cursor: pointer;
-    font-family: 'Poppins', sans-serif;
+    font-family: "Poppins", sans-serif;
     transition: color 0.2s;
 }
 
@@ -1521,7 +1530,7 @@ body {
     padding: 10px 16px 10px 40px;
     border: 1px solid #e5e7eb;
     border-radius: 8px;
-    font-family: 'Poppins', sans-serif;
+    font-family: "Poppins", sans-serif;
     font-size: 14px;
     background-color: white;
     outline: none;
@@ -1565,10 +1574,11 @@ body {
     overflow-x: auto;
     margin-bottom: 24px;
     border-radius: 12px; /* Lebih membulat */
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03); /* Tambah soft shadow */
+    box-shadow:
+        0 4px 6px -1px rgba(0, 0, 0, 0.05),
+        0 2px 4px -1px rgba(0, 0, 0, 0.03); /* Tambah soft shadow */
     border: 1px solid #f3f4f6; /* Border luaran super tipis/soft */
 }
-
 
 /* Action Buttons */
 .btn-view,
@@ -1818,7 +1828,7 @@ body {
     padding: 8px 24px;
     border-radius: 8px;
     border: none;
-    font-family: 'Poppins';
+    font-family: "Poppins";
     font-weight: 600;
     cursor: pointer;
 }
@@ -1826,7 +1836,6 @@ body {
 .btn-back:hover {
     background-color: #1e40af;
 }
-
 
 /* Modal Hapus (Floating) */
 .modal-delete-size {
@@ -1872,7 +1881,7 @@ body {
     font-weight: 600;
     font-size: 14px;
     cursor: pointer;
-    font-family: 'Poppins', sans-serif;
+    font-family: "Poppins", sans-serif;
     border: 1px solid #d1d5db;
     background-color: white;
     transition: all 0.2s;
@@ -1924,7 +1933,7 @@ body {
     padding: 10px;
     border: 1px solid #d1d5db;
     border-radius: 8px;
-    font-family: 'Poppins', sans-serif;
+    font-family: "Poppins", sans-serif;
     font-size: 14px;
     color: #374151;
     outline: none;
@@ -1974,7 +1983,7 @@ body {
 .toast-notification {
     visibility: hidden;
     min-width: 250px;
-    background-color: #10B981;
+    background-color: #10b981;
     color: #fff;
     text-align: center;
     border-radius: 8px;
@@ -1988,7 +1997,9 @@ body {
     font-size: 14px;
     font-weight: 600;
     opacity: 0;
-    transition: opacity 0.5s, top 0.5s;
+    transition:
+        opacity 0.5s,
+        top 0.5s;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -2101,7 +2112,7 @@ body {
     font-size: 12px;
     font-weight: 600;
     cursor: pointer;
-    font-family: 'Poppins', sans-serif;
+    font-family: "Poppins", sans-serif;
     transition: color 0.2s;
 }
 
@@ -2291,7 +2302,7 @@ select.select-filter {
     padding: 10px 40px 10px 16px;
     border: 1px solid #d1d5db;
     border-radius: 8px;
-    font-family: 'Poppins', sans-serif;
+    font-family: "Poppins", sans-serif;
     font-size: 14px;
     font-weight: 500;
     background-color: white;
@@ -2339,7 +2350,7 @@ select.select-filter:active {
     border: none;
     padding: 8px 24px;
     border-radius: 6px;
-    font-family: 'Poppins', sans-serif;
+    font-family: "Poppins", sans-serif;
     font-weight: 500;
     font-size: 14px;
     cursor: pointer;
@@ -2421,8 +2432,8 @@ select.select-filter:active {
 }
 
 .badge-schedule {
-    background-color: #F3F1FF;
-    color: #846CF9;
+    background-color: #f3f1ff;
+    color: #846cf9;
     padding: 6px 16px;
     border-radius: 50px;
     font-weight: 600;
@@ -2477,7 +2488,6 @@ select.select-filter:active {
     justify-content: center;
     backdrop-filter: blur(2px);
 }
-
 
 .modal-box {
     background: white;
@@ -2580,7 +2590,6 @@ select.select-filter:active {
     align-items: center;
 }
 
-
 .modal-header h2 {
     font-size: 24px;
     font-weight: 700;
@@ -2608,7 +2617,7 @@ select.select-filter:active {
     padding: 12px 16px;
     border: 1px solid #d1d5db;
     border-radius: 8px;
-    font-family: 'Poppins', sans-serif;
+    font-family: "Poppins", sans-serif;
     font-size: 14px;
     color: #374151;
     outline: none;
@@ -2711,7 +2720,7 @@ select.select-filter:active {
 .toast-notification {
     visibility: hidden;
     min-width: 250px;
-    background-color: #10B981;
+    background-color: #10b981;
     color: #fff;
     text-align: center;
     border-radius: 8px;
@@ -2725,7 +2734,9 @@ select.select-filter:active {
     font-size: 14px;
     font-weight: 600;
     opacity: 0;
-    transition: opacity 0.5s, top 0.5s;
+    transition:
+        opacity 0.5s,
+        top 0.5s;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -2883,7 +2894,7 @@ select.select-filter:active {
     font-size: 12px;
     font-weight: 600;
     cursor: pointer;
-    font-family: 'Poppins', sans-serif;
+    font-family: "Poppins", sans-serif;
     transition: color 0.2s;
 }
 
@@ -3095,7 +3106,7 @@ select.select-filter:active {
     padding: 10px 16px;
     border: 1px solid #e5e7eb;
     border-radius: 8px;
-    font-family: 'Poppins', sans-serif;
+    font-family: "Poppins", sans-serif;
     font-size: 14px;
     color: #374151;
     outline: none;
@@ -3236,7 +3247,7 @@ select.filter-input:active {
     font-weight: 600;
     color: #1f2937;
     font-size: 14px;
-    border: 1px solid #CBD5E1;
+    border: 1px solid #cbd5e1;
 }
 
 .data-table tbody td {
@@ -3245,7 +3256,7 @@ select.filter-input:active {
     color: #4b5563;
     font-size: 14px;
     vertical-align: middle;
-    border: 1px solid #CBD5E1;
+    border: 1px solid #cbd5e1;
 }
 
 /* Styling Kolom Waktu */
@@ -3300,7 +3311,7 @@ select.filter-input:active {
 /* BADGE: Sistem (Teal/Green) */
 .badge-sistem {
     background-color: rgba(38, 191, 148, 0.1);
-    color: #26BF94;
+    color: #26bf94;
 }
 
 /* Pagination */
@@ -3394,7 +3405,7 @@ select.filter-input:active {
 .toast-notification {
     visibility: hidden;
     min-width: 250px;
-    background-color: #10B981;
+    background-color: #10b981;
     color: #fff;
     text-align: center;
     border-radius: 8px;
@@ -3408,7 +3419,9 @@ select.filter-input:active {
     font-size: 14px;
     font-weight: 600;
     opacity: 0;
-    transition: opacity 0.5s, top 0.5s;
+    transition:
+        opacity 0.5s,
+        top 0.5s;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -3522,7 +3535,7 @@ select.filter-input:active {
     font-size: 12px;
     font-weight: 600;
     cursor: pointer;
-    font-family: 'Poppins', sans-serif;
+    font-family: "Poppins", sans-serif;
     transition: color 0.2s;
 }
 
@@ -3718,7 +3731,7 @@ select.filter-input:active {
     border: 1px solid #e5e7eb;
     border-radius: 8px;
     outline: none;
-    font-family: 'Poppins';
+    font-family: "Poppins";
 }
 
 .search-icon {
@@ -3969,7 +3982,7 @@ select.filter-input:active {
     padding: 10px;
     border-radius: 8px;
     border: 1px solid #ccc;
-    font-family: 'Poppins';
+    font-family: "Poppins";
     outline: none;
 }
 
@@ -3988,7 +4001,7 @@ select.filter-input:active {
     border-radius: 8px;
     cursor: pointer;
     font-weight: 600;
-    font-family: 'Poppins';
+    font-family: "Poppins";
 }
 
 .btn-modal-save {
@@ -4000,7 +4013,7 @@ select.filter-input:active {
     border-radius: 8px;
     cursor: pointer;
     font-weight: 600;
-    font-family: 'Poppins';
+    font-family: "Poppins";
 }
 
 /* =========================================
@@ -4066,7 +4079,7 @@ select.filter-input:active {
     border-radius: 50px;
     font-weight: 600;
     cursor: pointer;
-    font-family: 'Poppins';
+    font-family: "Poppins";
     font-size: 12px;
     background-color: white;
     border: 1px solid #d1d5db;
@@ -4094,7 +4107,7 @@ select.filter-input:active {
 .toast-notification {
     visibility: hidden;
     min-width: 250px;
-    background-color: #10B981;
+    background-color: #10b981;
     color: #fff;
     text-align: center;
     border-radius: 8px;
@@ -4108,7 +4121,9 @@ select.filter-input:active {
     font-size: 14px;
     font-weight: 600;
     opacity: 0;
-    transition: opacity 0.5s, top 0.5s;
+    transition:
+        opacity 0.5s,
+        top 0.5s;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -4164,16 +4179,16 @@ select.filter-input:active {
 
 /* --- Source: login.css --- */
 /* Import custom font (Poppins) */
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap");
 
 /* Global Styles */
 body {
-    font-family: 'Poppins', sans-serif;
+    font-family: "Poppins", sans-serif;
 }
 
 h2,
 p {
-    font-family: 'Poppins', sans-serif;
+    font-family: "Poppins", sans-serif;
 }
 
 /* =========================================
@@ -4429,12 +4444,14 @@ p {
     align-items: center;
     justify-content: center;
     margin-bottom: 28px;
-    box-shadow: 0 15px 35px rgba(59, 130, 246, 0.15), inset 0 0 0 4px white;
+    box-shadow:
+        0 15px 35px rgba(59, 130, 246, 0.15),
+        inset 0 0 0 4px white;
     position: relative;
 }
 
 .empty-state-icon::after {
-    content: '';
+    content: "";
     position: absolute;
     width: 100%;
     height: 100%;
@@ -4526,12 +4543,20 @@ p {
     }
 }
 
-@keyframes emptySpinSlow { 
-    0% { transform: rotate(0deg); } 
-    100% { transform: rotate(360deg); } 
+@keyframes emptySpinSlow {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
 }
 
 @keyframes emptyPulse {
-    0% { transform: scale(1); }
-    100% { transform: scale(1.05); }
+    0% {
+        transform: scale(1);
+    }
+    100% {
+        transform: scale(1.05);
+    }
 }

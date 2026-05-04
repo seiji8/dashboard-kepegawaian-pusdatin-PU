@@ -63,5 +63,20 @@
             <i class="ph-bold ph-arrows-clockwise sync-img" id="iconSync"></i>
             <span class="sync-icon" id="textSync">Sinkronisasi</span>
         </button>
+        <div class="sidebar-footer mt-3 px-3 text-center" style="margin-top: 14px; padding-top: 12px;">
+            <div style="padding: 14px 12px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.14); background: linear-gradient(180deg, rgba(255,255,255,0.10), rgba(255,255,255,0.04)); box-shadow: 0 14px 30px rgba(15,23,42,0.18); backdrop-filter: blur(10px);">
+                <div style="display:flex; align-items:center; justify-content:center; gap:6px; margin-bottom:8px;">
+                    <span style="width:6px; height:6px; border-radius:999px; background:#fbbf24; display:inline-block;"></span>
+                    <span style="font-size:0.58rem; letter-spacing:0.14em; text-transform:uppercase; font-weight:700; color:rgba(203,213,224,0.82);">Tim IT UNNES</span>
+                </div>
+                <p style="margin: 0 0 8px; font-size: 0.67rem; color: rgba(203,213,224,0.94); line-height: 1.35; font-weight: 500;">&copy; {{ date('Y') }} Pusdatin Kepegawaian</p>
+                <div style="display:grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px 8px; font-size: 0.63rem; line-height: 1.25; color: rgba(203,213,224,0.9);">
+                    <span>Muhammad Hasan Feadlono</span>
+                    <span>Muhammad Raissa Akhdyan</span>
+                    <span>Muhammad Hilmi Asardan</span>
+                    <span>Eza Aditya Nugroho</span>
+                </div>
+            </div>
+        </div>
     </div>
 </aside>
