@@ -446,7 +446,9 @@ class SyncEhrmData extends Command
                         $dataKgb = $kgbResp->json()['data'][$nip] ?? [];
                         if (is_array($dataKgb) && !empty($dataKgb)) {
                             // Sort by tanggal_berlaku desc agar [0] selalu KGB terbaru
-                            $latestKgb = collect($dataKgb)->sortByDesc('tanggal_berlaku')->first();
+                            $latestKgb = collect($dataKgb)->sortByDesc(function ($item) {
+                                return \Carbon\Carbon::parse($item['tanggal_berlaku'])->timestamp;
+                            })->first();
                             if ($latestKgb && !empty($latestKgb['tanggal_berlaku'])) {
                                 $peg->update([
                                     'tmt_kgb_terakhir' => $this->parseDate($latestKgb['tanggal_berlaku'])

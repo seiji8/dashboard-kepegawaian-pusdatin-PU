@@ -22,7 +22,7 @@ class DashboardController extends Controller
         
         $tenggatMendesak = DashboardTracker::whereNull('dikonfirmasi_at')
                                        ->where(function($q) {
-                                           $q->whereIn('status_saat_ini', ['Usulan', 'Upload E-HRM', 'Menunggu SKP']);
+                                           $q->whereIn('status_saat_ini', ['Usulan', 'Upload E-HRM', 'Menunggu SKP', 'Proses Pengaktifan']);
                                        })
                                        ->count();
                                            
@@ -42,14 +42,19 @@ class DashboardController extends Controller
         // 1. Belum dikonfirmasi (dikonfirmasi_at = null) — semua kategori
         // 2. Sudah dikonfirmasi tapi masih punya status aktif (Upload E-HRM, Proses, dll) — agar KP tidak hilang setelah ceklis
         // 3. Kategori KGB selalu tampil (multi-step flow)
+        // 4. TUBEL selalu tampil (Sedang Tubel & Proses Pengaktifan)
         $trackers = DashboardTracker::with('pegawai')
                     ->where(function($query) {
                         $query->whereNull('dikonfirmasi_at')
                               ->orWhere('kategori', 'KGB')
+                              ->orWhere('kategori', 'TUBEL')
                               ->orWhereIn('status_saat_ini', ['Upload E-HRM', 'Proses', 'Menunggu UKOM', 'Data Tidak Lengkap', 'Menunggu SKP']);
                     })
                     ->where('status_saat_ini', '!=', 'Mendekati') // Mendekati hanya kirim notif, tidak tampil di dashboard
                     ->get();
+
+        $listTubel = $trackers->where('kategori', 'TUBEL')
+                              ->sortBy('tanggal_target');
 
         // Kelompokkan berdasarkan Kategori untuk Accordion
         $listKenaikanPangkat = $trackers->whereIn('kategori', ['KP_Jafung', 'KP_Struktural', 'KP_Reguler']);
@@ -105,6 +110,7 @@ class DashboardController extends Controller
             'ukomBiasa',
             'ukomMadya',
             'listKGB',
+            'listTubel',
             'diklatHutang',
             'diklatAnomali',
             'listMonitoringDiklat',
@@ -193,20 +199,32 @@ public function confirmTracker(Request $request, $id)
 {
     $tracker = DashboardTracker::with('pegawai')->findOrFail($id);
 
+    $isTubel = $tracker->kategori === 'TUBEL';
+    $newStatus = $isTubel ? 'Selesai' : 'Upload E-HRM';
+
     $tracker->update([
         'dikonfirmasi_at'   => now(),
         'dikonfirmasi_oleh' => auth()->id(),
-        'status_saat_ini'   => 'Upload E-HRM', // Proses TTE → Upload E-HRM
+        'status_saat_ini'   => $newStatus,
     ]);
 
-    ActivityLogger::logAdminAction(
-        "Mengkonfirmasi TTE selesai untuk {$tracker->kategori} pegawai {$tracker->pegawai->nama} (NIP: {$tracker->nip})"
-    );
-
-    return response()->json([
-        'success' => true,
-        'message' => 'TTE berhasil dikonfirmasi! Status diperbarui ke Upload E-HRM.',
-    ]);
+    if ($isTubel) {
+        ActivityLogger::logAdminAction(
+            "Mengkonfirmasi pengaktifan kembali selesai untuk TUBEL pegawai {$tracker->pegawai->nama} (NIP: {$tracker->nip})"
+        );
+        return response()->json([
+            'success' => true,
+            'message' => 'Pengaktifan kembali Tubel berhasil diselesaikan!',
+        ]);
+    } else {
+        ActivityLogger::logAdminAction(
+            "Mengkonfirmasi TTE selesai untuk {$tracker->kategori} pegawai {$tracker->pegawai->nama} (NIP: {$tracker->nip})"
+        );
+        return response()->json([
+            'success' => true,
+            'message' => 'TTE berhasil dikonfirmasi! Status diperbarui ke Upload E-HRM.',
+        ]);
+    }
 }
 
 /**

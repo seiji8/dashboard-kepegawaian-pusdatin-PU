@@ -9,9 +9,7 @@ class UpdateTmtManualSeeder extends Seeder
     {
         // Daftar Pegawai dan TMT Manualnya
         $dataManual = [
-
-            '199003212014021001' => '2024-02-01',
-            // Tambah NIP lain di sini...
+            // Kosongkan agar data asli dari API (2026) tidak di-overwrite menjadi 2024
         ];
         
         foreach ($dataManual as $nip => $tmt) {

@@ -109,8 +109,8 @@ class SuratPengajuanController extends Controller
             'catatan'     => 'nullable|string|max:500',
         ]);
 
-        // Hanya izinkan KP & KGB
-        $allowedKategori = ['KGB', 'KP', 'KP_Jafung', 'KP_Struktural', 'KP_Reguler'];
+        // Hanya izinkan KP, KGB & TUBEL
+        $allowedKategori = ['KGB', 'KP', 'KP_Jafung', 'KP_Struktural', 'KP_Reguler', 'TUBEL'];
         if (!in_array($request->kategori, $allowedKategori)) {
             return response()->json(['success' => false, 'message' => 'Kategori tidak valid untuk konfirmasi usulan.'], 400);
         }
@@ -125,11 +125,12 @@ class SuratPengajuanController extends Controller
 
         $updatedCount = 0;
         foreach ($trackers as $tracker) {
-            if ($tracker->status_saat_ini === 'Usulan' || $tracker->status_saat_ini === 'Mendekati') {
+            if (in_array($tracker->status_saat_ini, ['Usulan', 'Mendekati', 'Proses Pengaktifan'])) {
                 $tracker->update([
                     'status_saat_ini' => 'Proses',
                     'keterangan'      => $request->catatan ?? $tracker->keterangan,
-                    'dikonfirmasi_at' => now(),
+                    // Untuk Tubel, jangan set dikonfirmasi_at dulu sampai tahap "Selesai"
+                    'dikonfirmasi_at' => $tracker->kategori === 'TUBEL' ? null : now(),
                 ]);
                 $updatedCount++;
             }

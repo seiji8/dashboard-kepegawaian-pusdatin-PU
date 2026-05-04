@@ -1131,4 +1131,99 @@ function submitKonfirmasiPerBaris(trackerId, kategori) {
         });
 }
 
+// ============================================================
+// TUBEL: CETAK SURAT DAN KONFIRMASI SELESAI
+// ============================================================
 
+function cetakSuratPengaktifan(trackerId, nama) {
+    if (!confirm(`Cetak surat pengaktifan kembali untuk pegawai ${nama}?`)) return;
+
+    // Untuk sementara, kita ganti statusnya menjadi 'Proses' menggunakan endpoint konfirmasi
+    // Jika ada template surat khusus Tubel, bisa diarahkan ke generate surat
+    const formData = new FormData();
+    formData.append('kategori', 'TUBEL');
+    formData.append('tracker_ids[]', trackerId);
+    formData.append('_token', document.querySelector('meta[name="csrf-token"]').getAttribute('content'));
+    formData.append('catatan', 'Surat Pengaktifan Dicetak');
+
+    fetch('/surat-pengajuan/konfirmasi', { method: 'POST', body: formData })
+        .then(r => r.json())
+        .then(data => {
+            if (data.success) {
+                showCustomToast('Surat pengaktifan diproses (Status: Surat Dicetak)', 'success');
+                setTimeout(() => window.location.reload(), 1000);
+            } else {
+                showCustomToast(data.message || 'Terjadi kesalahan.', 'error');
+            }
+        })
+        .catch(() => {
+            showCustomToast('Gagal terhubung ke server.', 'error');
+        });
+}
+
+function konfirmasiSelesaiTubel(trackerId, nama) {
+    // Buat popup konfirmasi inline
+    const existing = document.getElementById('popupKonfirmasiTubel');
+    if (existing) existing.remove();
+
+    const popup = document.createElement('div');
+    popup.id = 'popupKonfirmasiTubel';
+    popup.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:99999;display:flex;align-items:center;justify-content:center;';
+    popup.innerHTML = `
+        <div style="background:#fff;border-radius:14px;width:420px;max-width:95vw;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,0.25);">
+            <div style="background:linear-gradient(135deg,#1e3a8a,#2563eb);padding:16px 20px;color:#fff;display:flex;justify-content:space-between;align-items:center;">
+                <div>
+                    <div style="font-weight:700;font-size:15px;">✅ Konfirmasi Selesai Tubel</div>
+                    <div style="font-size:11px;opacity:0.85;margin-top:2px;">Pengaktifan Kembali</div>
+                </div>
+                <button onclick="document.getElementById('popupKonfirmasiTubel').remove()" style="background:rgba(255,255,255,0.2);border:none;border-radius:6px;color:#fff;width:28px;height:28px;cursor:pointer;font-size:15px;">×</button>
+            </div>
+            <div style="padding:18px 20px;">
+                <p style="margin:0 0 12px;font-size:13px;color:#374151;">Konfirmasi bahwa proses pengaktifan kembali <strong>${nama}</strong> sudah selesai sepenuhnya?</p>
+            </div>
+            <div style="padding:0 20px 18px;display:flex;justify-content:flex-end;gap:8px;">
+                <button onclick="document.getElementById('popupKonfirmasiTubel').remove()" style="padding:8px 18px;background:#f1f5f9;color:#374151;border:none;border-radius:8px;cursor:pointer;font-weight:600;font-size:12px;">Batal</button>
+                <button id="btnKonfirmasiTubel" onclick="submitSelesaiTubel(${trackerId})" style="padding:8px 18px;background:linear-gradient(135deg,#16a34a,#15803d);color:#fff;border:none;border-radius:8px;cursor:pointer;font-weight:600;font-size:12px;display:flex;align-items:center;gap:6px;">
+                    <i class="ph-bold ph-check-circle"></i> Selesai
+                </button>
+            </div>
+        </div>`;
+    document.body.appendChild(popup);
+    popup.addEventListener('click', e => { if (e.target === popup) popup.remove(); });
+}
+
+function submitSelesaiTubel(trackerId) {
+    const btn = document.getElementById('btnKonfirmasiTubel');
+    const originalHTML = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = '<i class="ph-bold ph-spinner"></i> Proses...';
+
+    // Menggunakan endpoint tracker confirm standar yang akan set dikonfirmasi_at = now()
+    fetch(`/tracker/${trackerId}/confirm`, {
+        method: 'POST',
+        headers: {
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ catatan: 'Pengaktifan Tubel Selesai' })
+    })
+    .then(r => r.json())
+    .then(data => {
+        const popup = document.getElementById('popupKonfirmasiTubel');
+        if (popup) popup.remove();
+        if (data.success) {
+            showCustomToast('Proses pengaktifan tubel berhasil diselesaikan!', 'success');
+            setTimeout(() => window.location.reload(), 1000);
+        } else {
+            showCustomToast(data.message || 'Terjadi kesalahan.', 'error');
+            btn.innerHTML = originalHTML;
+            btn.disabled = false;
+        }
+    })
+    .catch(() => {
+        showCustomToast('Gagal terhubung ke server.', 'error');
+        btn.innerHTML = originalHTML;
+        btn.disabled = false;
+    });
+}
