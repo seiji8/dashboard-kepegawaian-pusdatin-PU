@@ -919,6 +919,30 @@ function generateSurat() {
         payload.append(key, fields[key]);
     });
 
+    if (suratKategori === 'KJ_Jafung') {
+        const queryParams = new URLSearchParams({
+            nomor_surat: fields['nomor_surat'],
+            tanggal: fields['tanggal_surat']
+        }).toString();
+
+        selectedIds.forEach((id, index) => {
+            // Jeda 500ms per file untuk mencegah browser memblokir terlalu agresif
+            setTimeout(() => {
+                window.open(`/dashboard/cetak-surat-kj/${id}?${queryParams}`, '_blank');
+            }, index * 500); 
+        });
+
+        btn.innerHTML = originalHTML;
+        btn.disabled = false;
+        closeSuratModal();
+        showCustomToast(`Mencetak ${selectedIds.length} surat usulan KJ...`, 'success');
+        
+        setTimeout(() => {
+            window.location.reload();
+        }, 1500);
+        return;
+    }
+
     fetch('/surat-pengajuan/generate', {
         method: 'POST',
         body: payload
@@ -968,7 +992,7 @@ function generateSurat() {
 
 
 // ============================================================
-// KONFIRMASI USULAN Ã¢â‚¬â€ KP & KGB (tanpa cetak surat)
+// KONFIRMASI USULAN KP & KGB (tanpa cetak surat)
 // ============================================================
 
 let _konfirmasiKategori = null;
@@ -1060,7 +1084,7 @@ function submitKonfirmasi() {
 }
 
 // ============================================================
-// KONFIRMASI PER-BARIS Ã¢â‚¬â€ KP & KGB
+// KONFIRMASI PER-BARIS KP & KGB
 // ============================================================
 function konfirmasiPerBaris(btnElement, trackerId, nama, kategori) {
     window._currentBtnElement = btnElement;
@@ -1069,7 +1093,7 @@ function konfirmasiPerBaris(btnElement, trackerId, nama, kategori) {
     if (existing) existing.remove();
 
     const labels = {
-        'KGB': 'Kenaikan Gaji Berkala', 'KP': 'Kenaikan Pangkat',
+        'KGB': 'KGB', 'KP': 'Kenaikan Pangkat',
         'KP_Jafung': 'KP Fungsional', 'KP_Struktural': 'KP Struktural', 'KP_Reguler': 'KP Reguler'
     };
 
@@ -1084,7 +1108,7 @@ function konfirmasiPerBaris(btnElement, trackerId, nama, kategori) {
             </div>
             <h3 class="confirm-modal-title">Konfirmasi Usulan</h3>
             <p class="confirm-modal-text">Apakah Anda yakin sudah memproses ${labels[kategori] || kategori} untuk:</p>
-            <p class="confirm-modal-name">${nama}</p>
+            <p class="confirm-modal-name" style="color: #0f172a;">${nama}</p>
             
             <div style="display:none;">
                 <textarea id="catatanInline" placeholder="Catatan"></textarea>

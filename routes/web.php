@@ -43,6 +43,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/sync-now', [DashboardController::class, 'syncData'])->name('sync.now');
     Route::get('/sync-progress', [DashboardController::class, 'syncProgress'])->name('sync.progress');
     Route::get('/dashboard/diklat-detail/{nip}/{kategori}', [DashboardController::class, 'diklatDetail'])->name('dashboard.diklat-detail');
+    Route::get('/dashboard/cetak-surat-kj/{id}', [DashboardController::class, 'cetakSuratKj'])->name('dashboard.cetak-surat-kj');
     
     // Log Aktivitas
     Route::get('/log-aktivitas', [LogAktivitasController::class, 'index'])->name('log-aktivitas');
