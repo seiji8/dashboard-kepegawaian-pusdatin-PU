@@ -20,6 +20,7 @@ class SuratPengajuanController extends Controller
         'KP_Reguler'    => 'Kenaikan Pangkat Reguler',
         'KJ_Jafung'     => 'Kenaikan Jenjang Fungsional',
         'UKOM'          => 'Uji Kompetensi',
+        'TUBEL'         => 'Pengembalian Tubel',
     ];
 
     /**
@@ -40,10 +41,15 @@ class SuratPengajuanController extends Controller
                 ->orderBy('tanggal_target')
                 ->get();
         } elseif (in_array($kategori, $validKategori)) {
+            $allowedStatuses = ['Usulan', 'Mendekati', 'Proses'];
+            if ($kategori === 'TUBEL') {
+                $allowedStatuses = ['Sedang Tubel', 'Proses Pengembalian', 'Proses Pengaktifan'];
+            }
+
             $trackers = DashboardTracker::with('pegawai')
                 ->where('kategori', $kategori)
                 ->whereNull('dikonfirmasi_at')
-                ->whereIn('status_saat_ini', ['Usulan', 'Mendekati', 'Proses'])
+                ->whereIn('status_saat_ini', $allowedStatuses)
                 ->orderBy('tanggal_target')
                 ->get();
         } else {
@@ -191,13 +197,23 @@ class SuratPengajuanController extends Controller
             return response()->json(['success' => false, 'message' => 'Data tidak ditemukan'], 404);
         }
 
-        // AUTO UPDATE STATUS: Usulan → Proses (trigger oleh cetak surat)  
-        // Yang sudah Proses = cetak ulang, status TIDAK berubah
+        // AUTO UPDATE STATUS by kategori (trigger oleh cetak surat)
+        // - Umum: Usulan -> Proses
+        // - TUBEL: Sedang Tubel -> Proses Pengembalian
+        // Yang sudah di status proses = cetak ulang, status tidak berubah
         $updatedCount = 0;
         foreach ($trackers as $tracker) {
-            if ($tracker->status_saat_ini === 'Usulan') {
+            $newStatus = null;
+
+            if ($tracker->kategori === 'TUBEL' && $tracker->status_saat_ini === 'Sedang Tubel') {
+                $newStatus = 'Proses Pengembalian';
+            } elseif ($tracker->status_saat_ini === 'Usulan') {
+                $newStatus = 'Proses';
+            }
+
+            if ($newStatus !== null) {
                 $tracker->update([
-                    'status_saat_ini' => 'Proses',
+                    'status_saat_ini' => $newStatus,
                 ]);
                 $updatedCount++;
             }

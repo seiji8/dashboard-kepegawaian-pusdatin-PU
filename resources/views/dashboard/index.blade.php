@@ -547,6 +547,11 @@
                             </div>
                             <div id="task-tubel" class="task-sub-container">
                                 <div class="sub-table-container active" style="display:block;">
+                                    <div class="surat-btn-row">
+                                        <button class="btn-cetak-surat" onclick="openSuratModal('TUBEL')">
+                                            <i class="ph-bold ph-file-text"></i> Cetak Surat Pengajuan
+                                        </button>
+                                    </div>
                                     <table class="custom-table">
                                         <thead>
                                             <tr>
@@ -568,10 +573,8 @@
                                                 <td>
                                                     @if($item->status_saat_ini == 'Sedang Tubel')
                                                         <span class="status-badge" style="background:#dbeafe; color:#1e40af;">Sedang Tubel</span>
-                                                    @elseif($item->status_saat_ini == 'Proses Pengaktifan')
-                                                        <span class="status-badge status-missing">Proses Pengaktifan</span>
-                                                    @elseif($item->status_saat_ini == 'Proses')
-                                                        <span class="status-badge status-warning">Surat Dicetak</span>
+                                                    @elseif($item->status_saat_ini == 'Proses Pengembalian' || $item->status_saat_ini == 'Proses Pengaktifan' || $item->status_saat_ini == 'Proses')
+                                                        <span class="status-badge status-missing">Proses Pengembalian</span>
                                                     @else
                                                         <span class="status-badge status-secondary">{{ $item->status_saat_ini }}</span>
                                                     @endif
@@ -580,14 +583,9 @@
                                                     <button class="btn-action-view" onclick="openDashboardDetail('{{ $item->pegawai->nip }}', 'TUBEL')" title="Lihat Detail">
                                                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
                                                     </button>
-                                                    @if($item->status_saat_ini == 'Proses Pengaktifan')
-                                                    {{-- Cetak surat pengaktifan → status berubah ke Proses --}}
-                                                    <button class="btn-action-confirm" onclick="cetakSuratPengaktifan({{ $item->id }}, '{{ addslashes($item->pegawai->nama) }}')" title="Cetak Surat Pengaktifan Kembali" style="background:#f59e0b;">
-                                                        <i class="ph-bold ph-printer" style="font-size:15px;"></i>
-                                                    </button>
-                                                    @elseif($item->status_saat_ini == 'Proses')
-                                                    {{-- Konfirmasi selesai → hilang dari modul --}}
-                                                    <button class="btn-action-confirm" onclick="konfirmasiSelesaiTubel({{ $item->id }}, '{{ addslashes($item->pegawai->nama) }}')" title="Konfirmasi Pengaktifan Selesai">
+                                                    @if($item->status_saat_ini == 'Proses Pengembalian' || $item->status_saat_ini == 'Proses Pengaktifan' || $item->status_saat_ini == 'Proses')
+                                                    {{-- Konfirmasi selesai → hilang dari dashboard --}}
+                                                    <button class="btn-action-confirm" onclick="konfirmasiSelesaiTubel({{ $item->id }}, '{{ addslashes($item->pegawai->nama) }}')" title="Konfirmasi Pengembalian Selesai">
                                                         <i class="ph-bold ph-check" style="font-size:15px;"></i>
                                                     </button>
                                                     @endif
@@ -1283,7 +1281,7 @@
             <!-- Header -->
             <div style="background:linear-gradient(135deg,#1e3a8a,#15803d); padding:20px 24px; color:white; display:flex; justify-content:space-between; align-items:center; flex-shrink:0;">
                 <div>
-                    <h3 style="margin:0; font-size:17px; font-weight:700;">âœ… Konfirmasi Usulan</h3>
+                    <h3 style="margin:0; font-size:17px; font-weight:700;"><i class="ph-fill ph-check-circle" style="font-size:16px; vertical-align:-2px;"></i> Konfirmasi Usulan</h3>
                     <p id="konfirmasiSubtitle" style="margin:4px 0 0; font-size:12px; opacity:0.85;">Kenaikan Pangkat / KGB</p>
                 </div>
                 <button onclick="closeKonfirmasiModal()" style="background:rgba(255,255,255,0.2); border:none; border-radius:8px; color:white; width:32px; height:32px; cursor:pointer; font-size:16px; display:flex; align-items:center; justify-content:center;">&times;</button>
@@ -1291,7 +1289,7 @@
             <!-- Info Banner -->
             <div style="background:#f0fdf4; border-left:4px solid #16a34a; margin:16px 24px 0; padding:12px 16px; border-radius:0 8px 8px 0;">
                 <p style="margin:0; font-size:12px; color:#15803d; line-height:1.5;">
-                    <strong>â„¹ï¸ Informasi:</strong> Surat pengajuan untuk kategori ini dibuat langsung melalui <strong>E-HRM</strong>.
+                    <strong>Informasi:</strong> Surat pengajuan untuk kategori ini dibuat langsung melalui <strong>E-HRM</strong>.
                     Klik konfirmasi untuk menandai bahwa usulan sudah diproses dan mengubah status ke <strong>Proses TTE</strong>.
                 </p>
             </div>
@@ -1311,8 +1309,8 @@
                 </div>
                 <!-- Pilih Semua -->
                 <div style="margin-top:10px; display:flex; gap:8px;">
-                    <button onclick="toggleSelectAllKonfirmasi(true)" style="font-size:12px; padding:5px 12px; background:#f0fdf4; color:#16a34a; border:1px solid #bbf7d0; border-radius:6px; cursor:pointer;">âœ… Pilih Semua</button>
-                    <button onclick="toggleSelectAllKonfirmasi(false)" style="font-size:12px; padding:5px 12px; background:#f9fafb; color:#6b7280; border:1px solid #e5e7eb; border-radius:6px; cursor:pointer;">â˜ Batal Semua</button>
+                    <button onclick="toggleSelectAllKonfirmasi(true)" style="font-size:12px; padding:5px 12px; background:#f0fdf4; color:#16a34a; border:1px solid #bbf7d0; border-radius:6px; cursor:pointer;"><i class="ph-fill ph-check-square" style="vertical-align:-1px;"></i> Pilih Semua</button>
+                    <button onclick="toggleSelectAllKonfirmasi(false)" style="font-size:12px; padding:5px 12px; background:#f9fafb; color:#6b7280; border:1px solid #e5e7eb; border-radius:6px; cursor:pointer;"><i class="ph-bold ph-square" style="vertical-align:-1px;"></i> Batal Semua</button>
                 </div>
             </div>
             <!-- Footer -->
@@ -1345,7 +1343,7 @@
                     {
                         element: '.top-navbar',
                         popover: {
-                            title: 'Area Profil & Notifikasi ðŸ‘‹',
+                            title: 'Area Profil & Notifikasi 👋',
                             description: 'Dari sudut sini, Anda bisa mengecek Lonceng Notifikasi yang masuk, mengganti kata sandi, atau mengakses tombol [?] ini lagi jika butuh panduan.',
                             side: "bottom",
                             align: 'end'
@@ -1354,7 +1352,7 @@
                     {
                         element: '.dashboard-cards',
                         popover: {
-                            title: 'Statistik Instan ðŸ“Š',
+                            title: 'Statistik Instan 📊',
                             description: 'Empat kartu ini memberikan Anda pandangan terhadap ringkasan status administrasi seluruh pegawai saat ini.',
                             side: "bottom",
                             align: 'center'
@@ -1363,7 +1361,7 @@
                     {
                         element: '.task-section',
                         popover: {
-                            title: 'Daftar Tugas Utama ðŸ“‘',
+                            title: 'Daftar Tugas Utama 📋',
                             description: 'Di sinilah pusat operasi Anda. Seluruh antrean pegawai yang butuh pemrosesan berkas (KGB, KP, KJ, & dll) akan dikumpulkan rapi di berbagai tabel ini.',
                             side: "top",
                             align: 'center'
