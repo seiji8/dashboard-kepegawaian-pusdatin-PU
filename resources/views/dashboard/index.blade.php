@@ -1150,7 +1150,7 @@
             <!-- Header -->
             <div style="padding:20px 25px; border-bottom:1px solid #e2e8f0; background:#f8fafc; display:flex; align-items:center; justify-content:space-between; flex-shrink:0;">
                 <div style="display:flex; align-items:center; gap:12px;">
-                    <div style="background:#dbeafe; color:#16a34a; width:42px; height:42px; border-radius:10px; display:flex; align-items:center; justify-content:center;">
+                    <div style="background:#dbeafe; color:#1e3a8a; width:42px; height:42px; border-radius:10px; display:flex; align-items:center; justify-content:center;">
                         <i class="ph-bold ph-file-text" style="font-size:22px;"></i>
                     </div>
                     <div>
@@ -1180,7 +1180,7 @@
                         <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px;">
                             <h4 style="margin:0; font-size:14px; font-weight:700; color:#1e293b;">1. Pilih Pegawai</h4>
                             <label id="labelSelectAllSurat" style="display:flex; align-items:center; gap:8px; cursor:pointer; font-size:13px; font-weight:600; color:#3b82f6;">
-                                <input type="checkbox" id="suratSelectAll" onchange="suratToggleAll()" style="width:16px; height:16px; accent-color:#16a34a; cursor:pointer;">
+                                <input type="checkbox" id="suratSelectAll" onchange="suratToggleAll()" style="width:16px; height:16px; accent-color:#1e3a8a; cursor:pointer;">
                                 Pilih Semua
                             </label>
                         </div>

@@ -804,7 +804,7 @@ function renderSuratGroups(groups) {
         <div style="margin-bottom:16px;">
             <div style="display:flex; align-items:center; gap:8px; margin-bottom:10px;">
                 <span style="background:#d97706; width:8px; height:8px; border-radius:50; display:inline-block;"></span>
-                <span style="font-weight:700; font-size:13px; color:#d97706;">Sudah Dicetak Ã¢â‚¬â€ Cetak Ulang</span>
+                <span style="font-weight:700; font-size:13px; color:#d97706;">Sudah Dicetak &mdash; Cetak Ulang</span>
                 <span style="background:#fef3c7; color:#d97706; padding:2px 10px; border-radius:10px; font-size:11px; font-weight:700;">${sudahDicetak.length} Orang</span>
             </div>
             <div style="border:1px solid #fde68a; border-radius:10px; overflow:hidden; opacity:0.85;">`;
@@ -825,7 +825,7 @@ function renderPegawaiRow(p, statusLabel, statusColor, statusBg) {
             <input type="checkbox" class="surat-pegawai-cb" data-tracker-id="${p.tracker_id}" onchange="handleSuratCbChange(this)" style="width:16px; height:16px; accent-color:#1e3a8a; cursor:pointer; flex-shrink:0;">
             <div style="flex:1; min-width:0;">
                 <div style="font-weight:600; font-size:13px; color:#1e293b;">${p.nama}</div>
-                <div style="font-size:11px; color:#64748b; margin-top:2px;">NIP: ${p.nip} Ã‚Â· ${p.pangkat_golongan} Ã‚Â· ${p.jabatan}</div>
+                <div style="font-size:11px; color:#64748b; margin-top:2px;">NIP: ${p.nip} &middot; ${p.pangkat_golongan} &middot; ${p.jabatan}</div>
             </div>
             <span style="background:${statusBg}; color:${statusColor}; padding:3px 10px; border-radius:12px; font-size:10px; font-weight:700; white-space:nowrap;">${statusLabel}</span>
         </label>`;
