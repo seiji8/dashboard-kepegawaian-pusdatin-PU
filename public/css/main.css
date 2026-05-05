@@ -1898,7 +1898,7 @@ body {
 }
 
 /* Modal Reminder */
-.modal-box-reminder {
+.reminder-modal-box {
     background: white;
     width: 500px;
     max-width: 90%;
@@ -1927,7 +1927,6 @@ body {
     font-size: 14px;
 }
 
-.form-select,
 .form-textarea {
     width: 100%;
     padding: 10px;
@@ -1977,6 +1976,54 @@ body {
     border: none;
     font-weight: 600;
     cursor: pointer;
+}
+
+.reminder-modal-box .select-wrapper {
+    width: 100%;
+}
+
+.reminder-modal-box .ts-control {
+    padding: 12px 14px !important;
+    border: 2px solid #e2e8f0 !important;
+    border-radius: 8px !important;
+    font-size: 14.5px !important;
+    color: #1e293b !important;
+    font-family: "Poppins", sans-serif !important;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05) !important;
+    transition: all 0.2s ease !important;
+    min-height: 48px;
+}
+
+.reminder-modal-box .ts-control.focus {
+    border-color: #3b82f6 !important;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1) !important;
+}
+
+.reminder-modal-box .ts-dropdown {
+    font-family: "Poppins", sans-serif !important;
+    font-size: 14px !important;
+    border-radius: 8px !important;
+    border: 1px solid #e2e8f0 !important;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1) !important;
+    margin-top: 5px !important;
+}
+
+.reminder-modal-box .ts-dropdown .option {
+    padding: 10px 14px !important;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.reminder-modal-box .ts-dropdown .option:last-child {
+    border-bottom: none;
+}
+
+.reminder-modal-box .ts-dropdown .active {
+    background-color: #eff6ff !important;
+    color: #1e3a8a !important;
+}
+
+.reminder-modal-box .ts-control input::placeholder {
+    color: #94a3b8 !important;
 }
 
 /* Toast */
