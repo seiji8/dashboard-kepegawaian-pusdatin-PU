@@ -12,8 +12,56 @@
     <!-- Phosphor Icons -->
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <!-- TomSelect CSS (Dropdown Pencarian) -->
+    <link href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.default.css" rel="stylesheet">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <link rel="icon" type="image/png" href="{{ asset('assets/Logo_PU.png') }}">
+    <style>
+        .ts-control {
+            padding: 12px 14px !important;
+            border: 2px solid #e2e8f0 !important;
+            border-radius: 8px !important;
+            font-size: 14.5px !important;
+            color: #1e293b !important;
+            font-family: 'Poppins', sans-serif !important;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05) !important;
+            transition: all 0.2s ease !important;
+            min-height: 48px;
+        }
+        .ts-control.focus {
+            border-color: #3b82f6 !important;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1) !important;
+        }
+        .ts-dropdown {
+            font-family: 'Poppins', sans-serif !important;
+            font-size: 14px !important;
+            border-radius: 8px !important;
+            border: 1px solid #e2e8f0 !important;
+            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1) !important;
+            margin-top: 5px !important;
+        }
+        .ts-dropdown .option {
+            padding: 10px 14px !important;
+            border-bottom: 1px solid #f1f5f9;
+        }
+        .ts-dropdown .option:last-child {
+            border-bottom: none;
+        }
+        .ts-dropdown .active {
+            background-color: #eff6ff !important;
+            color: #1e3a8a !important;
+        }
+        .ts-control input::placeholder {
+            color: #94a3b8 !important;
+        }
+        .ts-wrapper.multi .ts-control > div {
+            background: #dbeafe !important;
+            color: #1e3a8a !important;
+            border-radius: 6px !important;
+            padding: 3px 8px !important;
+            margin: 2px 4px 2px 0 !important;
+        }
+    </style>
     @include('partials.tour_styles')
 </head>
 <body>
@@ -343,20 +391,22 @@
 
     <!-- MODAL REMINDER -->
     <div id="modalReminder" class="modal-overlay" style="z-index: 2000;">
-        <div class="modal-box-reminder">
+        <div class="modal-box modal-box-reminder">
             <h3 class="reminder-title">Pengingat Manual</h3>
 
             <div class="form-group">
-                <label class="form-label">Pilih Template</label>
-                <select id="reminderTemplate" class="form-select">
-                    <option value="" disabled selected>Pilih</option>
-                    @foreach($templates as $template)
-                        <option value="{{ $template->id }}">{{ $template->kategori }}</option>
-                    @endforeach
-                </select>
+                <label class="form-label">Template Pesan</label>
+                <div class="select-wrapper">
+                    <select id="reminderTemplate">
+                        <option value="" disabled selected>Pilih template</option>
+                        @foreach($templates as $template)
+                            <option value="{{ $template->id }}">{{ $template->kategori }}</option>
+                        @endforeach
+                    </select>
+                </div>
             </div>
 
-            <div class="checkbox-group">
+            <div class="checkbox-group reminder-checkbox-group">
                 <input type="checkbox" id="checkCustom" onchange="toggleMessageMode()">
                 <label for="checkCustom">Apakah anda ingin menambahkan pesan custom?</label>
             </div>
@@ -368,7 +418,7 @@
 
             <div class="reminder-actions">
                 <button class="btn-cancel-soft" onclick="closeReminderModal()">Batal</button>
-                <button class="btn-send-soft" onclick="sendReminder()">Kirim</button>
+                <button id="btnSendManual" class="btn-send-soft" onclick="sendReminder()">Kirim</button>
             </div>
         </div>
     </div>
@@ -384,7 +434,22 @@
     @include('partials.change_password_modal')
     <!-- Driver.js (Logika Panduan Tour Interaktif) -->
     <script src="https://cdn.jsdelivr.net/npm/driver.js@1.3.1/dist/driver.js.iife.js"></script>
+    <!-- TomSelect JS (Dropdown Pencarian) -->
+    <script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
     <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            if (document.getElementById("reminderTemplate")) {
+                new TomSelect("#reminderTemplate", {
+                    create: false,
+                    sortField: {
+                        field: "text",
+                        direction: "asc"
+                    },
+                    placeholder: "Ketik nama template untuk mencari..."
+                });
+            }
+        });
+
         function mulaiTour() {
             const driver = window.driver.js.driver;
             const tour = driver({

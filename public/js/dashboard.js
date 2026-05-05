@@ -214,15 +214,28 @@ function submitUkom() {
 function toggleMessageMode() {
     const isCustom = document.getElementById("checkCustom").checked;
     const selectTemplate = document.getElementById("reminderTemplate");
+    const tomSelect =
+        selectTemplate && selectTemplate.tomselect
+            ? selectTemplate.tomselect
+            : null;
     const txtMessage = document.getElementById("reminderMessage");
 
     if (isCustom) {
-        selectTemplate.disabled = true;
-        selectTemplate.value = "";
+        if (tomSelect) {
+            tomSelect.disable();
+            tomSelect.clear();
+        } else if (selectTemplate) {
+            selectTemplate.disabled = true;
+            selectTemplate.value = "";
+        }
         txtMessage.disabled = false;
         txtMessage.focus();
     } else {
-        selectTemplate.disabled = false;
+        if (tomSelect) {
+            tomSelect.enable();
+        } else if (selectTemplate) {
+            selectTemplate.disabled = false;
+        }
         txtMessage.disabled = true;
         txtMessage.value = "";
     }
@@ -311,6 +324,7 @@ function sendReminder() {
     }
 
     const btnSend = document.getElementById("btnSendManual");
+    if (!btnSend) return;
     const originalText = btnSend.innerText;
     btnSend.innerText = "Mengirim...";
     btnSend.disabled = true;
