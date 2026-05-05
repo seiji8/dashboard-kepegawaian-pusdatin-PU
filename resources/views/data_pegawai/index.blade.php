@@ -390,35 +390,54 @@
     </div>
 
     <!-- MODAL REMINDER -->
-    <div id="modalReminder" class="modal-overlay" style="z-index: 2000;">
-        <div class="modal-box modal-box-reminder">
-            <h3 class="reminder-title">Pengingat Manual</h3>
+    <div id="modalReminder" class="modal-overlay" style="display:none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2400; justify-content: center; align-items: center;">
+        <div style="background: white; width: 600px; max-width: 95vw; padding: 0; border-radius: 12px; box-shadow: 0 10px 40px rgba(0,0,0,0.2); position: relative; overflow: hidden; display: flex; flex-direction: column;">
 
-            <div class="form-group">
-                <label class="form-label">Template Pesan</label>
-                <div class="select-wrapper">
-                    <select id="reminderTemplate">
-                        <option value="" disabled selected>Pilih template</option>
-                        @foreach($templates as $template)
-                            <option value="{{ $template->id }}">{{ $template->kategori }}</option>
-                        @endforeach
-                    </select>
+            <!-- Header -->
+            <div style="padding: 20px 25px; border-bottom: 1px solid #e2e8f0; background: #f8fafc; display: flex; justify-content: space-between; align-items: center;">
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <div style="background: #fef3c7; color: #d97706; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                        <i class="ph-bold ph-bell-ringing" style="font-size: 20px;"></i>
+                    </div>
+                    <h2 style="margin: 0; color: #1e293b; font-size: 18px; font-weight: 700;">Kirim Pengingat Manual</h2>
                 </div>
+                <button onclick="closeReminderModal()" style="background: none; border: none; cursor: pointer; color: #94a3b8; transition: color 0.2s;" onmouseover="this.style.color='#ef4444'" onmouseout="this.style.color='#94a3b8'">
+                    <i class="ph-bold ph-x" style="font-size: 20px;"></i>
+                </button>
             </div>
 
-            <div class="checkbox-group reminder-checkbox-group">
-                <input type="checkbox" id="checkCustom" onchange="toggleMessageMode()">
-                <label for="checkCustom">Apakah anda ingin menambahkan pesan custom?</label>
+            <!-- Body -->
+            <div style="padding: 25px;">
+                <style>
+                    #modalReminder .ts-wrapper { margin-bottom: 20px; }
+                    #modalReminder .ts-control { border-radius: 8px !important; border-color: #cbd5e1 !important; padding: 10px 15px !important; font-size: 14px !important; }
+                    #modalReminder .ts-control:focus-within { border-color: #3b82f6 !important; box-shadow: 0 0 0 3px rgba(59,130,246,0.1) !important; }
+                    #modalReminder .ts-dropdown { border-radius: 8px !important; border-color: #cbd5e1 !important; box-shadow: 0 4px 12px rgba(0,0,0,0.1) !important; }
+                </style>
+
+                <label style="display: block; font-size: 13px; font-weight: 700; color: #475569; margin-bottom: 8px; letter-spacing: 0.5px;">PILIH TEMPLATE PESAN</label>
+                <select id="reminderTemplate" style="width: 100%; padding: 12px 15px; border: 1px solid #cbd5e1; border-radius: 8px; margin-bottom: 20px; color: #1e293b; font-size: 14px; outline: none; transition: all 0.2s; box-shadow: 0 1px 2px rgba(0,0,0,0.05);">
+                    <option value="" disabled selected>Pilih Template Pengingat</option>
+                    @foreach($templates as $template)
+                        <option value="{{ $template->id }}">{{ $template->kategori }}</option>
+                    @endforeach
+                </select>
+
+                <div style="display: flex; align-items: center; margin-bottom: 20px; background: #f1f5f9; padding: 12px 15px; border-radius: 8px; border: 1px solid #e2e8f0;">
+                    <input type="checkbox" id="checkCustom" onchange="toggleMessageMode()" style="margin-right: 12px; width: 18px; height: 18px; cursor: pointer; accent-color: #3b82f6;">
+                    <label for="checkCustom" style="font-size: 14px; font-weight: 600; color: #334155; cursor: pointer; user-select: none;">Apakah anda ingin menambahkan/mengedit pesan bawaan?</label>
+                </div>
+
+                <label style="display: block; font-size: 13px; font-weight: 700; color: #475569; margin-bottom: 8px; letter-spacing: 0.5px;">ISI PESAN</label>
+                <textarea id="reminderMessage" disabled style="width: 100%; height: 120px; padding: 15px; border: 1px solid #cbd5e1; border-radius: 8px; margin-bottom: 10px; resize: none; font-size: 14px; color: #1e293b; outline: none; transition: all 0.2s; background: #f8fafc; font-family: 'Poppins', sans-serif; box-sizing: border-box;" onfocus="this.style.borderColor='#3b82f6'; this.style.boxShadow='0 0 0 3px rgba(59,130,246,0.1)'; this.style.background='#ffffff'" onblur="this.style.borderColor='#cbd5e1'; this.style.boxShadow='none'; if(this.disabled) this.style.background='#f8fafc'"></textarea>
             </div>
 
-            <div class="form-group">
-                <label class="form-label">Isi Pesan</label>
-                <textarea id="reminderMessage" class="form-textarea" disabled placeholder="Tulis pesan custom anda di sini..."></textarea>
-            </div>
-
-            <div class="reminder-actions">
-                <button class="btn-cancel-soft" onclick="closeReminderModal()">Batal</button>
-                <button id="btnSendManual" class="btn-send-soft" onclick="sendReminder()">Kirim</button>
+            <!-- Footer -->
+            <div style="padding: 20px 25px; border-top: 1px solid #e2e8f0; background: #f8fafc; display: flex; justify-content: flex-end; gap: 12px;">
+                <button onclick="closeReminderModal()" style="padding: 10px 24px; background: white; color: #64748b; border: 1px solid #cbd5e1; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 14px; transition: all 0.2s; font-family: 'Poppins', sans-serif;" onmouseover="this.style.background='#f1f5f9'; this.style.color='#475569'" onmouseout="this.style.background='white'; this.style.color='#64748b'">Batal</button>
+                <button onclick="sendReminder()" id="btnSendManual" style="padding: 10px 24px; background: #f59e0b; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 14px; display: flex; align-items: center; gap: 8px; transition: all 0.2s; box-shadow: 0 4px 6px -1px rgba(245,158,11,0.2); font-family: 'Poppins', sans-serif;" onmouseover="this.style.background='#d97706'; this.style.transform='translateY(-1px)'" onmouseout="this.style.background='#f59e0b'; this.style.transform='translateY(0)'">
+                    <i class="ph-bold ph-paper-plane-right"></i> Kirim
+                </button>
             </div>
         </div>
     </div>
@@ -437,15 +456,14 @@
     <!-- TomSelect JS (Dropdown Pencarian) -->
     <script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
     <script>
-        document.addEventListener("DOMContentLoaded", function() {
-            if (document.getElementById("reminderTemplate")) {
-                new TomSelect("#reminderTemplate", {
-                    create: false,
-                    sortField: {
-                        field: "text",
-                        direction: "asc"
-                    },
-                    placeholder: "Ketik nama template untuk mencari..."
+        // Init Tom Select setelah semua resource (CDN) pasti loaded
+        window.addEventListener('load', function() {
+            const el = document.getElementById('reminderTemplate');
+            if (el && typeof TomSelect !== 'undefined') {
+                reminderTomSelectDP = new TomSelect(el, {
+                    allowEmptyOption: true,
+                    maxOptions: null,
+                    placeholder: 'Pilih Template Pengingat'
                 });
             }
         });

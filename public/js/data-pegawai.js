@@ -137,28 +137,49 @@ function confirmDelete() {
 }
 
 // === REMINDER LOGIC ===
+let reminderTomSelectDP = null;
+
 function openReminderModal() {
     document.getElementById('modalReminder').style.display = 'flex';
 }
 
 function closeReminderModal() {
     document.getElementById('modalReminder').style.display = 'none';
+    // Reset Tom Select value
+    if (reminderTomSelectDP) {
+        reminderTomSelectDP.clear();
+        reminderTomSelectDP.enable();
+    }
+    // Reset form state
+    const checkbox = document.getElementById('checkCustom');
+    if (checkbox) checkbox.checked = false;
+    const msg = document.getElementById('reminderMessage');
+    if (msg) { msg.value = ''; msg.disabled = true; }
 }
 
 function toggleMessageMode() {
     const isCustom = document.getElementById('checkCustom').checked;
-    const selectTemplate = document.getElementById('reminderTemplate');
     const txtMessage = document.getElementById('reminderMessage');
 
     if (isCustom) {
-        selectTemplate.disabled = true;
-        selectTemplate.value = "";
-        txtMessage.disabled = false;
-        txtMessage.focus();
+        // Disable Tom Select (or native select) dan clear value
+        if (reminderTomSelectDP) {
+            reminderTomSelectDP.disable();
+            reminderTomSelectDP.clear();
+        } else {
+            const selectTemplate = document.getElementById('reminderTemplate');
+            if (selectTemplate) { selectTemplate.disabled = true; selectTemplate.value = ''; }
+        }
+        if (txtMessage) { txtMessage.disabled = false; txtMessage.focus(); }
     } else {
-        selectTemplate.disabled = false;
-        txtMessage.disabled = true;
-        txtMessage.value = "";
+        // Enable Tom Select (or native select)
+        if (reminderTomSelectDP) {
+            reminderTomSelectDP.enable();
+        } else {
+            const selectTemplate = document.getElementById('reminderTemplate');
+            if (selectTemplate) selectTemplate.disabled = false;
+        }
+        if (txtMessage) { txtMessage.disabled = true; txtMessage.value = ''; }
     }
 }
 
@@ -186,7 +207,7 @@ function sendReminder() {
     }
 
     // Button Loading State
-    const btnSend = document.querySelector('.btn-send-soft');
+    const btnSend = document.getElementById('btnSendManual');
     const originalText = btnSend.innerText;
     btnSend.innerText = 'Mengirim...';
     btnSend.disabled = true;

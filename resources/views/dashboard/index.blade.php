@@ -15,6 +15,9 @@
     <link rel="icon" type="image/png" href="{{ asset('assets/Logo_PU.png') }}">
     
     @include('partials.tour_styles')
+    <!-- Tom Select -->
+    <link href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.default.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
 </head>
 <body>
     <div class="container">
@@ -992,6 +995,12 @@
             
             <!-- Body -->
             <div style="padding: 25px;">
+                <style>
+                    #reminderModal .ts-wrapper { margin-bottom: 20px; }
+                    #reminderModal .ts-control { border-radius: 8px !important; border-color: #cbd5e1 !important; padding: 10px 15px !important; font-size: 14px !important; }
+                    #reminderModal .ts-control:focus-within { border-color: #3b82f6 !important; box-shadow: 0 0 0 3px rgba(59,130,246,0.1) !important; }
+                    #reminderModal .ts-dropdown { border-radius: 8px !important; border-color: #cbd5e1 !important; box-shadow: 0 4px 12px rgba(0,0,0,0.1) !important; }
+                </style>
                 <label style="display: block; font-size: 13px; font-weight: 700; color: #475569; margin-bottom: 8px; letter-spacing: 0.5px;">PILIH TEMPLATE PESAN</label>
                 <select id="reminderTemplate" style="width: 100%; padding: 12px 15px; border: 1px solid #cbd5e1; border-radius: 8px; margin-bottom: 20px; color: #1e293b; font-size: 14px; outline: none; transition: all 0.2s; box-shadow: 0 1px 2px rgba(0,0,0,0.05);" onchange="toggleMessageMode()" onfocus="this.style.borderColor='#3b82f6'; this.style.boxShadow='0 0 0 3px rgba(59,130,246,0.1)'" onblur="this.style.borderColor='#cbd5e1'; this.style.boxShadow='0 1px 2px rgba(0,0,0,0.05)'">
                     <option value="" disabled selected>Pilih Template Pengingat</option>
@@ -1131,6 +1140,7 @@
                 loading.innerHTML = '<p style="color:#dc2626;">Gagal memuat data.</p>';
             });
     }
+
 
     function closeDiklatModal() {
         document.getElementById('diklatModal').style.display = 'none';

@@ -133,12 +133,32 @@ function closeDetailModal() {
     if (detailModal) detailModal.style.display = "none";
 }
 
+let reminderTomSelect = null;
+
 function openReminderModal() {
     if (reminderModal) reminderModal.style.display = "flex";
+
+    // Init Tom Select setelah modal tampil
+    setTimeout(() => {
+        const el = document.getElementById("reminderTemplate");
+        if (el && typeof TomSelect !== 'undefined' && !reminderTomSelect) {
+            reminderTomSelect = new TomSelect(el, {
+                allowEmptyOption: true,
+                maxOptions: null,
+                onChange: function() {
+                    toggleMessageMode();
+                }
+            });
+        }
+    }, 50);
 }
 
 function closeReminderModal() {
     if (reminderModal) reminderModal.style.display = "none";
+    if (reminderTomSelect) {
+        reminderTomSelect.destroy();
+        reminderTomSelect = null;
+    }
 }
 
 function openConfirmModal(trackerId, pegawaiName) {
@@ -546,13 +566,11 @@ function openDashboardDetail(nip, kategori) {
 
                                 // Append to modalFooter (keeping reminder button)
                                 modalFooter.innerHTML = `
-                                    <div style="display:flex; justify-content:space-between; width:100%; align-items:center;">
+                                    <div style="display:flex; justify-content:flex-end; width:100%; align-items:center; gap:10px;">
+                                        ${actionButtons}
                                         <button class="btn-reminder-yellow" onclick="openReminderModal()" style="width:auto; padding:8px 20px; margin:0; display:flex; align-items:center; gap:8px;">
                                             <i class="ph-bold ph-bell-ringing"></i> Kirim Pengingat
                                         </button>
-                                        <div style="display:flex; align-items:center;">
-                                            ${actionButtons}
-                                        </div>
                                     </div>
                                 `;
                             }

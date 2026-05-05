@@ -268,82 +268,196 @@
     </main>
 
     <!-- MODAL TAMBAH PESAN -->
-    <div id="modalTambahPesan" class="modal-overlay">
-        <form id="formTambah" class="modal-box-compact">
-            <div class="modal-header">
-                <h2>Tambah Pesan</h2>
-            </div>
-            
-            <div class="modal-body">
-                
-                <div style="margin-bottom: 16px;">
-                    <label class="info-label">Nama Template Pesan</label>
-                    <input type="text" name="kategori" class="form-input" placeholder="Contoh: Pengingat Berkas SKP" required>
-                    <!-- Force it as Manual / Template implicitly -->
-                    <input type="hidden" name="interval_hari" value="0">
-                </div>
+    <div id="modalTambahPesan" class="modal-overlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:2400; justify-content:center; align-items:center;">
+        <form id="formTambah" style="background:white; width:600px; max-width:95vw; padding:0; border-radius:12px; box-shadow:0 10px 40px rgba(0,0,0,0.2); overflow:hidden; display:flex; flex-direction:column; max-height:90vh;">
 
-                <div class="input-group">
-                    <label class="info-label">Isi Pesan</label>
-                    <textarea name="template_pesan" class="form-input text-area-pesan" placeholder="Tulis template pesan di sini..." required></textarea>
-                    <p class="helper-text">
-                        Gunakan placeholder: <b>{nama}</b>, <b>{nip}</b>, <b>{deadline}</b>, <b>{poin}</b>, <b>{next_pangkat}</b>
-                    </p>
+            <!-- Header -->
+            <div style="padding:20px 25px; border-bottom:1px solid #e2e8f0; background:#f8fafc; display:flex; justify-content:space-between; align-items:center; flex-shrink:0;">
+                <div style="display:flex; align-items:center; gap:12px;">
+                    <div style="background:#dcfce7; color:#16a34a; width:40px; height:40px; border-radius:50%; display:flex; align-items:center; justify-content:center;">
+                        <i class="ph-bold ph-plus" style="font-size:20px;"></i>
+                    </div>
+                    <div>
+                        <h2 style="margin:0; color:#1e293b; font-size:17px; font-weight:700;">Tambah Template Pesan</h2>
+                        <p style="margin:2px 0 0; font-size:12px; color:#64748b;">Buat template baru untuk pengingat manual</p>
+                    </div>
                 </div>
-
+                <button type="button" onclick="closeModal()" style="background:none; border:none; cursor:pointer; color:#94a3b8; transition:color 0.2s;" onmouseover="this.style.color='#ef4444'" onmouseout="this.style.color='#94a3b8'">
+                    <i class="ph-bold ph-x" style="font-size:20px;"></i>
+                </button>
             </div>
 
-            <div class="modal-footer">
-                <button type="button" class="btn-modal-cancel" onclick="closeModal()">Batal</button>
-                <button type="submit" class="btn-modal-save">Simpan</button>
+            <!-- Body -->
+            <div style="padding:25px; overflow-y:auto; flex:1;">
+                <input type="hidden" name="interval_hari" value="0">
+
+                <div style="margin-bottom:20px;">
+                    <label style="display:block; font-size:12px; font-weight:700; color:#475569; margin-bottom:6px; letter-spacing:0.5px;">NAMA TEMPLATE PESAN</label>
+                    <input type="text" name="kategori" placeholder="Contoh: Pengingat Berkas SKP" required
+                        style="width:100%; padding:11px 14px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:14px; color:#1e293b; outline:none; transition:border 0.2s; box-sizing:border-box; font-family:'Poppins',sans-serif;"
+                        onfocus="this.style.borderColor='#3b82f6'; this.style.boxShadow='0 0 0 3px rgba(59,130,246,0.1)'"
+                        onblur="this.style.borderColor='#e2e8f0'; this.style.boxShadow='none'">
+                </div>
+
+                <div style="margin-bottom:16px;">
+                    <label style="display:block; font-size:12px; font-weight:700; color:#475569; margin-bottom:6px; letter-spacing:0.5px;">ISI PESAN</label>
+                    <textarea name="template_pesan" rows="6" placeholder="Tulis template pesan di sini..." required
+                        style="width:100%; padding:12px 14px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:14px; color:#1e293b; outline:none; transition:border 0.2s; resize:vertical; box-sizing:border-box; font-family:'Poppins',sans-serif; min-height:130px;"
+                        onfocus="this.style.borderColor='#3b82f6'; this.style.boxShadow='0 0 0 3px rgba(59,130,246,0.1)'"
+                        onblur="this.style.borderColor='#e2e8f0'; this.style.boxShadow='none'"></textarea>
+                </div>
+
+                <!-- Panduan Placeholder -->
+                <div style="background:#eff6ff; border:1px solid #bfdbfe; border-radius:8px; padding:14px 16px;">
+                    <div style="display:flex; align-items:center; gap:8px; margin-bottom:10px;">
+                        <i class="ph-fill ph-info" style="color:#3b82f6; font-size:16px;"></i>
+                        <span style="font-size:13px; font-weight:700; color:#1e40af;">Panduan Variabel Placeholder</span>
+                    </div>
+                    <p style="font-size:12px; color:#3b82f6; margin:0 0 10px 0;">Sisipkan variabel berikut dalam isi pesan — akan otomatis diganti data pegawai saat dikirim:</p>
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:6px;">
+                        <div style="background:white; border-radius:6px; padding:8px 10px; border:1px solid #dbeafe;">
+                            <code style="color:#1d4ed8; font-size:12px; font-weight:700;">{nama}</code>
+                            <span style="color:#64748b; font-size:11px; display:block; margin-top:2px;">Nama lengkap pegawai</span>
+                        </div>
+                        <div style="background:white; border-radius:6px; padding:8px 10px; border:1px solid #dbeafe;">
+                            <code style="color:#1d4ed8; font-size:12px; font-weight:700;">{nip}</code>
+                            <span style="color:#64748b; font-size:11px; display:block; margin-top:2px;">NIP pegawai</span>
+                        </div>
+                        <div style="background:white; border-radius:6px; padding:8px 10px; border:1px solid #dbeafe;">
+                            <code style="color:#1d4ed8; font-size:12px; font-weight:700;">{deadline}</code>
+                            <span style="color:#64748b; font-size:11px; display:block; margin-top:2px;">Tanggal jatuh tempo</span>
+                        </div>
+                        <div style="background:white; border-radius:6px; padding:8px 10px; border:1px solid #dbeafe;">
+                            <code style="color:#1d4ed8; font-size:12px; font-weight:700;">{poin}</code>
+                            <span style="color:#64748b; font-size:11px; display:block; margin-top:2px;">Angka kredit / poin</span>
+                        </div>
+                        <div style="background:white; border-radius:6px; padding:8px 10px; border:1px solid #dbeafe; grid-column:1/-1;">
+                            <code style="color:#1d4ed8; font-size:12px; font-weight:700;">{next_pangkat}</code>
+                            <span style="color:#64748b; font-size:11px; display:block; margin-top:2px;">Pangkat / golongan berikutnya</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <div style="padding:18px 25px; border-top:1px solid #e2e8f0; background:#f8fafc; display:flex; justify-content:flex-end; gap:10px; flex-shrink:0;">
+                <button type="button" onclick="closeModal()"
+                    style="padding:10px 22px; background:white; color:#64748b; border:1.5px solid #e2e8f0; border-radius:8px; cursor:pointer; font-weight:600; font-size:14px; font-family:'Poppins',sans-serif; transition:all 0.2s;"
+                    onmouseover="this.style.background='#f1f5f9'" onmouseout="this.style.background='white'">Batal</button>
+                <button type="submit"
+                    style="padding:10px 22px; background:#16a34a; color:white; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:14px; font-family:'Poppins',sans-serif; display:flex; align-items:center; gap:8px; transition:all 0.2s;"
+                    onmouseover="this.style.background='#15803d'; this.style.transform='translateY(-1px)'" onmouseout="this.style.background='#16a34a'; this.style.transform='translateY(0)'">
+                    <i class="ph-bold ph-floppy-disk"></i> Simpan
+                </button>
             </div>
         </form>
     </div>
 
     <!-- MODAL EDIT PESAN -->
-    <div id="modalEditPesan" class="modal-overlay">
-        <form id="formEdit" class="modal-box-compact">
+    <div id="modalEditPesan" class="modal-overlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:2400; justify-content:center; align-items:center;">
+        <form id="formEdit" style="background:white; width:640px; max-width:95vw; padding:0; border-radius:12px; box-shadow:0 10px 40px rgba(0,0,0,0.2); overflow:hidden; display:flex; flex-direction:column; max-height:92vh;">
             <input type="hidden" id="editId" name="id">
-            <div class="modal-header">
-                <h2>Edit Pesan</h2>
-            </div>
-            
-            <div class="modal-body">
-                <div style="display: grid; grid-template-columns: 3fr 2fr 1fr; gap: 16px; align-items: start;">
-                    <div>
-                        <label class="info-label">Nama Notifikasi</label>
-                        <input type="text" id="editNama" name="kategori" class="form-input" required>
+
+            <!-- Header -->
+            <div style="padding:20px 25px; border-bottom:1px solid #e2e8f0; background:#f8fafc; display:flex; justify-content:space-between; align-items:center; flex-shrink:0;">
+                <div style="display:flex; align-items:center; gap:12px;">
+                    <div style="background:#dbeafe; color:#1e40af; width:40px; height:40px; border-radius:50%; display:flex; align-items:center; justify-content:center;">
+                        <i class="ph-bold ph-pencil-simple" style="font-size:20px;"></i>
                     </div>
                     <div>
-                        <label class="info-label">Jenis</label>
-                        <select id="editJenis" name="jenis" class="form-select" onchange="toggleJadwalEdit()">
+                        <h2 style="margin:0; color:#1e293b; font-size:17px; font-weight:700;">Edit Template Pesan</h2>
+                        <p style="margin:2px 0 0; font-size:12px; color:#64748b;">Ubah konten atau jadwal notifikasi</p>
+                    </div>
+                </div>
+                <button type="button" onclick="closeEditModal()" style="background:none; border:none; cursor:pointer; color:#94a3b8; transition:color 0.2s;" onmouseover="this.style.color='#ef4444'" onmouseout="this.style.color='#94a3b8'">
+                    <i class="ph-bold ph-x" style="font-size:20px;"></i>
+                </button>
+            </div>
+
+            <!-- Body -->
+            <div style="padding:25px; overflow-y:auto; flex:1;">
+
+                <!-- Row: Nama + Jenis + Jeda -->
+                <div style="display:grid; grid-template-columns:3fr 2fr 1fr; gap:14px; margin-bottom:8px;">
+                    <div>
+                        <label style="display:block; font-size:12px; font-weight:700; color:#475569; margin-bottom:6px; letter-spacing:0.5px;">NAMA NOTIFIKASI</label>
+                        <input type="text" id="editNama" name="kategori" required
+                            style="width:100%; padding:11px 14px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:13px; color:#1e293b; outline:none; transition:border 0.2s; box-sizing:border-box; font-family:'Poppins',sans-serif;"
+                            onfocus="this.style.borderColor='#3b82f6'; this.style.boxShadow='0 0 0 3px rgba(59,130,246,0.1)'"
+                            onblur="this.style.borderColor='#e2e8f0'; this.style.boxShadow='none'">
+                    </div>
+                    <div>
+                        <label style="display:block; font-size:12px; font-weight:700; color:#475569; margin-bottom:6px; letter-spacing:0.5px;">JENIS</label>
+                        <select id="editJenis" name="jenis" onchange="toggleJadwalEdit()"
+                            style="width:100%; padding:11px 14px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:13px; color:#1e293b; outline:none; background:white; box-sizing:border-box; font-family:'Poppins',sans-serif; cursor:pointer;">
                             <option value="Penjadwalan">Otomatis</option>
                             <option value="Template">Manual / Template</option>
                         </select>
                     </div>
                     <div>
-                        <label class="info-label">Jeda (Hari)</label>
-                        <input type="number" id="editJadwal" name="interval_hari" class="form-input" placeholder="0" required>
+                        <label style="display:block; font-size:12px; font-weight:700; color:#475569; margin-bottom:6px; letter-spacing:0.5px;">JEDA (HARI)</label>
+                        <input type="number" id="editJadwal" name="interval_hari" placeholder="0" required
+                            style="width:100%; padding:11px 14px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:13px; color:#1e293b; outline:none; transition:border 0.2s; box-sizing:border-box; font-family:'Poppins',sans-serif;"
+                            onfocus="this.style.borderColor='#3b82f6'; this.style.boxShadow='0 0 0 3px rgba(59,130,246,0.1)'"
+                            onblur="this.style.borderColor='#e2e8f0'; this.style.boxShadow='none'">
                     </div>
                 </div>
-                <div style="margin-top: 4px; margin-bottom: 16px;">
-                    <p class="helper-text" style="margin: 0;">
-                         <span style="color: #d97706; font-weight: 600;">* Info:</span> Isi <b>1</b> (Harian), <b>7</b> (Mingguan), <b>30</b> (Bulanan).
-                    </p>
+
+                <!-- Info jeda -->
+                <div style="background:#fefce8; border:1px solid #fde68a; border-radius:6px; padding:8px 12px; margin-bottom:20px; display:flex; align-items:center; gap:8px;">
+                    <i class="ph-fill ph-warning" style="color:#d97706; font-size:14px; flex-shrink:0;"></i>
+                    <span style="font-size:12px; color:#92400e;">Isi <b>1</b> = Harian &nbsp;|&nbsp; <b>7</b> = Mingguan &nbsp;|&nbsp; <b>30</b> = Bulanan &nbsp;|&nbsp; <b>365</b> = Tahunan. Isi <b>0</b> untuk Manual / Template.</span>
                 </div>
 
-                <div class="input-group">
-                    <label class="info-label">Isi Pesan</label>
-                    <textarea id="editIsi" name="template_pesan" class="form-input text-area-pesan" required></textarea>
-                     <p class="helper-text">
-                        Gunakan placeholder: <b>{nama}</b>, <b>{nip}</b>, <b>{deadline}</b>, <b>{poin}</b>, <b>{next_pangkat}</b>
-                    </p>
+                <div style="margin-bottom:16px;">
+                    <label style="display:block; font-size:12px; font-weight:700; color:#475569; margin-bottom:6px; letter-spacing:0.5px;">ISI PESAN</label>
+                    <textarea id="editIsi" name="template_pesan" rows="6" required
+                        style="width:100%; padding:12px 14px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:14px; color:#1e293b; outline:none; transition:border 0.2s; resize:vertical; box-sizing:border-box; font-family:'Poppins',sans-serif; min-height:130px;"
+                        onfocus="this.style.borderColor='#3b82f6'; this.style.boxShadow='0 0 0 3px rgba(59,130,246,0.1)'"
+                        onblur="this.style.borderColor='#e2e8f0'; this.style.boxShadow='none'"></textarea>
+                </div>
+
+                <!-- Panduan Placeholder -->
+                <div style="background:#eff6ff; border:1px solid #bfdbfe; border-radius:8px; padding:14px 16px;">
+                    <div style="display:flex; align-items:center; gap:8px; margin-bottom:10px;">
+                        <i class="ph-fill ph-info" style="color:#3b82f6; font-size:16px;"></i>
+                        <span style="font-size:13px; font-weight:700; color:#1e40af;">Panduan Variabel Placeholder</span>
+                    </div>
+                    <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:6px;">
+                        <div style="background:white; border-radius:6px; padding:8px 10px; border:1px solid #dbeafe;">
+                            <code style="color:#1d4ed8; font-size:12px; font-weight:700;">{nama}</code>
+                            <span style="color:#64748b; font-size:11px; display:block; margin-top:2px;">Nama pegawai</span>
+                        </div>
+                        <div style="background:white; border-radius:6px; padding:8px 10px; border:1px solid #dbeafe;">
+                            <code style="color:#1d4ed8; font-size:12px; font-weight:700;">{nip}</code>
+                            <span style="color:#64748b; font-size:11px; display:block; margin-top:2px;">NIP pegawai</span>
+                        </div>
+                        <div style="background:white; border-radius:6px; padding:8px 10px; border:1px solid #dbeafe;">
+                            <code style="color:#1d4ed8; font-size:12px; font-weight:700;">{deadline}</code>
+                            <span style="color:#64748b; font-size:11px; display:block; margin-top:2px;">Jatuh tempo</span>
+                        </div>
+                        <div style="background:white; border-radius:6px; padding:8px 10px; border:1px solid #dbeafe;">
+                            <code style="color:#1d4ed8; font-size:12px; font-weight:700;">{poin}</code>
+                            <span style="color:#64748b; font-size:11px; display:block; margin-top:2px;">Angka kredit</span>
+                        </div>
+                        <div style="background:white; border-radius:6px; padding:8px 10px; border:1px solid #dbeafe; grid-column:span 2;">
+                            <code style="color:#1d4ed8; font-size:12px; font-weight:700;">{next_pangkat}</code>
+                            <span style="color:#64748b; font-size:11px; display:block; margin-top:2px;">Pangkat / golongan berikutnya</span>
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            <div class="modal-footer">
-                <button type="button" class="btn-modal-cancel" onclick="closeEditModal()">Batal</button>
-                <button type="submit" class="btn-modal-save">Simpan Perubahan</button>
+            <!-- Footer -->
+            <div style="padding:18px 25px; border-top:1px solid #e2e8f0; background:#f8fafc; display:flex; justify-content:flex-end; gap:10px; flex-shrink:0;">
+                <button type="button" onclick="closeEditModal()"
+                    style="padding:10px 22px; background:white; color:#64748b; border:1.5px solid #e2e8f0; border-radius:8px; cursor:pointer; font-weight:600; font-size:14px; font-family:'Poppins',sans-serif; transition:all 0.2s;"
+                    onmouseover="this.style.background='#f1f5f9'" onmouseout="this.style.background='white'">Batal</button>
+                <button type="submit"
+                    style="padding:10px 22px; background:#1e40af; color:white; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:14px; font-family:'Poppins',sans-serif; display:flex; align-items:center; gap:8px; transition:all 0.2s;"
+                    onmouseover="this.style.background='#1e3a8a'; this.style.transform='translateY(-1px)'" onmouseout="this.style.background='#1e40af'; this.style.transform='translateY(0)'">
+                    <i class="ph-bold ph-floppy-disk"></i> Simpan Perubahan
+                </button>
             </div>
         </form>
     </div>
