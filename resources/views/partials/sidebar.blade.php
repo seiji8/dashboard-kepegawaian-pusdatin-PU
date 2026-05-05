@@ -71,7 +71,7 @@
                 </div>
                 <p style="margin: 0 0 8px; font-size: 0.67rem; color: rgba(203,213,224,0.94); line-height: 1.35; font-weight: 500;">&copy; {{ date('Y') }} Pusdatin Kepegawaian</p>
                 <div style="display:grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px 8px; font-size: 0.63rem; line-height: 1.25; color: rgba(203,213,224,0.9);">
-                    <span>Muhammad Hasan Feadloni</span>
+                    <span>Muhammad Hasan Faedloni</span>
                     <span>Muhammad Raissa Akhdyan</span>
                     <span>Muhammad Hilmi Asardan</span>
                     <span>Eza Aditya Nugroho</span>
