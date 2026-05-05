@@ -9,8 +9,8 @@
         }
         body {
             font-family: Arial, Helvetica, sans-serif;
-            font-size: 11pt;
-            line-height: 1.3;
+            font-size: 10.5pt;
+            line-height: 1.2;
             color: #000;
             margin: 0;
             padding: 0;
@@ -19,9 +19,9 @@
         /* KOP SURAT */
         .kop-surat {
             width: 100%;
-            margin-bottom: 10px;
+            margin-bottom: 12px;
             border-bottom: 2px solid #000;
-            padding-bottom: 5px;
+            padding-bottom: 4px;
         }
         .kop-logo {
             width: 80px;
@@ -53,19 +53,19 @@
         .judul-nota {
             text-align: center;
             margin-top: 10px;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
         }
         .judul-nota p {
             margin: 0;
             font-size: 11pt;
         }
 
-        /* HEADER NOTA DINAS (Yth, Dari, Hal, Tanggal) */
+        /* HEADER NOTA DINAS */
         .header-nota {
             width: 100%;
             border-bottom: 1px solid #000;
-            padding-bottom: 5px;
-            margin-bottom: 10px;
+            padding-bottom: 4px;
+            margin-bottom: 6px;
         }
         .header-nota table {
             width: 100%;
@@ -90,49 +90,72 @@
             font-size: 11pt;
         }
         .isi-surat p {
-            margin: 0 0 6px 0;
+            margin: 0 0 5px 0;
             text-indent: 40px;
         }
         .isi-surat ol {
-            margin: 0 0 10px 0;
+            margin: 0 0 7px 0;
             padding-left: 40px;
         }
         .isi-surat ol li {
-            margin-bottom: 5px;
+            margin-bottom: 4px;
             padding-left: 5px;
         }
         .isi-surat ol li ol {
             list-style-type: lower-alpha;
-            margin-top: 5px;
+            margin-top: 4px;
             margin-bottom: 0;
             padding-left: 20px;
         }
 
         /* TANDA TANGAN */
         .ttd-section {
-            margin-top: 20px;
+            margin-top: 10px;
             width: 100%;
         }
-        .ttd-section table {
-            width: 100%;
-        }
-        .ttd-right {
-            text-align: center;
+        .ttd-kiri {
             width: 50%;
         }
-
+        .ttd-kanan {
+            width: 50%;
+            text-align: center;
+            vertical-align: top;
+        }
+        .ttd-jabatan {
+            font-size: 11pt;
+            margin: 0 0 4px 0;
+        }
+        .ttd-qr-box {
+            width: 130px;
+            height: 130px;
+            border: none;
+            margin: 8px auto 8px auto;
+        }
+        .ttd-qr-label {
+            font-size: 7.5pt;
+            color: #aaa;
+            line-height: normal;
+        }
+        .ttd-nama {
+            font-size: 11pt;
+            margin: 0;
+        }
 
         /* FOOTER BSrE */
         .footer-bsre {
-            margin-top: 40px;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
             text-align: center;
             font-size: 7.5pt;
             color: #000;
+            padding-bottom: 5px;
         }
         .footer-bsre p {
             margin: 2px 0;
         }
-        
+
         .bold { font-weight: bold; }
     </style>
 </head>
@@ -164,7 +187,7 @@
     <!-- JUDUL -->
     <div class="judul-nota">
         <p>NOTA DINAS</p>
-        <p>NOMOR {{ $data['nomor_surat'] ?? 'KP1003/T/Sd/'.date('Y').'/...' }}</p>
+        <p>NOMOR {{ !empty($data['nomor_surat']) ? $data['nomor_surat'] : '............................................' }}</p>
     </div>
 
     <!-- HEADER NOTA -->
@@ -227,7 +250,7 @@
         <p>
             Selanjutnya, dalam menunjang pembangunan Zona Integritas menuju Wilayah Birokrasi Bersih dan Melayani, PUSDATIN Kementerian PU berkomitmen meningkatkan kualitas pelayanan publik yang bebas dari korupsi dan memberikan pelayanan prima.
         </p>
-        
+
         <p style="text-indent: 0;">
             Demikian kami sampaikan. Atas perhatian dan kerja sama Ibu diucapkan terima kasih.
         </p>
@@ -235,15 +258,14 @@
 
     <!-- TANDA TANGAN -->
     <div class="ttd-section">
-        <table>
+        <table width="100%">
             <tr>
-                <td style="width: 50%;"></td>
-                <td class="ttd-right">
-                    <p style="margin: 0;">Kepala Pusat Data dan Teknologi Informasi,</p>
-                    
-                    <br><br><br><br>
-
-                    <p style="margin: 0;">Komang Sri Hartini</p>
+                <td class="ttd-kiri"></td>
+                <td class="ttd-kanan">
+                    <p class="ttd-jabatan">Kepala Pusat Data dan Teknologi Informasi,</p>
+                    <!-- Space untuk QR Code TTE BSrE -->
+                    <div class="ttd-qr-box"></div>
+                    <p class="ttd-nama">{{ $data['nama_ttd'] ?? 'Komang Sri Hartini' }}</p>
                 </td>
             </tr>
         </table>
@@ -251,8 +273,8 @@
 
     <!-- FOOTER BSrE -->
     <div class="footer-bsre">
-        <p>Dokumen ini telah ditandatangani menggunakan sertifikat elektronik yang diterbitkan oleh Balai Sertifikasi (BSrE) BSSN.</p>
-        <p>Untuk memastikan keaslian tanda tangan elektronik, silakan unggah dokumen pada laman https://tte.kominfo.go.id/VerifyPDF.</p>
+        <p>Dokumen ini telah ditandatangani menggunakan sertifikasi elektronik yang diterbitkan oleh Balai Sertifikasi (BSrE) BSSN.</p>
+        <p>Untuk memastikan keaslian tanda tangan elektronik, silahkan unggah dokumen pada laman https://tte.komdigi.go.id/VerifyPDF.</p>
     </div>
 </body>
 </html>

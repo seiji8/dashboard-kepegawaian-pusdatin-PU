@@ -350,7 +350,7 @@ public function syncProgress()
 
         // Siapkan data untuk template
         $data = [
-            'nomor_surat' => $request->query('nomor_surat', 'KP1003/T/Sd/' . date('Y') . '/...'),
+            'nomor_surat' => $request->query('nomor_surat') ?: '............................................',
             'tanggal_surat' => $request->query('tanggal') ? \Carbon\Carbon::parse($request->query('tanggal'))->translatedFormat('d F Y') : \Carbon\Carbon::now()->translatedFormat('d F Y'),
             'nama_pegawai' => $pegawai->nama . ($pegawai->gelar_belakang ? ', ' . $pegawai->gelar_belakang : ''),
             'jabatan_fungsional' => $pegawai->jabatan_fungsional ?? $pegawai->jabatan,
