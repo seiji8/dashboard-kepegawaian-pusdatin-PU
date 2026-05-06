@@ -1,44 +1,48 @@
 @auth
 <!-- MODAL GANTI PASSWORD -->
 <div id="modalChangePassword" class="modal-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 9999; justify-content: center; align-items: center;">
-    <div class="modal-box" style="background: white; padding: 30px; border-radius: 12px; width: 500px; max-width: 90%; position: relative;">
-        <div class="modal-header" style="margin-bottom: 20px; text-align: center;">
-            <h2 style="font-size: 24px; color: #1e3a8a; font-weight: 700;">Ganti Kata Sandi</h2>
+    <div class="modal-box" style="background: white; padding: 35px 30px; border-radius: 16px; width: 450px; max-width: 90%; position: relative; box-shadow: 0 20px 60px rgba(0,0,0,0.15);">
+        <div class="modal-header" style="margin-bottom: 25px; text-align: center;">
+            <div style="background:#eff6ff; width:70px; height:70px; border-radius:50%; display:flex; align-items:center; justify-content:center; margin: 0 auto 15px auto; border: 1px solid #dbeafe;">
+                <i class="ph-fill ph-lock-key" style="font-size: 36px; color: #3b82f6;"></i>
+            </div>
+            <h2 style="font-size: 20px; color: #0f172a; font-weight: 700; margin: 0;">Ganti Kata Sandi</h2>
+            <p style="font-size: 13px; color: #64748b; margin: 5px 0 0 0;">Perbarui kata sandi Anda untuk menjaga keamanan akun.</p>
         </div>
         
         <div class="modal-body">
             <form id="formChangePassword">
                 @csrf
                 
-                <div class="form-group" style="margin-bottom: 15px;">
-                    <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #374151;">Password Saat Ini</label>
+                <div class="form-group" style="margin-bottom: 16px;">
+                    <label style="display: block; margin-bottom: 6px; font-size: 12px; font-weight: 700; color: #475569; letter-spacing: 0.3px;">PASSWORD SAAT INI</label>
                     <div style="position: relative;">
-                        <input type="password" name="current_password" class="form-input" style="width: 100%; padding: 10px; padding-right: 40px; border: 1px solid #d1d5db; border-radius: 8px;" required>
-                        <i class="ph-bold ph-eye-slash toggle-password" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); cursor: pointer; color: #6b7280;" onclick="togglePassword(this)"></i>
+                        <input type="password" name="current_password" class="form-input" style="width: 100%; padding: 12px 14px; padding-right: 40px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; outline: none; transition: all 0.2s; box-sizing: border-box;" autocomplete="off" onfocus="this.style.borderColor='#3b82f6'; this.style.boxShadow='0 0 0 3px rgba(59,130,246,0.1)'" onblur="this.style.borderColor='#cbd5e1'; this.style.boxShadow='none'" required>
+                        <i class="ph-bold ph-eye-slash toggle-password" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); cursor: pointer; color: #94a3b8; font-size: 18px; transition: color 0.2s;" onmouseover="this.style.color='#3b82f6'" onmouseout="this.style.color='#94a3b8'" onclick="togglePassword(this)"></i>
                     </div>
-                    <span class="text-danger error-current_password" style="color: #dc2626; font-size: 12px; display: none;"></span>
+                    <span class="text-danger error-current_password" style="color: #ef4444; font-size: 12px; display: none; margin-top: 5px; font-weight: 500;"></span>
                 </div>
 
-                <div class="form-group" style="margin-bottom: 15px;">
-                    <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #374151;">Password Baru</label>
+                <div class="form-group" style="margin-bottom: 16px;">
+                    <label style="display: block; margin-bottom: 6px; font-size: 12px; font-weight: 700; color: #475569; letter-spacing: 0.3px;">PASSWORD BARU</label>
                     <div style="position: relative;">
-                        <input type="password" name="new_password" class="form-input" style="width: 100%; padding: 10px; padding-right: 40px; border: 1px solid #d1d5db; border-radius: 8px;" required>
-                        <i class="ph-bold ph-eye-slash toggle-password" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); cursor: pointer; color: #6b7280;" onclick="togglePassword(this)"></i>
+                        <input type="password" name="new_password" class="form-input" style="width: 100%; padding: 12px 14px; padding-right: 40px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; outline: none; transition: all 0.2s; box-sizing: border-box;" autocomplete="new-password" onfocus="this.style.borderColor='#3b82f6'; this.style.boxShadow='0 0 0 3px rgba(59,130,246,0.1)'" onblur="this.style.borderColor='#cbd5e1'; this.style.boxShadow='none'" required>
+                        <i class="ph-bold ph-eye-slash toggle-password" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); cursor: pointer; color: #94a3b8; font-size: 18px; transition: color 0.2s;" onmouseover="this.style.color='#3b82f6'" onmouseout="this.style.color='#94a3b8'" onclick="togglePassword(this)"></i>
                     </div>
-                    <span class="text-danger error-new_password" style="color: #dc2626; font-size: 12px; display: none;"></span>
+                    <span class="text-danger error-new_password" style="color: #ef4444; font-size: 12px; display: none; margin-top: 5px; font-weight: 500;"></span>
                 </div>
 
-                <div class="form-group" style="margin-bottom: 25px;">
-                    <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #374151;">Konfirmasi Password Baru</label>
+                <div class="form-group" style="margin-bottom: 24px;">
+                    <label style="display: block; margin-bottom: 6px; font-size: 12px; font-weight: 700; color: #475569; letter-spacing: 0.3px;">KONFIRMASI PASSWORD BARU</label>
                     <div style="position: relative;">
-                        <input type="password" name="new_password_confirmation" class="form-input" style="width: 100%; padding: 10px; padding-right: 40px; border: 1px solid #d1d5db; border-radius: 8px;" required>
-                        <i class="ph-bold ph-eye-slash toggle-password" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); cursor: pointer; color: #6b7280;" onclick="togglePassword(this)"></i>
+                        <input type="password" name="new_password_confirmation" class="form-input" style="width: 100%; padding: 12px 14px; padding-right: 40px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; outline: none; transition: all 0.2s; box-sizing: border-box;" autocomplete="new-password" onfocus="this.style.borderColor='#3b82f6'; this.style.boxShadow='0 0 0 3px rgba(59,130,246,0.1)'" onblur="this.style.borderColor='#cbd5e1'; this.style.boxShadow='none'" required>
+                        <i class="ph-bold ph-eye-slash toggle-password" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); cursor: pointer; color: #94a3b8; font-size: 18px; transition: color 0.2s;" onmouseover="this.style.color='#3b82f6'" onmouseout="this.style.color='#94a3b8'" onclick="togglePassword(this)"></i>
                     </div>
                 </div>
 
-                <div class="modal-footer" style="display: flex; gap: 10px; margin-top: 20px;">
-                    <button type="button" class="btn-modal-cancel" onclick="closeChangePasswordModal()" style="flex: 1; padding: 10px; border: none; background: #fee2e2; color: #ef4444; border-radius: 8px; font-weight: 600; cursor: pointer;">Batal</button>
-                    <button type="submit" class="btn-modal-save" style="flex: 1; padding: 10px; border: none; background: #dbeafe; color: #2563eb; border-radius: 8px; font-weight: 600; cursor: pointer;">Simpan</button>
+                <div class="modal-footer" style="display: flex; gap: 12px;">
+                    <button type="button" onclick="closeChangePasswordModal()" style="flex: 1; padding: 12px; background: white; color: #64748b; border: 1px solid #cbd5e1; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 14px; transition: all 0.2s; font-family: 'Poppins', sans-serif;" onmouseover="this.style.background='#f1f5f9'" onmouseout="this.style.background='white'">Batal</button>
+                    <button type="submit" style="flex: 1; padding: 12px; background: #3b82f6; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 14px; transition: all 0.2s; box-shadow: 0 4px 6px -1px rgba(59,130,246,0.2); font-family: 'Poppins', sans-serif;" onmouseover="this.style.background='#2563eb'; this.style.transform='translateY(-1px)'" onmouseout="this.style.background='#3b82f6'; this.style.transform='translateY(0)'">Simpan Perubahan</button>
                 </div>
             </form>
         </div>

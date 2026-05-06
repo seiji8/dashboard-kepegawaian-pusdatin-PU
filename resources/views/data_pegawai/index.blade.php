@@ -252,17 +252,16 @@
     </main>
 
     <!-- MODAL HAPUS PEGAWAI -->
-    <div id="modalHapusPegawai" class="modal-overlay">
-        <div class="modal-box modal-delete-size">
-            <div class="delete-content">
-                <h3 class="delete-title">
-                    Hapus Pegawai Ini?
-                    <i class="ph-fill ph-warning" style="color: #fbbf24; font-size: 24px;"></i>
-                </h3>
-                <div class="delete-actions">
-                    <button class="btn-pill confirm-delete" onclick="confirmDelete()">Yakin</button> 
-                    <button class="btn-pill" onclick="closeDeleteModal()">Batal</button>
-                </div>
+    <div id="modalHapusPegawai" class="modal-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2500; justify-content: center; align-items: center;">
+        <div style="background:#fff; width:420px; max-width:90vw; border-radius:16px; box-shadow:0 10px 40px rgba(0,0,0,0.2); padding:30px; text-align:center;">
+            <div style="background:#fee2e2; width:80px; height:80px; border-radius:50%; display:flex; align-items:center; justify-content:center; margin: 0 auto 20px auto;">
+                <i class="ph-fill ph-warning-circle" style="font-size: 48px; color: #ef4444;"></i>
+            </div>
+            <h3 style="margin:0 0 10px; font-size:18px; font-weight:700; color:#0f172a;">Hapus Data Pegawai?</h3>
+            <p style="margin:0 0 25px; font-size:14px; color:#475569; line-height:1.5;">Tindakan ini tidak dapat dibatalkan. Data pegawai <strong id="deletePegawaiName" style="color:#ef4444;"></strong> beserta seluruh riwayat dokumennya akan <strong>dihapus permanen</strong> dari sistem.</p>
+            <div style="display:flex; gap:12px; justify-content:center;">
+                <button onclick="closeDeleteModal()" style="padding:10px 24px; background:white; color:#64748b; border:1px solid #cbd5e1; border-radius:8px; cursor:pointer; font-weight:600; font-size:14px; flex:1; transition:all 0.2s; font-family:'Poppins', sans-serif;" onmouseover="this.style.background='#f1f5f9'" onmouseout="this.style.background='white'">Batal</button>
+                <button onclick="confirmDelete()" id="btnConfirmDelete" style="padding:10px 24px; background:#ef4444; color:white; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:14px; flex:1; transition:all 0.2s; box-shadow:0 4px 6px -1px rgba(239,68,68,0.2); font-family:'Poppins', sans-serif;" onmouseover="this.style.background='#dc2626'; this.style.transform='translateY(-1px)'" onmouseout="this.style.background='#ef4444'; this.style.transform='translateY(0)'">Ya, Hapus</button>
             </div>
         </div>
     </div>

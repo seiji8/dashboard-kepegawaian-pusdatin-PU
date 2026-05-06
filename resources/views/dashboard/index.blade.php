@@ -448,7 +448,7 @@
                                                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
                                                     </button>
                                                     @if($item->status_saat_ini == 'Mendekati' || $item->status_saat_ini == 'Menunggu UKOM')
-                                                    <button class="btn-action-confirm" onclick="moveToUkomFromKJ(this, {{ $item->id }})" title="Kirim ke Modul UKOM">
+                                                    <button class="btn-action-confirm" onclick="openUkomModal('{{ $item->id }}', '{{ addslashes($item->pegawai->nama) }}')" title="Kirim ke Modul UKOM">
                                                         <i class="ph-bold ph-check" style="font-size: 16px;"></i>
                                                     </button>
                                                     @endif
@@ -1075,13 +1075,13 @@
 
     <!-- UKOM MODAL -->
     <div id="ukomModal" class="modal-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2200; justify-content: center; align-items: center;">
-        <div class="confirm-modal-content">
-            <div class="confirm-modal-icon" style="background:#dbeafe; width:80px; height:80px; border-radius:50%; display:flex; align-items:center; justify-content:center; margin-bottom:20px;">
-                <i class="ph-fill ph-medal" style="font-size: 48px; color: #16a34a;"></i>
+        <div class="confirm-modal-content" style="text-align: center;">
+            <div class="confirm-modal-icon" style="background:#dbeafe; width:80px; height:80px; border-radius:50%; display:flex; align-items:center; justify-content:center; margin: 0 auto 20px auto;">
+                <i class="ph-fill ph-medal" style="font-size: 48px; color: #2563eb;"></i>
             </div>
             <h3 class="confirm-modal-title">Daftarkan Uji Kompetensi</h3>
             <p class="confirm-modal-text">Pindahkan pegawai berikut ke kategori Uji Kompetensi (UKOM) dan kirimkan notifikasi pemberitahuan kepadanya via email?</p>
-            <p class="confirm-modal-name" id="ukomPegawaiName">-</p>
+            <p class="confirm-modal-name" id="ukomPegawaiName" style="color:#0f172a; font-weight:700; margin-top:10px;">-</p>
             <div class="confirm-modal-actions">
                 <button class="confirm-btn-cancel" onclick="closeUkomModal()">Batal</button>
                 <button class="confirm-btn-yes" id="ukomYesBtn" onclick="submitUkom()" style="background:#16a34a; color:white;">Ya, Daftarkan UKOM</button>

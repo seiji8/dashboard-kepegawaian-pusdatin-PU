@@ -102,6 +102,8 @@ function closeDetailModal() {
 // === DELETE LOGIC ===
 function openDeleteModal(nip, nama) {
     currentDeleteNip = nip;
+    const nameEl = document.getElementById('deletePegawaiName');
+    if (nameEl) nameEl.textContent = nama;
     document.getElementById('modalHapusPegawai').style.display = 'flex';
 }
 
