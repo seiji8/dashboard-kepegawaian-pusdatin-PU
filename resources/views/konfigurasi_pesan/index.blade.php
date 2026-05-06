@@ -556,16 +556,58 @@
         const jenisSelect = document.getElementById('editJenis');
         const jadwalSelect = document.getElementById('editJadwal');
 
-        if (interval == 0 || interval == '') {
-            jenisSelect.value = 'Template';
-            jadwalSelect.disabled = true;
-            jadwalSelect.style.backgroundColor = "#f3f4f6";
-            jadwalSelect.value = "0"; 
+        if (isSystem) {
+            // Pesan sistem selalu Otomatis
+            jenisSelect.value = 'Penjadwalan'; 
+            jenisSelect.disabled = true;
+            jenisSelect.style.backgroundColor = '#f3f4f6';
+            jenisSelect.title = 'Jenis notifikasi sistem tidak dapat diubah';
+            
+            // Jika interval 0 pada sistem, berarti ini tipe 'Triggered Once'
+            if (interval == 0 || interval == '') {
+                jadwalSelect.disabled = true;
+                jadwalSelect.style.backgroundColor = "#f3f4f6";
+                jadwalSelect.value = "0"; 
+                jadwalSelect.title = 'Pesan ini dipicu otomatis oleh sistem (sekali kirim)';
+            } else {
+                jadwalSelect.disabled = false;
+                jadwalSelect.style.backgroundColor = "white";
+                jadwalSelect.value = interval;
+                jadwalSelect.title = '';
+            }
+
+            // tambahkan input hidden karena select yang disabled tidak akan dikirim di form submit
+            let hiddenJenis = document.getElementById('hiddenJenisSystem');
+            if(!hiddenJenis) {
+                hiddenJenis = document.createElement('input');
+                hiddenJenis.type = 'hidden';
+                hiddenJenis.id = 'hiddenJenisSystem';
+                hiddenJenis.name = 'jenis';
+                document.getElementById('formEdit').appendChild(hiddenJenis);
+            }
+            hiddenJenis.value = jenisSelect.value;
+
         } else {
-            jenisSelect.value = 'Penjadwalan';
-            jadwalSelect.disabled = false;
-            jadwalSelect.style.backgroundColor = "white";
-            jadwalSelect.value = interval;
+            // Pesan Non-Sistem (Buatan User)
+            if (interval == 0 || interval == '') {
+                jenisSelect.value = 'Template';
+                jadwalSelect.disabled = true;
+                jadwalSelect.style.backgroundColor = "#f3f4f6";
+                jadwalSelect.value = "0"; 
+            } else {
+                jenisSelect.value = 'Penjadwalan';
+                jadwalSelect.disabled = false;
+                jadwalSelect.style.backgroundColor = "white";
+                jadwalSelect.value = interval;
+            }
+
+            jenisSelect.disabled = false;
+            jenisSelect.style.backgroundColor = 'white';
+            jenisSelect.title = '';
+            jadwalSelect.title = '';
+            
+            const hiddenJenis = document.getElementById('hiddenJenisSystem');
+            if(hiddenJenis) hiddenJenis.remove();
         }
 
         document.getElementById('modalEditPesan').style.display = 'flex';
