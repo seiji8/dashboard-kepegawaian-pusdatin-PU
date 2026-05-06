@@ -5,7 +5,7 @@
     <title>Nota Dinas Usulan Kenaikan Jenjang</title>
     <style>
         @page {
-            margin: 30px 40px 30px 50px;
+            margin: 30px 1.9cm 0.5cm 2.5cm;
         }
         body {
             font-family: Arial, Helvetica, sans-serif;
@@ -41,8 +41,9 @@
             font-weight: bold;
         }
         .kop-text .alamat {
-            font-size: 9pt;
+            font-size: 8.5pt;
             margin-top: 2px;
+            white-space: nowrap;
         }
         .kop-text .alamat a {
             color: #0000FF;

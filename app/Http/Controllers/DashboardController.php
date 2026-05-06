@@ -355,7 +355,7 @@ public function syncProgress()
             'nama_pegawai' => $pegawai->nama . ($pegawai->gelar_belakang ? ', ' . $pegawai->gelar_belakang : ''),
             'jabatan_fungsional' => $pegawai->jabatan_fungsional ?? $pegawai->jabatan,
             'jenjang_baru' => $pegawai->jenjang_baru ?? 'Ahli Madya', // Diambil dari field yang sesuai (bisa disesuaikan)
-            'ref_nota_dinas' => 'KP0303/B/Sp/' . date('Y') . '/...', // Placeholder
+            'ref_nota_dinas' => 'KP0303/B/Sp/' . date('Y') . '/506', // Nomor ref Nota Biro Kepegawaian
             'tgl_nota_dinas' => '31 Maret 2026', // Placeholder
             'nomor_surat_bkn' => '1589/B-BJ.03.02/SD/C/' . date('Y'), // Placeholder
             'tgl_surat_bkn' => '25 Maret 2026', // Placeholder
