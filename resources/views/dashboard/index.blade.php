@@ -954,6 +954,34 @@
                         </div>
                     </div>
 
+                    <!-- TUBEL Extra Info (hidden by default, shown via JS for TUBEL) -->
+                    <div id="dashModalTubelWrapper" style="display:none; margin-bottom:25px;">
+                        <div style="display:flex; align-items:center; gap:8px; margin-bottom:12px;">
+                            <i class="ph-fill ph-graduation-cap" style="color:#1e40af; font-size:18px;"></i>
+                            <h4 style="margin:0; font-size:15px; font-weight:700; color:#1e293b;">Informasi Tugas Belajar</h4>
+                        </div>
+                        <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px; background:#f1f5f9; padding:15px; border-radius:8px; border:1px solid #e2e8f0;">
+                            <div>
+                                <div style="font-size:11px; color:#64748b; font-weight:700; margin-bottom:4px; letter-spacing:0.5px;">TANGGAL MULAI</div>
+                                <div id="dashModalTubelMulai" style="font-size:14px; color:#0f172a; font-weight:600; display:flex; align-items:center; gap:6px;">
+                                    <i class="ph-fill ph-calendar-check" style="color:#16a34a; font-size:14px;"></i> -
+                                </div>
+                            </div>
+                            <div>
+                                <div style="font-size:11px; color:#64748b; font-weight:700; margin-bottom:4px; letter-spacing:0.5px;">TANGGAL SELESAI</div>
+                                <div id="dashModalTubelSelesai" style="font-size:14px; color:#0f172a; font-weight:600; display:flex; align-items:center; gap:6px;">
+                                    <i class="ph-fill ph-calendar-x" style="color:#dc2626; font-size:14px;"></i> -
+                                </div>
+                            </div>
+                            <div>
+                                <div style="font-size:11px; color:#64748b; font-weight:700; margin-bottom:4px; letter-spacing:0.5px;">PENDIDIKAN</div>
+                                <div id="dashModalTubelPendidikan" style="font-size:14px; color:#0f172a; font-weight:600; display:flex; align-items:center; gap:6px;">
+                                    <i class="ph-fill ph-book-open" style="color:#7c3aed; font-size:14px;"></i> -
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- Document Requirements -->
                     <div style="display:flex; align-items:center; gap:8px; margin-bottom:15px;">
                         <i class="ph-fill ph-check-square-offset" style="color:#1e40af; font-size:18px;"></i>
@@ -1093,11 +1121,20 @@
                     </table>
                 </div>
             </div>
+            
+            <!-- Footer Diklat Modal -->
+            <div style="padding:15px 25px; border-top:1px solid #e2e8f0; background:#f8fafc; display:flex; justify-content:flex-end; flex-shrink:0;">
+                <button class="btn-reminder-yellow" onclick="openReminderModal()" style="width:auto; padding:8px 20px; margin:0; display:flex; align-items:center; gap:8px;">
+                    <i class="ph-bold ph-bell-ringing"></i> Kirim Pengingat
+                </button>
+            </div>
         </div>
     </div>
 
     <script>
     function openDiklatModal(nip, kategori) {
+        if (typeof currentDetailNip !== 'undefined') currentDetailNip = nip;
+        
         const modal = document.getElementById('diklatModal');
         const loading = document.getElementById('diklatModalLoading');
         const table = document.getElementById('diklatModalTable');
@@ -1267,6 +1304,17 @@
                             </div>
                         </div>
                     </div>
+
+                    <!-- STEP 3: Preview Surat -->
+                    <div id="suratPreviewContainer" style="display:none; margin-top:25px; border-top:1px dashed #cbd5e1; padding-top:20px;">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                            <h4 style="margin:0; font-size:14px; font-weight:700; color:#1e293b;"><i class="ph-fill ph-file-pdf" style="color:#ef4444;"></i> Preview Dokumen</h4>
+                            <button type="button" onclick="document.getElementById('suratPreviewContainer').style.display='none'; document.getElementById('suratPreviewFrame').src=''" style="background:none; border:none; cursor:pointer; color:#ef4444; font-size:12px; font-weight:600; display:flex; align-items:center; gap:4px;"><i class="ph-bold ph-x"></i> Tutup Preview</button>
+                        </div>
+                        <div style="background:#f1f5f9; padding:8px; border-radius:10px; border:1px solid #e2e8f0;">
+                            <iframe id="suratPreviewFrame" style="width:100%; height:500px; border:1px solid #cbd5e1; border-radius:6px; background:#fff;" src=""></iframe>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -1275,7 +1323,10 @@
                 <span id="suratSelectedCount" style="font-size:13px; font-weight:600; color:#64748b;">0 pegawai terpilih</span>
                 <div style="display:flex; gap:10px;">
                     <button onclick="closeSuratModal()" style="padding:10px 22px; background:white; color:#64748b; border:1px solid #cbd5e1; border-radius:8px; cursor:pointer; font-weight:600; font-size:13px; transition:all 0.2s; font-family:'Poppins',sans-serif;" onmouseover="this.style.background='#f1f5f9'" onmouseout="this.style.background='white'">Batal</button>
-                    <button id="btnGenerateSurat" onclick="generateSurat()" style="padding:10px 22px; background:linear-gradient(135deg,#1e3a8a,#2563eb); color:white; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:13px; display:flex; align-items:center; gap:8px; transition:all 0.2s; box-shadow:0 4px 6px -1px rgba(30,58,138,0.2); font-family:'Poppins',sans-serif;" onmouseover="this.style.transform='translateY(-1px)'" onmouseout="this.style.transform='translateY(0)'">
+                    <button id="btnPreviewSurat" onclick="generateSurat(true)" style="padding:10px 22px; background:white; color:#3b82f6; border:1px solid #3b82f6; border-radius:8px; cursor:pointer; font-weight:600; font-size:13px; display:flex; align-items:center; gap:8px; transition:all 0.2s; font-family:'Poppins',sans-serif;" onmouseover="this.style.background='#eff6ff'" onmouseout="this.style.background='white'">
+                        <i class="ph-bold ph-eye"></i> Preview PDF
+                    </button>
+                    <button id="btnGenerateSurat" onclick="generateSurat(false)" style="padding:10px 22px; background:linear-gradient(135deg,#1e3a8a,#2563eb); color:white; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:13px; display:flex; align-items:center; gap:8px; transition:all 0.2s; box-shadow:0 4px 6px -1px rgba(30,58,138,0.2); font-family:'Poppins',sans-serif;" onmouseover="this.style.transform='translateY(-1px)'" onmouseout="this.style.transform='translateY(0)'">
                         <i class="ph-bold ph-download-simple"></i> Download PDF
                     </button>
                 </div>

@@ -455,6 +455,7 @@ function openDashboardDetail(nip, kategori) {
     document.getElementById("dashModalAKWrapper").style.display = "none";
     document.getElementById("dashModalKGBWrapper").style.display = "none";
     document.getElementById("dashModalPangkatWrapper").style.display = "none";
+    document.getElementById("dashModalTubelWrapper").style.display = "none";
 
     if (loadingSpinner) loadingSpinner.style.display = "block";
     if (contentBody) contentBody.style.display = "none";
@@ -599,12 +600,27 @@ function openDashboardDetail(nip, kategori) {
                             `;
                             trackerEl.innerHTML = html;
 
+                            // Populate TUBEL extra info
+                            const tubelWrapper = document.getElementById("dashModalTubelWrapper");
+                            if (tubelWrapper && data.tubel_data) {
+                                tubelWrapper.style.display = "block";
+                                document.getElementById("dashModalTubelMulai").innerHTML =
+                                    `<i class="ph-fill ph-calendar-check" style="color:#16a34a; font-size:14px;"></i> ${data.tubel_data.tanggal_mulai}`;
+                                document.getElementById("dashModalTubelSelesai").innerHTML =
+                                    `<i class="ph-fill ph-calendar-x" style="color:#dc2626; font-size:14px;"></i> ${data.tubel_data.tanggal_selesai}`;
+                                document.getElementById("dashModalTubelPendidikan").innerHTML =
+                                    `<i class="ph-fill ph-book-open" style="color:#7c3aed; font-size:14px;"></i> ${data.tubel_data.pendidikan}`;
+                            }
+
                             if (modalFooter) {
                                 modalFooter.innerHTML = `
-                                    <button class="btn-reminder-yellow" onclick="openReminderModal()" style="width:auto; padding:8px 20px; margin:0; display:flex; align-items:center; gap:8px; margin-left:auto;">
-                                        <i class="ph-bold ph-bell-ringing"></i> Kirim Pengingat
-                                    </button>
+                                    <div style="display:flex; justify-content:flex-end; width:100%; align-items:center; gap:10px;">
+                                        <button class="btn-reminder-yellow" onclick="openReminderModal()" style="width:auto; padding:8px 20px; margin:0; display:flex; align-items:center; gap:8px;">
+                                            <i class="ph-bold ph-bell-ringing"></i> Kirim Pengingat
+                                        </button>
+                                    </div>
                                 `;
+                                modalFooter.style.display = "flex"; // Force show for TUBEL
                             }
                         } else {
                             // DEFAULT 3-STEP TRACKER
@@ -764,7 +780,8 @@ function openDashboardDetail(nip, kategori) {
                                 <p style="margin:0; font-weight:600; color:#64748b; font-size:14px;">Tidak ada syarat dokumen terdeteksi</p>
                             </div>
                         `;
-                        if (modalFooter) modalFooter.style.display = "none";
+                        // Untuk TUBEL, footer tetap tampil karena sudah diset di tracker section
+                        if (modalFooter && kategori !== 'TUBEL') modalFooter.style.display = "none";
                     }
                 }
 
@@ -1051,7 +1068,7 @@ function updateSuratCount() {
             allCbs.length > 0 && checked.length === allCbs.length;
 }
 
-function generateSurat() {
+function generateSurat(isPreview = false) {
     const selectedIds = [];
     document.querySelectorAll(".surat-pegawai-cb:checked").forEach((cb) => {
         selectedIds.push(parseInt(cb.dataset.trackerId));
@@ -1062,9 +1079,9 @@ function generateSurat() {
         return;
     }
 
-    const btn = document.getElementById("btnGenerateSurat");
+    const btn = document.getElementById(isPreview ? "btnPreviewSurat" : "btnGenerateSurat");
     const originalHTML = btn.innerHTML;
-    btn.innerHTML = '<i class="ph-bold ph-spinner ph-spin"></i> Generating...';
+    btn.innerHTML = `<i class="ph-bold ph-spinner ph-spin"></i> ${isPreview ? 'Previewing...' : 'Generating...'}`;
     btn.disabled = true;
 
     const csrfToken = document
@@ -1121,27 +1138,42 @@ function generateSurat() {
             tanggal: fields["tanggal_surat"],
         }).toString();
 
-        selectedIds.forEach((id, index) => {
-            // Jeda 500ms per file untuk mencegah browser memblokir terlalu agresif
-            setTimeout(() => {
-                window.open(
-                    `/dashboard/cetak-surat-kj/${id}?${queryParams}`,
-                    "_blank",
-                );
-            }, index * 500);
-        });
-
         btn.innerHTML = originalHTML;
         btn.disabled = false;
-        closeSuratModal();
-        showCustomToast(
-            `Mencetak ${selectedIds.length} surat usulan KJ...`,
-            "success",
-        );
+        
+        if (isPreview) {
+            const firstId = selectedIds[0];
+            const previewUrl = `/dashboard/cetak-surat-kj/${firstId}?${queryParams}&preview=1`;
+            document.getElementById("suratPreviewFrame").src = previewUrl;
+            document.getElementById("suratPreviewContainer").style.display = "block";
+            
+            setTimeout(() => {
+                document.getElementById("suratPreviewContainer").scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 100);
 
-        setTimeout(() => {
-            window.location.reload();
-        }, 1500);
+            if (selectedIds.length > 1) {
+                showCustomToast("Preview hanya menampilkan surat pegawai pertama.", "info");
+            }
+        } else {
+            selectedIds.forEach((id, index) => {
+                // Jeda 500ms per file untuk mencegah browser memblokir terlalu agresif
+                setTimeout(() => {
+                    window.open(
+                        `/dashboard/cetak-surat-kj/${id}?${queryParams}`,
+                        "_blank",
+                    );
+                }, index * 500);
+            });
+
+            closeSuratModal();
+            showCustomToast(
+                `Mencetak ${selectedIds.length} surat usulan KJ...`,
+                "success",
+            );
+            setTimeout(() => {
+                window.location.reload();
+            }, 1500);
+        }
         return;
     }
 
@@ -1166,23 +1198,37 @@ function generateSurat() {
             throw new Error("Terjadi kesalahan saat mencetak surat.");
         })
         .then(({ blob, filename }) => {
-            // Trigger manual file download
             const url = window.URL.createObjectURL(blob);
-            const a = document.createElement("a");
-            a.href = url;
-            a.download = filename;
-            document.body.appendChild(a);
-            a.click();
-            a.remove();
-            window.URL.revokeObjectURL(url);
+            
+            if (isPreview) {
+                // Tampilkan di iframe
+                document.getElementById("suratPreviewFrame").src = url;
+                document.getElementById("suratPreviewContainer").style.display = "block";
+                
+                setTimeout(() => {
+                    document.getElementById("suratPreviewContainer").scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }, 100);
 
-            closeSuratModal();
-            showCustomToast("Surat berhasil dicetak!", "success");
+                btn.innerHTML = originalHTML;
+                btn.disabled = false;
+            } else {
+                // Trigger manual file download
+                const a = document.createElement("a");
+                a.href = url;
+                a.download = filename;
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+                window.URL.revokeObjectURL(url);
 
-            // Auto refresh halaman setelah jeda sebentar agar download sempat dimulai
-            setTimeout(() => {
-                window.location.reload();
-            }, 1500);
+                closeSuratModal();
+                showCustomToast("Surat berhasil dicetak!", "success");
+
+                // Auto refresh halaman setelah jeda sebentar agar download sempat dimulai
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1500);
+            }
         })
         .catch((error) => {
             console.error("Error generating surat:", error);

@@ -368,10 +368,12 @@ public function syncProgress()
                   ->setPaper('A4', 'portrait');
 
         $filename = 'Surat_Usul_KJ_' . str_replace(' ', '_', $pegawai->nama) . '_' . date('Ymd') . '.pdf';
-        
         // Log Aktivitas
-        ActivityLogger::logSystem('Mencetak Surat Usul Kenaikan Jenjang untuk: ' . $pegawai->nama, Auth::user()->name);
+        if (!$request->has('preview')) {
+            ActivityLogger::logSystem('Mencetak Surat Usul Kenaikan Jenjang untuk: ' . $pegawai->nama, Auth::user()->name);
+            return $pdf->download($filename);
+        }
 
-        return $pdf->download($filename);
+        return $pdf->stream($filename);
     }
 }

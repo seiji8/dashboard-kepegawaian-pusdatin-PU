@@ -137,30 +137,51 @@ class DataPegawaiController extends Controller
         }
 
         $trackerStatus = null;
+        $trackerId = null;
         if ($request->has('kategori')) {
             $cat = $request->kategori;
             $specificTracker = collect($activeTrackers)->where('kategori', $cat)->first();
             if ($specificTracker) {
                 $trackerStatus = $specificTracker->status_saat_ini;
+                $trackerId = $specificTracker->id;
+            }
+        }
+
+        // TUBEL-specific data
+        $tubelData = null;
+        if ($request->input('kategori') === 'TUBEL') {
+            $tubelAktif = \App\Models\RiwayatTubel::where('nip', $nip)
+                ->whereNotNull('tanggal_mulai')
+                ->orderBy('tanggal_mulai', 'desc')
+                ->first();
+            if ($tubelAktif) {
+                $selesaiEfektif = $tubelAktif->tanggal_selesai_efektif;
+                $tubelData = [
+                    'tanggal_mulai'   => $tubelAktif->tanggal_mulai ? $tubelAktif->tanggal_mulai->format('d/m/Y') : '-',
+                    'tanggal_selesai' => $selesaiEfektif ? $selesaiEfektif->format('d/m/Y') : '-',
+                    'pendidikan'      => $tubelAktif->pendidikan ?? '-',
+                ];
             }
         }
 
         return response()->json([
             'success' => true,
             'data' => [
-                'nama' => $pegawai->nama,
-                'nip' => $pegawai->nip,
-                'jabatan' => $pegawai->jabatan_saat_ini ?? '-',
-                'tipe_jabatan' => $pegawai->tipe_jabatan ?? '-',
-                'pangkat' => $pegawai->pangkat_golongan ?? '-',
-                'jenjang' => $pegawai->jenjang ?? '-',
-                'tmt_cpns' => $pegawai->tmt_cpns ? date('d/m/Y', strtotime($pegawai->tmt_cpns)) : '-',
-                'angka_kredit' => $totalKredit,
-                'no_hp' => $pegawai->no_hp ?? '-',
-                'email' => $pegawai->email ?? '-',
-                'next_kgb' => $nextKgb,
-                'missing_documents' => $missingDocs,
-                'tracker_status' => $trackerStatus
+                'nama'             => $pegawai->nama,
+                'nip'              => $pegawai->nip,
+                'jabatan'          => $pegawai->jabatan_saat_ini ?? '-',
+                'tipe_jabatan'     => $pegawai->tipe_jabatan ?? '-',
+                'pangkat'          => $pegawai->pangkat_golongan ?? '-',
+                'jenjang'          => $pegawai->jenjang ?? '-',
+                'tmt_cpns'         => $pegawai->tmt_cpns ? date('d/m/Y', strtotime($pegawai->tmt_cpns)) : '-',
+                'angka_kredit'     => $totalKredit,
+                'no_hp'            => $pegawai->no_hp ?? '-',
+                'email'            => $pegawai->email ?? '-',
+                'next_kgb'         => $nextKgb,
+                'missing_documents'=> $missingDocs,
+                'tracker_status'   => $trackerStatus,
+                'tracker_id'       => $trackerId,
+                'tubel_data'       => $tubelData,
             ]
         ]);
     }
