@@ -492,17 +492,52 @@ class RecalculateTracker extends Command
                             $statusStruktural = 'Aman';
                             $keteranganStruktural = 'Data TMT Struktural / Pelantikan tidak tersedia';
 
-                        } elseif ($pegawai->tmt_pangkat_terakhir && Carbon::parse($pegawai->tmt_pangkat_terakhir)->greaterThanOrEqualTo(Carbon::parse($tmtJabatan))) {
-                            // Jika Pangkat Terakhir lebih baru ATAU sama dengan TMT Jabatan, artinya sudah pernah naik pangkat di jabatan ini.
-                            // Atau SK Pangkat dan SK Jabatan terbit bersamaan (tmt sama).
-                            // Struktural hanya bisa naik pangkat 1 kali dalam masa jabatannya.
-                            $statusStruktural = 'Aman';
-                            $keteranganStruktural = 'Sudah pernah menerima Kenaikan Pangkat dalam masa jabatan ini';
+                        } else {
+                            // --- LOGIKA BARU BERDASARKAN 4 CASE ---
+                            $tmtPangkat = $pegawai->tmt_pangkat_terakhir ? Carbon::parse($pegawai->tmt_pangkat_terakhir) : null;
+                            $tmtJabatanCarbon = Carbon::parse($tmtJabatan);
 
-                        } elseif ($inNotifyWindow && $masaPangkat >= 1) { // Tetap butuh 1 tahun dalam pangkat terakhir
-                            // Window H-2 bulan dari 1 Tahun Jabatan + syarat masa pangkat 1 tahun
-                            $statusStruktural    = 'Usulan';
-                            $keteranganStruktural = 'Memenuhi Syarat Kenaikan Pangkat Pilihan (Struktural 1 Tahun)';
+                            if (!$tmtPangkat) {
+                                $statusStruktural = 'Aman';
+                                $keteranganStruktural = 'Data TMT Pangkat tidak tersedia';
+                            } else {
+                                $isNewAppointment = $tmtPangkat->lt($tmtJabatanCarbon);
+
+                                if ($isNewAppointment) {
+                                    // CASE 2: Baru diangkat, pangkat sebelumnya sudah 4 tahun -> Bisa langsung naik
+                                    if ($masaPangkat >= 4) {
+                                        $statusStruktural = 'Usulan';
+                                        $keteranganStruktural = 'Memenuhi Syarat (Baru Diangkat & Pangkat Terakhir >= 4 Tahun)';
+                                        $tanggalTargetStruktural = $today; 
+                                    } else {
+                                        // CASE 1 & 4: Baru diangkat, belum 4 tahun pangkat terakhir -> 1 tahun dari pelantikan
+                                        $tanggalTargetStruktural = $tmtJabatanCarbon->copy()->addYear();
+                                        
+                                        // Notifikasi H-2 bulan (60 hari)
+                                        $startNotify = $tanggalTargetStruktural->copy()->subDays(60);
+                                        if ($today->greaterThanOrEqualTo($startNotify)) {
+                                            $statusStruktural = 'Usulan';
+                                            $keteranganStruktural = 'Memenuhi Syarat (Struktural 1 Tahun dari Pelantikan)';
+                                        } else {
+                                            $statusStruktural = 'Aman';
+                                            $keteranganStruktural = 'Menunggu 1 tahun dari pelantikan (Target: ' . $tanggalTargetStruktural->format('d-m-Y') . ')';
+                                        }
+                                    }
+                                } else {
+                                    // CASE 3: Sudah pernah naik pangkat di jabatan ini -> Harus menunggu 4 tahun
+                                    $tanggalTargetStruktural = $tmtPangkat->copy()->addYears(4);
+                                    
+                                    // Notifikasi H-2 bulan
+                                    $startNotify = $tanggalTargetStruktural->copy()->subDays(60);
+                                    if ($today->greaterThanOrEqualTo($startNotify)) {
+                                        $statusStruktural = 'Usulan';
+                                        $keteranganStruktural = 'Memenuhi Syarat (Reguler 4 Tahun dari Pangkat Terakhir)';
+                                    } else {
+                                        $statusStruktural = 'Aman';
+                                        $keteranganStruktural = 'Menunggu 4 tahun dari pangkat terakhir (Target: ' . $tanggalTargetStruktural->format('d-m-Y') . ')';
+                                    }
+                                }
+                            }
                         }
                         if ($statusStruktural != 'Aman') {
                             $trackerStruct = DashboardTracker::updateOrCreate(
