@@ -138,12 +138,14 @@ class DataPegawaiController extends Controller
 
         $trackerStatus = null;
         $trackerId = null;
+        $trackerKeterangan = null;
         if ($request->has('kategori')) {
             $cat = $request->kategori;
             $specificTracker = collect($activeTrackers)->where('kategori', $cat)->first();
             if ($specificTracker) {
                 $trackerStatus = $specificTracker->status_saat_ini;
                 $trackerId = $specificTracker->id;
+                $trackerKeterangan = $specificTracker->keterangan;
             }
         }
 
@@ -181,6 +183,7 @@ class DataPegawaiController extends Controller
                 'missing_documents'=> $missingDocs,
                 'tracker_status'   => $trackerStatus,
                 'tracker_id'       => $trackerId,
+                'tracker_keterangan' => $trackerKeterangan,
                 'tubel_data'       => $tubelData,
             ]
         ]);

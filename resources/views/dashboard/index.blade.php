@@ -952,6 +952,10 @@
                             <div style="font-size:11px; color:#64748b; font-weight:700; margin-bottom:4px; letter-spacing:0.5px;">PANGKAT/GOLONGAN</div>
                             <div id="dashModalPangkat" style="font-size:14px; color:#0f172a; font-weight:500;">-</div>
                         </div>
+                        <div id="dashModalKeteranganWrapper" style="display:none; grid-column: 1 / -1; margin-top: 5px;">
+                            <div style="font-size:11px; color:#64748b; font-weight:700; margin-bottom:4px; letter-spacing:0.5px;">KETERANGAN PENGUSULAN</div>
+                            <div id="dashModalKeterangan" style="font-size:13px; color:#166534; font-weight:600; background:#dcfce7; padding:10px 15px; border-radius:8px; border:1px solid #bbf7d0;">-</div>
+                        </div>
                     </div>
 
                     <!-- TUBEL Extra Info (hidden by default, shown via JS for TUBEL) -->

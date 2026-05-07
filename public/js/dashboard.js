@@ -456,6 +456,9 @@ function openDashboardDetail(nip, kategori) {
     document.getElementById("dashModalKGBWrapper").style.display = "none";
     document.getElementById("dashModalPangkatWrapper").style.display = "none";
     document.getElementById("dashModalTubelWrapper").style.display = "none";
+    if (document.getElementById("dashModalKeteranganWrapper")) {
+        document.getElementById("dashModalKeteranganWrapper").style.display = "none";
+    }
 
     if (loadingSpinner) loadingSpinner.style.display = "block";
     if (contentBody) contentBody.style.display = "none";
@@ -704,6 +707,13 @@ function openDashboardDetail(nip, kategori) {
                     ).style.display = "block";
                     document.getElementById("dashModalPangkat").innerText =
                         data.pangkat || "-";
+                }
+
+                if (data.tracker_keterangan) {
+                    if (document.getElementById("dashModalKeteranganWrapper")) {
+                        document.getElementById("dashModalKeteranganWrapper").style.display = "block";
+                        document.getElementById("dashModalKeterangan").innerText = data.tracker_keterangan;
+                    }
                 }
 
                 // Populate Documents (filtered by category)

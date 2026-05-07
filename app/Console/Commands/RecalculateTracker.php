@@ -507,7 +507,7 @@ class RecalculateTracker extends Command
                                     // CASE 2: Baru diangkat, pangkat sebelumnya sudah 4 tahun -> Bisa langsung naik
                                     if ($masaPangkat >= 4) {
                                         $statusStruktural = 'Usulan';
-                                        $keteranganStruktural = 'Memenuhi Syarat (Baru Diangkat & Pangkat Terakhir >= 4 Tahun)';
+                                        $keteranganStruktural = "Alasan kami mengajukan kenaikan pangkat untuk pegawai {$pegawai->nama} adalah kondisi Memenuhi Syarat (Baru Diangkat & Pangkat Terakhir >= 4 Tahun)";
                                         $tanggalTargetStruktural = $today; 
                                     } else {
                                         // CASE 1 & 4: Baru diangkat, belum 4 tahun pangkat terakhir -> 1 tahun dari pelantikan
@@ -517,7 +517,7 @@ class RecalculateTracker extends Command
                                         $startNotify = $tanggalTargetStruktural->copy()->subDays(60);
                                         if ($today->greaterThanOrEqualTo($startNotify)) {
                                             $statusStruktural = 'Usulan';
-                                            $keteranganStruktural = 'Memenuhi Syarat (Struktural 1 Tahun dari Pelantikan)';
+                                            $keteranganStruktural = "Alasan kami mengajukan kenaikan pangkat untuk pegawai {$pegawai->nama} adalah kondisi Memenuhi Syarat (Struktural 1 Tahun dari Pelantikan)";
                                         } else {
                                             $statusStruktural = 'Aman';
                                             $keteranganStruktural = 'Menunggu 1 tahun dari pelantikan (Target: ' . $tanggalTargetStruktural->format('d-m-Y') . ')';
@@ -531,7 +531,7 @@ class RecalculateTracker extends Command
                                     $startNotify = $tanggalTargetStruktural->copy()->subDays(60);
                                     if ($today->greaterThanOrEqualTo($startNotify)) {
                                         $statusStruktural = 'Usulan';
-                                        $keteranganStruktural = 'Memenuhi Syarat (Reguler 4 Tahun dari Pangkat Terakhir)';
+                                        $keteranganStruktural = "Alasan kami mengajukan kenaikan pangkat untuk pegawai {$pegawai->nama} adalah kondisi Memenuhi Syarat (Reguler 4 Tahun dari Pangkat Terakhir)";
                                     } else {
                                         $statusStruktural = 'Aman';
                                         $keteranganStruktural = 'Menunggu 4 tahun dari pangkat terakhir (Target: ' . $tanggalTargetStruktural->format('d-m-Y') . ')';
