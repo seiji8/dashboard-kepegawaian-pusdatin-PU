@@ -463,15 +463,36 @@ class SyncEhrmData extends Command
                         $dataKp = $kpResp->json()['data'][$nip] ?? [];
                         if (is_array($dataKp) && !empty($dataKp)) {
                             \App\Models\RiwayatSkp::where('nip', $nip)->delete();
+                            
+                            $distinctArsip = [];
+
+                            $currentYear = intval(date('Y'));
+                            
                             foreach ($dataKp as $kp) {
-                                \App\Models\RiwayatSkp::create([
-                                    'nip' => $nip,
-                                    'tahun' => $kp['tahun'] ?? null,
-                                    'status' => $kp['status'] ?? null,
-                                    'nilai_kinerja' => $kp['nilai_kinerja'] ?? null,
-                                    'nilai_skp' => $kp['nilai_skp'] ?? null,
-                                    'arsip_skp' => $kp['arsip_skp'] ?? null,
-                                ]);
+                                $tahunSkp = isset($kp['tahun']) ? intval($kp['tahun']) : 0;
+                                
+                                // Simpan data SKP (triwulan & tahunan) untuk 3 tahun terakhir saja
+                                if ($tahunSkp >= ($currentYear - 3)) {
+                                    \App\Models\RiwayatSkp::create([
+                                        'nip' => $nip,
+                                        'tahun' => $kp['tahun'] ?? null,
+                                        'status' => $kp['status'] ?? null,
+                                        'nilai_kinerja' => $kp['nilai_kinerja'] ?? null,
+                                        'nilai_skp' => $kp['nilai_skp'] ?? null,
+                                        'arsip_skp' => $kp['arsip_skp'] ?? null,
+                                    ]);
+                                    
+                                    if (!empty($kp['arsip_skp'])) {
+                                        $distinctArsip[] = $kp['arsip_skp'];
+                                    }
+                                }
+                            }
+                            
+                            // Ambil maksimal 2 arsip distinct
+                            if (!empty($distinctArsip)) {
+                                $distinctArsip = array_values(array_unique($distinctArsip));
+                                $distinctArsip = array_slice($distinctArsip, 0, 2);
+                                $peg->update(['arsip_skp_2_tahun' => $distinctArsip]);
                             }
 
                             // Tempatkan arsip SKP di modul KJ jika ada
@@ -483,6 +504,25 @@ class SyncEhrmData extends Command
                                     \App\Models\KelengkapanDokumen::updateOrCreate(
                                         [
                                             'dashboard_tracker_id' => $kjTracker->id,
+                                            'nama_dokumen' => 'SKP 2 Tahun Terakhir',
+                                            'nip' => $nip
+                                        ],
+                                        [
+                                            'is_uploaded' => true,
+                                            'link_file' => $latestSkp['arsip_skp']
+                                        ]
+                                    );
+                                }
+                            }
+
+                            // Tempatkan arsip SKP di modul KP_Jafung jika ada
+                            $kpJafungTracker = \App\Models\DashboardTracker::where('pegawai_id', $peg->id_pegawai_api)->where('kategori', 'KP_Jafung')->first();
+                            if ($kpJafungTracker) {
+                                $latestSkp = collect($dataKp)->whereNotNull('arsip_skp')->sortByDesc('tahun')->first();
+                                if ($latestSkp) {
+                                    \App\Models\KelengkapanDokumen::updateOrCreate(
+                                        [
+                                            'dashboard_tracker_id' => $kpJafungTracker->id,
                                             'nama_dokumen' => 'SKP 2 Tahun Terakhir',
                                             'nip' => $nip
                                         ],

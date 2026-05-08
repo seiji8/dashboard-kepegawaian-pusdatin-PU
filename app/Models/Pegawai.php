@@ -23,6 +23,7 @@ class Pegawai extends Model
         'tmt_cpns' => 'date',
         'tmt_pangkat_terakhir' => 'date',
         'tmt_kgb_terakhir' => 'date',
+        'arsip_skp_2_tahun' => 'array',
     ];
 
     // 3. Relasi ke Tabel Lain

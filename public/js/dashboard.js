@@ -719,23 +719,24 @@ function openDashboardDetail(nip, kategori) {
                 // Populate Documents (filtered by category)
                 if (docsContainer) {
                     if (
-                        data.missing_documents &&
-                        data.missing_documents.length > 0
+                        data.all_documents &&
+                        data.all_documents.length > 0
                     ) {
                         const filteredDocs = kategori
-                            ? data.missing_documents.filter(
+                            ? data.all_documents.filter(
                                   (doc) => doc.kategori == kategori,
                               )
-                            : data.missing_documents;
+                            : data.all_documents;
 
                         if (filteredDocs.length > 0) {
                             let docsHtml = "";
                             let isAllUploaded = true;
 
                             filteredDocs.forEach((doc, index) => {
+                                let isUploaded = doc.is_uploaded || false;
+                                
                                 // ---- DUMMY FAKE LOGIC UNTUK EZA (NIP 105) ----
                                 // Karena backend tidak diubah, kita fake khusus di frontend
-                                let isUploaded = false;
                                 if (
                                     data.nip == "105" &&
                                     doc.nama_dokumen == "SK Jabatan Terakhir"
