@@ -42,7 +42,7 @@ class DataPegawaiController extends Controller
 
     public function show(Request $request, $nip)
     {
-        $pegawai = Pegawai::with(['riwayat_angka_kredit'])->where('nip', $nip)->first();
+        $pegawai = Pegawai::with(['riwayat_angka_kredit', 'riwayat_jabatan'])->where('nip', $nip)->first();
 
         if (!$pegawai) {
             return response()->json(['success' => false, 'message' => 'Pegawai tidak ditemukan'], 404);
@@ -146,7 +146,14 @@ class DataPegawaiController extends Controller
                 $allDocs[] = ['kategori' => 'KP_Struktural', 'nama_dokumen' => "SK Pangkat Terakhir", 'is_uploaded' => $skpangkat];
                 if (!$skpangkat) $missingDocs[] = ['kategori' => 'KP_Struktural', 'nama_dokumen' => "SK Pangkat Terakhir"];
                 
-                $skjabatan = in_array("SK Jabatan Terakhir", $docsUploaded);
+                $riwJabatanMatch = $pegawai->riwayat_jabatan
+                    ->where('kd_eselon', $pegawai->kd_eselon)
+                    ->whereNotNull('file_sk')
+                    ->where('file_sk', '!=', '')
+                    ->sortByDesc('tmt_jabatan')
+                    ->first();
+                
+                $skjabatan = ($riwJabatanMatch != null) || in_array("SK Jabatan Terakhir", $docsUploaded);
                 $allDocs[] = ['kategori' => 'KP_Struktural', 'nama_dokumen' => "SK Jabatan Terakhir", 'is_uploaded' => $skjabatan];
                 if (!$skjabatan) $missingDocs[] = ['kategori' => 'KP_Struktural', 'nama_dokumen' => "SK Jabatan Terakhir"];
             } elseif ($tracker->kategori == 'KP_Reguler') {

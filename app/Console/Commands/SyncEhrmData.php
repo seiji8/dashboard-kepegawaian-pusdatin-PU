@@ -199,6 +199,7 @@ class SyncEhrmData extends Command
                                 'tgl_selesai'  => $this->parseDate($jab['tglselesai'] ?? null),
                                 'tipe_jabatan' => $jab['tipejabatan'] ?? null,
                                 'file_sk'      => $jab['sk'] ?? null,
+                                'kd_eselon'    => $jab['kd_eselon'] ?? null,
                             ]
                         );
                     }
