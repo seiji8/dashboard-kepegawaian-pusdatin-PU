@@ -858,6 +858,7 @@ class RecalculateTracker extends Command
                         && $trackerTubel->wasChanged('status_saat_ini')
                     ) {
                         $admins = User::whereIn('role', ['super_admin', 'admin_pegawai'])->get();
+                        /** @var \App\Models\User $admin */
                         foreach ($admins as $admin) {
                             if ($admin->email) {
                                 try {
