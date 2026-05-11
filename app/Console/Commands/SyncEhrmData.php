@@ -204,16 +204,74 @@ class SyncEhrmData extends Command
                     }
                 }
 
+                // Mapping Pangkat untuk Fallback Validasi
+                $pangkatMap = [
+                    'I/a' => 'Juru Muda',
+                    'I/b' => 'Juru Muda Tingkat I',
+                    'I/c' => 'Juru',
+                    'I/d' => 'Juru Tingkat I',
+                    'II/a' => 'Pengatur Muda',
+                    'II/b' => 'Pengatur Muda Tingkat I',
+                    'II/c' => 'Pengatur',
+                    'II/d' => 'Pengatur Tingkat I',
+                    'III/a' => 'Penata Muda',
+                    'III/b' => 'Penata Muda Tingkat I',
+                    'III/c' => 'Penata',
+                    'III/d' => 'Penata Tingkat I',
+                    'IV/a' => 'Pembina',
+                    'IV/b' => 'Pembina Tingkat I',
+                    'IV/c' => 'Pembina Utama Muda',
+                    'IV/d' => 'Pembina Utama Madya',
+                    'IV/e' => 'Pembina Utama'
+                ];
+
                 // Sync tmt_pangkat_terakhir dari riwpangkat (sudah sorted di atas)
                 if (!empty($riwPangkatArr)) {
                     $riwPangkatSorted2 = collect($riwPangkatArr)->sortByDesc('tglmulai');
-                    $latestPangkat = $riwPangkatSorted2->first();
+                    
+                    // Reset sk_pangkat_terakhir if validation fails later
+                    $updateDataPangkat = ['sk_pangkat_terakhir' => null];
+                    
+                    $matchedPangkat = null;
+                    if ($pegawai->tmt_pangkat_terakhir) {
+                        $currentTmtStr = $pegawai->tmt_pangkat_terakhir->format('Y-m-d');
+                        $currentGolongan = $pegawai->pangkat_golongan ?? '';
+                        $expectedDeskripsi = strtolower($pangkatMap[$currentGolongan] ?? '');
 
-                    if ($latestPangkat && !empty($latestPangkat['tglmulai'])) {
-                        $tmtParsed = $this->parseDate($latestPangkat['tglmulai']);
-                        if ($tmtParsed) {
-                            $pegawai->update(['tmt_pangkat_terakhir' => $tmtParsed]);
+                        $matchedPangkat = $riwPangkatSorted2->first(function ($pangkat) use ($currentTmtStr, $expectedDeskripsi) {
+                            $parsed = $this->parseDate($pangkat['tglmulai'] ?? null);
+                            $tmtMatches = $parsed && $parsed === $currentTmtStr;
+                            
+                            $deskripsiMatches = false;
+                            if ($expectedDeskripsi && !empty($pangkat['deskripsi'])) {
+                                $deskripsiMatches = (strpos(strtolower($pangkat['deskripsi']), $expectedDeskripsi) !== false);
+                            }
+                            
+                            return $tmtMatches || $deskripsiMatches;
+                        });
+                    }
+
+                    if ($matchedPangkat) {
+                        // Found matching rank!
+                        if (!empty($matchedPangkat['sk'])) {
+                            $updateDataPangkat['sk_pangkat_terakhir'] = $matchedPangkat['sk'];
                         }
+                    } elseif (!$pegawai->tmt_pangkat_terakhir) {
+                        // Fallback to latest if employee has no TMT Pangkat at all
+                        $latestPangkat = $riwPangkatSorted2->first();
+                        if ($latestPangkat && !empty($latestPangkat['tglmulai'])) {
+                            $tmtParsed = $this->parseDate($latestPangkat['tglmulai']);
+                            if ($tmtParsed) {
+                                $updateDataPangkat['tmt_pangkat_terakhir'] = $tmtParsed;
+                            }
+                            if (!empty($latestPangkat['sk'])) {
+                                $updateDataPangkat['sk_pangkat_terakhir'] = $latestPangkat['sk'];
+                            }
+                        }
+                    }
+
+                    if (!empty($updateDataPangkat)) {
+                        $pegawai->update($updateDataPangkat);
                     }
                 }
 

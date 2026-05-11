@@ -454,6 +454,7 @@ function openDashboardDetail(nip, kategori) {
     // Hide dynamic wrappers initially
     document.getElementById("dashModalAKWrapper").style.display = "none";
     document.getElementById("dashModalKGBWrapper").style.display = "none";
+    if (document.getElementById("dashModalKgbInfoWrapper")) document.getElementById("dashModalKgbInfoWrapper").style.display = "none";
     document.getElementById("dashModalPangkatWrapper").style.display = "none";
     document.getElementById("dashModalTubelWrapper").style.display = "none";
     if (document.getElementById("dashModalKeteranganWrapper")) {
@@ -696,11 +697,17 @@ function openDashboardDetail(nip, kategori) {
                         data.angka_kredit || "0";
                 }
                 if (kategori === "KGB") {
-                    document.getElementById(
-                        "dashModalKGBWrapper",
-                    ).style.display = "block";
-                    document.getElementById("dashModalKGB").innerText =
-                        data.next_kgb || "-";
+                    // Hide the small KGB wrapper from the generic header
+                    document.getElementById("dashModalKGBWrapper").style.display = "none";
+                    
+                    // Show the dedicated KGB Info Box
+                    const kgbInfo = document.getElementById("dashModalKgbInfoWrapper");
+                    if (kgbInfo) {
+                        kgbInfo.style.display = "block";
+                        document.getElementById("dashModalKgbTmtLama").innerHTML = `<i class="ph-fill ph-calendar-check" style="color:#10b981; font-size:14px;"></i> ${data.tmt_kgb_terakhir || '-'}`;
+                        document.getElementById("dashModalKgbTmtBaru").innerHTML = `<i class="ph-fill ph-calendar-plus" style="color:#3b82f6; font-size:14px;"></i> ${data.next_kgb || '-'}`;
+                        document.getElementById("dashModalKgbGolongan").innerHTML = `<i class="ph-fill ph-medal" style="color:#f59e0b; font-size:14px;"></i> ${data.pangkat || '-'}`;
+                    }
                 }
                 if (kategori && kategori.includes("KP_")) {
                     document.getElementById(

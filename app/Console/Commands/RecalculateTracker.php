@@ -271,18 +271,65 @@ class RecalculateTracker extends Command
                                 $keteranganAK = 'Peringatan: Data Riwayat AK tidak ditemukan di e-HRM atau bernilai 0. Segera upload/update SK PAK Anda.';
                             } else {
                                 if ($kekuranganAK <= 0) {
+                                    // -------- TAMBAHAN LOGIKA SKP TAHUNAN --------
+                                    // Cari 2 SKP Tahunan terakhir
+                                    $annualSkps = \App\Models\RiwayatSkp::where('nip', $pegawai->nip)
+                                        ->where('status', 'LIKE', '%Tahunan%')
+                                        ->orderBy('tahun', 'desc')
+                                        ->limit(2)
+                                        ->get();
+                                    
+                                    $skpMemenuhi = true;
+                                    $badSkpYear = null;
+
+                                    if ($annualSkps->count() < 2) {
+                                        $skpMemenuhi = false;
+                                        // Anggap tidak memenuhi karena data kurang
+                                        $alasanSkp = "Data SKP Tahunan 2 tahun terakhir tidak lengkap di E-HRM";
+                                    } else {
+                                        foreach ($annualSkps as $skp) {
+                                            $nilai = strtoupper(trim($skp->nilai_skp));
+                                            if (!in_array($nilai, ['BAIK', 'SANGAT BAIK'])) {
+                                                $skpMemenuhi = false;
+                                                if (is_null($badSkpYear) || $skp->tahun > $badSkpYear) {
+                                                    $badSkpYear = $skp->tahun;
+                                                }
+                                            }
+                                        }
+                                        if (!$skpMemenuhi) {
+                                            $targetYear = $badSkpYear + 2;
+                                            $alasanSkp = "Nilai SKP Tahunan ({$badSkpYear}) bukan BAIK/SANGAT BAIK. Harus menunggu 2 tahun (Target Usulan: Tahun {$targetYear})";
+                                        }
+                                    }
+                                    // ----------------------------------------------
+
                                     if ($isKenaikanJenjang) {
                                         $sudahLulus = $existingAK && str_contains($existingAK->keterangan, 'Lulus UKOM');
                                         if ($currentAKStatus === 'Usulan' && $sudahLulus) {
-                                            $statusAK = 'Usulan';
-                                            $keteranganAK = "Lulus UKOM. Segera usulkan {$namaProses} ke {$tujuanProses}";
+                                            if ($skpMemenuhi) {
+                                                $statusAK = 'Usulan';
+                                                $keteranganAK = "Lulus UKOM dan SKP 2 Tahun Baik. Segera usulkan {$namaProses} ke {$tujuanProses}";
+                                            } else {
+                                                $statusAK = 'Aman';
+                                                $keteranganAK = "Lulus UKOM, namun " . $alasanSkp;
+                                            }
                                         } else {
-                                            $statusAK = 'Menunggu UKOM';
-                                            $keteranganAK = "AK memenuhi target. Segera daftarkan Uji Kompetensi";
+                                            if ($skpMemenuhi) {
+                                                $statusAK = 'Menunggu UKOM';
+                                                $keteranganAK = "AK & SKP memenuhi target. Segera daftarkan Uji Kompetensi";
+                                            } else {
+                                                $statusAK = 'Aman';
+                                                $keteranganAK = "AK memenuhi target, namun " . $alasanSkp;
+                                            }
                                         }
                                     } else {
-                                        $statusAK = 'Usulan';
-                                        $keteranganAK = "AK memenuhi target. Segera usulkan {$namaProses} ke {$tujuanProses}";
+                                        if ($skpMemenuhi) {
+                                            $statusAK = 'Usulan';
+                                            $keteranganAK = "AK & SKP memenuhi target. Segera usulkan {$namaProses} ke {$tujuanProses}";
+                                        } else {
+                                            $statusAK = 'Aman';
+                                            $keteranganAK = "AK memenuhi target, namun " . $alasanSkp;
+                                        }
                                     }
                                 } elseif ($kekuranganAK <= $akTriwulanBaik) {
                                     $statusAK = 'Mendekati';
@@ -349,16 +396,45 @@ class RecalculateTracker extends Command
                             // Manajemen Database Tracker
                             if (!$skipTrackerUpdate) {
                                 if (in_array($statusAK, ['Usulan', 'Proses', 'Menunggu UKOM'])) {
+                                    
+                                    // Hitung Dokumen Terupload secara Dinamis
+                                    $dokumenTerupload = 0;
+                                    if ($isKenaikanJenjang) { // KJ_Jafung (Total: 3 Dok)
+                                        // 1. SKP 2 Tahun
+                                        if (!empty($pegawai->arsip_skp_2_tahun) && count($pegawai->arsip_skp_2_tahun) >= 2) {
+                                            $dokumenTerupload++;
+                                        }
+                                        // 2. PAK & 3. UKOM
+                                        if ($existingAK) {
+                                            $uploadedNames = $existingAK->kelengkapan_dokumen->where('is_uploaded', true)->pluck('nama_dokumen')->toArray();
+                                            if (in_array("Sertifikat Uji Kompetensi", $uploadedNames)) $dokumenTerupload++;
+                                            if (in_array("SK Penilaian Angka Kredit (PAK)", $uploadedNames)) $dokumenTerupload++;
+                                        }
+                                    } else { // KP_Jafung (Total: 2 Dok)
+                                        // 1. SKP 2 Tahun
+                                        if (!empty($pegawai->arsip_skp_2_tahun) && count($pegawai->arsip_skp_2_tahun) >= 2) {
+                                            $dokumenTerupload++;
+                                        }
+                                        // 2. SK Pangkat Terakhir
+                                        if (!empty($pegawai->sk_pangkat_terakhir)) {
+                                            $dokumenTerupload++;
+                                        } elseif ($existingAK) {
+                                            $uploadedNames = $existingAK->kelengkapan_dokumen->where('is_uploaded', true)->pluck('nama_dokumen')->toArray();
+                                            if (in_array("SK Pangkat Terakhir", $uploadedNames)) $dokumenTerupload++;
+                                        }
+                                    }
+
                                     $tracker = DashboardTracker::updateOrCreate(
                                         [
                                             'pegawai_id' => $pegawai->id_pegawai_api,
                                             'kategori'   => $kategoriSekarang,
                                         ],
                                         [
-                                            'status_saat_ini' => $statusAK,
-                                            'keterangan'      => $keteranganAK,
-                                            'dokumen_total'   => $dokumenTotal,
-                                            'tanggal_target'  => $targetDate,
+                                            'status_saat_ini'   => $statusAK,
+                                            'keterangan'        => $keteranganAK,
+                                            'dokumen_total'     => $dokumenTotal,
+                                            'dokumen_terupload' => $dokumenTerupload,
+                                            'tanggal_target'    => $targetDate,
                                         ]
                                     );
 
@@ -465,12 +541,8 @@ class RecalculateTracker extends Command
 
                         $currentStructStatus = $existingKPStruct ? $existingKPStruct->status_saat_ini : null;
                         $isConfirmedStruct = $existingKPStruct && $existingKPStruct->dikonfirmasi_at;
-                        $isUploadedStruct = $existingKPStruct && ($existingKPStruct->dokumen_terupload >= $existingKPStruct->dokumen_total);
 
-                        if ($isUploadedStruct) {
-                            $statusStruktural = 'Aman';
-                            $keteranganStruktural = '';
-                        } elseif ($currentStructStatus === 'Upload E-HRM' || $isConfirmedStruct) {
+                        if ($currentStructStatus === 'Upload E-HRM' || $isConfirmedStruct) {
                             $statusStruktural = 'Upload E-HRM';
                             $keteranganStruktural = 'TTE Selesai. Menunggu upload SK E-HRM.';
                         } elseif ($currentStructStatus === 'Proses') {
@@ -540,16 +612,27 @@ class RecalculateTracker extends Command
                             }
                         }
                         if ($statusStruktural != 'Aman') {
+                            $dokumenTeruploadStruktural = 0;
+                            $uploadedNamesStruct = $existingKPStruct ? $existingKPStruct->kelengkapan_dokumen->where('is_uploaded', true)->pluck('nama_dokumen')->toArray() : [];
+                            
+                            if (!empty($pegawai->sk_pangkat_terakhir) || in_array("SK Pangkat Terakhir", $uploadedNamesStruct)) {
+                                $dokumenTeruploadStruktural++;
+                            }
+                            if (in_array("SK Jabatan Terakhir", $uploadedNamesStruct)) {
+                                $dokumenTeruploadStruktural++;
+                            }
+
                             $trackerStruct = DashboardTracker::updateOrCreate(
                                 [
                                     'pegawai_id' => $pegawai->id_pegawai_api,
                                     'kategori'   => 'KP_Struktural',
                                 ],
                                 [
-                                    'status_saat_ini' => $statusStruktural,
-                                    'keterangan'      => $keteranganStruktural,
-                                    'dokumen_total'   => 2, // Asumsi 2 dokumen (SK Pangkat, SK Jabatan)
-                                    'tanggal_target'  => $tanggalTargetStruktural
+                                    'status_saat_ini'   => $statusStruktural,
+                                    'keterangan'        => $keteranganStruktural,
+                                    'dokumen_total'     => 2, // Asumsi 2 dokumen (SK Pangkat, SK Jabatan)
+                                    'dokumen_terupload' => $dokumenTeruploadStruktural,
+                                    'tanggal_target'    => $tanggalTargetStruktural
                                                             ? $tanggalTargetStruktural->format('Y-m-d')
                                                             : Carbon::now()->format('Y-m-d'),
                                 ]
@@ -599,12 +682,8 @@ class RecalculateTracker extends Command
 
                     $currentRegulerStatus = $existingKPReguler ? $existingKPReguler->status_saat_ini : null;
                     $isConfirmedReguler   = $existingKPReguler && $existingKPReguler->dikonfirmasi_at;
-                    $isUploadedReguler    = $existingKPReguler && ($existingKPReguler->dokumen_terupload >= $existingKPReguler->dokumen_total);
 
-                    if ($isUploadedReguler) {
-                        $statusReguler = 'Aman';
-                        $keteranganReguler = '';
-                    } elseif ($currentRegulerStatus === 'Upload E-HRM' || $isConfirmedReguler) {
+                    if ($currentRegulerStatus === 'Upload E-HRM' || $isConfirmedReguler) {
                         $statusReguler = 'Upload E-HRM';
                         $keteranganReguler = 'TTE Selesai. Menunggu upload SK E-HRM.';
                     } elseif ($currentRegulerStatus === 'Proses') {
@@ -621,15 +700,23 @@ class RecalculateTracker extends Command
                             ->where('kategori', 'KP_Reguler')
                             ->delete();
                     } else {
+                        $dokumenTeruploadReguler = 0;
+                        $uploadedNamesReguler = $existingKPReguler ? $existingKPReguler->kelengkapan_dokumen->where('is_uploaded', true)->pluck('nama_dokumen')->toArray() : [];
+                        
+                        if (!empty($pegawai->sk_pangkat_terakhir) || in_array("SK Pangkat Terakhir", $uploadedNamesReguler)) {
+                            $dokumenTeruploadReguler++;
+                        }
+
                         $trackerReg = DashboardTracker::updateOrCreate(
                             [
                                 'pegawai_id' => $pegawai->id_pegawai_api,
                                 'kategori'   => 'KP_Reguler',
                             ],
                             [
-                                'status_saat_ini' => $statusReguler,
-                                'keterangan'      => $keteranganReguler,
-                                'dokumen_total'   => 1, // atau sesuai kebutuhan reguler
+                                'status_saat_ini'   => $statusReguler,
+                                'keterangan'        => $keteranganReguler,
+                                'dokumen_total'     => 1, // atau sesuai kebutuhan reguler
+                                'dokumen_terupload' => $dokumenTeruploadReguler,
                                 'tanggal_target'  => $tanggalTargetReguler->format('Y-m-d'),
                             ]
                         );
