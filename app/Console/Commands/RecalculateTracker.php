@@ -416,7 +416,9 @@ class RecalculateTracker extends Command
                                             $dokumenTerupload++;
                                         }
                                         // 2. SK Pangkat Terakhir
-                                        if ($existingAK) {
+                                        if (!empty($pegawai->sk_pangkat_terakhir)) {
+                                            $dokumenTerupload++;
+                                        } elseif ($existingAK) {
                                             $uploadedNames = $existingAK->kelengkapan_dokumen->where('is_uploaded', true)->pluck('nama_dokumen')->toArray();
                                             if (in_array("SK Pangkat Terakhir", $uploadedNames)) $dokumenTerupload++;
                                         }
@@ -539,12 +541,8 @@ class RecalculateTracker extends Command
 
                         $currentStructStatus = $existingKPStruct ? $existingKPStruct->status_saat_ini : null;
                         $isConfirmedStruct = $existingKPStruct && $existingKPStruct->dikonfirmasi_at;
-                        $isUploadedStruct = $existingKPStruct && ($existingKPStruct->dokumen_terupload >= $existingKPStruct->dokumen_total);
 
-                        if ($isUploadedStruct) {
-                            $statusStruktural = 'Aman';
-                            $keteranganStruktural = '';
-                        } elseif ($currentStructStatus === 'Upload E-HRM' || $isConfirmedStruct) {
+                        if ($currentStructStatus === 'Upload E-HRM' || $isConfirmedStruct) {
                             $statusStruktural = 'Upload E-HRM';
                             $keteranganStruktural = 'TTE Selesai. Menunggu upload SK E-HRM.';
                         } elseif ($currentStructStatus === 'Proses') {
@@ -615,10 +613,13 @@ class RecalculateTracker extends Command
                         }
                         if ($statusStruktural != 'Aman') {
                             $dokumenTeruploadStruktural = 0;
-                            if ($existingKPStruct) {
-                                $uploadedNames = $existingKPStruct->kelengkapan_dokumen->where('is_uploaded', true)->pluck('nama_dokumen')->toArray();
-                                if (in_array("SK Pangkat Terakhir", $uploadedNames)) $dokumenTeruploadStruktural++;
-                                if (in_array("SK Jabatan Terakhir", $uploadedNames)) $dokumenTeruploadStruktural++;
+                            $uploadedNamesStruct = $existingKPStruct ? $existingKPStruct->kelengkapan_dokumen->where('is_uploaded', true)->pluck('nama_dokumen')->toArray() : [];
+                            
+                            if (!empty($pegawai->sk_pangkat_terakhir) || in_array("SK Pangkat Terakhir", $uploadedNamesStruct)) {
+                                $dokumenTeruploadStruktural++;
+                            }
+                            if (in_array("SK Jabatan Terakhir", $uploadedNamesStruct)) {
+                                $dokumenTeruploadStruktural++;
                             }
 
                             $trackerStruct = DashboardTracker::updateOrCreate(
@@ -681,12 +682,8 @@ class RecalculateTracker extends Command
 
                     $currentRegulerStatus = $existingKPReguler ? $existingKPReguler->status_saat_ini : null;
                     $isConfirmedReguler   = $existingKPReguler && $existingKPReguler->dikonfirmasi_at;
-                    $isUploadedReguler    = $existingKPReguler && ($existingKPReguler->dokumen_terupload >= $existingKPReguler->dokumen_total);
 
-                    if ($isUploadedReguler) {
-                        $statusReguler = 'Aman';
-                        $keteranganReguler = '';
-                    } elseif ($currentRegulerStatus === 'Upload E-HRM' || $isConfirmedReguler) {
+                    if ($currentRegulerStatus === 'Upload E-HRM' || $isConfirmedReguler) {
                         $statusReguler = 'Upload E-HRM';
                         $keteranganReguler = 'TTE Selesai. Menunggu upload SK E-HRM.';
                     } elseif ($currentRegulerStatus === 'Proses') {
@@ -704,9 +701,10 @@ class RecalculateTracker extends Command
                             ->delete();
                     } else {
                         $dokumenTeruploadReguler = 0;
-                        if ($existingKPReguler) {
-                            $uploadedNames = $existingKPReguler->kelengkapan_dokumen->where('is_uploaded', true)->pluck('nama_dokumen')->toArray();
-                            if (in_array("SK Pangkat Terakhir", $uploadedNames)) $dokumenTeruploadReguler++;
+                        $uploadedNamesReguler = $existingKPReguler ? $existingKPReguler->kelengkapan_dokumen->where('is_uploaded', true)->pluck('nama_dokumen')->toArray() : [];
+                        
+                        if (!empty($pegawai->sk_pangkat_terakhir) || in_array("SK Pangkat Terakhir", $uploadedNamesReguler)) {
+                            $dokumenTeruploadReguler++;
                         }
 
                         $trackerReg = DashboardTracker::updateOrCreate(

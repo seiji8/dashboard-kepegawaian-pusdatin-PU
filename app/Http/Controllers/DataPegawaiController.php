@@ -136,7 +136,7 @@ class DataPegawaiController extends Controller
             } elseif ($tracker->kategori == 'KP_Jafung') {
                 $docsUploaded = $tracker->kelengkapan_dokumen->where('is_uploaded', true)->pluck('nama_dokumen')->toArray();
                 
-                $skpangkat = in_array("SK Pangkat Terakhir", $docsUploaded);
+                $skpangkat = !empty($pegawai->sk_pangkat_terakhir) || in_array("SK Pangkat Terakhir", $docsUploaded);
                 $allDocs[] = ['kategori' => 'KP_Jafung', 'nama_dokumen' => "SK Pangkat Terakhir", 'is_uploaded' => $skpangkat];
                 if (!$skpangkat) $missingDocs[] = ['kategori' => 'KP_Jafung', 'nama_dokumen' => "SK Pangkat Terakhir"];
                 
@@ -146,23 +146,34 @@ class DataPegawaiController extends Controller
             } elseif ($tracker->kategori == 'KP_Struktural') {
                 $docsUploaded = $tracker->kelengkapan_dokumen->where('is_uploaded', true)->pluck('nama_dokumen')->toArray();
                 
-                $skpangkat = in_array("SK Pangkat Terakhir", $docsUploaded);
+                $skpangkat = !empty($pegawai->sk_pangkat_terakhir) || in_array("SK Pangkat Terakhir", $docsUploaded);
                 $allDocs[] = ['kategori' => 'KP_Struktural', 'nama_dokumen' => "SK Pangkat Terakhir", 'is_uploaded' => $skpangkat];
                 if (!$skpangkat) $missingDocs[] = ['kategori' => 'KP_Struktural', 'nama_dokumen' => "SK Pangkat Terakhir"];
                 
                 $skjabatan = in_array("SK Jabatan Terakhir", $docsUploaded);
                 $allDocs[] = ['kategori' => 'KP_Struktural', 'nama_dokumen' => "SK Jabatan Terakhir", 'is_uploaded' => $skjabatan];
                 if (!$skjabatan) $missingDocs[] = ['kategori' => 'KP_Struktural', 'nama_dokumen' => "SK Jabatan Terakhir"];
+            } elseif ($tracker->kategori == 'KP_Reguler') {
+                $docsUploaded = $tracker->kelengkapan_dokumen->where('is_uploaded', true)->pluck('nama_dokumen')->toArray();
+                
+                $skpangkat = !empty($pegawai->sk_pangkat_terakhir) || in_array("SK Pangkat Terakhir", $docsUploaded);
+                $allDocs[] = ['kategori' => 'KP_Reguler', 'nama_dokumen' => "SK Pangkat Terakhir", 'is_uploaded' => $skpangkat];
+                if (!$skpangkat) $missingDocs[] = ['kategori' => 'KP_Reguler', 'nama_dokumen' => "SK Pangkat Terakhir"];
             } else {
                 // Logic existing untuk kategori lain (KGB, dll)
                 $docs = $tracker->kelengkapan_dokumen;
                 foreach ($docs as $doc) {
+                    $isUploaded = (bool)$doc->is_uploaded;
+                    if ($doc->nama_dokumen == "SK Pangkat Terakhir" && !empty($pegawai->sk_pangkat_terakhir)) {
+                        $isUploaded = true;
+                    }
+
                     $allDocs[] = [
                         'kategori' => $tracker->kategori,
                         'nama_dokumen' => $doc->nama_dokumen,
-                        'is_uploaded' => (bool)$doc->is_uploaded
+                        'is_uploaded' => $isUploaded
                     ];
-                    if (!$doc->is_uploaded) {
+                    if (!$isUploaded) {
                         $missingDocs[] = [
                             'kategori' => $tracker->kategori,
                             'nama_dokumen' => $doc->nama_dokumen
