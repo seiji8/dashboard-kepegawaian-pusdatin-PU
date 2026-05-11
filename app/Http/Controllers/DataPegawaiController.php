@@ -227,6 +227,7 @@ class DataPegawaiController extends Controller
                 'no_hp'            => $pegawai->no_hp ?? '-',
                 'email'            => $pegawai->email ?? '-',
                 'next_kgb'         => $nextKgb,
+                'tmt_kgb_terakhir' => $pegawai->tmt_kgb_terakhir ? date('d/m/Y', strtotime($pegawai->tmt_kgb_terakhir)) : '-',
                 'missing_documents'=> $missingDocs,
                 'all_documents'    => $allDocs ?? [],
                 'tracker_status'   => $trackerStatus,
