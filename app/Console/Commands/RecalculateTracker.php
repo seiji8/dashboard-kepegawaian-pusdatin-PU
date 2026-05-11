@@ -208,7 +208,7 @@ class RecalculateTracker extends Command
                         // Kategori KJ_Jafung = KJ/UKOM, kategori KP_Jafung = Kenaikan Pangkat (dalam jenjang yang sama)
                         $kategoriSekarang = $isKenaikanJenjang ? 'KJ_Jafung' : 'KP_Jafung';
                         $kategoriLawan = $isKenaikanJenjang ? 'KP_Jafung' : 'KJ_Jafung';
-                        $dokumenTotal = $isKenaikanJenjang ? 3 : 2;
+                        $dokumenTotal = 2; // KJ_Jafung dan KP_Jafung sama-sama butuh 2 dokumen
                         
                         $namaProses = $isKenaikanJenjang ? 'Kenaikan Jenjang' : 'Kenaikan Pangkat';
                         $tujuanProses = $isKenaikanJenjang ? ($matriks->next_jenjang ?? 'Jenjang Berikutnya') : ($matriks->next_pangkat ?? 'Pangkat Berikutnya');
@@ -399,16 +399,15 @@ class RecalculateTracker extends Command
                                     
                                     // Hitung Dokumen Terupload secara Dinamis
                                     $dokumenTerupload = 0;
-                                    if ($isKenaikanJenjang) { // KJ_Jafung (Total: 3 Dok)
+                                    if ($isKenaikanJenjang) { // KJ_Jafung (Total: 2 Dok)
                                         // 1. SKP 2 Tahun
                                         if (!empty($pegawai->arsip_skp_2_tahun) && count($pegawai->arsip_skp_2_tahun) >= 2) {
                                             $dokumenTerupload++;
                                         }
-                                        // 2. PAK & 3. UKOM
+                                        // 2. SK Jabatan Terakhir
                                         if ($existingAK) {
                                             $uploadedNames = $existingAK->kelengkapan_dokumen->where('is_uploaded', true)->pluck('nama_dokumen')->toArray();
-                                            if (in_array("Sertifikat Uji Kompetensi", $uploadedNames)) $dokumenTerupload++;
-                                            if (in_array("SK Penilaian Angka Kredit (PAK)", $uploadedNames)) $dokumenTerupload++;
+                                            if (in_array("SK Jabatan Terakhir", $uploadedNames)) $dokumenTerupload++;
                                         }
                                     } else { // KP_Jafung (Total: 2 Dok)
                                         // 1. SKP 2 Tahun

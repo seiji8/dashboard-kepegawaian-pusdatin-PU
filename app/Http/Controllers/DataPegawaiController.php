@@ -122,17 +122,13 @@ class DataPegawaiController extends Controller
             } elseif ($tracker->kategori == 'KJ_Jafung') {
                 $docsUploaded = $tracker->kelengkapan_dokumen->where('is_uploaded', true)->pluck('nama_dokumen')->toArray();
                 
-                $ukom = in_array("Sertifikat Uji Kompetensi", $docsUploaded);
-                $allDocs[] = ['kategori' => 'KJ_Jafung', 'nama_dokumen' => "Sertifikat Uji Kompetensi", 'is_uploaded' => $ukom];
-                if (!$ukom) $missingDocs[] = ['kategori' => 'KJ_Jafung', 'nama_dokumen' => "Sertifikat Uji Kompetensi"];
-                
                 $skp = !(empty($pegawai->arsip_skp_2_tahun) || count($pegawai->arsip_skp_2_tahun) < 2);
                 $allDocs[] = ['kategori' => 'KJ_Jafung', 'nama_dokumen' => "SKP 2 Tahun Terakhir", 'is_uploaded' => $skp];
                 if (!$skp) $missingDocs[] = ['kategori' => 'KJ_Jafung', 'nama_dokumen' => "SKP 2 Tahun Terakhir"];
                 
-                $pak = in_array("SK Penilaian Angka Kredit (PAK)", $docsUploaded);
-                $allDocs[] = ['kategori' => 'KJ_Jafung', 'nama_dokumen' => "SK Penilaian Angka Kredit (PAK)", 'is_uploaded' => $pak];
-                if (!$pak) $missingDocs[] = ['kategori' => 'KJ_Jafung', 'nama_dokumen' => "SK Penilaian Angka Kredit (PAK)"];
+                $skjabatan = in_array("SK Jabatan Terakhir", $docsUploaded);
+                $allDocs[] = ['kategori' => 'KJ_Jafung', 'nama_dokumen' => "SK Jabatan Terakhir", 'is_uploaded' => $skjabatan];
+                if (!$skjabatan) $missingDocs[] = ['kategori' => 'KJ_Jafung', 'nama_dokumen' => "SK Jabatan Terakhir"];
             } elseif ($tracker->kategori == 'KP_Jafung') {
                 $docsUploaded = $tracker->kelengkapan_dokumen->where('is_uploaded', true)->pluck('nama_dokumen')->toArray();
                 
