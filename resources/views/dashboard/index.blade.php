@@ -545,7 +545,7 @@
                         <div class="task-card-wrapper">
                             <div class="task-header" onclick="toggleMainTask('task-tubel', this)">
                                 <div style="background:#1e3a8a; color:white; width:36px; height:36px; border-radius:8px; display:flex; align-items:center; justify-content:center; font-weight:700; margin-right:15px;">{{ $listTubel->count() }}</div>
-                                <span style="font-weight:600; font-size:16px; flex:1;">Tugas Belajar dan Pengembalian Tubel</span>
+                                <span style="font-weight:600; font-size:16px; flex:1;">Tugas Belajar dan Pengaktifan Kembali Tubel</span>
                                 <svg class="arrow-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
                             </div>
                             <div id="task-tubel" class="task-sub-container">
@@ -576,8 +576,8 @@
                                                 <td>
                                                     @if($item->status_saat_ini == 'Sedang Tubel')
                                                         <span class="status-badge" style="background:#dbeafe; color:#1e40af;">Sedang Tubel</span>
-                                                    @elseif($item->status_saat_ini == 'Proses Pengembalian' || $item->status_saat_ini == 'Proses Pengaktifan' || $item->status_saat_ini == 'Proses')
-                                                        <span class="status-badge status-missing">Proses Pengembalian</span>
+                                                    @elseif($item->status_saat_ini == 'Proses Pengembalian' || $item->status_saat_ini == 'Proses Pengaktifan Kembali' || $item->status_saat_ini == 'Proses Pengaktifan' || $item->status_saat_ini == 'Proses')
+                                                        <span class="status-badge status-missing">Proses Pengaktifan Kembali</span>
                                                     @else
                                                         <span class="status-badge status-secondary">{{ $item->status_saat_ini }}</span>
                                                     @endif
@@ -586,9 +586,9 @@
                                                     <button class="btn-action-view" onclick="openDashboardDetail('{{ $item->pegawai->nip }}', 'TUBEL')" title="Lihat Detail">
                                                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
                                                     </button>
-                                                    @if($item->status_saat_ini == 'Proses Pengembalian' || $item->status_saat_ini == 'Proses Pengaktifan' || $item->status_saat_ini == 'Proses')
+                                                    @if($item->status_saat_ini == 'Proses Pengembalian' || $item->status_saat_ini == 'Proses Pengaktifan Kembali' || $item->status_saat_ini == 'Proses Pengaktifan' || $item->status_saat_ini == 'Proses')
                                                     {{-- Konfirmasi selesai → hilang dari dashboard --}}
-                                                    <button class="btn-action-confirm" onclick="konfirmasiSelesaiTubel({{ $item->id }}, '{{ addslashes($item->pegawai->nama) }}')" title="Konfirmasi Pengembalian Selesai">
+                                                    <button class="btn-action-confirm" onclick="konfirmasiSelesaiTubel({{ $item->id }}, '{{ addslashes($item->pegawai->nama) }}')" title="Konfirmasi Pengaktifan Kembali Selesai">
                                                         <i class="ph-bold ph-check" style="font-size:15px;"></i>
                                                     </button>
                                                     @endif

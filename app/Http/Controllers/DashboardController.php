@@ -43,14 +43,14 @@ class DashboardController extends Controller
         // 1. Belum dikonfirmasi (dikonfirmasi_at = null) — semua kategori
         // 2. Sudah dikonfirmasi tapi masih punya status aktif (Upload E-HRM, Proses, dll) — agar KP tidak hilang setelah ceklis
         // 3. Kategori KGB selalu tampil (multi-step flow)
-                // 4. TUBEL tampil hanya saat flow aktif (Sedang Tubel & Proses Pengembalian)
+                // 4. TUBEL tampil hanya saat flow aktif (Sedang Tubel & Proses Pengaktifan Kembali)
         $trackers = DashboardTracker::with('pegawai')
                     ->where(function($query) {
                         $query->whereNull('dikonfirmasi_at')
                               ->orWhere('kategori', 'KGB')
                                                             ->orWhere(function($q) {
                                                                     $q->where('kategori', 'TUBEL')
-                                                                        ->whereIn('status_saat_ini', ['Sedang Tubel', 'Proses Pengembalian', 'Proses Pengaktifan']);
+                                                                        ->whereIn('status_saat_ini', ['Sedang Tubel', 'Proses Pengaktifan Kembali', 'Proses Pengembalian', 'Proses Pengaktifan']);
                                                             })
                               ->orWhereIn('status_saat_ini', ['Upload E-HRM', 'Proses', 'Menunggu UKOM', 'Data Tidak Lengkap', 'Menunggu SKP']);
                     })

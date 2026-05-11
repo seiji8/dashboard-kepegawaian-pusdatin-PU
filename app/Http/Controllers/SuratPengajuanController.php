@@ -20,7 +20,7 @@ class SuratPengajuanController extends Controller
         'KP_Reguler'    => 'Kenaikan Pangkat Reguler',
         'KJ_Jafung'     => 'Kenaikan Jenjang Fungsional',
         'UKOM'          => 'Uji Kompetensi',
-        'TUBEL'         => 'Pengembalian Tubel',
+        'TUBEL'         => 'Pengaktifan Kembali Tubel',
     ];
 
     /**
@@ -43,7 +43,7 @@ class SuratPengajuanController extends Controller
         } elseif (in_array($kategori, $validKategori)) {
             $allowedStatuses = ['Usulan', 'Mendekati', 'Proses'];
             if ($kategori === 'TUBEL') {
-                $allowedStatuses = ['Sedang Tubel', 'Proses Pengembalian', 'Proses Pengaktifan'];
+                $allowedStatuses = ['Sedang Tubel', 'Proses Pengaktifan Kembali', 'Proses Pengaktifan'];
             }
 
             $trackers = DashboardTracker::with('pegawai')
@@ -199,14 +199,14 @@ class SuratPengajuanController extends Controller
 
         // AUTO UPDATE STATUS by kategori (trigger oleh cetak surat)
         // - Umum: Usulan -> Proses
-        // - TUBEL: Sedang Tubel -> Proses Pengembalian
+        // - TUBEL: Sedang Tubel -> Proses Pengaktifan Kembali
         // Yang sudah di status proses = cetak ulang, status tidak berubah
         $updatedCount = 0;
         foreach ($trackers as $tracker) {
             $newStatus = null;
 
             if ($tracker->kategori === 'TUBEL' && $tracker->status_saat_ini === 'Sedang Tubel') {
-                $newStatus = 'Proses Pengembalian';
+                $newStatus = 'Proses Pengaktifan Kembali';
             } elseif ($tracker->status_saat_ini === 'Usulan') {
                 $newStatus = 'Proses';
             }

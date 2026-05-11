@@ -579,10 +579,11 @@ function openDashboardDetail(nip, kategori) {
                                 `;
                             }
                         } else if (kategori === "TUBEL") {
-                            // TUBEL uses 2-step flow: Sedang Tubel -> Proses Pengembalian
+                            // TUBEL uses 2-step flow: Sedang Tubel -> Proses Pengaktifan Kembali
                             let isStep1 = s === "Sedang Tubel";
                             let isStep2 =
                                 s === "Proses Pengembalian" ||
+                                s === "Proses Pengaktifan Kembali" ||
                                 s === "Proses Pengaktifan" ||
                                 s === "Proses";
                             let pass1 = isStep2;
@@ -597,8 +598,8 @@ function openDashboardDetail(nip, kategori) {
 
                                 <div class="tracker-step ${isStep2 ? "active active-inner" : ""}">
                                     <div class="circle"></div>
-                                    <div class="label">Proses Pengembalian</div>
-                                    <div class="sub-label" style="padding: 0 10px; line-height: 1.4;">Surat pengajuan sudah dicetak, menunggu selesai pengembalian</div>
+                                    <div class="label">Proses Pengaktifan Kembali</div>
+                                    <div class="sub-label" style="padding: 0 10px; line-height: 1.4;">Surat pengajuan sudah dicetak, menunggu selesai pengaktifan kembali</div>
                                 </div>
                             `;
                             trackerEl.innerHTML = html;
@@ -959,6 +960,7 @@ function renderSuratGroups(groups) {
             } else if (
                 (isTubelFlow &&
                     (p.status === "Proses Pengembalian" ||
+                        p.status === "Proses Pengaktifan Kembali" ||
                         p.status === "Proses Pengaktifan" ||
                         p.status === "Proses")) ||
                 (!isTubelFlow && p.status === "Proses")
@@ -1017,7 +1019,7 @@ function renderSuratGroups(groups) {
         sudahDicetak.forEach((p) => {
             html += renderPegawaiRow(
                 p,
-                isTubelFlow ? "Proses Pengembalian" : "Proses TTE",
+                isTubelFlow ? "Proses Pengaktifan Kembali" : "Proses TTE",
                 "#d97706",
                 "#fef3c7",
             );
@@ -1499,12 +1501,12 @@ function konfirmasiSelesaiTubel(trackerId, nama) {
             <div style="background:linear-gradient(135deg,#1e3a8a,#2563eb);padding:16px 20px;color:#fff;display:flex;justify-content:space-between;align-items:center;">
                 <div>
                     <div style="font-weight:700;font-size:15px;">✅ Konfirmasi Selesai Tubel</div>
-                    <div style="font-size:11px;opacity:0.85;margin-top:2px;">Proses Pengembalian</div>
+                    <div style="font-size:11px;opacity:0.85;margin-top:2px;">Proses Pengaktifan Kembali</div>
                 </div>
                 <button onclick="document.getElementById('popupKonfirmasiTubel').remove()" style="background:rgba(255,255,255,0.2);border:none;border-radius:6px;color:#fff;width:28px;height:28px;cursor:pointer;font-size:15px;">×</button>
             </div>
             <div style="padding:18px 20px;">
-                <p style="margin:0 0 12px;font-size:13px;color:#374151;">Konfirmasi bahwa proses pengembalian dari tugas belajar untuk <strong>${nama}</strong> sudah selesai sepenuhnya?</p>
+                <p style="margin:0 0 12px;font-size:13px;color:#374151;">Konfirmasi bahwa proses pengaktifan kembali dari tugas belajar untuk <strong>${nama}</strong> sudah selesai sepenuhnya?</p>
             </div>
             <div style="padding:0 20px 18px;display:flex;justify-content:flex-end;gap:8px;">
                 <button onclick="document.getElementById('popupKonfirmasiTubel').remove()" style="padding:8px 18px;background:#f1f5f9;color:#374151;border:none;border-radius:8px;cursor:pointer;font-weight:600;font-size:12px;">Batal</button>
@@ -1535,7 +1537,7 @@ function submitSelesaiTubel(trackerId) {
             Accept: "application/json",
             "Content-Type": "application/json",
         },
-        body: JSON.stringify({ catatan: "Proses Pengembalian Tubel Selesai" }),
+        body: JSON.stringify({ catatan: "Proses Pengaktifan Kembali Tubel Selesai" }),
     })
         .then((r) => r.json())
         .then((data) => {
@@ -1543,7 +1545,7 @@ function submitSelesaiTubel(trackerId) {
             if (popup) popup.remove();
             if (data.success) {
                 showCustomToast(
-                    "Proses pengembalian tubel berhasil diselesaikan!",
+                    "Proses pengaktifan kembali tubel berhasil diselesaikan!",
                     "success",
                 );
                 setTimeout(() => window.location.reload(), 1000);
