@@ -717,7 +717,7 @@
                                                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
                                                         </button>
                                                         @if($ukom->status_saat_ini == 'Usulan')
-                                                        <button class="btn-action-confirm" onclick="setKelulusanUkom(this, {{ $ukom->id }}, true)" title="Set Lulus UKOM">
+                                                        <button class="btn-action-confirm" onclick="setKelulusanUkom({{ $ukom->id }}, true, '{{ addslashes($ukom->pegawai->nama) }}')" title="Set Lulus UKOM">
                                                             <i class="ph-bold ph-check" style="font-size: 16px;"></i>
                                                         </button>
                                                         @endif
@@ -773,7 +773,7 @@
                                                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
                                                         </button>
                                                         @if($ukom->status_saat_ini == 'Usulan')
-                                                        <button class="btn-action-confirm" onclick="setKelulusanUkom(this, {{ $ukom->id }}, true)" title="Set Lulus UKOM">
+                                                        <button class="btn-action-confirm" onclick="setKelulusanUkom({{ $ukom->id }}, true, '{{ addslashes($ukom->pegawai->nama) }}')" title="Set Lulus UKOM">
                                                             <i class="ph-bold ph-check" style="font-size: 16px;"></i>
                                                         </button>
                                                         @endif

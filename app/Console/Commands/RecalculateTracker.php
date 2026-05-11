@@ -252,10 +252,7 @@ class RecalculateTracker extends Command
                             $skipTrackerUpdate = false;
 
                             // Penentuan Status Tracker
-                            if ($isUploadedAK) {
-                                $statusAK = 'Aman';
-                                $keteranganAK = ''; // Akan dihapus nanti
-                            } elseif ($currentAKStatus === 'Upload E-HRM' || $isConfirmedAK) {
+                            if ($currentAKStatus === 'Upload E-HRM' || $isConfirmedAK) {
                                 $statusAK = 'Upload E-HRM';
                                 $keteranganAK = 'TTE Selesai. Menunggu upload E-HRM.';
                                 if ($existingAK->kategori === 'UKOM') $skipTrackerUpdate = true;
