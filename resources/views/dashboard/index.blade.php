@@ -230,9 +230,12 @@
                                                         @endif
                                                     </td>
                                                     <td>
-                                                        <span style="color: #dc2626; font-weight: 600;">
-                                                            {{ $item->dokumen_total - $item->dokumen_terupload }} Belum
-                                                        </span>
+                                                        @php $sisa = $item->dokumen_total - $item->dokumen_terupload; @endphp
+                                                        @if($sisa <= 0)
+                                                            <span style="color: #16a34a; font-weight: 600;">Lengkap</span>
+                                                        @else
+                                                            <span style="color: #dc2626; font-weight: 600;">{{ $sisa }} Belum</span>
+                                                        @endif
                                                     </td>
                                                     <td style="display: flex; gap: 6px;">
                                                         <button class="btn-action-view" onclick="openDashboardDetail('{{ $item->pegawai->nip }}', '{{ $item->kategori }}')">
@@ -296,9 +299,12 @@
                                                         @endif
                                                     </td>
                                                     <td>
-                                                        <span style="color: #dc2626; font-weight: 600;">
-                                                            {{ $item->dokumen_total - $item->dokumen_terupload }} Belum
-                                                        </span>
+                                                        @php $sisa = $item->dokumen_total - $item->dokumen_terupload; @endphp
+                                                        @if($sisa <= 0)
+                                                            <span style="color: #16a34a; font-weight: 600;">Lengkap</span>
+                                                        @else
+                                                            <span style="color: #dc2626; font-weight: 600;">{{ $sisa }} Belum</span>
+                                                        @endif
                                                     </td>
                                                     <td style="display: flex; gap: 6px;">
                                                         <button class="btn-action-view" onclick="openDashboardDetail('{{ $item->pegawai->nip }}', '{{ $item->kategori }}')">
@@ -362,9 +368,12 @@
                                                         @endif
                                                     </td>
                                                     <td>
-                                                        <span style="color: #dc2626; font-weight: 600;">
-                                                            {{ $item->dokumen_total - $item->dokumen_terupload }} Belum
-                                                        </span>
+                                                        @php $sisa = $item->dokumen_total - $item->dokumen_terupload; @endphp
+                                                        @if($sisa <= 0)
+                                                            <span style="color: #16a34a; font-weight: 600;">Lengkap</span>
+                                                        @else
+                                                            <span style="color: #dc2626; font-weight: 600;">{{ $sisa }} Belum</span>
+                                                        @endif
                                                     </td>
                                                     <td style="display: flex; gap: 6px;">
                                                         <button class="btn-action-view" onclick="openDashboardDetail('{{ $item->pegawai->nip }}', '{{ $item->kategori }}')" title="Lihat Profil">
@@ -439,9 +448,12 @@
                                                     @endif
                                                 </td>
                                                 <td>
-                                                    <span style="color: #dc2626; font-weight: 600;">
-                                                        {{ $item->dokumen_total - $item->dokumen_terupload }} Belum
-                                                    </span>
+                                                    @php $sisa = $item->dokumen_total - $item->dokumen_terupload; @endphp
+                                                    @if($sisa <= 0)
+                                                        <span style="color: #16a34a; font-weight: 600;">Lengkap</span>
+                                                    @else
+                                                        <span style="color: #dc2626; font-weight: 600;">{{ $sisa }} Belum</span>
+                                                    @endif
                                                 </td>
                                                 <td style="display: flex; gap: 6px;">
                                                     <button class="btn-action-view" onclick="openDashboardDetail('{{ $item->pegawai->nip }}', '{{ $item->kategori }}')">
@@ -510,9 +522,12 @@
                                                         @endif
                                                     </td>
                                                     <td>
-                                                        <span style="color: #dc2626; font-weight: 600;">
-                                                            {{ $kgb->dokumen_total - $kgb->dokumen_terupload }} Belum
-                                                        </span>
+                                                        @php $sisa = $kgb->dokumen_total - $kgb->dokumen_terupload; @endphp
+                                                        @if($sisa <= 0)
+                                                            <span style="color: #16a34a; font-weight: 600;">Lengkap</span>
+                                                        @else
+                                                            <span style="color: #dc2626; font-weight: 600;">{{ $sisa }} Belum</span>
+                                                        @endif
                                                     </td>
                                                     <td style="display: flex; gap: 6px;">
                                                         <button class="btn-action-view" onclick="openDashboardDetail('{{ $kgb->pegawai->nip }}', '{{ $kgb->kategori }}')">
