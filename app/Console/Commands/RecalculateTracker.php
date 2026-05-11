@@ -60,6 +60,8 @@ class RecalculateTracker extends Command
         // Big Data Optimized: Menggunakan chunkById(500) dan eager loading untuk menghindari N+1 Query Problem
         Pegawai::with(['riwayatAngkaKredit' => function ($query) {
             $query->orderBy('tmt_angka_kredit', 'desc');
+        }, 'riwayat_jabatan' => function ($query) {
+            $query->orderBy('tmt_jabatan', 'desc');
         }])->chunkById(500, function ($pegawais) use ($bar, $matriksKamus, $leadCheckDays, $freqUploadDays, &$daftarUsulanBaru, $isAwalTriwulan, $cacheKeyTriwulan) {
             foreach ($pegawais as $pegawai) {
                 $today = Carbon::now();
@@ -614,7 +616,15 @@ class RecalculateTracker extends Command
                             if (!empty($pegawai->sk_pangkat_terakhir) || in_array("SK Pangkat Terakhir", $uploadedNamesStruct)) {
                                 $dokumenTeruploadStruktural++;
                             }
-                            if (in_array("SK Jabatan Terakhir", $uploadedNamesStruct)) {
+                            $riwJabatanMatch = $pegawai->riwayat_jabatan
+                                ? $pegawai->riwayat_jabatan
+                                    ->where('kd_eselon', $pegawai->kd_eselon)
+                                    ->whereNotNull('file_sk')
+                                    ->where('file_sk', '!=', '')
+                                    ->first()
+                                : null;
+                                
+                            if ($riwJabatanMatch || in_array("SK Jabatan Terakhir", $uploadedNamesStruct)) {
                                 $dokumenTeruploadStruktural++;
                             }
 
