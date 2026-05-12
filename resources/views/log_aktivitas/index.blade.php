@@ -174,22 +174,38 @@
                                 @endif
                             </td>
                             <td>
-                                @if($log->tipe == 'ADMIN_ACTION')
-                                    @if(str_contains($log->deskripsi, 'Login'))
-                                        Login
-                                    @elseif(str_contains($log->deskripsi, 'Mengkonfirmasi'))
-                                        Konfirmasi Tugas
-                                    @elseif(str_contains($log->deskripsi, 'Verifikasi'))
-                                        Verifikasi Data
-                                    @else
-                                        {{ Str::limit($log->deskripsi, 25) }}
-                                    @endif
-                                @elseif($log->tipe == 'NOTIF_SENT')
-                                    Mengirim Notifikasi
-                                @elseif($log->tipe == 'API_SYNC')
-                                    Sinkronisasi API
+                                @php
+                                    $desc = $log->deskripsi ?? '';
+                                    $tipe = $log->tipe ?? '';
+                                @endphp
+                                @if($tipe == 'API_SYNC')
+                                    <span style="background:#f0fdf4; color:#166534; padding:4px 10px; border-radius:6px; font-size:12px; font-weight:600; border:1px solid #bbf7d0; display:inline-block; white-space:nowrap;">
+                                        <i class="ph-bold ph-arrows-clockwise" style="margin-right:3px;"></i>Sinkronisasi
+                                    </span>
+                                @elseif($tipe == 'NOTIF_SENT')
+                                    <span style="background:#faf5ff; color:#7e22ce; padding:4px 10px; border-radius:6px; font-size:12px; font-weight:600; border:1px solid #e9d5ff; display:inline-block; white-space:nowrap;">
+                                        <i class="ph-bold ph-bell" style="margin-right:3px;"></i>Notifikasi
+                                    </span>
+                                @elseif(str_contains($desc, 'Login'))
+                                    <span style="background:#eff6ff; color:#1e40af; padding:4px 10px; border-radius:6px; font-size:12px; font-weight:600; border:1px solid #bfdbfe; display:inline-block; white-space:nowrap;">
+                                        <i class="ph-bold ph-sign-in" style="margin-right:3px;"></i>Login
+                                    </span>
+                                @elseif(str_contains($desc, 'Menambahkan admin') || str_contains($desc, 'Menghapus admin') || str_contains($desc, 'Mengubah role'))
+                                    <span style="background:#fefce8; color:#a16207; padding:4px 10px; border-radius:6px; font-size:12px; font-weight:600; border:1px solid #fef08a; display:inline-block; white-space:nowrap;">
+                                        <i class="ph-bold ph-user-gear" style="margin-right:3px;"></i>Kelola Admin
+                                    </span>
+                                @elseif(str_contains($desc, 'konfirmasi') || str_contains($desc, 'Konfirmasi'))
+                                    <span style="background:#f0fdf4; color:#166534; padding:4px 10px; border-radius:6px; font-size:12px; font-weight:600; border:1px solid #bbf7d0; display:inline-block; white-space:nowrap;">
+                                        <i class="ph-bold ph-check-circle" style="margin-right:3px;"></i>Konfirmasi
+                                    </span>
+                                @elseif(str_contains($desc, 'Logout'))
+                                    <span style="background:#fef2f2; color:#991b1b; padding:4px 10px; border-radius:6px; font-size:12px; font-weight:600; border:1px solid #fecaca; display:inline-block; white-space:nowrap;">
+                                        <i class="ph-bold ph-sign-out" style="margin-right:3px;"></i>Logout
+                                    </span>
                                 @else
-                                    Log Sistem
+                                    <span style="background:#f1f5f9; color:#475569; padding:4px 10px; border-radius:6px; font-size:12px; font-weight:600; border:1px solid #cbd5e1; display:inline-block; white-space:nowrap;">
+                                        <i class="ph-bold ph-gear" style="margin-right:3px;"></i>Aksi Lain
+                                    </span>
                                 @endif
                             </td>
                             <td>{{ $log->deskripsi }}</td>

@@ -31,6 +31,9 @@ class DataPegawaiController extends Controller
             $query->where('tipe_jabatan', 'like', "%{$filterTipe}%");
         }
 
+        // Default sorting A-Z berdasarkan nama
+        $query->orderBy('nama', 'asc');
+
         // Pagination 10 per halaman (dengan cache query terlampir)
         $pegawais = $query->paginate(10)->withQueryString();
 
