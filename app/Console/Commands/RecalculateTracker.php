@@ -663,12 +663,38 @@ class RecalculateTracker extends Command
 
 
                 // ==========================================
+                // PERSIAPAN: CEK STATUS TUBEL AKTIF
+                // (Dibutuhkan oleh logika KP Reguler & Monitoring Tubel)
+                // ==========================================
+                $riwayatTubel = \App\Models\RiwayatTubel::where('nip', $pegawai->nip)->get();
+
+                // Cari tubel yang masih aktif: tanggal_mulai ada dan belum selesai
+                $tubelAktif = $riwayatTubel->first(function ($t) use ($today) {
+                    // Harus ada tanggal_mulai
+                    if (!$t->tanggal_mulai) return false;
+                    // Sudah mulai (atau hari ini)
+                    if ($today->lt(Carbon::parse($t->tanggal_mulai))) return false;
+                    // Belum selesai: tanggal_selesai null ATAU masih di masa depan
+                    $selesai = $t->perpanjangan2_tanggal_mulai
+                        ?? $t->perpanjangan1_tanggal_mulai
+                        ?? $t->tanggal_selesai;
+                    if ($selesai && $today->gt(Carbon::parse($selesai))) return false;
+                    return true;
+                });
+
+                // ==========================================
                 // LOGIKA KP REGULER (HANYA JABATAN PELAKSANA)
                 // ==========================================
                 // Pegawai Pelaksana yang masa pangkat >= 4 tahun → USULAN
                 // Tidak perlu validasi SKP
                 $tipeJabatanReg = strtolower(trim($pegawai->tipe_jabatan ?? ''));
                 $isPelaksana = in_array($tipeJabatanReg, ['pelaksana', 'reguler', 'jabatan pelaksana']);
+
+                // Khusus: Jabatan Lainnya (Karyasiswa) yang sedang Tubel aktif → diperlakukan sebagai Reguler
+                if ($tipeJabatanReg === 'jabatan lainnya' && $tubelAktif) {
+                    $isPelaksana = true;
+                }
+
                 if ($isPelaksana && $pegawai->tmt_pangkat_terakhir) {
                     $tmtPangkat = Carbon::parse($pegawai->tmt_pangkat_terakhir);
                     $masaPangkatReguler = (int) $tmtPangkat->diffInMonths($today);
@@ -815,21 +841,7 @@ class RecalculateTracker extends Command
                 // ==========================================
                 // LOGIKA TUGAS BELAJAR (TUBEL)
                 // ==========================================
-                $riwayatTubel = \App\Models\RiwayatTubel::where('nip', $pegawai->nip)->get();
-
-                // Cari tubel yang masih aktif: tanggal_mulai ada dan belum selesai
-                $tubelAktif = $riwayatTubel->first(function ($t) use ($today) {
-                    // Harus ada tanggal_mulai
-                    if (!$t->tanggal_mulai) return false;
-                    // Sudah mulai (atau hari ini)
-                    if ($today->lt(Carbon::parse($t->tanggal_mulai))) return false;
-                    // Belum selesai: tanggal_selesai null ATAU masih di masa depan
-                    $selesai = $t->perpanjangan2_tanggal_mulai
-                        ?? $t->perpanjangan1_tanggal_mulai
-                        ?? $t->tanggal_selesai;
-                    if ($selesai && $today->gt(Carbon::parse($selesai))) return false;
-                    return true;
-                });
+                // $riwayatTubel & $tubelAktif sudah dideklarasikan di atas (sebelum blok KP Reguler)
 
                 if ($tubelAktif) {
                     $selesaiEfektif = $tubelAktif->perpanjangan2_tanggal_mulai
@@ -943,7 +955,7 @@ class RecalculateTracker extends Command
             $admins = User::whereIn('role', ['super_admin', 'admin_pegawai'])->get();
             if ($admins->count() > 0) {
                 $subject = "Daftar Usulan Tersedia Kepegawaian";
-                $messageBody = "Berikut adalah ringkasan total usulan yang perlu diproses di sistem saat ini:\n\n";
+                $messageBody = "Berikut adalah ringkasan total usulan yang perlu diproses saat ini:\n\n";
                 
                 // Gunakan dummy pegawai untuk Manual Notification karena struktur Mail\ManualNotification mewajibkan satu pegawai.
                 // Kita buat Dummy objek standar untuk fallback
