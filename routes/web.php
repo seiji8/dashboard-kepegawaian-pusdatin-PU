@@ -40,7 +40,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/tracker/{id}/confirm', [DashboardController::class, 'confirmTracker'])->name('tracker.confirm');
     Route::post('/tracker/{id}/move-to-ukom', [DashboardController::class, 'moveToUkom'])->name('tracker.move-to-ukom');
     Route::post('/tracker/{id}/set-kelulusan-ukom', [DashboardController::class, 'setKelulusanUkom'])->name('tracker.set-kelulusan-ukom');
-    Route::post('/sync-now', [DashboardController::class, 'syncData'])->name('sync.now');
+    Route::post('/sync-now', [DashboardController::class, 'syncData'])->middleware('throttle:1,1')->name('sync.now'); // Maks 1x per menit
     Route::get('/sync-progress', [DashboardController::class, 'syncProgress'])->name('sync.progress');
     Route::get('/dashboard/diklat-detail/{nip}/{kategori}', [DashboardController::class, 'diklatDetail'])->name('dashboard.diklat-detail');
     Route::get('/dashboard/cetak-surat-kj/{id}', [DashboardController::class, 'cetakSuratKj'])->name('dashboard.cetak-surat-kj');
@@ -53,13 +53,13 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/daftar-admin', [AdminController::class, 'index'])->name('daftar-admin');
     Route::post('/daftar-admin', [AdminController::class, 'store'])->name('daftar-admin.store'); // Tambah ini
     Route::put('/daftar-admin/{id}/update-role', [AdminController::class, 'updateRole'])->name('daftar-admin.update-role');
-    Route::delete('/daftar-admin/{id}', [AdminController::class, 'destroy'])->name('daftar-admin.destroy');
+    Route::delete('/daftar-admin/{id}', [AdminController::class, 'destroy'])->middleware('throttle:10,1')->name('daftar-admin.destroy'); // Maks 10x per menit
 
     // Data Pegawai
     Route::get('/data-pegawai', [DataPegawaiController::class, 'index'])->name('data-pegawai');
     Route::get('/data-pegawai/{nip}', [DataPegawaiController::class, 'show'])->name('data-pegawai.show');
-    Route::delete('/data-pegawai/{nip}', [DataPegawaiController::class, 'destroy'])->name('data-pegawai.destroy');
-    Route::post('/data-pegawai/{nip}/send-manual', [DataPegawaiController::class, 'sendManualNotification'])->name('data-pegawai.send-manual');
+    Route::delete('/data-pegawai/{nip}', [DataPegawaiController::class, 'destroy'])->middleware('throttle:10,1')->name('data-pegawai.destroy'); // Maks 10x per menit
+    Route::post('/data-pegawai/{nip}/send-manual', [DataPegawaiController::class, 'sendManualNotification'])->middleware('throttle:5,1')->name('data-pegawai.send-manual'); // Maks 5 email per menit
 
     // Konfigurasi Pesan
     Route::get('/konfigurasi-pesan', [KonfigurasiPesanController::class, 'index'])->name('konfigurasi-pesan');

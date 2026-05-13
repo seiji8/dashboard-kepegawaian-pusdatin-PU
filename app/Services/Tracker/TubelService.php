@@ -8,6 +8,7 @@ use App\Models\User;
 use App\Notifications\SystemAlertNotification;
 use Carbon\Carbon;
 use App\Helpers\ActivityLogger;
+use Illuminate\Support\Facades\Log;
 
 class TubelService implements TrackerInterface
 {
@@ -75,7 +76,7 @@ class TubelService implements TrackerInterface
                                 . "Terima kasih.";
                             $admin->notify(new SystemAlertNotification((object)['nama' => 'Tim Kepegawaian'], $subjekAdmin, $pesanAdmin));
                         } catch (\Exception $e) {
-                            \Log::error("Gagal kirim notif Tubel ke admin {$admin->email}: " . $e->getMessage());
+                            Log::error("Gagal kirim notif Tubel ke admin {$admin->email}: " . $e->getMessage());
                         }
                     }
                 }
