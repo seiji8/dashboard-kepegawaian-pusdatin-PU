@@ -133,7 +133,7 @@ class RecalculateTracker extends Command
             $admins = User::whereIn('role', ['super_admin', 'admin_pegawai'])->get();
             if ($admins->count() > 0) {
                 $subject = "Daftar Usulan Tersedia Kepegawaian";
-                $messageBody = "Berikut adalah ringkasan total usulan yang perlu diproses di sistem saat ini:\n\n";
+                $messageBody = "Berikut adalah ringkasan total usulan yang perlu diproses saat ini:\n\n";
                 
                 // Gunakan dummy pegawai untuk Manual Notification karena struktur Mail\ManualNotification mewajibkan satu pegawai.
                 // Kita buat Dummy objek standar untuk fallback

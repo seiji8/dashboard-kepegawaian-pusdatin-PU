@@ -169,28 +169,52 @@
                 <table class="data-table">
                     <thead>
                         <tr>
-                            <th style="width: 35%;">Nama</th>
-                            <th style="width: 25%;">Jabatan</th>
-                            <th style="width: 20%;">NIP</th>
-                            <th style="width: 10%; text-align: center;">Lihat Detail</th>
-                            <th style="width: 10%; text-align: center;">Hapus</th>
+                            <th style="width: 25%;">Profil Pegawai</th>
+                            <th style="width: 30%;">Jabatan</th>
+                            <th style="width: 15%;">Tipe Jabatan</th>
+                            <th style="width: 15%;">Pangkat / Gol</th>
+                            <th style="width: 15%; text-align: center;">Aksi</th>
                         </tr>
                     </thead>
                     <tbody>
                         @forelse($pegawais as $pegawai)
                         <tr>
-                            <td>{{ $pegawai->nama }}</td>
-                            <td>{{ $pegawai->jabatan_saat_ini ?? '-' }}</td>
-                            <td>{{ $pegawai->nip }}</td>
-                            <td style="text-align: center;">
-                                <button class="btn-view" onclick="openDetailModal('{{ $pegawai->nip }}')" style="margin: 0 auto;">
-                                    <i class="ph-bold ph-eye" style="font-size: 20px;"></i>
-                                </button>
+                            <td>
+                                <div style="font-weight: 600; color: #1e293b;">{{ $pegawai->nama }}</div>
+                                <div style="font-size: 12px; color: #64748b; margin-top: 4px; font-family: monospace;">{{ $pegawai->nip }}</div>
+                            </td>
+                            <td>
+                                <div title="{{ $pegawai->jabatan_saat_ini ?? '-' }}" style="max-width: 280px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; text-overflow: ellipsis; line-height: 1.4;">
+                                    {{ $pegawai->jabatan_saat_ini ?? '-' }}
+                                </div>
+                            </td>
+                            <td>
+                                @php
+                                    $tipe = strtolower($pegawai->tipe_jabatan ?? '');
+                                @endphp
+                                @if(str_contains($tipe, 'struktural'))
+                                    <span style="background: #fefce8; color: #a16207; padding: 4px 8px; border-radius: 6px; font-size: 12px; font-weight: 600; border: 1px solid #fef08a; display: inline-block; white-space: nowrap;">Struktural</span>
+                                @elseif(str_contains($tipe, 'fungsional'))
+                                    <span style="background: #eff6ff; color: #1e40af; padding: 4px 8px; border-radius: 6px; font-size: 12px; font-weight: 600; border: 1px solid #bfdbfe; display: inline-block; white-space: nowrap;">Fungsional</span>
+                                @elseif(str_contains($tipe, 'pelaksana'))
+                                    <span style="background: #f0fdf4; color: #166534; padding: 4px 8px; border-radius: 6px; font-size: 12px; font-weight: 600; border: 1px solid #bbf7d0; display: inline-block; white-space: nowrap;">Pelaksana</span>
+                                @else
+                                    <span style="background: #f1f5f9; color: #475569; padding: 4px 8px; border-radius: 6px; font-size: 12px; font-weight: 600; border: 1px solid #cbd5e1; display: inline-block; white-space: nowrap;">{{ str_replace('JABATAN ', '', strtoupper($pegawai->tipe_jabatan ?? 'Lainnya')) }}</span>
+                                @endif
+                            </td>
+                            <td>
+                                <div style="font-weight: 600; color: #1e293b;">{{ $pegawai->pangkat_golongan ?? '-' }}</div>
+                                <div style="font-size: 12px; color: #64748b; margin-top: 4px;">{{ $pegawai->nama_pangkat }}</div>
                             </td>
                             <td style="text-align: center;">
-                                <button class="btn-delete" onclick="openDeleteModal('{{ $pegawai->nip }}', '{{ $pegawai->nama }}')" style="margin: 0 auto;">
-                                    <i class="ph-fill ph-trash" style="font-size: 20px;"></i>
-                                </button>
+                                <div style="display: flex; gap: 8px; justify-content: center;">
+                                    <button class="btn-view" onclick="openDetailModal('{{ $pegawai->nip }}')" title="Lihat Detail">
+                                        <i class="ph-bold ph-eye" style="font-size: 18px;"></i>
+                                    </button>
+                                    <button class="btn-delete" onclick="openDeleteModal('{{ $pegawai->nip }}', '{{ $pegawai->nama }}')" title="Hapus Pegawai">
+                                        <i class="ph-fill ph-trash" style="font-size: 18px;"></i>
+                                    </button>
+                                </div>
                             </td>
                         </tr>
                         @empty

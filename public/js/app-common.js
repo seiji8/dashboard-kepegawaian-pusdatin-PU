@@ -240,7 +240,7 @@ function renderNotifications(notifications) {
         html += '<div class="notif-item' + unreadClass + '"' + clickAction + '>' +
             '<div class="notif-content">' +
             '<p class="notif-title">' + n.title + '</p>' +
-            '<p class="notif-message">' + n.message + '</p>' +
+            '<p class="notif-message">' + n.message.replace(/\n/g, '<br>') + '</p>' +
             '<span class="notif-time">' + n.time + '</span>' +
             '</div>' +
             '</div>';

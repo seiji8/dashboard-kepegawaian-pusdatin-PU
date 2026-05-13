@@ -19,11 +19,11 @@ class SyncEhrmData extends Command
         $this->info('🚀 Memulai proses sinkronisasi Lengkap...');
         ActivityLogger::logApiSync('Memulai sinkronisasi data pegawai dari API e-HRM');
 
-        // 1. Ambil Kredensial dari .env
-        $baseUrl = env('EHRM_BASE_URL');
-        $apiKey  = env('EHRM_API_KEY');
-        $email   = env('EHRM_USER_EMAIL');
-        $password = env('EHRM_USER_PASS');
+        // 1. Ambil Kredensial dari config (aman setelah config:cache)
+        $baseUrl = config('ehrm.base_url');
+        $apiKey  = config('ehrm.api_key');
+        $email   = config('ehrm.email');
+        $password = config('ehrm.password');
 
         // 2. Login ke API Gateway
         $this->info('🔑 Sedang login...');
@@ -461,7 +461,7 @@ class SyncEhrmData extends Command
         // ============================================================
         $this->info('⬇️  [5/5] Mengunduh Data Tambahan (KGB, SKP, Diklat, Jabatan, Tubel)...');
         
-        $newToken = env('EHRM_NEW_TOKEN');
+        $newToken = config('ehrm.new_token');
         $newBaseUrl = 'https://ehrm.pu.go.id/api/modules-api';
 
         if (!$newToken) {

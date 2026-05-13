@@ -136,37 +136,41 @@
                 <table class="data-table">
                     <thead>
                         <tr>
-                            <th style="width: 30%;">Nama</th>
+                            <th style="width: 30%;">Profil Admin</th>
+                            <th style="width: 30%;">Kontak / Email</th>
                             <th style="width: 25%;">Peran</th>
-                            <th style="width: 25%;">NIP</th>
-                            <th style="width: 10%; text-align: center;">Edit</th>
-                            <th style="width: 10%; text-align: center;">Hapus</th>
+                            <th style="width: 15%; text-align: center;">Aksi</th>
                         </tr>
                     </thead>
                     <tbody>
                         @forelse($admins as $admin)
                         <tr data-id="{{ $admin->id }}" data-nama="{{ $admin->nama_lengkap }}" data-nip="{{ $admin->username }}" data-role="{{ $admin->role }}" data-is-super="{{ $admin->isSuperAdmin() ? '1' : '0' }}">
-                            <td>{{ $admin->nama_lengkap }}</td>
+                            <td>
+                                <div style="font-weight: 600; color: #1e293b;">{{ $admin->nama_lengkap }}</div>
+                                <div style="font-size: 12px; color: #64748b; margin-top: 4px; font-family: monospace;">{{ $admin->username }}</div>
+                            </td>
+                            <td>
+                                <div style="color: #475569; font-size: 14px;">{{ $admin->email ?? '-' }}</div>
+                            </td>
                             <td>
                                 <span class="badge {{ $admin->isSuperAdmin() ? 'badge-super' : 'badge-pegawai' }}">
                                     {{ $admin->isSuperAdmin() ? 'Admin Super' : 'Admin Kepegawaian' }}
                                 </span>
                             </td>
-                            <td>{{ $admin->username }}</td>
-                            <td class="text-center">
-                                <button class="btn-icon btn-edit" onclick="openEditModal(this)">
-                                    <i class="ph-bold ph-pencil-simple" style="font-size: 18px;"></i>
-                                </button>
-                            </td>
-                            <td class="text-center">
-                                <button class="btn-icon btn-delete" onclick="openDeleteModal({{ $admin->id }}, '{{ $admin->nama_lengkap }}')">
-                                    <i class="ph-fill ph-trash" style="font-size: 18px;"></i>
-                                </button>
+                            <td style="text-align: center;">
+                                <div style="display: flex; gap: 8px; justify-content: center;">
+                                    <button class="btn-icon btn-edit" onclick="openEditModal(this)" title="Edit Peran">
+                                        <i class="ph-bold ph-pencil-simple" style="font-size: 18px;"></i>
+                                    </button>
+                                    <button class="btn-icon btn-delete" onclick="openDeleteModal({{ $admin->id }}, '{{ $admin->nama_lengkap }}')" title="Hapus Admin">
+                                        <i class="ph-fill ph-trash" style="font-size: 18px;"></i>
+                                    </button>
+                                </div>
                             </td>
                         </tr>
                         @empty
                         <tr>
-                            <td colspan="5" style="padding: 0; border: none;">
+                            <td colspan="4" style="padding: 0; border: none;">
                                 <div class="empty-state-container">
                                     <div class="empty-state-content">
                                         <div class="empty-state-icon">

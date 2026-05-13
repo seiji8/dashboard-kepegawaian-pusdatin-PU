@@ -404,6 +404,24 @@ class KenaikanPangkatService implements TrackerInterface
     {
         $tipeJabatanReg = strtolower(trim($pegawai->tipe_jabatan ?? ''));
         $isPelaksana = in_array($tipeJabatanReg, ['pelaksana', 'reguler', 'jabatan pelaksana']);
+
+        // Khusus: Jabatan Lainnya (Karyasiswa) yang sedang Tubel aktif diperlakukan sebagai Reguler
+        if ($tipeJabatanReg === 'jabatan lainnya') {
+            $riwayatTubel = \App\Models\RiwayatTubel::where('nip', $pegawai->nip)->get();
+            $tubelAktif = $riwayatTubel->first(function ($t) use ($today) {
+                if (!$t->tanggal_mulai) return false;
+                if ($today->lt(Carbon::parse($t->tanggal_mulai))) return false;
+                $selesai = $t->perpanjangan2_tanggal_mulai
+                    ?? $t->perpanjangan1_tanggal_mulai
+                    ?? $t->tanggal_selesai;
+                if ($selesai && $today->gt(Carbon::parse($selesai))) return false;
+                return true;
+            });
+            if ($tubelAktif) {
+                $isPelaksana = true;
+            }
+        }
+
         if ($isPelaksana && $pegawai->tmt_pangkat_terakhir) {
             $tmtPangkat = Carbon::parse($pegawai->tmt_pangkat_terakhir);
             $masaPangkatReguler = (int) $tmtPangkat->diffInMonths($today);

@@ -100,4 +100,37 @@ class Pegawai extends Model
         $kd = (string) ($this->kd_eselon ?? '');
         return self::ESELON_MAP[$kd] ?? '-';
     }
+
+    // 5. Accessor Pangkat/Golongan
+    const PANGKAT_MAP = [
+        'I/a' => 'Juru Muda',
+        'I/b' => 'Juru Muda Tk. I',
+        'I/c' => 'Juru',
+        'I/d' => 'Juru Tk. I',
+        'II/a' => 'Pengatur Muda',
+        'II/b' => 'Pengatur Muda Tk. I',
+        'II/c' => 'Pengatur',
+        'II/d' => 'Pengatur Tk. I',
+        'III/a' => 'Penata Muda',
+        'III/b' => 'Penata Muda Tk. I',
+        'III/c' => 'Penata',
+        'III/d' => 'Penata Tk. I',
+        'IV/a' => 'Pembina',
+        'IV/b' => 'Pembina Tk. I',
+        'IV/c' => 'Pembina Utama Muda',
+        'IV/d' => 'Pembina Utama Madya',
+        'IV/e' => 'Pembina Utama',
+    ];
+
+    /**
+     * Getter otomatis: $pegawai->nama_pangkat
+     * Mengkonversi pangkat_golongan ("III/a") menjadi nama lengkap ("Penata Muda (III/a)")
+     */
+    public function getNamaPangkatAttribute(): string
+    {
+        $gol = $this->pangkat_golongan;
+        if (!$gol || $gol == '-') return '-';
+        
+        return self::PANGKAT_MAP[$gol] ?? '-';
+    }
 }
