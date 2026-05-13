@@ -19,7 +19,7 @@ class DatabaseBackupController extends Controller
             abort(403, 'Anda tidak memiliki hak akses untuk fitur ini.');
         }
 
-        $databaseName = env('DB_DATABASE');
+        $databaseName = config('database.connections.mysql.database');
         $fileName = 'Backup_' . $databaseName . '_' . Carbon::now()->format('Y-m-d_H-i-s') . '.sql';
         
         $tempDir = storage_path('app/temp');
