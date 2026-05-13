@@ -31,12 +31,15 @@ class DashboardController extends Controller
         // Yang sedang "Di-usulkan/Diproses" (kuning) adalah status 'Proses'.
         $jumlahUsulan = DashboardTracker::where('status_saat_ini', 'Proses')->count();
 
-        // Hitung persentase kepatuhan (Dokumen Terupload / Total Dokumen)
-        $totalDokumenWajib = DashboardTracker::sum('dokumen_total');
-        $totalDokumenAda   = DashboardTracker::sum('dokumen_terupload');
-        
-        $tingkatKepatuhan = $totalDokumenWajib > 0 
-                            ? round(($totalDokumenAda / $totalDokumenWajib) * 100) 
+        // Hitung persentase kepatuhan (Pegawai yang sudah melengkapi dokumen vs Total Pegawai)
+        // Karena tracker yang sudah selesai otomatis dihapus, tabel DashboardTracker
+        // hanya berisi dokumen yang BELUM diupload atau sedang diproses.
+        $pegawaiBelumPatuh = DashboardTracker::whereColumn('dokumen_terupload', '<', 'dokumen_total')
+                                             ->distinct('pegawai_id')
+                                             ->count('pegawai_id');
+
+        $tingkatKepatuhan = $totalPegawai > 0 
+                            ? round((($totalPegawai - $pegawaiBelumPatuh) / $totalPegawai) * 100) 
                             : 0;
 
         // Tampilkan tracker yang:
