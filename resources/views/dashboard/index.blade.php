@@ -1432,7 +1432,11 @@
     </div>
 
     <script src="{{ asset('js/app-common.js') }}"></script>
-    <script src="{{ asset('js/dashboard.js') }}?v={{ time() }}"></script>
+    <script src="{{ asset('js/dashboard-ui.js') }}?v={{ time() }}"></script>
+    <script src="{{ asset('js/dashboard-tracker-builder.js') }}?v={{ time() }}"></script>
+    <script src="{{ asset('js/dashboard-modals-data.js') }}?v={{ time() }}"></script>
+    <script src="{{ asset('js/dashboard-actions.js') }}?v={{ time() }}"></script>
+    <script src="{{ asset('js/dashboard-surat.js') }}?v={{ time() }}"></script>
     <!-- JS Loaded via external file -->
     @include('partials.change_password_modal')
 
