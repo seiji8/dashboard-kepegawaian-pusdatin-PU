@@ -63,18 +63,28 @@
             <i class="ph-bold ph-arrows-clockwise sync-img" id="iconSync"></i>
             <span class="sync-icon" id="textSync">Sinkronisasi</span>
         </button>
-        <div class="sidebar-footer mt-3 px-3 text-center" style="margin-top: 14px; padding-top: 12px;">
-            <div style="padding: 14px 12px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.14); background: linear-gradient(180deg, rgba(255,255,255,0.10), rgba(255,255,255,0.04)); box-shadow: 0 14px 30px rgba(15,23,42,0.18); backdrop-filter: blur(10px);">
-                <div style="display:flex; align-items:center; justify-content:center; gap:6px; margin-bottom:8px;">
-                    <span style="width:6px; height:6px; border-radius:999px; background:#fbbf24; display:inline-block;"></span>
-                    <span style="font-size:0.58rem; letter-spacing:0.14em; text-transform:uppercase; font-weight:700; color:rgba(203,213,224,0.82);">Tim IT UNNES</span>
+        <div class="sidebar-footer" style="border-top: none; padding-bottom: 24px;">
+            <div style="border: 1px solid rgba(255, 255, 255, 0.12); border-radius: 12px; padding: 16px; background: rgba(255, 255, 255, 0.04); text-align: center; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);">
+                {{-- Label Tim --}}
+                <div style="display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 4px;">
+                    <div style="width: 8px; height: 8px; border-radius: 50%; background-color: #fbbf24; flex-shrink: 0;"></div>
+                    <span style="font-size: 0.65rem; font-weight: 700; letter-spacing: 0.1em; color: rgba(255,255,255,0.85); text-transform: uppercase;">Tim IT Unnes</span>
                 </div>
-                <p style="margin: 0 0 8px; font-size: 0.67rem; color: rgba(203,213,224,0.94); line-height: 1.35; font-weight: 500;">&copy; {{ date('Y') }} Pusdatin Kepegawaian</p>
-                <div style="display:grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px 8px; font-size: 0.63rem; line-height: 1.25; color: rgba(203,213,224,0.9);">
-                    <span>Muhammad Hasan Faedloni</span>
-                    <span>Muhammad Raissa Akhdyan</span>
-                    <span>Muhammad Hilmi Asardan</span>
-                    <span>Eza Aditya Nugroho</span>
+                {{-- Nama Universitas --}}
+                <p style="margin: 0 0 12px; font-size: 0.6rem; font-weight: 500; color: rgba(255,255,255,0.55); letter-spacing: 0.04em; text-transform: uppercase;">Universitas Negeri Semarang</p>
+                {{-- Copyright --}}
+                <p style="margin: 0 0 14px; font-size: 0.7rem; color: rgba(255,255,255,0.95); line-height: 1.4; font-weight: 500;">&copy; {{ date('Y') }} Pusdatin Kepegawaian</p>
+                {{-- Logo berdampingan --}}
+                <div style="display: flex; align-items: center; justify-content: center; gap: 16px;">
+                    <img src="{{ asset('assets/Logounnes.png') }}"
+                         alt="Logo UNNES"
+                         style="height: 36px; width: auto; object-fit: contain;"
+                         title="Universitas Negeri Semarang">
+                    <div style="width: 1px; height: 30px; background: rgba(255,255,255,0.2);"></div>
+                    <img src="{{ asset('assets/Logo_PU.png') }}"
+                         alt="Logo Kementerian PU"
+                         style="height: 36px; width: auto; object-fit: contain;"
+                         title="Kementerian Pekerjaan Umum">
                 </div>
             </div>
         </div>
