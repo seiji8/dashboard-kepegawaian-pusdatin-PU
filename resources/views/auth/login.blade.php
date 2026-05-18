@@ -59,7 +59,9 @@
                        value="{{ old('email') }}"
                        class="w-full py-2.5 px-3 border @error('email') border-red-500 @else border-[#CBD5E1] @enderror rounded-md focus:outline-none focus:ring-2 @error('email') focus:ring-red-500 @else focus:ring-[#FFC928] @enderror text-sm" 
                        style="padding-left: 48px;"
-                       required autofocus>
+                       required autofocus
+                       oninvalid="this.setCustomValidity(this.validity.valueMissing ? 'Harap isi bidang ini.' : 'Harap sertakan \'@\' pada alamat email.')"
+                       oninput="this.setCustomValidity('')">
             </div>
             @error('email')
                 <p class="text-red-500 text-xs italic mt-1">{{ $message }}</p>
@@ -74,7 +76,9 @@
                        placeholder="Masukkan Kata Sandi" 
                        class="w-full py-2.5 px-3 border @error('password') border-red-500 @else border-[#CBD5E1] @enderror rounded-md focus:outline-none focus:ring-2 @error('password') focus:ring-red-500 @else focus:ring-[#FFC928] @enderror text-sm" 
                        style="padding-left: 48px; padding-right: 48px;"
-                       required>
+                       required
+                       oninvalid="this.setCustomValidity('Harap isi bidang ini.')"
+                       oninput="this.setCustomValidity('')">
                 <i class="ph-bold ph-eye-slash icon-toggle" id="toggleIcon"></i>
             </div>
             @error('password')
