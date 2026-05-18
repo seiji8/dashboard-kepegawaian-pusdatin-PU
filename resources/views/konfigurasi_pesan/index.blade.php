@@ -1,88 +1,12 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Konfigurasi Pesan - DashboardAlert</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{{ asset('css/main.css') }}">
-    <!-- Phosphor Icons -->
-    <script src="https://unpkg.com/@phosphor-icons/web"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <meta name="csrf-token" content="{{ csrf_token() }}">
-    <link rel="icon" type="image/png" href="{{ asset('assets/Logo_PU.png') }}">
-    @include('partials.tour_styles')
-</head>
-<body>
+﻿@extends('layouts.app')
 
-    <div class="container">
-        @include('partials.sidebar')
+@section('title', 'Konfigurasi Pesan')
 
-        <main class="main-content">
-        <header class="top-navbar">
-            <div class="welcome-section">
-                <h2 class="welcome-title">Selamat Datang</h2>
-                <p class="welcome-subtitle">Halo, {{ Auth::user()->nama_lengkap ?? 'Admin' }}</p>
-            </div>
+@section('page_css')
+    <link rel="stylesheet" href="{{ asset('css/pages/konfigurasi.css') }}">
+@endsection
 
-            <div class="user-actions">
-                @include('partials.tour_button')
-                <div class="notif-wrapper">
-                    <button class="btn-icon-header" onclick="toggleNotifDropdown()">
-                        <i class="ph-fill ph-bell" style="font-size: 24px; color: #1e3a8a;"></i>
-                        <span class="notif-badge" id="notifBadge" style="display: none;">0</span>
-                    </button>
-
-                    <div id="notifDropdown" class="notif-dropdown">
-                        <div class="notif-header">
-                            <span class="notif-header-title">Notifikasi</span>
-                            <button class="notif-mark-read" onclick="markAllRead()">Tandai Semua Dibaca</button>
-                        </div>
-                        <div id="notifList" class="notif-list">
-                            <div class="notif-empty">
-                                <i class="ph-light ph-bell-slash" style="font-size: 32px; color: #9ca3af;"></i>
-                                <p>Belum ada notifikasi</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="profile-wrapper">
-                    <button class="profile-btn" onclick="toggleDropdown()">
-                        <div class="avatar-circle">
-                            <img src="https://ui-avatars.com/api/?name={{ urlencode(Auth::user()->nama_lengkap ?? 'User') }}&background=random" alt="User">
-                        </div>
-                        <div class="profile-info">
-                            <span class="profile-name">{{ Str::limit(Auth::user()->nama_lengkap ?? 'Admin', 15) }}</span>
-                            <span class="profile-role">
-                                {{ (auth()->user() && auth()->user()->isSuperAdmin()) ? 'Super Admin' : 'Admin Pegawai' }}
-                            </span>
-                        </div>
-                        <i class="ph-bold ph-caret-down" style="font-size: 16px; color: #666;"></i>
-                    </button>
-
-                    <div id="profileDropdown" class="dropdown-menu">
-                            <a href="{{ route('database.backup') }}" class="dropdown-item" style="color: #059669; font-weight: 500;">
-                                <i class="ph-fill ph-database" style="font-size: 18px; margin-right: 8px;"></i>
-                                Backup Database
-                            </a>
-                            <a href="#" onclick="openChangePasswordModal(); return false;" class="dropdown-item">
-                                <i class="ph-fill ph-lock-key" style="font-size: 18px; margin-right: 8px;"></i>
-                                Ganti Kata Sandi
-                            </a>
-                        <form action="{{ route('logout') }}" method="POST">
-                            @csrf
-                            <button type="submit" class="dropdown-item text-red" style="width:100%; border:none; background:none; cursor:pointer;">
-                                <i class="ph-fill ph-sign-out" style="font-size: 18px; margin-right: 8px;"></i>
-                                Keluar
-                            </button>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </header>
-
-        <div class="content-area">
+@section('content')
         <div class="content-header">
             <h2 class="page-title">Konfigurasi Pesan</h2>
             <div class="header-actions">
@@ -264,9 +188,6 @@
             </div>
 
         </div>
-        </div><!-- end content-area -->
-    </main>
-
     <!-- MODAL TAMBAH PESAN -->
     <div id="modalTambahPesan" class="modal-overlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:2400; justify-content:center; align-items:center;">
         <form id="formTambah" style="background:white; width:600px; max-width:95vw; padding:0; border-radius:12px; box-shadow:0 10px 40px rgba(0,0,0,0.2); overflow:hidden; display:flex; flex-direction:column; max-height:90vh;">
@@ -313,7 +234,7 @@
                         <i class="ph-fill ph-info" style="color:#3b82f6; font-size:16px;"></i>
                         <span style="font-size:13px; font-weight:700; color:#1e40af;">Panduan Variabel Placeholder</span>
                     </div>
-                    <p style="font-size:12px; color:#3b82f6; margin:0 0 10px 0;">Sisipkan variabel berikut dalam isi pesan — akan otomatis diganti data pegawai saat dikirim:</p>
+                    <p style="font-size:12px; color:#3b82f6; margin:0 0 10px 0;">Sisipkan variabel berikut dalam isi pesan Ã¢â‚¬â€ akan otomatis diganti data pegawai saat dikirim:</p>
                     <div style="display:grid; grid-template-columns:1fr 1fr; gap:6px;">
                         <div style="background:white; border-radius:6px; padding:8px 10px; border:1px solid #dbeafe;">
                             <code style="color:#1d4ed8; font-size:12px; font-weight:700;">{nama}</code>
@@ -484,6 +405,11 @@
         <span>Sinkronisasi Data Berhasil!</span>
     </div>
 
+
+@endsection
+
+@section('scripts')
+    <script src="{{ asset('js/data-pegawai.js') }}"></script>
     <script>
     let currentDeleteId = null;
 
@@ -706,16 +632,9 @@
         });
     }
     </script>
+@endsection
 
-    @include('partials.sync_loading')
-
-    <script src="{{ asset('js/app-common.js') }}"></script>
-    <script src="{{ asset('js/data-pegawai.js') }}"></script>
-    @include('partials.change_password_modal')
-
-    @include('partials.change_password_modal')
-    <!-- Driver.js (Logika Panduan Tour Interaktif) -->
-    <script src="https://cdn.jsdelivr.net/npm/driver.js@1.3.1/dist/driver.js.iife.js"></script>
+@section('tour')
     <script>
         function mulaiTour() {
             const driver = window.driver.js.driver;
@@ -729,7 +648,7 @@
                     {
                         element: '.top-navbar',
                         popover: {
-                            title: 'Area Profil & Notifikasi 👋',
+                            title: 'Area Profil & Notifikasi',
                             description: 'Akses notifikasi dan pengaturan akun Anda di sini.',
                             side: "bottom",
                             align: 'end'
@@ -738,7 +657,7 @@
                     {
                         element: '.header-actions',
                         popover: {
-                            title: 'Manajemen Pesan 🛠️',
+                            title: 'Manajemen Pesan',
                             description: 'Gunakan fitur ini untuk mencari filter jenis pesan atau menambahkan template pesan baru.',
                             side: "bottom",
                             align: 'center'
@@ -747,7 +666,7 @@
                     {
                         element: '.config-container',
                         popover: {
-                            title: 'Daftar Template Pesan 📋',
+                            title: 'Daftar Template Pesan',
                             description: 'Kumpulan notifikasi yang otomatis berjalan atau yang dapat Anda gunakan sebagai template manual.',
                             side: "top",
                             align: 'center'
@@ -758,5 +677,5 @@
             tour.drive();
         }
     </script>
-</body>
-</html>
+@endsection
+

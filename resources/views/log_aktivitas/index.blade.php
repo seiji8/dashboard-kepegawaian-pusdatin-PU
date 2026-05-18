@@ -1,88 +1,12 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Log Aktivitas - DashboardAlert</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{{ asset('css/main.css') }}">
-    <!-- Phosphor Icons -->
-    <script src="https://unpkg.com/@phosphor-icons/web"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <meta name="csrf-token" content="{{ csrf_token() }}">
-    <link rel="icon" type="image/png" href="{{ asset('assets/Logo_PU.png') }}">
-    @include('partials.tour_styles')
-</head>
-<body>
+﻿@extends('layouts.app')
 
-    <div class="container">
-        @include('partials.sidebar')
+@section('title', 'Log Aktivitas')
 
-        <main class="main-content">
-        <header class="top-navbar">
-            <div class="welcome-section">
-                <h2 class="welcome-title">Selamat Datang</h2>
-                <p class="welcome-subtitle">Halo, {{ Auth::user()->nama_lengkap ?? 'Admin' }}</p>
-            </div>
+@section('page_css')
+    <link rel="stylesheet" href="{{ asset('css/pages/log-aktivitas.css') }}">
+@endsection
 
-            <div class="user-actions">
-                @include('partials.tour_button')
-                <div class="notif-wrapper">
-                    <button class="btn-icon-header" onclick="toggleNotifDropdown()">
-                        <i class="ph-fill ph-bell" style="font-size: 24px; color: #1e3a8a;"></i>
-                        <span class="notif-badge" id="notifBadge" style="display: none;">0</span>
-                    </button>
-
-                    <div id="notifDropdown" class="notif-dropdown">
-                        <div class="notif-header">
-                            <span class="notif-header-title">Notifikasi</span>
-                            <button class="notif-mark-read" onclick="markAllRead()">Tandai Semua Dibaca</button>
-                        </div>
-                        <div id="notifList" class="notif-list">
-                            <div class="notif-empty">
-                                <i class="ph-light ph-bell-slash" style="font-size: 32px; color: #9ca3af;"></i>
-                                <p>Belum ada notifikasi</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="profile-wrapper">
-                    <button class="profile-btn" onclick="toggleDropdown()">
-                        <div class="avatar-circle">
-                            <img src="https://ui-avatars.com/api/?name={{ urlencode(Auth::user()->nama_lengkap ?? 'User') }}&background=random" alt="User">
-                        </div>
-                        <div class="profile-info">
-                            <span class="profile-name">{{ Str::limit(Auth::user()->nama_lengkap ?? 'Admin', 15) }}</span>
-                            <span class="profile-role">
-                                {{ (auth()->user() && auth()->user()->isSuperAdmin()) ? 'Super Admin' : 'Admin Pegawai' }}
-                            </span>
-                        </div>
-                        <i class="ph-bold ph-caret-down" style="font-size: 16px; color: #666;"></i>
-                    </button>
-
-                    <div id="profileDropdown" class="dropdown-menu">
-                            <a href="{{ route('database.backup') }}" class="dropdown-item" style="color: #059669; font-weight: 500;">
-                                <i class="ph-fill ph-database" style="font-size: 18px; margin-right: 8px;"></i>
-                                Backup Database
-                            </a>
-                            <a href="#" onclick="openChangePasswordModal(); return false;" class="dropdown-item">
-                                <i class="ph-fill ph-lock-key" style="font-size: 18px; margin-right: 8px;"></i>
-                                Ganti Kata Sandi
-                            </a>
-                        <form action="{{ route('logout') }}" method="POST">
-                            @csrf
-                            <button type="submit" class="dropdown-item text-red" style="width:100%; border:none; background:none; cursor:pointer;">
-                                <i class="ph-fill ph-sign-out" style="font-size: 18px; margin-right: 8px;"></i>
-                                Keluar
-                            </button>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </header>
-
-        <div class="content-area">
+@section('content')
         <div class="content-header">
             <h2 class="page-title">Log Aktivitas</h2>
         </div>
@@ -260,7 +184,10 @@
             </div>
             @endif
         </div>
-        </div><!-- end content-area -->
+@endsection
+
+@section('scripts')
+    <script src="{{ asset('js/dashboard-ui.js') }}"></script>
     <script>
         // RESET FILTER
         function resetFilter() {
@@ -273,17 +200,9 @@
             // Add any view-specific click logic here if needed
         });
     </script>
+@endsection
 
-        </main>
-    </div>
-
-    @include('partials.sync_loading')
-
-    <script src="{{ asset('js/app-common.js') }}"></script>
-    <script src="{{ asset('js/dashboard-ui.js') }}"></script>
-    @include('partials.change_password_modal')
-    <!-- Driver.js (Logika Panduan Tour Interaktif) -->
-    <script src="https://cdn.jsdelivr.net/npm/driver.js@1.3.1/dist/driver.js.iife.js"></script>
+@section('tour')
     <script>
         function mulaiTour() {
             const driver = window.driver.js.driver;
@@ -297,7 +216,7 @@
                     {
                         element: '.top-navbar',
                         popover: {
-                            title: 'Area Profil & Notifikasi 👋',
+                            title: 'Area Profil & Notifikasi ðŸ‘‹',
                             description: 'Akses notifikasi dan pengaturan akun Anda di sini.',
                             side: "bottom",
                             align: 'end'
@@ -306,7 +225,7 @@
                     {
                         element: '.filter-section',
                         popover: {
-                            title: 'Filter Pencarian 🔍',
+                            title: 'Filter Pencarian ðŸ”',
                             description: 'Gunakan fitur ini untuk mencari log spesifik berdasarkan jenis pengguna, tanggal, atau aksi tertentu.',
                             side: "bottom",
                             align: 'center'
@@ -315,7 +234,7 @@
                     {
                         element: '.content-section',
                         popover: {
-                            title: 'Data Log Aktivitas 📑',
+                            title: 'Data Log Aktivitas ðŸ“‘',
                             description: 'Tabel ini menampilkan seluruh histori aktivitas yang terjadi di dalam sistem.',
                             side: "top",
                             align: 'center'
@@ -326,5 +245,5 @@
             tour.drive();
         }
     </script>
-</body>
-</html>
+@endsection
+

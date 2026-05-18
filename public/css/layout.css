@@ -1,0 +1,503 @@
+﻿/* =========================================
+ /* ===== SIDEBAR ===== */
+.sidebar {
+    width: 240px;
+    background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%);
+    color: white;
+    padding: 24px 16px;
+    /* Padding samping dikurangi */
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    left: 0;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+}
+
+.sidebar-header {
+    margin-bottom: 40px;
+    text-align: center;
+    /* Tambahkan ini untuk center */
+    display: flex;
+    justify-content: center;
+    /* Center horizontal */
+    align-items: center;
+    /* Center vertical */
+}
+
+.logo {
+    font-size: 20px;
+    font-weight: 700;
+    -webkit-user-drag: none;
+    user-select: none;
+}
+
+.logo-highlight {
+    color: #fbbf24;
+}
+
+.sidebar-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    /* Gap dikurangi */
+    flex: 1;
+}
+
+.nav-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 12px;
+    /* Padding dikurangi */
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    color: white;
+    cursor: pointer;
+    font-size: 14px;
+    white-space: nowrap;
+    /* DITAMBAHKAN: Mencegah teks wrap */
+    -webkit-user-drag: none;
+    user-select: none;
+}
+
+.sidebar a,
+.sidebar img,
+.sidebar i,
+.sidebar span {
+    -webkit-user-drag: none;
+    user-select: none;
+}
+
+.nav-item:hover {
+    background-color: rgba(255, 255, 255, 0.15);
+    transform: translateX(6px);
+}
+
+.nav-item.active {
+    background-color: rgba(59, 130, 246, 0.3);
+    border-left: 3px solid #fbbf24;
+    padding-left: 9px;
+    /* Disesuaikan */
+}
+
+.nav-icon {
+    font-size: 24px;
+    /* width & height dihapus karena ini font */
+    flex-shrink: 0;
+    /* DITAMBAHKAN: Mencegah ikon menyusut */
+}
+
+.nav-text {
+    font-weight: 500;
+    white-space: nowrap;
+    /* DITAMBAHKAN: Mencegah teks wrap */
+    overflow: hidden;
+    text-overflow: ellipsis;
+    /* DITAMBAHKAN: Menambahkan ... jika teks terlalu panjang */
+}
+
+.sidebar-footer {
+    margin-top: auto;
+    padding-top: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.sync-btn {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px 16px;
+    background-color: white;
+    color: #1e3a8a;
+    border: none;
+    border-radius: 30px;
+    /* Radius 30px sesuai permintaan */
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 14px;
+    font-family: "Poppins", sans-serif;
+    transition: all 0.3s ease;
+}
+
+.sync-btn:hover {
+    background-color: #f3f4f6;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.sync-btn:hover .sync-img {
+    transform: rotate(180deg);
+}
+
+.sync-img {
+    font-size: 24px;
+    transition: transform 0.5s ease;
+}
+
+.sync-icon {
+    font-size: 14px;
+    /* Disesuaikan sedikit agar pas */
+}
+
+/* =========================================
+   MAIN CONTENT & HEADER LAYOUT
+   ========================================= */
+
+/* 1. Container Utama: Menempel langsung dengan Sidebar */
+.main-content {
+    margin-left: 240px;
+    /* Geser area ini ke kanan sejauh lebar sidebar */
+    width: calc(100% - 240px);
+    /* Lebar sisanya */
+    padding: 0;
+    /* PENTING: Harus 0 agar Header menyentuh tepi kiri margin */
+    background-color: #f3f4f6;
+    height: 100vh; /* Fixed height for app shell feel */
+    overflow: hidden; /* Prevent body scroll, use content-area scroll instead */
+    display: flex;
+    flex-direction: column;
+    position: relative;
+}
+
+.top-navbar {
+    width: 100%;
+    background-color: white;
+    padding: 20px 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #e5e7eb;
+
+    /* Sticky Removed -> Handled by Flex Layout */
+    /* position: sticky; */
+    /* top: 0; */
+    z-index: 500;
+    margin: 0;
+    /* Hapus margin tak terduga */
+}
+
+/* 3. Area Konten Bawah (Dashboard Cards & Task List) */
+.content-area {
+    padding: 30px 40px;
+    /* Jarak (Padding) dipindahkan ke sini */
+    flex: 1;
+    /* Mengisi sisa ruang ke bawah */
+    overflow-y: auto;
+    /* Agar bisa discroll jika konten panjang */
+}
+
+.welcome-title {
+    color: #1e3a8a;
+    font-size: 20px;
+    font-weight: 700;
+}
+
+.welcome-subtitle {
+    font-size: 13px;
+    color: #6b7280;
+    margin-top: 2px;
+}
+
+.user-actions {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+/* Notif Button */
+.btn-icon-header {
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    width: 45px;
+    height: 45px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    position: relative;
+    transition: all 0.2s;
+}
+
+.btn-icon-header:hover {
+    background: #f9fafb;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+}
+
+.btn-icon-header.active {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+    z-index: 10;
+}
+
+.btn-icon-header .badge,
+.notif-badge {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background-color: #fbbf24;
+    color: #1e3a8a;
+    font-size: 10px;
+    font-weight: 700;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid white;
+}
+
+/* Notif Dropdown */
+.notif-wrapper {
+    position: relative;
+}
+
+.notif-dropdown {
+    display: none;
+    position: absolute;
+    right: 0;
+    top: 55px;
+    width: 380px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+    border: 1px solid #e5e7eb;
+    z-index: 600;
+    overflow: hidden;
+    animation: slideDown 0.2s ease-out;
+}
+
+.notif-dropdown.active {
+    display: block;
+}
+
+.notif-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 20px;
+    border-bottom: 1px solid #f3f4f6;
+}
+
+.notif-header-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: #1e3a8a;
+}
+
+.notif-mark-read {
+    background: none;
+    border: none;
+    color: #3b82f6;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: "Poppins", sans-serif;
+    transition: color 0.2s;
+}
+
+.notif-mark-read:hover {
+    color: #1e3a8a;
+}
+
+.notif-list {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.notif-item {
+    display: flex;
+    gap: 12px;
+    padding: 14px 20px;
+    cursor: pointer;
+    transition: background 0.15s;
+    border-bottom: 1px solid #f9fafb;
+}
+
+.notif-item:hover {
+    background-color: #f9fafb;
+}
+
+.notif-item.unread {
+    background-color: #eff6ff;
+    border-left: 3px solid #3b82f6;
+}
+
+.notif-item.unread:hover {
+    background-color: #dbeafe;
+}
+
+.notif-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    background-color: #f3f4f6;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.notif-item.unread .notif-icon {
+    background-color: #dbeafe;
+}
+
+.notif-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.notif-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: #111;
+    margin-bottom: 2px;
+}
+
+.notif-message {
+    font-size: 12px;
+    color: #6b7280;
+    line-height: 1.4;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.notif-time {
+    font-size: 11px;
+    color: #9ca3af;
+    margin-top: 4px;
+    display: inline-block;
+}
+
+.notif-empty {
+    padding: 40px 20px;
+    text-align: center;
+    color: #9ca3af;
+}
+
+.notif-empty p {
+    margin-top: 8px;
+    font-size: 13px;
+}
+
+/* Profile Dropdown Area */
+.profile-wrapper {
+    position: relative;
+}
+
+.profile-btn {
+    display: flex;
+    align-items: center;
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 50px;
+    /* Pill Shape */
+    padding: 6px 16px 6px 6px;
+    cursor: pointer;
+    gap: 10px;
+    transition: all 0.2s;
+}
+
+.profile-btn:hover {
+    border-color: #d1d5db;
+    background: #f9fafb;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+}
+
+.profile-btn.active {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+}
+
+.profile-btn i.ph-caret-down {
+    transition: transform 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.profile-btn.active i.ph-caret-down {
+    transform: rotate(180deg);
+    color: #3b82f6 !important;
+}
+
+.avatar-circle {
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    overflow: hidden;
+    background: #e5e7eb;
+}
+
+.avatar-circle img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    -webkit-user-drag: none;
+}
+
+.profile-info {
+    text-align: left;
+    line-height: 1.2;
+}
+
+.profile-name {
+    display: block;
+    font-size: 14px;
+    font-weight: 600;
+    color: #111;
+}
+
+.profile-role {
+    display: block;
+    font-size: 11px;
+    font-weight: 600;
+    color: #6b7280;
+}
+
+/* Dropdown Menu */
+.dropdown-menu {
+    display: none;
+    position: absolute;
+    right: 0;
+    top: 55px;
+    background-color: white;
+    min-width: 200px;
+    box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    z-index: 100;
+    overflow: hidden;
+    border: 1px solid #e5e7eb;
+}
+
+.dropdown-item {
+    padding: 12px 16px;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: #374151;
+    font-size: 14px;
+    transition: background 0.2s;
+}
+
+.dropdown-item:hover {
+    background-color: #f3f4f6;
+}
+
+.dropdown-item.text-red {
+    color: #dc2626;
+}
+
+.dropdown-item.text-red:hover {
+    background-color: #fef2f2;
+}
+

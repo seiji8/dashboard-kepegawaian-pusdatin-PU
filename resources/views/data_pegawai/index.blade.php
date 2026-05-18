@@ -1,21 +1,17 @@
-@php
+﻿@php
     /** @var \Illuminate\Pagination\LengthAwarePaginator|\App\Models\Pegawai[] $pegawais */
 @endphp
-<!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Data Pegawai - DashboardAlert</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{{ asset('css/main.css') }}">
-    <!-- Phosphor Icons -->
-    <script src="https://unpkg.com/@phosphor-icons/web"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+@extends('layouts.app')
+
+@section('title', 'Data Pegawai')
+
+@section('page_css')
+    <link rel="stylesheet" href="{{ asset('css/pages/data-pegawai.css') }}">
+@endsection
+
+@section('head')
     <!-- TomSelect CSS (Dropdown Pencarian) -->
     <link href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.default.css" rel="stylesheet">
-    <meta name="csrf-token" content="{{ csrf_token() }}">
-    <link rel="icon" type="image/png" href="{{ asset('assets/Logo_PU.png') }}">
     <style>
         .ts-control {
             padding: 12px 14px !important;
@@ -62,78 +58,10 @@
             margin: 2px 4px 2px 0 !important;
         }
     </style>
-    @include('partials.tour_styles')
-</head>
-<body>
+@endsection
 
-    <div class="container">
-        @include('partials.sidebar')
+@section('content')
 
-        <main class="main-content">
-        <header class="top-navbar">
-            <div class="welcome-section">
-                <h2 class="welcome-title">Selamat Datang</h2>
-                <p class="welcome-subtitle">Halo, {{ Auth::user()->nama_lengkap ?? 'Admin' }}</p>
-            </div>
-
-            <div class="user-actions">
-                @include('partials.tour_button')
-                <div class="notif-wrapper">
-                    <button class="btn-icon-header" onclick="toggleNotifDropdown()">
-                        <i class="ph-fill ph-bell" style="font-size: 24px; color: #1e3a8a;"></i>
-                        <span class="notif-badge" id="notifBadge" style="display: none;">0</span>
-                    </button>
-
-                    <div id="notifDropdown" class="notif-dropdown">
-                        <div class="notif-header">
-                            <span class="notif-header-title">Notifikasi</span>
-                            <button class="notif-mark-read" onclick="markAllRead()">Tandai Semua Dibaca</button>
-                        </div>
-                        <div id="notifList" class="notif-list">
-                            <div class="notif-empty">
-                                <i class="ph-light ph-bell-slash" style="font-size: 32px; color: #9ca3af;"></i>
-                                <p>Belum ada notifikasi</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="profile-wrapper">
-                    <button class="profile-btn" onclick="toggleDropdown()">
-                        <div class="avatar-circle">
-                            <img src="https://ui-avatars.com/api/?name={{ urlencode(Auth::user()->nama_lengkap ?? 'User') }}&background=random" alt="User">
-                        </div>
-                        <div class="profile-info">
-                            <span class="profile-name">{{ Str::limit(Auth::user()->nama_lengkap ?? 'Admin', 15) }}</span>
-                            <span class="profile-role">
-                                {{ (auth()->user() && auth()->user()->isSuperAdmin()) ? 'Super Admin' : 'Admin Pegawai' }}
-                            </span>
-                        </div>
-                        <i class="ph-bold ph-caret-down" style="font-size: 16px; color: #666;"></i>
-                    </button>
-
-                    <div id="profileDropdown" class="dropdown-menu">
-                            <a href="{{ route('database.backup') }}" class="dropdown-item" style="color: #059669; font-weight: 500;">
-                                <i class="ph-fill ph-database" style="font-size: 18px; margin-right: 8px;"></i>
-                                Backup Database
-                            </a>
-                            <a href="#" onclick="openChangePasswordModal(); return false;" class="dropdown-item">
-                                <i class="ph-fill ph-lock-key" style="font-size: 18px; margin-right: 8px;"></i>
-                                Ganti Kata Sandi
-                            </a>
-                        <form action="{{ route('logout') }}" method="POST">
-                            @csrf
-                            <button type="submit" class="dropdown-item text-red" style="width:100%; border:none; background:none; cursor:pointer;">
-                                <i class="ph-fill ph-sign-out" style="font-size: 18px; margin-right: 8px;"></i>
-                                Keluar
-                            </button>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </header>
-
-        <div class="content-area">
         <div class="content-header">
             <h2 class="page-title">Data Pegawai</h2>
             <form id="searchForm" method="GET" action="{{ route('data-pegawai') }}" style="display:flex; gap:12px; align-items:center;">
@@ -272,8 +200,6 @@
             </div>
             @endif
         </div>
-        </div><!-- end content-area -->
-    </main>
 
     <!-- MODAL HAPUS PEGAWAI -->
     <div id="modalHapusPegawai" class="modal-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2500; justify-content: center; align-items: center;">
@@ -464,18 +390,13 @@
             </div>
         </div>
     </div>
-        </main>
-    </div>
-    @include('partials.sync_loading')
+@endsection
 
-    <script src="{{ asset('js/app-common.js') }}"></script>
+@section('scripts')
     <script src="{{ asset('js/data-pegawai.js') }}"></script>
     <style>
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
-    @include('partials.change_password_modal')
-    <!-- Driver.js (Logika Panduan Tour Interaktif) -->
-    <script src="https://cdn.jsdelivr.net/npm/driver.js@1.3.1/dist/driver.js.iife.js"></script>
     <!-- TomSelect JS (Dropdown Pencarian) -->
     <script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
     <script>
@@ -490,7 +411,11 @@
                 });
             }
         });
+    </script>
+@endsection
 
+@section('tour')
+    <script>
         function mulaiTour() {
             const driver = window.driver.js.driver;
             const tour = driver({
@@ -503,7 +428,7 @@
                     {
                         element: '.top-navbar',
                         popover: {
-                            title: 'Area Profil & Notifikasi 👋',
+                            title: 'Area Profil & Notifikasi Ã°Å¸â€˜â€¹',
                             description: 'Di sini Anda dapat mengecek notifikasi, mengubah profil, dan mengganti kata sandi.',
                             side: "bottom",
                             align: 'end'
@@ -512,7 +437,7 @@
                     {
                         element: '.content-header',
                         popover: {
-                            title: 'Pencarian & Filter 🔍',
+                            title: 'Pencarian & Filter Ã°Å¸â€Â',
                             description: 'Gunakan fitur ini untuk mencari pegawai berdasarkan nama atau memfilter berdasarkan tipe jabatan.',
                             side: "bottom",
                             align: 'center'
@@ -521,7 +446,7 @@
                     {
                         element: '.data-table',
                         popover: {
-                            title: 'Data Pegawai 📑',
+                            title: 'Data Pegawai Ã°Å¸â€œâ€˜',
                             description: 'Tabel ini menampilkan daftar seluruh pegawai. Anda dapat melihat detail atau menghapus data dari sini.',
                             side: "top",
                             align: 'center'
@@ -532,5 +457,6 @@
             tour.drive();
         }
     </script>
-</body>
-</html>
+@endsection
+
+
