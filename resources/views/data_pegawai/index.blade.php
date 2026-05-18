@@ -1,4 +1,4 @@
-﻿@php
+@php
     /** @var \Illuminate\Pagination\LengthAwarePaginator|\App\Models\Pegawai[] $pegawais */
 @endphp
 @extends('layouts.app')
@@ -104,7 +104,22 @@
                             <th style="width: 15%; text-align: center;">Aksi</th>
                         </tr>
                     </thead>
-                    <tbody>
+
+                    {{-- Skeleton: Table Rows --}}
+                    <tbody class="skeleton-layer">
+                        @for ($i = 0; $i < 7; $i++)
+                        <tr>
+                            <td><div class="skeleton-box" style="height:16px; width:70%; margin-bottom:6px;"></div><div class="skeleton-box" style="height:12px; width:50%;"></div></td>
+                            <td><div class="skeleton-box" style="height:14px; width:90%;"></div></td>
+                            <td><div class="skeleton-box" style="height:28px; width:80px; border-radius:20px;"></div></td>
+                            <td><div class="skeleton-box" style="height:16px; width:60%; margin-bottom:6px;"></div><div class="skeleton-box" style="height:12px; width:40%;"></div></td>
+                            <td style="text-align:center;"><div style="display:flex; gap:8px; justify-content:center;"><div class="skeleton-box" style="height:36px; width:36px; border-radius:8px;"></div><div class="skeleton-box" style="height:36px; width:36px; border-radius:8px;"></div></div></td>
+                        </tr>
+                        @endfor
+                    </tbody>
+
+                    {{-- Real: Table Rows --}}
+                    <tbody class="real-content hidden">
                         @forelse($pegawais as $pegawai)
                         <tr>
                             <td>

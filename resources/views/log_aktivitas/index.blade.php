@@ -76,7 +76,19 @@
                             <th style="width: 45%;">Deskripsi</th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody class="skeleton-layer">
+                        @for ($i = 0; $i < 8; $i++)
+                        <tr>
+                            <td><div class="skeleton-box" style="height:14px; width:80%;"></div></td>
+                            <td><div class="skeleton-box" style="height:28px; width:90px; border-radius:20px;"></div></td>
+                            <td><div class="skeleton-box" style="height:14px; width:70%;"></div></td>
+                            <td><div class="skeleton-box" style="height:14px; width:95%;"></div></td>
+                        </tr>
+                        @endfor
+                    </tbody>
+
+                    {{-- Real: Table Rows --}}
+                    <tbody class="real-content hidden">
                         @forelse($logs as $log)
                         <tr>
                             <td>
@@ -246,4 +258,5 @@
         }
     </script>
 @endsection
+
 

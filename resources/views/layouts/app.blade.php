@@ -40,6 +40,12 @@
             <div class="content-area">
                 @yield('content')
             </div>
+
+            {{-- Instant skeleton reveal (inline = no CDN wait) --}}
+            <script>
+                document.querySelectorAll('.skeleton-layer').forEach(function(el){el.classList.add('hidden')});
+                document.querySelectorAll('.real-content').forEach(function(el){el.classList.remove('hidden')});
+            </script>
         </main>
     </div>
 

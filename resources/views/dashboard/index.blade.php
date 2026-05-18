@@ -1,4 +1,4 @@
-﻿@extends('layouts.app')
+@extends('layouts.app')
 
 @section('title', 'Dashboard')
 
@@ -15,6 +15,21 @@
 @section('content')
                 <h2 class="page-title-dashboard">Dashboard</h2>
 
+                {{-- Skeleton: Summary Cards --}}
+                <div class="skeleton-layer">
+                    <div class="skeleton-summary-cards">
+                        @for ($i = 0; $i < 4; $i++)
+                        <div class="skeleton-summary-card">
+                            <div class="skeleton-box skel-label"></div>
+                            <div class="skeleton-box skel-value"></div>
+                            <div class="skeleton-box skel-tag"></div>
+                        </div>
+                        @endfor
+                    </div>
+                </div>
+
+                {{-- Real: Summary Cards --}}
+                <div class="real-content hidden">
                 <div class="dashboard-cards">
                     <div class="summary-card">
                         <div class="card-text">
@@ -93,6 +108,7 @@
                             <i class="ph-fill ph-file-text" style="font-size: 24px; color: #fbbf24;"></i>
                         </div>
                     </div>
+                </div>
                 </div>
 
                 <div class="task-section">

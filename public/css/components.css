@@ -1679,3 +1679,156 @@ select.select-filter:active {
     display: flex;
     gap: 12px;
 }
+
+/* =========================================
+   SKELETON LOADING SYSTEM (Global)
+   ========================================= */
+
+/* Shimmer Animation */
+@keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+}
+
+/* Base skeleton box */
+.skeleton-box {
+    background: #f0f2f5;
+    background-image: linear-gradient(90deg, #f0f2f5 0%, #e6e8eb 50%, #f0f2f5 100%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite linear;
+    border-radius: 6px;
+}
+
+/* Toggle layers */
+.skeleton-layer {
+    transition: opacity 0.3s ease;
+}
+.skeleton-layer.hidden {
+    opacity: 0;
+    position: absolute;
+    pointer-events: none;
+    height: 0;
+    overflow: hidden;
+}
+.real-content {
+    transition: opacity 0.3s ease;
+}
+.real-content.hidden {
+    opacity: 0;
+    position: absolute;
+    pointer-events: none;
+    height: 0;
+    overflow: hidden;
+}
+
+/* Skeleton: Summary Card */
+.skeleton-summary-cards {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 24px;
+    margin-bottom: 30px;
+}
+.skeleton-summary-card {
+    background: white;
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+.skeleton-summary-card .skel-label {
+    height: 14px;
+    width: 60%;
+    margin-bottom: 16px;
+}
+.skeleton-summary-card .skel-value {
+    height: 36px;
+    width: 40%;
+    margin-bottom: 12px;
+}
+.skeleton-summary-card .skel-tag {
+    height: 24px;
+    width: 50%;
+    border-radius: 20px;
+}
+
+/* Skeleton: Table Row */
+.skeleton-table-row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 16px 20px;
+    border-bottom: 1px solid #f1f5f9;
+}
+.skeleton-table-row .skel-cell {
+    height: 16px;
+    flex: 1;
+}
+.skeleton-table-row .skel-cell-sm {
+    height: 16px;
+    width: 80px;
+    flex-shrink: 0;
+}
+.skeleton-table-row .skel-cell-badge {
+    height: 28px;
+    width: 90px;
+    border-radius: 20px;
+    flex-shrink: 0;
+}
+.skeleton-table-row .skel-cell-actions {
+    display: flex;
+    gap: 8px;
+    flex-shrink: 0;
+}
+.skeleton-table-row .skel-btn {
+    height: 36px;
+    width: 36px;
+    border-radius: 8px;
+}
+
+/* Skeleton: Accordion Section */
+.skeleton-accordion {
+    background: white;
+    border-radius: 12px;
+    padding: 20px 24px;
+    margin-bottom: 16px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+.skeleton-accordion .skel-badge {
+    height: 40px;
+    width: 40px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+.skeleton-accordion .skel-title {
+    height: 18px;
+    flex: 1;
+}
+.skeleton-accordion .skel-arrow {
+    height: 20px;
+    width: 20px;
+    border-radius: 4px;
+    flex-shrink: 0;
+}
+
+/* Skeleton: Config Card */
+.skeleton-config-card {
+    background: white;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 12px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+}
+.skeleton-config-card .skel-line {
+    height: 14px;
+    margin-bottom: 10px;
+}
+.skeleton-config-card .skel-line:last-child {
+    margin-bottom: 0;
+}
+
+/* Wrapper for positioning */
+.skeleton-wrapper {
+    position: relative;
+}

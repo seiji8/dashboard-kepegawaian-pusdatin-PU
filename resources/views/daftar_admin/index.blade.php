@@ -68,7 +68,19 @@
                             <th style="width: 15%; text-align: center;">Aksi</th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody class="skeleton-layer">
+                        @for ($i = 0; $i < 4; $i++)
+                        <tr>
+                            <td><div class="skeleton-box" style="height:16px; width:65%; margin-bottom:6px;"></div><div class="skeleton-box" style="height:12px; width:40%;"></div></td>
+                            <td><div class="skeleton-box" style="height:14px; width:80%;"></div></td>
+                            <td><div class="skeleton-box" style="height:28px; width:100px; border-radius:20px;"></div></td>
+                            <td style="text-align:center;"><div style="display:flex; gap:8px; justify-content:center;"><div class="skeleton-box" style="height:36px; width:36px; border-radius:8px;"></div><div class="skeleton-box" style="height:36px; width:36px; border-radius:8px;"></div></div></td>
+                        </tr>
+                        @endfor
+                    </tbody>
+
+                    {{-- Real: Table Rows --}}
+                    <tbody class="real-content hidden">
                         @forelse($admins as $admin)
                         <tr data-id="{{ $admin->id }}" data-nama="{{ $admin->nama_lengkap }}" data-nip="{{ $admin->username }}" data-role="{{ $admin->role }}" data-is-super="{{ $admin->isSuperAdmin() ? '1' : '0' }}">
                             <td>
@@ -468,4 +480,5 @@
         }
     </script>
 @endsection
+
 

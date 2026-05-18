@@ -3,6 +3,10 @@
  */
 
 document.addEventListener('DOMContentLoaded', function () {
+    // 0. Skeleton Auto-Reveal: hide skeletons, show real content
+    document.querySelectorAll('.skeleton-layer').forEach(function(el) { el.classList.add('hidden'); });
+    document.querySelectorAll('.real-content').forEach(function(el) { el.classList.remove('hidden'); });
+
     // 1. Sidebar Drag Prevention
     document.addEventListener('dragstart', function (event) {
         if (event.target.closest('.sidebar') ||

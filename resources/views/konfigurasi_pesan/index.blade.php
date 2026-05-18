@@ -63,6 +63,20 @@
                 }
             </script>
 
+            {{-- Skeleton: Config Cards --}}
+            <div class="skeleton-layer">
+                @for ($i = 0; $i < 4; $i++)
+                <div class="config-grid" style="padding: 16px 20px;">
+                    <div><div class="skeleton-box" style="height:16px; width:70%; margin-bottom:8px;"></div><div class="skeleton-box" style="height:12px; width:50%;"></div></div>
+                    <div><div class="skeleton-box" style="height:14px; width:95%; margin-bottom:6px;"></div><div class="skeleton-box" style="height:14px; width:60%;"></div></div>
+                    <div style="text-align:center;"><div class="skeleton-box" style="height:28px; width:80px; border-radius:20px; margin:0 auto;"></div></div>
+                    <div style="text-align:center;"><div class="skeleton-box" style="height:36px; width:36px; border-radius:8px; margin:0 auto;"></div></div>
+                </div>
+                @endfor
+            </div>
+
+            {{-- Real: Config Cards --}}
+            <div class="real-content hidden">
             @forelse($rules as $rule)
             @php
                 $systemCategories = [
@@ -140,6 +154,7 @@
                 </div>
             </div>
             @endforelse
+            </div>
 
             <!-- EMPTY FILTER STATE (Hidden by default) -->
             <div id="emptyFilterState" style="display: none; grid-column: 1 / -1; padding: 40px 0;">
@@ -678,4 +693,5 @@
         }
     </script>
 @endsection
+
 
