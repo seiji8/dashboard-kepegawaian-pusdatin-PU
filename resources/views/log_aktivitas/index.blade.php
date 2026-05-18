@@ -280,7 +280,7 @@
     @include('partials.sync_loading')
 
     <script src="{{ asset('js/app-common.js') }}"></script>
-    <script src="{{ asset('js/dashboard.js') }}"></script>
+    <script src="{{ asset('js/dashboard-ui.js') }}"></script>
     @include('partials.change_password_modal')
     <!-- Driver.js (Logika Panduan Tour Interaktif) -->
     <script src="https://cdn.jsdelivr.net/npm/driver.js@1.3.1/dist/driver.js.iife.js"></script>
