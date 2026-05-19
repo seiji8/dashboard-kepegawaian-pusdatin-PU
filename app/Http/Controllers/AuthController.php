@@ -118,32 +118,58 @@ class AuthController extends Controller
             'created_at' => Carbon::now()
         ]);
 
-        // Send email (for now, we'll just redirect with success message)
-        // In production, you would send an actual email here
-        // Mail::send('emails.password_reset', ['token' => $token], function($message) use($request){
-        //     $message->to($request->email);
-        //     $message->subject('Reset Password');
-        // });
+        // Send email
+        \Illuminate\Support\Facades\Mail::send('emails.password_reset', ['token' => $token], function($message) use($request){
+            $message->to($request->email);
+            $message->subject('Permintaan Reset Password - Dashboard Kepegawaian');
+        });
 
         // Log activity
         ActivityLogger::logSystem('Reset password diminta untuk email: ' . $request->email);
 
-        // TODO: Aktifkan pengiriman email reset password yang sesungguhnya sebelum deploy production
-        return back()->with('status', 'Jika email terdaftar, link reset password akan dikirim. Silakan cek inbox Anda.');
+        return back()->with('status', 'Link reset password telah dikirim. Silakan cek inbox Anda.');
     }
 
-    public function showResetPasswordForm($token)
+    /**
+     * Tangkap token dari URL email, simpan ke session, lalu redirect ke URL bersih.
+     * Ini mencegah token terekspos di browser history dan log jaringan.
+     */
+    public function validateAndRedirect($token)
     {
+        // Simpan token ke session (brankas memori)
+        session(['reset_token' => $token]);
+
+        // Redirect ke URL bersih tanpa token
+        return redirect()->route('password.reset');
+    }
+
+    public function showResetPasswordForm()
+    {
+        // Ambil token dari session (bukan dari URL)
+        $token = session('reset_token');
+
+        if (!$token) {
+            return redirect()->route('password.request')
+                ->withErrors(['email' => 'Link reset password tidak valid atau sudah kadaluarsa. Silakan minta ulang.']);
+        }
+
         return view('auth.reset_password', ['token' => $token]);
     }
 
     public function resetPassword(Request $request)
     {
         $request->validate([
-            'token' => 'required',
             'email' => 'required|email',
             'password' => 'required|min:8|confirmed',
         ]);
+
+        // Ambil token dari session (bukan dari form/URL)
+        $token = session('reset_token');
+
+        if (!$token) {
+            return redirect()->route('password.request')
+                ->withErrors(['email' => 'Sesi reset password sudah habis. Silakan minta ulang.']);
+        }
 
         // Check if token exists and is valid
         $passwordReset = DB::table('password_resets')
@@ -155,7 +181,7 @@ class AuthController extends Controller
         }
 
         // Check if token matches
-        if (!Hash::check($request->token, $passwordReset->token)) {
+        if (!Hash::check($token, $passwordReset->token)) {
             return back()->withErrors(['email' => 'Token reset password tidak valid.']);
         }
 
@@ -169,13 +195,14 @@ class AuthController extends Controller
         $user->password = $request->password;
         $user->save();
 
-        // Delete the token
+        // Delete the token from DB and session
         DB::table('password_resets')->where('email', $request->email)->delete();
+        session()->forget('reset_token');
 
         // Log activity
         ActivityLogger::logAdminAction('Reset password berhasil untuk: ' . $user->nama_lengkap);
 
-        return redirect()->route('login')->with('status', 'Password berhasil direset! Silakan login dengan password baru Anda.');
+        return redirect()->route('password.success');
     }
     // CHANGE PASSWORD (AUTHENTICATED USER)
     public function changePassword(Request $request)
