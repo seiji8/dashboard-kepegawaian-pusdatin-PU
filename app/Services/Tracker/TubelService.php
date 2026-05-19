@@ -25,7 +25,7 @@ class TubelService implements TrackerInterface
                 ?? $t->perpanjangan1_tanggal_mulai
                 ?? $t->tanggal_selesai;
                 
-            if ($selesai && $today->gt(Carbon::parse($selesai))) return false;
+            if ($selesai && $today->gt($selesai)) return false;
             return true;
         });
 
@@ -38,12 +38,12 @@ class TubelService implements TrackerInterface
             $keteranganTubel = 'Sedang menjalani Tugas Belajar';
 
             if ($selesaiEfektif) {
-                $hariSisa = $today->diffInDays(Carbon::parse($selesaiEfektif), false);
+                $hariSisa = $today->diffInDays($selesaiEfektif, false);
                 if ($hariSisa <= 60 && $hariSisa >= 0) {
                     $statusTubel    = 'Proses Pengaktifan';
                     $keteranganTubel = "Sisa {$hariSisa} hari menuju selesai Tubel. Segera siapkan surat pengaktifan kembali.";
                 }
-                $keteranganTubel .= " | Selesai: " . Carbon::parse($selesaiEfektif)->format('d-m-Y');
+                $keteranganTubel .= " | Selesai: " . $selesaiEfektif->format('d-m-Y');
             } else {
                 $keteranganTubel .= ' (tanggal selesai belum ditetapkan)';
             }
@@ -57,7 +57,7 @@ class TubelService implements TrackerInterface
                     'status_saat_ini' => $statusTubel,
                     'keterangan'      => $keteranganTubel,
                     'dokumen_total'   => 0,
-                    'tanggal_target'  => $selesaiEfektif ? Carbon::parse($selesaiEfektif)->format('Y-m-d') : null,
+                    'tanggal_target'  => $selesaiEfektif ? $selesaiEfektif->format('Y-m-d') : null,
                 ]
             );
 

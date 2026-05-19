@@ -77,6 +77,7 @@ class RecalculateTracker extends Command
             $diklatService = new \App\Services\Tracker\DiklatService();
 
             foreach ($pegawais as $pegawai) {
+                /** @var \App\Models\Pegawai $pegawai */
                 $today = Carbon::now();
 
                 $kgbService->process($pegawai, $today, $daftarUsulanBaru, $context);
@@ -162,6 +163,7 @@ class RecalculateTracker extends Command
                 ];
 
                 foreach ($admins as $admin) {
+                     /** @var \App\Models\User $admin */
                      if ($admin->email) {
                          try {
                               $admin->notify(new SystemAlertNotification($dummyPegawai, $subject, $messageBody, null, $pdfData));
