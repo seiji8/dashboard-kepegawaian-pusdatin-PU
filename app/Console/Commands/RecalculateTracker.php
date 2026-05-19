@@ -65,16 +65,18 @@ class RecalculateTracker extends Command
         ];
 
         // Big Data Optimized: Menggunakan chunkById(500) dan eager loading untuk menghindari N+1 Query Problem
+        // Service di-instansiasi SEKALI di luar closure untuk efisiensi memori
+        $kgbService = new \App\Services\Tracker\KgbTrackerService();
+        $kpService = new \App\Services\Tracker\KenaikanPangkatService();
+        $kjService = new \App\Services\Tracker\KenaikanJenjangService();
+        $tubelService = new \App\Services\Tracker\TubelService();
+        $diklatService = new \App\Services\Tracker\DiklatService();
+
         Pegawai::with(['riwayatAngkaKredit' => function ($query) {
             $query->orderBy('tmt_angka_kredit', 'desc');
         }, 'riwayat_jabatan' => function ($query) {
             $query->orderBy('tmt_jabatan', 'desc');
-        }])->chunkById(500, function ($pegawais) use ($bar, $context, &$daftarUsulanBaru) {
-            $kgbService = new \App\Services\Tracker\KgbTrackerService();
-            $kpService = new \App\Services\Tracker\KenaikanPangkatService();
-            $kjService = new \App\Services\Tracker\KenaikanJenjangService();
-            $tubelService = new \App\Services\Tracker\TubelService();
-            $diklatService = new \App\Services\Tracker\DiklatService();
+        }])->chunkById(500, function ($pegawais) use ($bar, $context, &$daftarUsulanBaru, $kgbService, $kpService, $kjService, $tubelService, $diklatService) {
 
             foreach ($pegawais as $pegawai) {
                 /** @var \App\Models\Pegawai $pegawai */

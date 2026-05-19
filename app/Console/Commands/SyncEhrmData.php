@@ -100,10 +100,13 @@ class SyncEhrmData extends Command
                     // Wrap dalam transaction agar FK_CHECKS tidak stuck di 0 jika terjadi error
                     \DB::transaction(function () use ($oldId, $realApiId) {
                         \DB::statement('SET FOREIGN_KEY_CHECKS=0');
-                        \DB::table('pegawai')->where('id_pegawai_api', $oldId)->update(['id_pegawai_api' => $realApiId]);
-                        \DB::table('dashboard_tracker')->where('pegawai_id', $oldId)->update(['pegawai_id' => $realApiId]);
-                        \DB::table('riwayat_angka_kredit')->where('id_pegawai_api', $oldId)->update(['id_pegawai_api' => $realApiId]);
-                        \DB::statement('SET FOREIGN_KEY_CHECKS=1');
+                        try {
+                            \DB::table('pegawai')->where('id_pegawai_api', $oldId)->update(['id_pegawai_api' => $realApiId]);
+                            \DB::table('dashboard_tracker')->where('pegawai_id', $oldId)->update(['pegawai_id' => $realApiId]);
+                            \DB::table('riwayat_angka_kredit')->where('id_pegawai_api', $oldId)->update(['id_pegawai_api' => $realApiId]);
+                        } finally {
+                            \DB::statement('SET FOREIGN_KEY_CHECKS=1');
+                        }
                     });
                     $pegawai = Pegawai::where('nip', $item['nip'])->first();
                 }
