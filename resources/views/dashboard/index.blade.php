@@ -13,7 +13,29 @@
 @endsection
 
 @section('content')
-                <h2 class="page-title-dashboard">Dashboard</h2>
+                {{-- Dashboard Header with Last Sync Badge --}}
+                <div class="dashboard-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 12px;">
+                    <h2 class="page-title-dashboard" style="margin-bottom: 0;">Dashboard</h2>
+                    
+                    {{-- Last Sync Badge (Awwwards Style - Glassmorphism) --}}
+                    <div class="last-sync-badge" style="display: flex; align-items: center; gap: 8px; background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); padding: 8px 16px; border-radius: 50px; border: 1px solid rgba(0,0,0,0.06); font-size: 13px; color: #6b7280; box-shadow: 0 1px 3px rgba(0,0,0,0.04);">
+                        @if($isDataFresh)
+                            {{-- Pulsing Green Dot — Data Fresh (< 24 Jam) --}}
+                            <span style="position: relative; display: flex; width: 8px; height: 8px;">
+                                <span style="animation: syncPing 1.5s cubic-bezier(0, 0, 0.2, 1) infinite; position: absolute; display: inline-flex; height: 100%; width: 100%; border-radius: 50%; background-color: #34d399; opacity: 0.7;"></span>
+                                <span style="position: relative; display: inline-flex; border-radius: 50%; height: 8px; width: 8px; background-color: #10b981;"></span>
+                            </span>
+                        @else
+                            {{-- Gray Dot — Data Lama (> 24 Jam) --}}
+                            <span style="display: inline-flex; border-radius: 50%; height: 8px; width: 8px; background-color: #d1d5db;"></span>
+                        @endif
+                        <span style="font-weight: 500;">
+                            <i class="ph ph-arrows-clockwise" style="margin-right: 2px;"></i>
+                            Sync: <strong style="color: #1f2937;">{{ $lastSyncTime }}</strong>
+                        </span>
+                    </div>
+                </div>
+                <style>@keyframes syncPing { 75%, 100% { transform: scale(2.2); opacity: 0; } }</style>
 
                 {{-- Skeleton: Summary Cards --}}
                 <div class="skeleton-layer">

@@ -103,6 +103,21 @@ class DashboardController extends Controller
         // Ambil template manual untuk modal reminder di dashboard
         $templates = NotifikasiRules::where('interval_hari', 0)->get();
 
+        // [FITUR BARU] Ambil waktu sinkronisasi terakhir dari Log Aktivitas
+        $lastSyncLog = \App\Models\Logs::where('tipe', 'SYSTEM_LOG')
+            ->where('deskripsi', 'LIKE', '%Background Sync Selesai%')
+            ->latest('waktu')
+            ->first();
+
+        if ($lastSyncLog) {
+            $syncDate = \Carbon\Carbon::parse($lastSyncLog->waktu);
+            $lastSyncTime = $syncDate->translatedFormat('d M Y, H:i') . ' WIB';
+            $isDataFresh = $syncDate->diffInHours(now()) < 24;
+        } else {
+            $lastSyncTime = 'Belum pernah';
+            $isDataFresh = false;
+        }
+
         return view('dashboard.index', compact(
             'totalPegawai', 
             'tenggatMendesak', 
@@ -121,7 +136,9 @@ class DashboardController extends Controller
             'diklatHutang',
             'diklatAnomali',
             'listMonitoringDiklat',
-            'templates'
+            'templates',
+            'lastSyncTime',
+            'isDataFresh'
         ));
     }
 
