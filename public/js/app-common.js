@@ -207,7 +207,7 @@ function finishSyncSuccess() {
         }
 
         setTimeout(() => {
-            location.reload();
+            window.location.href = window.location.pathname + '?_t=' + Date.now();
         }, 1000);
     }, 1200);
 }
