@@ -48,12 +48,12 @@ function closeDetailModal() {
 
 function closeDashboardDetail() {
     const modal = document.getElementById("dashboardDetailModal");
-    if (modal) modal.style.display = "none";
+    if (modal) modal.classList.remove("open");
 }
 
 // --- REMINDER MODAL ---
 function openReminderModal() {
-    if (reminderModal) reminderModal.style.display = "flex";
+    if (reminderModal) reminderModal.classList.add("open");
 
     // Init Tom Select setelah modal tampil
     setTimeout(() => {
@@ -71,7 +71,7 @@ function openReminderModal() {
 }
 
 function closeReminderModal() {
-    if (reminderModal) reminderModal.style.display = "none";
+    if (reminderModal) reminderModal.classList.remove("open");
     if (reminderTomSelect) {
         reminderTomSelect.destroy();
         reminderTomSelect = null;

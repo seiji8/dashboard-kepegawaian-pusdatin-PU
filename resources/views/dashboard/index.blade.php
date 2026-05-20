@@ -848,31 +848,104 @@
     </div>
 
     <!-- MODAL DASHBOARD DETAIL (KHUSUS KATEGORI) -->
-    <div id="dashboardDetailModal" class="modal-overlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:2300; justify-content:center; align-items:center;">
-        <div style="background:#fff; width:860px; max-width:95vw; border-radius:12px; box-shadow:0 10px 40px rgba(0,0,0,0.15); display:flex; flex-direction:column; overflow:hidden;">
+    <style>
+        .tm-overlay {
+            position: fixed; inset: 0; z-index: 2500;
+            background: rgba(10, 18, 40, 0.55);
+            backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+            display: flex; align-items: center; justify-content: center;
+            opacity: 0; visibility: hidden;
+            transition: opacity 0.25s ease, visibility 0.25s ease;
+        }
+        .tm-overlay.open { opacity: 1; visibility: visible; }
+        
+        .tm-card {
+            background: #ffffff; border-radius: 20px;
+            box-shadow: 0 32px 64px -16px rgba(20,43,111,0.25), 0 0 0 1px rgba(20,43,111,0.06);
+            width: 100%; max-width: 500px;
+            display: flex; flex-direction: column; max-height: 92vh;
+            transform: translateY(20px) scale(0.97);
+            transition: transform 0.3s cubic-bezier(0.16,1,0.3,1);
+        }
+        .tm-overlay.open .tm-card { transform: translateY(0) scale(1); }
+        
+        .tm-header {
+            background: linear-gradient(135deg, #142B6F 0%, #1e3a8a 100%);
+            padding: 24px 28px; position: relative; overflow: hidden;
+            display: flex; justify-content: space-between; align-items: flex-start;
+            flex-shrink: 0; border-radius: 20px 20px 0 0;
+        }
+        .tm-header::before {
+            content: ''; position: absolute; top: -30px; right: -30px;
+            width: 140px; height: 140px; background: rgba(255,201,40,0.08); border-radius: 50%;
+        }
+        .tm-header::after {
+            content: ''; position: absolute; bottom: -50px; left: -20px;
+            width: 160px; height: 160px; background: rgba(255,255,255,0.04); border-radius: 50%;
+        }
+        .tm-header-left { display: flex; align-items: center; gap: 14px; position: relative; z-index: 1; }
+        .tm-icon-wrap {
+            width: 48px; height: 48px; border-radius: 14px;
+            display: flex; align-items: center; justify-content: center;
+            background: rgba(255,255,255,0.1); border: 1.5px solid rgba(255,255,255,0.2);
+            font-size: 24px; color: #ffffff;
+        }
+        .tm-title-wrap h2 { margin: 0 0 2px 0; color: #ffffff; font-size: 18px; font-weight: 700; }
+        .tm-title-wrap p { margin: 0; color: rgba(255,255,255,0.7); font-size: 13px; }
+        
+        .tm-close-btn {
+            background: rgba(255,255,255,0.1); border: none; border-radius: 50%;
+            width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;
+            color: #ffffff; cursor: pointer; transition: all 0.2s; position: relative; z-index: 1;
+        }
+        .tm-close-btn:hover { background: rgba(255,255,255,0.2); transform: rotate(90deg); }
+
+        .tm-body { padding: 24px 28px; flex: 1; }
+        
+        .tm-footer {
+            padding: 16px 28px 24px; display: flex; justify-content: flex-end; gap: 10px; flex-shrink: 0;
+            background: #f8fafc; border-top: 1px solid #e2e8f0; border-radius: 0 0 20px 20px;
+        }
+        .tm-btn-cancel {
+            padding: 12px 24px; border-radius: 10px; border: 1.5px solid #e2e8f0;
+            background: #f8fafc; font-size: 14px; font-weight: 600; color: #64748b;
+            cursor: pointer; transition: all 0.2s ease; font-family: inherit;
+        }
+        .tm-btn-cancel:hover { background: #f1f5f9; border-color: #cbd5e1; color: #374151; }
+        
+        .tm-btn-submit {
+            padding: 12px 24px; border-radius: 10px; border: none;
+            background: linear-gradient(135deg, #142B6F 0%, #1e3a8a 100%);
+            font-size: 14px; font-weight: 700; color: #ffffff;
+            cursor: pointer; transition: all 0.2s ease; display: flex; align-items: center; gap: 8px;
+            box-shadow: 0 4px 12px rgba(20,43,111,0.25); font-family: inherit;
+        }
+        .tm-btn-submit:hover { transform: translateY(-1px); box-shadow: 0 6px 16px rgba(20,43,111,0.35); }
+    </style>
+    <div id="dashboardDetailModal" class="tm-overlay" onclick="if(event.target===this) closeDashboardDetail()">
+        <div class="tm-card" style="max-width: 860px; width: 95vw;">
             
             <!-- Header -->
-            <div style="padding:20px 25px; border-bottom:1px solid #e2e8f0; display:flex; flex-direction:column; background:#f8fafc;">
-                <div style="display:flex; justify-content:space-between; align-items:flex-start;">
-                    <div style="display:flex; align-items:center; gap:15px;">
-                        <div id="dashModalAvatar" style="background:#1e40af; color:#fff; width:50px; height:50px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:18px; font-weight:700;">
-                        </div>
-                        <div style="display:flex; flex-direction:column; gap:8px; padding-top:2px;">
-                            <h3 id="dashModalNama" style="margin:0; font-size:18px; font-weight:700; color:#1e293b; line-height:1.1;">Memuat...</h3>
-                            <div style="display:flex; align-items:center; gap:10px;">
-                                <p id="dashModalKategori" style="margin:0; font-size:12px; font-weight:600; color:#3b82f6; background:#eff6ff; padding:4px 10px; border-radius:12px; border:1px solid #bfdbfe; line-height:1;">-</p>
-                                <div style="width:2px; height:14px; background-color:#cbd5e1; border-radius:1px;"></div>
-                                <p id="dashModalNip" style="margin:0; font-size:13px; font-weight:500; color:#64748b; line-height:1;">-</p>
-                            </div>
+            <div class="tm-header" style="padding-bottom: 20px;">
+                <div class="tm-header-left">
+                    <div id="dashModalAvatar" class="tm-icon-wrap" style="width: 50px; height: 50px; border-radius: 50%; font-size: 18px; font-weight: 700; background: rgba(255,255,255,0.15); border-color: rgba(255,255,255,0.3);">
+                    </div>
+                    <div class="tm-title-wrap">
+                        <h2 id="dashModalNama" style="font-size: 18px; margin-bottom: 6px; margin-top: 0; color: #ffffff;">Memuat...</h2>
+                        <div style="display:flex; align-items:center; gap:10px;">
+                            <span id="dashModalKategori" style="font-size:11px; font-weight:700; color:#1e3a8a; background:rgba(255,255,255,0.9); padding:4px 10px; border-radius:12px; line-height:1; letter-spacing: 0.5px; text-transform: uppercase;">-</span>
+                            <div style="width:4px; height:4px; background-color:rgba(255,255,255,0.5); border-radius:50%;"></div>
+                            <span id="dashModalNip" style="font-size:13px; font-weight:600; color:rgba(255,255,255,0.85); line-height:1; font-family: monospace;">-</span>
                         </div>
                     </div>
-                    <button onclick="closeDashboardDetail()" style="background:none; border:none; cursor:pointer; padding:5px; color:#94a3b8; transition:color 0.2s;" onmouseover="this.style.color='#ef4444'" onmouseout="this.style.color='#94a3b8'">
-                        <i class="ph-bold ph-x" style="font-size:20px;"></i>
-                    </button>
                 </div>
-                
-                <!-- PROGRESS TRACKER SECTION -->
-                <style>
+                <button type="button" class="tm-close-btn" onclick="closeDashboardDetail()">
+                    <i class="ph-bold ph-x"></i>
+                </button>
+            </div>
+            
+            <!-- PROGRESS TRACKER STYLES -->
+            <style>
                 .tracker-step { display:flex; flex-direction:column; align-items:center; justify-content:flex-start; position:relative; z-index:1; flex:1; min-width:0; }
                 .tracker-step .circle { width:30px; height:30px; border-radius:50%; background:#eff6ff; display:flex; align-items:center; justify-content:center; border:2px solid #bfdbfe; z-index:2; position:relative; transition:all 0.3s; flex-shrink:0; }
                 .tracker-step.done .circle { background:#3b82f6; border-color:#3b82f6; }
@@ -889,25 +962,27 @@
                 .tracker-line { height:3px; flex:1; align-self:flex-start; margin-top:13px; z-index:0; transition:all 0.3s; min-width:20px; }
                 .tracker-line.done { background:#3b82f6; }
                 .tracker-line.dashed { background:repeating-linear-gradient(90deg, #bfdbfe 0, #bfdbfe 6px, transparent 6px, transparent 14px); }
-                </style>
-                <div id="dashModalTrackerContainer" style="margin-top:15px; display:none; width: 100%; border-top: 1px dashed #e2e8f0; padding-top: 15px;">
-                    <h4 style="font-size:14px; font-weight:700; color:#1e293b; margin:0 0 15px 0; text-align:center;">Progres Status</h4>
+            </style>
+
+            <!-- Body -->
+            <div class="tm-body" style="padding: 24px 28px; overflow-y: auto; max-height: 55vh; background: #ffffff;">
+                
+                <!-- Progress Tracker moved inside body for scroll -->
+                <div id="dashModalTrackerContainer" style="display:none; width: 100%; margin-bottom: 25px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px;">
+                    <h4 style="font-size:12px; font-weight:700; color:#64748b; margin:0 0 15px 0; text-align:center; text-transform: uppercase; letter-spacing: 0.5px;">Progres Status Usulan</h4>
                     <div id="dashModalTracker" style="display:flex; align-items:flex-start; width:100%; margin:0 auto;">
                         <!-- Tracker steps will be injected by JS -->
                     </div>
                 </div>
-            </div>
 
-            <!-- Body -->
-            <div style="padding:20px 25px; overflow-y:auto; max-height:38vh;">
-                <div id="dashModalLoading" style="text-align:center; padding:30px; color:#64748b;">
-                    <i class="ph-bold ph-spinner" style="font-size:32px; color:#0f172a; animation:spin 1s linear infinite;"></i>
-                    <p style="margin-top:10px;">Mengambil data dokumen...</p>
+                <div id="dashModalLoading" style="text-align:center; padding:40px; color:#64748b;">
+                    <i class="ph-bold ph-spinner" style="font-size:32px; color:#1e3a8a; animation:spin 1s linear infinite;"></i>
+                    <p style="margin-top:12px; font-weight: 500;">Mengambil detail usulan...</p>
                 </div>
 
                 <div id="dashModalContentBody" style="display:none;">
                     <!-- Info Grid -->
-                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:15px; margin-bottom:25px; background:#f1f5f9; padding:15px; border-radius:8px; border:1px solid #e2e8f0;">
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:15px; margin-bottom:25px; background:#ffffff; padding:15px; border-radius:12px; border:1px solid #e2e8f0; box-shadow: 0 2px 4px rgba(0,0,0,0.02);">
                         <div>
                             <div style="font-size:11px; color:#64748b; font-weight:700; margin-bottom:4px; letter-spacing:0.5px;">EMAIL</div>
                             <div id="dashModalEmail" style="font-size:14px; color:#0f172a; font-weight:500;">-</div>
@@ -1001,8 +1076,8 @@
             </div>
 
             <!-- Footer -->
-            <div id="dashModalFooter" style="padding:15px 25px; border-top:1px solid #e2e8f0; background:#f8fafc; display:none; justify-content:flex-end;">
-                <button class="btn-reminder-yellow" onclick="openReminderModal()" style="width:auto; padding:8px 20px; margin:0; display:flex; align-items:center; gap:8px;">
+            <div id="dashModalFooter" class="tm-footer" style="display:none; justify-content:flex-end;">
+                <button class="tm-btn-submit" onclick="openReminderModal()" style="width:auto; display:flex; align-items:center; gap:8px;">
                     <i class="ph-bold ph-bell-ringing"></i> Kirim Pengingat
                 </button>
             </div>
@@ -1011,52 +1086,55 @@
     </div>
 
     <!-- REMINDER MODAL -->
-    <div id="reminderModal" class="modal-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2400; justify-content: center; align-items: center;">
-        <div class="modal-content" style="background: white; width: 600px; padding: 0; border-radius: 12px; box-shadow: 0 10px 40px rgba(0,0,0,0.2); position: relative; overflow: hidden; display: flex; flex-direction: column;">
+    <div id="reminderModal" class="tm-overlay" onclick="if(event.target===this) closeReminderModal()">
+        <div class="tm-card" style="max-width: 600px; max-height: 90vh;">
             
             <!-- Header -->
-            <div style="padding: 20px 25px; border-bottom: 1px solid #e2e8f0; background: #f8fafc; display: flex; justify-content: space-between; align-items: center;">
-                <div style="display: flex; align-items: center; gap: 12px;">
-                    <div style="background: #fef3c7; color: #d97706; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
-                        <i class="ph-bold ph-bell-ringing" style="font-size: 20px;"></i>
+            <div class="tm-header">
+                <div class="tm-header-left">
+                    <div class="tm-icon-wrap" style="background: rgba(255,255,255,0.2); border-color: rgba(255,255,255,0.4);">
+                        <i class="ph-bold ph-bell-ringing"></i>
                     </div>
-                    <h2 style="margin: 0; color: #1e293b; font-size: 18px; font-weight: 700;">Kirim Pengingat Manual</h2>
+                    <div class="tm-title-wrap">
+                        <h2>Kirim Pengingat Manual</h2>
+                        <p>Kirimkan notifikasi langsung ke pegawai terkait</p>
+                    </div>
                 </div>
-                <button onclick="closeReminderModal()" style="background: none; border: none; cursor: pointer; color: #94a3b8; transition: color 0.2s;" onmouseover="this.style.color='#ef4444'" onmouseout="this.style.color='#94a3b8'">
-                    <i class="ph-bold ph-x" style="font-size: 20px;"></i>
+                <button type="button" class="tm-close-btn" onclick="closeReminderModal()">
+                    <i class="ph-bold ph-x"></i>
                 </button>
             </div>
             
             <!-- Body -->
-            <div style="padding: 25px;">
+            <div class="tm-body" style="overflow-y: auto;">
                 <style>
                     #reminderModal .ts-wrapper { margin-bottom: 20px; }
-                    #reminderModal .ts-control { border-radius: 8px !important; border-color: #cbd5e1 !important; padding: 10px 15px !important; font-size: 14px !important; }
-                    #reminderModal .ts-control:focus-within { border-color: #3b82f6 !important; box-shadow: 0 0 0 3px rgba(59,130,246,0.1) !important; }
-                    #reminderModal .ts-dropdown { border-radius: 8px !important; border-color: #cbd5e1 !important; box-shadow: 0 4px 12px rgba(0,0,0,0.1) !important; }
+                    #reminderModal .ts-control { border-radius: 10px !important; border-color: #cbd5e1 !important; padding: 12px 15px !important; font-size: 14px !important; background: #f8fafc !important; }
+                    #reminderModal .ts-control:focus-within { border-color: #3b82f6 !important; box-shadow: 0 0 0 3px rgba(59,130,246,0.1) !important; background: #ffffff !important; }
+                    #reminderModal .ts-dropdown { border-radius: 10px !important; border-color: #cbd5e1 !important; box-shadow: 0 10px 25px rgba(0,0,0,0.1) !important; }
                 </style>
-                <label style="display: block; font-size: 13px; font-weight: 700; color: #475569; margin-bottom: 8px; letter-spacing: 0.5px;">PILIH TEMPLATE PESAN</label>
-                <select id="reminderTemplate" style="width: 100%; padding: 12px 15px; border: 1px solid #cbd5e1; border-radius: 8px; margin-bottom: 20px; color: #1e293b; font-size: 14px; outline: none; transition: all 0.2s; box-shadow: 0 1px 2px rgba(0,0,0,0.05);" onchange="toggleMessageMode()" onfocus="this.style.borderColor='#3b82f6'; this.style.boxShadow='0 0 0 3px rgba(59,130,246,0.1)'" onblur="this.style.borderColor='#cbd5e1'; this.style.boxShadow='0 1px 2px rgba(0,0,0,0.05)'">
+                <label style="display: block; font-size: 12px; font-weight: 700; color: #64748b; margin-bottom: 8px; letter-spacing: 0.5px; text-transform: uppercase;">PILIH TEMPLATE PESAN</label>
+                <select id="reminderTemplate" style="width: 100%; padding: 12px 15px; border: 1.5px solid #cbd5e1; border-radius: 10px; margin-bottom: 20px; color: #1e293b; font-size: 14px; outline: none; transition: all 0.2s; background: #f8fafc;" onchange="toggleMessageMode()" onfocus="this.style.borderColor='#3b82f6'; this.style.boxShadow='0 0 0 3px rgba(59,130,246,0.1)'; this.style.background='#ffffff'" onblur="this.style.borderColor='#cbd5e1'; this.style.boxShadow='none'; this.style.background='#f8fafc'">
                     <option value="" disabled selected>Pilih Template Pengingat</option>
                     @foreach($templates as $template)
                         <option value="{{ $template->id }}">{{ $template->kategori }}</option>
                     @endforeach
                 </select>
 
-                <div style="display: flex; align-items: center; margin-bottom: 20px; background: #f1f5f9; padding: 12px 15px; border-radius: 8px; border: 1px solid #e2e8f0;">
+                <div style="display: flex; align-items: center; margin-bottom: 24px; background: #eff6ff; padding: 14px 16px; border-radius: 10px; border: 1px solid #dbeafe;">
                     <input type="checkbox" id="checkCustom" onchange="toggleMessageMode()" style="margin-right: 12px; width: 18px; height: 18px; cursor: pointer; accent-color: #3b82f6;">
-                    <label for="checkCustom" style="font-size: 14px; font-weight: 600; color: #334155; cursor: pointer; user-select: none;">Apakah anda ingin menambahkan/mengedit pesan bawaan?</label>
+                    <label for="checkCustom" style="font-size: 13.5px; font-weight: 600; color: #1e40af; cursor: pointer; user-select: none;">Gunakan pesan custom atau edit manual?</label>
                 </div>
 
-                <label style="display: block; font-size: 13px; font-weight: 700; color: #475569; margin-bottom: 8px; letter-spacing: 0.5px;">ISI PESAN</label>
-                <textarea id="reminderMessage" disabled style="width: 100%; height: 120px; padding: 15px; border: 1px solid #cbd5e1; border-radius: 8px; margin-bottom: 10px; resize: none; font-size: 14px; color: #1e293b; outline: none; transition: all 0.2s; background: #f8fafc;" onfocus="this.style.borderColor='#3b82f6'; this.style.boxShadow='0 0 0 3px rgba(59,130,246,0.1)'; this.style.background='#ffffff'" onblur="this.style.borderColor='#cbd5e1'; this.style.boxShadow='none'; if(this.disabled) this.style.background='#f8fafc'"></textarea>
+                <label style="display: block; font-size: 12px; font-weight: 700; color: #64748b; margin-bottom: 8px; letter-spacing: 0.5px; text-transform: uppercase;">ISI PESAN</label>
+                <textarea id="reminderMessage" disabled style="width: 100%; height: 140px; padding: 15px; border: 1.5px solid #cbd5e1; border-radius: 10px; margin-bottom: 10px; resize: none; font-size: 14px; color: #1e293b; outline: none; transition: all 0.2s; background: #f1f5f9; font-family: inherit; line-height: 1.5;" onfocus="this.style.borderColor='#3b82f6'; this.style.boxShadow='0 0 0 3px rgba(59,130,246,0.1)'; this.style.background='#ffffff'" onblur="this.style.borderColor='#cbd5e1'; this.style.boxShadow='none'; if(this.disabled) this.style.background='#f1f5f9'"></textarea>
             </div>
 
             <!-- Footer -->
-            <div style="padding: 20px 25px; border-top: 1px solid #e2e8f0; background: #f8fafc; display: flex; justify-content: flex-end; gap: 12px;">
-                <button onclick="closeReminderModal()" style="padding: 10px 24px; background: white; color: #64748b; border: 1px solid #cbd5e1; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 14px; transition: all 0.2s;" onmouseover="this.style.background='#f1f5f9'; this.style.color='#475569'" onmouseout="this.style.background='white'; this.style.color='#64748b'">Batal</button>
-                <button onclick="sendReminder()" id="btnSendManual" style="padding: 10px 24px; background: #f59e0b; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 14px; display: flex; align-items: center; gap: 8px; transition: all 0.2s; box-shadow: 0 4px 6px -1px rgba(245, 158, 11, 0.2), 0 2px 4px -1px rgba(245, 158, 11, 0.1);" onmouseover="this.style.background='#d97706'; this.style.transform='translateY(-1px)'" onmouseout="this.style.background='#f59e0b'; this.style.transform='translateY(0)'">
-                    <i class="ph-bold ph-paper-plane-right"></i> Kirim
+            <div class="tm-footer">
+                <button type="button" class="tm-btn-cancel" onclick="closeReminderModal()">Batal</button>
+                <button type="button" class="tm-btn-submit" id="btnSendManual" onclick="sendReminder()">
+                    <i class="ph-bold ph-paper-plane-right"></i> Kirim Pesan
                 </button>
             </div>
 

@@ -104,7 +104,7 @@ function openDashboardDetail(nip, kategori) {
     currentDetailNip = nip;
 
     const modal = document.getElementById("dashboardDetailModal");
-    if (modal) modal.style.display = "flex";
+    if (modal) modal.classList.add("open");
 
     const loadingSpinner = document.getElementById("dashModalLoading");
     const contentBody = document.getElementById("dashModalContentBody");
