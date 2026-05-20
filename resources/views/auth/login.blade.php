@@ -71,10 +71,10 @@
 
       .auth-card {
           background: var(--card-bg);
-          border-radius: 24px;
-          box-shadow: 0 20px 50px -15px rgba(20,43,111,0.2), 0 0 1px rgba(20,43,111,0.1);
+          border-radius: 12px;
+          box-shadow: 0 10px 30px -5px rgba(20,43,111,0.15), 0 0 1px rgba(0,0,0,0.1);
           width: 100%;
-          max-width: 960px;
+          max-width: 900px;
           display: flex;
           overflow: hidden;
           animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1);
@@ -86,10 +86,11 @@
       }
 
       .image-section {
-          width: 45%;
+          width: 35%;
+          min-height: 540px;
           background-image: url('{{ asset('assets/login_sebelah.png') }}');
-          background-size: 100% 100%;
-          background-position: center;
+          background-size: cover;
+          background-position: left top;
           background-repeat: no-repeat;
           position: relative;
       }
@@ -101,8 +102,8 @@
       }
 
       .form-section {
-          width: 55%;
-          padding: 48px 56px;
+          width: 65%;
+          padding: 48px 64px;
           display: flex;
           flex-direction: column;
           justify-content: center;
@@ -199,6 +200,7 @@
           .auth-card {
               flex-direction: column;
               max-width: 440px;
+              height: auto;
           }
           .image-section {
               width: 100%;
@@ -297,7 +299,7 @@
 
       <!-- Footer Text -->
       <div class="footer-text">
-          &copy; {{ date('Y') }} PUSDATIN Kementerian PUPR.
+          &copy; {{ date('Y') }} PUSDATIN Kementerian PU.
       </div>
   </div>
 

@@ -236,7 +236,7 @@
 
       <!-- Footer Text -->
       <div class="footer-text">
-          &copy; {{ date('Y') }} PUSDATIN Kementerian PUPR.
+          &copy; {{ date('Y') }} PUSDATIN Kementerian PU.
       </div>
   </div>
 
