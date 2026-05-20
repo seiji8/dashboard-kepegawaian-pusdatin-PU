@@ -56,10 +56,26 @@ class TubelService implements TrackerInterface
                 [
                     'status_saat_ini' => $statusTubel,
                     'keterangan'      => $keteranganTubel,
-                    'dokumen_total'   => 0,
+                    'dokumen_total'   => 3,
                     'tanggal_target'  => $selesaiEfektif ? $selesaiEfektif->format('Y-m-d') : null,
                 ]
             );
+
+            // Tambahkan kelengkapan dokumen untuk TUBEL jika belum ada
+            if ($trackerTubel->wasRecentlyCreated || \App\Models\KelengkapanDokumen::where('dashboard_tracker_id', $trackerTubel->id)->count() === 0) {
+                $dokumenTubel = [
+                    'Surat Pengantar Unit Kerja',
+                    'SK Tugas Belajar',
+                    'Ijazah / Transkrip Nilai'
+                ];
+                foreach ($dokumenTubel as $dok) {
+                    \App\Models\KelengkapanDokumen::firstOrCreate([
+                        'dashboard_tracker_id' => $trackerTubel->id,
+                        'nama_dokumen'         => $dok,
+                        'nip'                  => $pegawai->nip
+                    ]);
+                }
+            }
 
             if ($statusTubel === 'Proses Pengaktifan' && $trackerTubel->wasChanged('status_saat_ini')) {
                 $admins = User::whereIn('role', ['super_admin', 'admin_pegawai'])->get();

@@ -236,4 +236,26 @@ class AuthController extends Controller
             'message' => 'Password berhasil diubah!'
         ]);
     }
+
+    public function forceChangePasswordUpdate(Request $request)
+    {
+        $request->validate([
+            'current_password' => ['required', 'string'],
+            'password' => ['required', 'string', 'min:8', 'confirmed', 'different:current_password'],
+        ]);
+
+        $user = Auth::user();
+
+        if (!Hash::check($request->current_password, $user->password)) {
+            return back()->withErrors(['current_password' => 'Password saat ini salah.']);
+        }
+
+        /** @var \App\Models\User $user */
+        $user->password = $request->password;
+        $user->save();
+
+        ActivityLogger::logAdminAction('Mengubah password default akun (' . $user->nama_lengkap . ')');
+
+        return redirect()->route('dashboard')->with('success', 'Password berhasil diubah.');
+    }
 }

@@ -18,3 +18,9 @@ Schedule::call(function () {
 
 // Penjadwalan Periodik (Triwulan & Tahunan)
 Schedule::command('notify:periodic')->dailyAt('07:00');
+
+// Sinkronisasi data e-HRM sebulan sekali setiap tanggal 1 jam 02:00
+Schedule::command('ehrm:sync')->monthlyOn(1, '02:00');
+
+// Recalculate tracker sebulan sekali setelah sync e-HRM
+Schedule::command('tracker:run')->monthlyOn(1, '03:00');

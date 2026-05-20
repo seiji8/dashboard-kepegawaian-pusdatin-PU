@@ -33,10 +33,16 @@ Route::view('/password-reset-success', 'auth.reset_success')->name('password.suc
 Route::middleware(['auth'])->group(function () {
     Route::post('/change-password', [AuthController::class, 'changePassword'])->name('change-password.update');
     Route::get('/backup-database', [DatabaseBackupController::class, 'download'])->name('database.backup');
+
+    // Force Change Password Routes
+    Route::get('/force-change-password', function() {
+        return view('auth.force_change_password');
+    })->name('password.force-change');
+    Route::post('/force-change-password', [AuthController::class, 'forceChangePasswordUpdate'])->name('password.force-change.update');
 });
 
 // 3. Rute Halaman Admin (Harus Login Dulu)
-Route::middleware(['auth'])->group(function () {
+Route::middleware(['auth', \App\Http\Middleware\ForcePasswordChange::class])->group(function () {
     
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::post('/tracker/{id}/confirm', [DashboardController::class, 'confirmTracker'])->name('tracker.confirm');

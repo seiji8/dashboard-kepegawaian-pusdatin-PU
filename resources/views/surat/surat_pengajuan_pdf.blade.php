@@ -205,9 +205,9 @@
                 <td>{{ $data['nomor_surat'] }}</td>
             </tr>
             <tr>
-                <td class="label">Lampiran</td>
+                <td class="label">Jumlah Terlampir</td>
                 <td class="separator">:</td>
-                <td>{{ $data['total_pegawai'] }} orang</td>
+                <td>{{ $data['total_pegawai'] }} orang (PNS terlampir)</td>
             </tr>
             <tr>
                 <td class="label">Perihal</td>
