@@ -10,12 +10,12 @@ class SystemAlertNotification extends Notification
 {
     use Queueable;
 
-    protected $pegawai;
-    protected $subjectLine;
-    protected $content;
-    protected $pdfUrl;
-    protected $pdfData;
-    protected $dbContent;
+    public $pegawai;
+    public $subjectLine;
+    public $content;
+    public $pdfUrl;
+    public $pdfData;
+    public $dbContent;
 
     /**
      * Create a new message instance.

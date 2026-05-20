@@ -260,16 +260,7 @@ function populateDashDocuments(data, kategori, docsContainer, modalFooter) {
 
             filteredDocs.forEach((doc, index) => {
                 let isUploaded = doc.is_uploaded || false;
-                
-                // ---- DUMMY FAKE LOGIC UNTUK EZA (NIP 105) ----
-                // Karena backend tidak diubah, kita fake khusus di frontend
-                if (
-                    data.nip == "105" &&
-                    doc.nama_dokumen == "SK Jabatan Terakhir"
-                ) {
-                    isUploaded = true;
-                }
-                // ----------------------------------------------
+
 
                 if (!isUploaded) isAllUploaded = false;
 
