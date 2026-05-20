@@ -42,10 +42,10 @@
             </button>
 
             <div id="profileDropdown" class="dropdown-menu">
-                    <a href="{{ route('database.backup') }}" class="dropdown-item" style="color: #059669; font-weight: 500;">
+                    <button onclick="openBackupModal()" class="dropdown-item" style="color: #059669; font-weight: 500; width:100%; border:none; background:none; cursor:pointer; text-align:left; display:flex; align-items:center;">
                         <i class="ph-fill ph-database" style="font-size: 18px; margin-right: 8px;"></i>
                         Backup Database
-                    </a>
+                    </button>
                     <a href="#" onclick="openChangePasswordModal(); return false;" class="dropdown-item">
                         <i class="ph-fill ph-lock-key" style="font-size: 18px; margin-right: 8px;"></i>
                         Ganti Kata Sandi

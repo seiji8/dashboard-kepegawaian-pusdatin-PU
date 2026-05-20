@@ -155,8 +155,6 @@ class RecalculateTracker extends Command
                 // Content khusus untuk Lonceng Database (Lebih ringkas)
                 $dbContent = $messageBody;
 
-                $messageBody .= "\nSilakan cek tabel daftar usulan untuk memproses verifikasi dokumen ini secara kolektif.";
-
                 // Siapkan data untuk PDF (hanya untuk attachment email, TIDAK simpan file ke disk)
                 $pdfData = [
                     'summary' => $dbTotalUsulan,

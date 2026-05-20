@@ -230,23 +230,80 @@ function renderNotifications(notifications) {
     if (!list) return;
 
     if (!notifications || notifications.length === 0) {
-        list.innerHTML = '<div class="notif-empty">' +
-            '<i class="ph-light ph-bell-slash" style="font-size: 32px; color: #9ca3af;"></i>' +
-            '<p>Belum ada notifikasi</p></div>';
+        list.innerHTML =
+            '<div class="notif-empty">' +
+                '<div class="notif-empty-icon"><i class="ph-light ph-bell-slash"></i></div>' +
+                '<p class="notif-empty-title">Semua bersih!</p>' +
+                '<p class="notif-empty-sub">Tidak ada notifikasi saat ini</p>' +
+            '</div>';
         return;
     }
 
     var html = '';
     notifications.forEach(function (n) {
-        var unreadClass = n.read ? '' : ' unread';
-        var clickAction = n.read ? '' : ' onclick="markNotifRead(\'' + n.id + '\')"';
-        
-        html += '<div class="notif-item' + unreadClass + '"' + clickAction + '>' +
-            '<div class="notif-content">' +
-            '<p class="notif-title">' + n.title + '</p>' +
-            '<p class="notif-message">' + n.message.replace(/\n/g, '<br>') + '</p>' +
-            '<span class="notif-time">' + n.time + '</span>' +
-            '</div>' +
+        var isUnread  = !n.read;
+        var itemClass = isUnread ? 'notif-item unread' : 'notif-item';
+        var clickAttr = isUnread ? ' onclick="markNotifRead(\'' + n.id + '\')"' : '';
+
+        // Format message: baris "• X: Y" jadi baris rapi, sisanya paragraph
+        var rawLines  = n.message.split(/\n/);
+        var msgHtml   = '';
+        var bullets   = [];
+        var others    = [];
+        var inBullet  = false;
+        rawLines.forEach(function(line) {
+            var t = line.trim();
+            if (!t) return;
+            if (t.charAt(0) === '\u2022') {
+                inBullet = true;
+                bullets.push(t.replace(/^\u2022\s*/, ''));
+            } else if (inBullet) {
+                others.push(t);
+            } else {
+                others.push(t);
+            }
+        });
+
+        others.forEach(function(line) {
+            msgHtml += '<p class="notif-msg-line">' + line + '</p>';
+        });
+
+        if (bullets.length > 0) {
+            msgHtml += '<div class="notif-bullet-list">';
+            bullets.forEach(function(b) {
+                var parts   = b.split(':');
+                var label   = parts[0] ? parts[0].trim() : b;
+                var val     = parts[1] ? parts[1].trim() : '';
+                var numMatch = val.match(/(\d+)/);
+                var num     = numMatch ? numMatch[1] : '';
+                var unit    = val.replace(/\d+/, '').trim();
+                msgHtml += '<div class="notif-bullet-row">' +
+                    '<span class="notif-bullet-label">' + label + '</span>' +
+                    (num
+                        ? '<span class="notif-bullet-badge">' + num + '</span>' +
+                          '<span class="notif-bullet-unit">' + unit + '</span>'
+                        : '<span class="notif-bullet-unit">' + val + '</span>') +
+                    '</div>';
+            });
+            msgHtml += '</div>';
+        }
+
+        // Icon letter dari title
+        var iconLetter = n.title ? n.title.replace(/[^a-zA-Z]/g, '').charAt(0).toUpperCase() : '!';
+
+        html +=
+            '<div class="' + itemClass + '"' + clickAttr + '>' +
+                '<div class="notif-icon-wrap">' +
+                    '<span class="notif-icon-letter">' + iconLetter + '</span>' +
+                    (isUnread ? '<span class="notif-unread-dot"></span>' : '') +
+                '</div>' +
+                '<div class="notif-content">' +
+                    '<div class="notif-title-row">' +
+                        '<p class="notif-title">' + n.title + '</p>' +
+                    '</div>' +
+                    '<div class="notif-msg-body">' + msgHtml + '</div>' +
+                    '<span class="notif-time-chip"><i class="ph-fill ph-clock"></i>' + n.time + '</span>' +
+                '</div>' +
             '</div>';
     });
     list.innerHTML = html;
