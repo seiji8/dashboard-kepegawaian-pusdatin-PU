@@ -214,7 +214,7 @@ class KenaikanJenjangService implements TrackerInterface
                                 ]
                             );
 
-                            if ($statusAK == 'Usulan' && !$tracker->notified_at) {
+                            if (in_array($statusAK, ['Usulan', 'Menunggu UKOM']) && !$tracker->notified_at) {
                                 $daftarUsulanBaru[] = [
                                     'nama' => $pegawai->nama,
                                     'nip' => $pegawai->nip,

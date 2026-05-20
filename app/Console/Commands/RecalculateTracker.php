@@ -98,7 +98,7 @@ class RecalculateTracker extends Command
         // --- KIRIM SUMMARY EMAIL KE ADMIN ---
         
         // Ambil semua data usulan yang berstatus 'Usulan' untuk PDF Detail dan Notifikasi Pegawai
-        $trackersUsulan = DashboardTracker::with('pegawai')->where('status_saat_ini', 'Usulan')->get();
+        $trackersUsulan = DashboardTracker::with('pegawai')->whereIn('status_saat_ini', ['Usulan', 'Menunggu UKOM'])->get();
         
         $dbTotalUsulan = [];
         $detailUsulan = [];
@@ -144,8 +144,16 @@ class RecalculateTracker extends Command
                 $dummyPegawai->nama = "Tim Kepegawaian";
 
                 if (!empty($dbTotalUsulan)) {
+                    $formattedUsulan = [];
                     foreach ($dbTotalUsulan as $kategori => $jumlah) {
                         $namaKategori = str_replace('_', ' ', $kategori);
+                        if ($namaKategori === 'UKOM') $namaKategori = 'Uji Kompetensi';
+                        $formattedUsulan[$namaKategori] = $jumlah;
+                    }
+                    
+                    ksort($formattedUsulan);
+                    
+                    foreach ($formattedUsulan as $namaKategori => $jumlah) {
                         $messageBody .= "• {$namaKategori}: {$jumlah} usulan\n";
                     }
                 } else {
@@ -185,6 +193,7 @@ class RecalculateTracker extends Command
                     if ($pegawai && $pegawai->email && !in_array($pegawai->id_pegawai_api, $notifiedEmployees)) {
                         
                         $namaKategori = str_replace('_', ' ', $tracker->kategori);
+                        if ($namaKategori === 'UKOM') $namaKategori = 'Uji Kompetensi';
                         $empSubject = "Pemberitahuan Usulan " . $namaKategori;
                         
                         $empMessage = "";
