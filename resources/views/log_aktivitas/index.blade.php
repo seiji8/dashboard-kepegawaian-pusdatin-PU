@@ -228,7 +228,7 @@
                     {
                         element: '.top-navbar',
                         popover: {
-                            title: 'Area Profil & Notifikasi ðŸ‘‹',
+                            title: 'Area Profil & Notifikasi 👋',
                             description: 'Akses notifikasi dan pengaturan akun Anda di sini.',
                             side: "bottom",
                             align: 'end'
@@ -246,7 +246,7 @@
                     {
                         element: '.content-section',
                         popover: {
-                            title: 'Data Log Aktivitas ðŸ“‘',
+                            title: 'Data Log Aktivitas 📄',
                             description: 'Tabel ini menampilkan seluruh histori aktivitas yang terjadi di dalam sistem.',
                             side: "top",
                             align: 'center'

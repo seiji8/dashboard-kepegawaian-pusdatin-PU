@@ -1412,7 +1412,7 @@
                     {
                         element: '.top-navbar',
                         popover: {
-                            title: 'Area Profil & Notifikasi Ã°Å¸â€˜â€¹',
+                            title: 'Area Profil & Notifikasi 👋',
                             description: 'Dari sudut sini, Anda bisa mengecek Lonceng Notifikasi yang masuk, mengganti kata sandi, atau mengakses tombol [?] ini lagi jika butuh panduan.',
                             side: "bottom",
                             align: 'end'
@@ -1421,7 +1421,7 @@
                     {
                         element: '.dashboard-cards',
                         popover: {
-                            title: 'Statistik Instan Ã°Å¸â€œÅ ',
+                            title: 'Statistik Instan 📊',
                             description: 'Empat kartu ini memberikan Anda pandangan terhadap ringkasan status administrasi seluruh pegawai saat ini.',
                             side: "bottom",
                             align: 'center'
@@ -1430,7 +1430,7 @@
                     {
                         element: '.task-section',
                         popover: {
-                            title: 'Daftar Tugas Utama Ã°Å¸â€œâ€¹',
+                            title: 'Daftar Tugas Utama 📋',
                             description: 'Di sinilah pusat operasi Anda. Seluruh antrean pegawai yang butuh pemrosesan berkas (KGB, KP, KJ, & dll) akan dikumpulkan rapi di berbagai tabel ini.',
                             side: "top",
                             align: 'center'

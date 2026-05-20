@@ -450,7 +450,7 @@
                     {
                         element: '.top-navbar',
                         popover: {
-                            title: 'Area Profil & Notifikasi Ã°Å¸â€˜â€¹',
+                            title: 'Area Profil & Notifikasi 👋',
                             description: 'Akses notifikasi dan pengaturan akun Anda di sini.',
                             side: "bottom",
                             align: 'end'
@@ -468,7 +468,7 @@
                     {
                         element: '.data-table',
                         popover: {
-                            title: 'Daftar Role Admin Ã°Å¸â€œâ€¹',
+                            title: 'Daftar Role Admin 📋',
                             description: 'Menampilkan semua admin beserta peran mereka. Anda dapat mengubah peran atau menghapus admin pada tabel ini.',
                             side: "top",
                             align: 'center'

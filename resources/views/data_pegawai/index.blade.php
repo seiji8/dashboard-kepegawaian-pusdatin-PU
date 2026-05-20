@@ -443,7 +443,7 @@
                     {
                         element: '.top-navbar',
                         popover: {
-                            title: 'Area Profil & Notifikasi Ã°Å¸â€˜â€¹',
+                            title: 'Area Profil & Notifikasi 👋',
                             description: 'Di sini Anda dapat mengecek notifikasi, mengubah profil, dan mengganti kata sandi.',
                             side: "bottom",
                             align: 'end'
@@ -461,7 +461,7 @@
                     {
                         element: '.data-table',
                         popover: {
-                            title: 'Data Pegawai Ã°Å¸â€œâ€˜',
+                            title: 'Data Pegawai 📄',
                             description: 'Tabel ini menampilkan daftar seluruh pegawai. Anda dapat melihat detail atau menghapus data dari sini.',
                             side: "top",
                             align: 'center'
