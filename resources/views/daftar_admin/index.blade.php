@@ -1,4 +1,4 @@
-﻿@extends('layouts.app')
+@extends('layouts.app')
 
 @section('title', 'Daftar Admin')
 
@@ -151,45 +151,126 @@
             @endif
         </div>
 
+    <!-- STYLES UNTUK MODAL ADMIN -->
+    <style>
+        .tm-overlay {
+            position: fixed; inset: 0; z-index: 2500;
+            background: rgba(10, 18, 40, 0.55);
+            backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+            display: flex; align-items: center; justify-content: center;
+            opacity: 0; visibility: hidden;
+            transition: opacity 0.25s ease, visibility 0.25s ease;
+        }
+        .tm-overlay.open { opacity: 1; visibility: visible; }
+        
+        .tm-card {
+            background: #ffffff; border-radius: 20px;
+            box-shadow: 0 32px 64px -16px rgba(20,43,111,0.25), 0 0 0 1px rgba(20,43,111,0.06);
+            width: 100%; max-width: 500px;
+            display: flex; flex-direction: column; max-height: 92vh;
+            transform: translateY(20px) scale(0.97);
+            transition: transform 0.3s cubic-bezier(0.16,1,0.3,1);
+        }
+        .tm-overlay.open .tm-card { transform: translateY(0) scale(1); }
+        
+        .tm-header {
+            background: linear-gradient(135deg, #142B6F 0%, #1e3a8a 100%);
+            padding: 24px 28px; position: relative; overflow: hidden;
+            display: flex; justify-content: space-between; align-items: flex-start;
+            flex-shrink: 0; border-radius: 20px 20px 0 0;
+        }
+        .tm-header::before {
+            content: ''; position: absolute; top: -30px; right: -30px;
+            width: 140px; height: 140px; background: rgba(255,201,40,0.08); border-radius: 50%;
+        }
+        .tm-header::after {
+            content: ''; position: absolute; bottom: -50px; left: -20px;
+            width: 160px; height: 160px; background: rgba(255,255,255,0.04); border-radius: 50%;
+        }
+        .tm-header-left { display: flex; align-items: center; gap: 14px; position: relative; z-index: 1; }
+        .tm-icon-wrap {
+            width: 48px; height: 48px; border-radius: 14px;
+            display: flex; align-items: center; justify-content: center;
+            background: rgba(255,255,255,0.1); border: 1.5px solid rgba(255,255,255,0.2);
+            font-size: 24px; color: #ffffff;
+        }
+        .tm-title-wrap h2 { margin: 0 0 2px 0; color: #ffffff; font-size: 18px; font-weight: 700; }
+        .tm-title-wrap p { margin: 0; color: rgba(255,255,255,0.7); font-size: 13px; }
+        
+        .tm-close-btn {
+            background: rgba(255,255,255,0.1); border: none; border-radius: 50%;
+            width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;
+            color: #ffffff; cursor: pointer; transition: all 0.2s; position: relative; z-index: 1;
+        }
+        .tm-close-btn:hover { background: rgba(255,255,255,0.2); transform: rotate(90deg); }
+
+        .tm-body { padding: 24px 28px; flex: 1; }
+        
+        .tm-footer {
+            padding: 16px 28px 24px; display: flex; justify-content: flex-end; gap: 10px; flex-shrink: 0;
+        }
+        .tm-btn-cancel {
+            padding: 12px 24px; border-radius: 10px; border: 1.5px solid #e2e8f0;
+            background: #f8fafc; font-size: 14px; font-weight: 600; color: #64748b;
+            cursor: pointer; transition: all 0.2s ease; font-family: inherit;
+        }
+        .tm-btn-cancel:hover { background: #f1f5f9; border-color: #cbd5e1; color: #374151; }
+        
+        .tm-btn-submit {
+            padding: 12px 24px; border-radius: 10px; border: none;
+            background: linear-gradient(135deg, #142B6F 0%, #1e3a8a 100%);
+            font-size: 14px; font-weight: 700; color: #ffffff;
+            cursor: pointer; transition: all 0.2s ease; display: flex; align-items: center; gap: 8px;
+            box-shadow: 0 4px 12px rgba(20,43,111,0.25); font-family: inherit;
+        }
+        .tm-btn-submit:hover { transform: translateY(-1px); box-shadow: 0 6px 16px rgba(20,43,111,0.35); }
+    </style>
+
     <!-- MODAL EDIT ADMIN -->
-    <div id="modalEditAdmin" class="modal-overlay">
-        <div class="modal-box">
-            <div class="modal-header" style="border-bottom: 1px solid #e2e8f0; padding-bottom: 15px; margin-bottom: 20px; display: flex; align-items: center; gap: 10px;">
-                <i class="ph-bold ph-pencil-simple" style="font-size: 24px; color: #1e3a8a;"></i>
-                <h2 style="font-size: 20px; color: #1e293b; margin: 0;">Edit Peran Admin</h2>
+    <div id="modalEditAdmin" class="tm-overlay" onclick="if(event.target===this) closeEditModal()">
+        <div class="tm-card">
+            <div class="tm-header">
+                <div class="tm-header-left">
+                    <div class="tm-icon-wrap" style="background: rgba(255,201,40,0.15); border-color: rgba(255,201,40,0.3); color: #FFC928;">
+                        <i class="ph-bold ph-pencil-simple"></i>
+                    </div>
+                    <div class="tm-title-wrap">
+                        <h2>Edit Peran Admin</h2>
+                        <p>Kelola hak akses administratif</p>
+                    </div>
+                </div>
+                <button type="button" class="tm-close-btn" onclick="closeEditModal()">
+                    <i class="ph-bold ph-x"></i>
+                </button>
             </div>
             
-            <div class="modal-body">
-                <!-- Info Identitas Modern -->
-                <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; padding: 14px 16px; border-radius: 8px; margin-bottom: 24px;">
-                    <p style="font-size: 13px; color: #64748b; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 12px; margin-top: 0;">Identitas Pegawai</p>
+            <div class="tm-body">
+                <div style="background-color: #f8fafc; border: 1.5px solid #e2e8f0; padding: 14px 16px; border-radius: 12px; margin-bottom: 20px;">
+                    <p style="font-size: 11px; color: #64748b; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 12px; margin-top: 0;">Identitas Pegawai</p>
                     <div style="display: flex; flex-direction: column; gap: 8px;">
                         <div style="display: flex; align-items: flex-start;">
-                            <span style="font-size: 14px; color: #475569; width: 60px; font-weight: 500;">Nama</span>
-                            <span style="font-size: 14px; color: #1e293b; font-weight: 600;">: <span id="modalNama">-</span></span>
+                            <span style="font-size: 13px; color: #64748b; width: 60px;">Nama</span>
+                            <span style="font-size: 14px; color: #1e293b; font-weight: 700;">: <span id="modalNama">-</span></span>
                         </div>
                         <div style="display: flex; align-items: flex-start;">
-                            <span style="font-size: 14px; color: #475569; width: 60px; font-weight: 500;">NIP</span>
-                            <span style="font-size: 14px; color: #1e293b; font-weight: 600;">: <span id="modalNip">-</span></span>
+                            <span style="font-size: 13px; color: #64748b; width: 60px;">NIP</span>
+                            <span style="font-size: 14px; color: #1e293b; font-weight: 700;">: <span id="modalNip">-</span></span>
                         </div>
                     </div>
                 </div>
 
-                <div class="input-group" style="margin-bottom: 15px;">
-                    <label style="display:block; margin-bottom:8px; font-weight:600; color: #334155; font-size: 14px;">Edit Peran (Role):</label>
-                    <div style="position: relative;">
-                        <!-- Menggunakan TomSelect agar seragam, menghilangkan class form-select agar tidak tabrakan border -->
-                        <select id="modalSelectPeran">
-                            <option value="0">Admin Kepegawaian</option>
-                            <option value="1">Admin Super</option>
-                        </select>
-                    </div>
+                <div style="margin-bottom: 5px;">
+                    <label style="display:block; margin-bottom:8px; font-weight:700; color: #64748b; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px;">Edit Peran (Role)</label>
+                    <select id="modalSelectPeran">
+                        <option value="0">Admin Kepegawaian</option>
+                        <option value="1">Admin Super</option>
+                    </select>
                 </div>
             </div>
 
-            <div class="modal-footer" style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 30px; border-top: none; padding-top: 0;">
-                <button onclick="closeEditModal()" style="padding: 10px 20px; background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; border-radius: 8px; font-weight: 600; cursor: pointer; font-family: 'Poppins', sans-serif; transition: all 0.2s; font-size: 14px;">Batal</button>
-                <button onclick="saveRole()" style="display: flex; align-items: center; gap: 8px; padding: 10px 24px; background: #1e3a8a; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; font-family: 'Poppins', sans-serif; transition: all 0.2s; box-shadow: 0 4px 6px rgba(30, 58, 138, 0.2); font-size: 14px;">
+            <div class="tm-footer">
+                <button type="button" class="tm-btn-cancel" onclick="closeEditModal()">Batal</button>
+                <button type="button" class="tm-btn-submit" onclick="saveRole()">
                     <i class="ph-bold ph-floppy-disk"></i> Simpan
                 </button>
             </div>
@@ -197,47 +278,51 @@
     </div>
 
     <!-- MODAL TAMBAH ADMIN -->
-    <div id="modalTambahAdmin" class="modal-overlay">
-        <div class="modal-box">
-            <div class="modal-header" style="border-bottom: 1px solid #e2e8f0; padding-bottom: 15px; margin-bottom: 20px; display: flex; align-items: center; gap: 10px;">
-                <i class="ph-bold ph-user-plus" style="font-size: 24px; color: #1e3a8a;"></i>
-                <h2 style="font-size: 20px; color: #1e293b; margin: 0;">Tambah Admin Baru</h2>
-            </div>
-            
-            <div class="modal-body">
-                <!-- Info Peringatan Modern -->
-                <div style="background-color: #eff6ff; border-left: 4px solid #3b82f6; padding: 14px 16px; border-radius: 4px 8px 8px 4px; margin-bottom: 24px;">
-                    <div style="display: flex; align-items: flex-start; gap: 12px;">
-                        <i class="ph-fill ph-info" style="color: #3b82f6; font-size: 20px; margin-top: 2px;"></i>
-                        <p style="font-size: 13.5px; color: #1e293b; line-height: 1.6; margin: 0;">
-                            Pilih pegawai yang akan diberikan akses ke <strong>Dashboard</strong>.<br>
-                            <span style="display: block; margin-top: 6px;">
-                                &bull; <strong>Email Login:</strong> Email Pegawai<br>
-                                &bull; <strong>Kata Sandi Default:</strong> <span style="font-family: monospace; background: #e2e8f0; padding: 2px 6px; border-radius: 4px; color: #0f172a; font-weight: 600; white-space: nowrap;">NIP Pegawai</span>
-                            </span>
-                        </p>
+    <div id="modalTambahAdmin" class="tm-overlay" onclick="if(event.target===this) closeAddModal()">
+        <div class="tm-card">
+            <div class="tm-header">
+                <div class="tm-header-left">
+                    <div class="tm-icon-wrap">
+                        <i class="ph-bold ph-user-plus"></i>
+                    </div>
+                    <div class="tm-title-wrap">
+                        <h2>Tambah Admin Baru</h2>
+                        <p>Berikan akses Dashboard ke pegawai</p>
                     </div>
                 </div>
+                <button type="button" class="tm-close-btn" onclick="closeAddModal()">
+                    <i class="ph-bold ph-x"></i>
+                </button>
+            </div>
+            
+            <div class="tm-body">
+                <div style="background-color: #eff6ff; border: 1.5px solid #bfdbfe; padding: 14px 16px; border-radius: 12px; margin-bottom: 24px; display: flex; gap: 12px;">
+                    <i class="ph-fill ph-info" style="color: #3b82f6; font-size: 20px; flex-shrink: 0;"></i>
+                    <p style="font-size: 13px; color: #1e3a8a; line-height: 1.6; margin: 0;">
+                        Pilih pegawai yang akan diberikan akses.<br>
+                        <span style="display: block; margin-top: 8px; font-size: 12px;">
+                            <strong style="color: #1e40af;">Email Login:</strong> Email Pegawai<br>
+                            <strong style="color: #1e40af;">Kata Sandi:</strong> <span style="font-family: monospace; background: rgba(59, 130, 246, 0.15); padding: 2px 6px; border-radius: 4px; font-weight: 700; color: #1d4ed8;">NIP Pegawai</span>
+                        </span>
+                    </p>
+                </div>
                 
-                <div class="input-group" style="margin-bottom: 15px;">
-                    <label style="display:block; margin-bottom:8px; font-weight:600; color: #334155; font-size: 14px;">Pilih Calon Admin:</label>
-                    <div style="position: relative;">
-                        <!-- Dihapus class="form-select" agar tidak tercopy oleh TomSelect yang menyebabkan border dobel -->
-                        <select id="selectPegawai">
-                            <option value="">-- Cari Pegawai --</option>
-                            @foreach($candidates as $candidate)
-                                <option value="{{ $candidate->nip }}">
-                                    {{ $candidate->nama }} ({{ $candidate->nip }})
-                                </option>
-                            @endforeach
-                        </select>
-                    </div>
+                <div style="margin-bottom: 5px;">
+                    <label style="display:block; margin-bottom:8px; font-weight:700; color: #64748b; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px;">Pilih Calon Admin</label>
+                    <select id="selectPegawai">
+                        <option value="">-- Cari Pegawai --</option>
+                        @foreach($candidates as $candidate)
+                            <option value="{{ $candidate->nip }}">
+                                {{ $candidate->nama }} ({{ $candidate->nip }})
+                            </option>
+                        @endforeach
+                    </select>
                 </div>
             </div>
 
-            <div class="modal-footer" style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 30px; border-top: none; padding-top: 0;">
-                <button onclick="closeAddModal()" style="padding: 10px 20px; background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; border-radius: 8px; font-weight: 600; cursor: pointer; font-family: 'Poppins', sans-serif; transition: all 0.2s; font-size: 14px;">Batal</button>
-                <button onclick="saveNewAdmin()" style="display: flex; align-items: center; gap: 8px; padding: 10px 24px; background: #1e3a8a; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; font-family: 'Poppins', sans-serif; transition: all 0.2s; box-shadow: 0 4px 6px rgba(30, 58, 138, 0.2); font-size: 14px;">
+            <div class="tm-footer">
+                <button type="button" class="tm-btn-cancel" onclick="closeAddModal()">Batal</button>
+                <button type="button" class="tm-btn-submit" onclick="saveNewAdmin()">
                     <i class="ph-bold ph-floppy-disk"></i> Simpan Akses
                 </button>
             </div>
@@ -275,13 +360,15 @@
 
             document.getElementById('modalNama').innerText = nama;
             document.getElementById('modalNip').innerText = nip;
-            document.getElementById('modalSelectPeran').value = isSuper;
+            
+            var selectControl = document.getElementById('modalSelectPeran').tomselect;
+            if (selectControl) { selectControl.setValue(isSuper); }
 
-            document.getElementById('modalEditAdmin').style.display = 'flex';
+            document.getElementById('modalEditAdmin').classList.add('open');
         }
 
         function closeEditModal() {
-            document.getElementById('modalEditAdmin').style.display = 'none';
+            document.getElementById('modalEditAdmin').classList.remove('open');
             currentEditAdminId = null;
         }
 
@@ -303,7 +390,7 @@
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    document.getElementById('modalEditAdmin').style.display = 'none';
+                    closeEditModal();
                     showCustomToast('Role berhasil diubah!', 'success');
                     setTimeout(() => location.reload(), 1500);
                 } else {
@@ -318,11 +405,13 @@
 
         // === LOGIKA TAMBAH ADMIN ===
         function openAddModal() {
-            document.getElementById('modalTambahAdmin').style.display = 'flex';
+            document.getElementById('modalTambahAdmin').classList.add('open');
         }
 
         function closeAddModal() {
-            document.getElementById('modalTambahAdmin').style.display = 'none';
+            document.getElementById('modalTambahAdmin').classList.remove('open');
+            var selectControl = document.getElementById('selectPegawai').tomselect;
+            if (selectControl) { selectControl.clear(); }
         }
 
         function saveNewAdmin() {
@@ -400,13 +489,9 @@
 
         // Use addEventListener instead of window.onclick to avoid overriding app-common.js
         window.addEventListener('click', function(event) {
-            var editModal = document.getElementById('modalEditAdmin');
             var deleteModal = document.getElementById('modalHapusAdmin');
-            var addModal = document.getElementById('modalTambahAdmin');
-
-            if (event.target == editModal) editModal.style.display = "none";
-            if (event.target == deleteModal) deleteModal.style.display = "none";
-            if (event.target == addModal) addModal.style.display = "none";
+            if (event.target == deleteModal) closeDeleteModal();
+            // Note: close actions for Edit and Tambah modals are handled via inline onclick in their overlays.
         });
 
 
