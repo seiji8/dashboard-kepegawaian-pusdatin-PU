@@ -1,87 +1,296 @@
 @auth
-<!-- MODAL GANTI PASSWORD -->
-<div id="modalChangePassword" class="modal-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 9999; justify-content: center; align-items: center;">
-    <div class="modal-box" style="background: white; padding: 35px 30px; border-radius: 16px; width: 450px; max-width: 90%; position: relative; box-shadow: 0 20px 60px rgba(0,0,0,0.15);">
-        <div class="modal-header" style="margin-bottom: 25px; text-align: center;">
-            <div style="background:#eff6ff; width:70px; height:70px; border-radius:50%; display:flex; align-items:center; justify-content:center; margin: 0 auto 15px auto; border: 1px solid #dbeafe;">
-                <i class="ph-fill ph-lock-key" style="font-size: 36px; color: #1e3a8a;"></i>
-            </div>
-            <h2 style="font-size: 20px; color: #0f172a; font-weight: 700; margin: 0;">Ganti Kata Sandi</h2>
-            <p style="font-size: 13px; color: #64748b; margin: 5px 0 0 0;">Perbarui kata sandi Anda untuk menjaga keamanan akun.</p>
-        </div>
+<!-- ============================================================
+     MODAL: Ganti Password
+     Trigger    : openChangePasswordModal() dari navbar
+     ============================================================ -->
+
+<style>
+    /* ===== Overlay ===== */
+    #modalChangePassword {
+        position: fixed; inset: 0; z-index: 9999;
+        background: rgba(10, 18, 40, 0.55);
+        backdrop-filter: blur(6px);
+        -webkit-backdrop-filter: blur(6px);
+        display: flex; align-items: center; justify-content: center;
+        opacity: 0; visibility: hidden;
+        transition: opacity 0.25s ease, visibility 0.25s ease;
+    }
+    #modalChangePassword.open {
+        opacity: 1; visibility: visible;
+    }
+
+    /* ===== Card ===== */
+    .cp-card {
+        background: #ffffff;
+        border-radius: 20px;
+        box-shadow: 0 32px 64px -16px rgba(20,43,111,0.25), 0 0 0 1px rgba(20,43,111,0.06);
+        width: 100%; max-width: 420px;
+        padding: 0;
+        overflow: hidden;
+        transform: translateY(20px) scale(0.97);
+        transition: transform 0.3s cubic-bezier(0.16,1,0.3,1);
+    }
+    #modalChangePassword.open .cp-card {
+        transform: translateY(0) scale(1);
+    }
+
+    /* ===== Header Gradient ===== */
+    .cp-header {
+        background: linear-gradient(135deg, #142B6F 0%, #1e3a8a 100%);
+        padding: 28px 28px 24px;
+        position: relative;
+        overflow: hidden;
+        text-align: center;
+    }
+    .cp-header::before {
+        content: '';
+        position: absolute; top: -30px; right: -30px;
+        width: 140px; height: 140px;
+        background: rgba(255,201,40,0.08);
+        border-radius: 50%;
+    }
+    .cp-header::after {
+        content: '';
+        position: absolute; bottom: -50px; left: -20px;
+        width: 160px; height: 160px;
+        background: rgba(255,255,255,0.04);
+        border-radius: 50%;
+    }
+    .cp-icon-wrap {
+        width: 56px; height: 56px;
+        background: rgba(255,255,255,0.1);
+        border: 1.5px solid rgba(255,255,255,0.2);
+        border-radius: 14px;
+        display: flex; align-items: center; justify-content: center;
+        margin: 0 auto 14px auto;
+        position: relative; z-index: 1;
+    }
+    .cp-title {
+        font-size: 18px; font-weight: 700;
+        color: #ffffff; margin: 0 0 4px;
+        position: relative; z-index: 1;
+    }
+    .cp-subtitle {
+        font-size: 13px; color: rgba(255,255,255,0.65);
+        margin: 0; position: relative; z-index: 1;
+    }
+
+    /* ===== Body ===== */
+    .cp-body { padding: 24px 28px; }
+
+    /* Forms */
+    .cp-form-group { margin-bottom: 18px; }
+    .cp-label {
+        display: block; margin-bottom: 6px; 
+        font-size: 11px; font-weight: 700; 
+        color: #64748b; letter-spacing: 0.5px;
+        text-transform: uppercase;
+    }
+    .cp-input-wrap { position: relative; }
+    .cp-input {
+        width: 100%;
+        padding: 12px 40px 12px 14px;
+        border: 1.5px solid #e2e8f0;
+        border-radius: 10px;
+        font-size: 14px; color: #1e293b;
+        background: #f8fafc;
+        transition: all 0.2s ease;
+        outline: none; box-sizing: border-box;
+    }
+    .cp-input:focus {
+        border-color: #142B6F;
+        background: #ffffff;
+        box-shadow: 0 0 0 4px rgba(20,43,111,0.08);
+    }
+    .cp-input::placeholder { color: #94a3b8; }
+    
+    .cp-toggle-icon {
+        position: absolute; right: 14px; top: 50%;
+        transform: translateY(-50%); cursor: pointer;
+        color: #94a3b8; font-size: 18px; transition: color 0.2s;
+    }
+    .cp-toggle-icon:hover { color: #142B6F; }
+
+    .cp-error {
+        color: #dc2626; font-size: 12px; font-weight: 500;
+        display: none; margin-top: 6px;
+        display: flex; align-items: center; gap: 4px;
+    }
+
+    /* ===== Footer Buttons ===== */
+    .cp-footer {
+        padding: 0 28px 24px;
+        display: flex; gap: 10px;
+    }
+    .cp-btn-cancel {
+        flex: 1; padding: 12px;
+        border-radius: 10px;
+        border: 1.5px solid #e2e8f0;
+        background: #f8fafc;
+        font-size: 14px; font-weight: 600; color: #64748b;
+        cursor: pointer; transition: all 0.2s ease;
+        font-family: inherit;
+    }
+    .cp-btn-cancel:hover {
+        background: #f1f5f9; border-color: #cbd5e1; color: #374151;
+    }
+    .cp-btn-confirm {
+        flex: 2; padding: 12px;
+        border-radius: 10px; border: none;
+        background: linear-gradient(135deg, #142B6F 0%, #1e3a8a 100%);
+        font-size: 14px; font-weight: 700; color: #ffffff;
+        cursor: pointer; transition: all 0.2s ease;
+        display: flex; align-items: center; justify-content: center; gap: 8px;
+        box-shadow: 0 4px 12px rgba(20,43,111,0.25);
+        font-family: inherit;
+    }
+    .cp-btn-confirm:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 6px 16px rgba(20,43,111,0.35);
+    }
+    .cp-btn-confirm:active { transform: translateY(0); }
+    .cp-btn-confirm:disabled { opacity: 0.7; pointer-events: none; }
+
+    /* Loading spinner */
+    .cp-spinner {
+        width: 16px; height: 16px;
+        border: 2px solid rgba(255,255,255,0.3);
+        border-top-color: #ffffff;
+        border-radius: 50%;
+        animation: cpSpin 0.7s linear infinite;
+        display: none;
+    }
+    @keyframes cpSpin { to { transform: rotate(360deg); } }
+</style>
+
+<div id="modalChangePassword" onclick="handleCpOverlayClick(event)">
+    <div class="cp-card" role="dialog" aria-modal="true">
         
-        <div class="modal-body">
-            <form id="formChangePassword">
-                @csrf
-                
-                <div class="form-group" style="margin-bottom: 16px;">
-                    <label style="display: block; margin-bottom: 6px; font-size: 12px; font-weight: 700; color: #475569; letter-spacing: 0.3px;">PASSWORD SAAT INI</label>
-                    <div style="position: relative;">
-                        <input type="password" name="current_password" class="form-input" style="width: 100%; padding: 12px 14px; padding-right: 40px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; outline: none; transition: all 0.2s; box-sizing: border-box;" autocomplete="off" onfocus="this.style.borderColor='#1e3a8a'; this.style.boxShadow='0 0 0 3px rgba(30,58,138,0.1)'" onblur="this.style.borderColor='#cbd5e1'; this.style.boxShadow='none'" required>
-                        <i class="ph-bold ph-eye-slash toggle-password" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); cursor: pointer; color: #94a3b8; font-size: 18px; transition: color 0.2s;" onmouseover="this.style.color='#1e3a8a'" onmouseout="this.style.color='#94a3b8'" onclick="togglePassword(this)"></i>
-                    </div>
-                    <span class="text-danger error-current_password" style="color: #ef4444; font-size: 12px; display: none; margin-top: 5px; font-weight: 500;"></span>
-                </div>
-
-                <div class="form-group" style="margin-bottom: 16px;">
-                    <label style="display: block; margin-bottom: 6px; font-size: 12px; font-weight: 700; color: #475569; letter-spacing: 0.3px;">PASSWORD BARU</label>
-                    <div style="position: relative;">
-                        <input type="password" name="new_password" class="form-input" style="width: 100%; padding: 12px 14px; padding-right: 40px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; outline: none; transition: all 0.2s; box-sizing: border-box;" autocomplete="new-password" onfocus="this.style.borderColor='#1e3a8a'; this.style.boxShadow='0 0 0 3px rgba(30,58,138,0.1)'" onblur="this.style.borderColor='#cbd5e1'; this.style.boxShadow='none'" required>
-                        <i class="ph-bold ph-eye-slash toggle-password" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); cursor: pointer; color: #94a3b8; font-size: 18px; transition: color 0.2s;" onmouseover="this.style.color='#1e3a8a'" onmouseout="this.style.color='#94a3b8'" onclick="togglePassword(this)"></i>
-                    </div>
-                    <span class="text-danger error-new_password" style="color: #ef4444; font-size: 12px; display: none; margin-top: 5px; font-weight: 500;"></span>
-                </div>
-
-                <div class="form-group" style="margin-bottom: 24px;">
-                    <label style="display: block; margin-bottom: 6px; font-size: 12px; font-weight: 700; color: #475569; letter-spacing: 0.3px;">KONFIRMASI PASSWORD BARU</label>
-                    <div style="position: relative;">
-                        <input type="password" name="new_password_confirmation" class="form-input" style="width: 100%; padding: 12px 14px; padding-right: 40px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; outline: none; transition: all 0.2s; box-sizing: border-box;" autocomplete="new-password" onfocus="this.style.borderColor='#1e3a8a'; this.style.boxShadow='0 0 0 3px rgba(30,58,138,0.1)'" onblur="this.style.borderColor='#cbd5e1'; this.style.boxShadow='none'" required>
-                        <i class="ph-bold ph-eye-slash toggle-password" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); cursor: pointer; color: #94a3b8; font-size: 18px; transition: color 0.2s;" onmouseover="this.style.color='#1e3a8a'" onmouseout="this.style.color='#94a3b8'" onclick="togglePassword(this)"></i>
-                    </div>
-                </div>
-
-                <div class="modal-footer" style="display: flex; gap: 12px;">
-                    <button type="button" onclick="closeChangePasswordModal()" style="flex: 1; padding: 12px; background: white; color: #64748b; border: 1px solid #cbd5e1; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 14px; transition: all 0.2s; font-family: 'Poppins', sans-serif;" onmouseover="this.style.background='#f1f5f9'" onmouseout="this.style.background='white'">Batal</button>
-                    <button type="submit" style="flex: 1; padding: 12px; background: #1e3a8a; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 14px; transition: all 0.2s; box-shadow: 0 4px 6px -1px rgba(30,58,138,0.2); font-family: 'Poppins', sans-serif;" onmouseover="this.style.background='#1e40af'; this.style.transform='translateY(-1px)'" onmouseout="this.style.background='#1e3a8a'; this.style.transform='translateY(0)'">Simpan Perubahan</button>
-                </div>
-            </form>
+        <!-- Header -->
+        <div class="cp-header">
+            <div class="cp-icon-wrap">
+                <i class="ph-fill ph-lock-key" style="font-size: 28px; color: #ffffff;"></i>
+            </div>
+            <h2 class="cp-title">Ganti Kata Sandi</h2>
+            <p class="cp-subtitle">Perbarui kata sandi Anda secara berkala</p>
         </div>
+
+        <form id="formChangePassword">
+            @csrf
+            
+            <!-- Body -->
+            <div class="cp-body">
+                
+                <!-- Password Saat Ini -->
+                <div class="cp-form-group">
+                    <label class="cp-label">Password Saat Ini</label>
+                    <div class="cp-input-wrap">
+                        <input type="password" name="current_password" class="cp-input" placeholder="Masukkan password lama" autocomplete="off" required>
+                        <i class="ph-bold ph-eye-slash cp-toggle-icon" onclick="toggleCpPassword(this)"></i>
+                    </div>
+                    <div class="cp-error error-current_password" style="display: none;">
+                        <i class="ph-fill ph-warning-circle"></i> <span></span>
+                    </div>
+                </div>
+
+                <!-- Password Baru -->
+                <div class="cp-form-group">
+                    <label class="cp-label">Password Baru</label>
+                    <div class="cp-input-wrap">
+                        <input type="password" name="new_password" class="cp-input" placeholder="Minimal 8 karakter" autocomplete="new-password" required>
+                        <i class="ph-bold ph-eye-slash cp-toggle-icon" onclick="toggleCpPassword(this)"></i>
+                    </div>
+                    <div class="cp-error error-new_password" style="display: none;">
+                        <i class="ph-fill ph-warning-circle"></i> <span></span>
+                    </div>
+                </div>
+
+                <!-- Konfirmasi Password -->
+                <div class="cp-form-group" style="margin-bottom: 0;">
+                    <label class="cp-label">Konfirmasi Password Baru</label>
+                    <div class="cp-input-wrap">
+                        <input type="password" name="new_password_confirmation" class="cp-input" placeholder="Ketik ulang password baru" autocomplete="new-password" required>
+                        <i class="ph-bold ph-eye-slash cp-toggle-icon" onclick="toggleCpPassword(this)"></i>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Footer -->
+            <div class="cp-footer">
+                <button type="button" class="cp-btn-cancel" onclick="closeChangePasswordModal()">Batal</button>
+                <button type="submit" class="cp-btn-confirm" id="cp-submit-btn">
+                    <div class="cp-spinner" id="cp-spinner"></div>
+                    <i class="ph-bold ph-check-circle" id="cp-btn-icon"></i>
+                    <span id="cp-btn-text">Simpan Perubahan</span>
+                </button>
+            </div>
+        </form>
+
     </div>
 </div>
 
 <script>
-    function togglePassword(icon) {
+    function toggleCpPassword(icon) {
         const input = icon.previousElementSibling;
         if (input.type === "password") {
             input.type = "text";
             icon.classList.remove("ph-eye-slash");
             icon.classList.add("ph-eye");
+            icon.style.color = '#142B6F';
         } else {
             input.type = "password";
             icon.classList.remove("ph-eye");
             icon.classList.add("ph-eye-slash");
+            icon.style.color = '#94a3b8';
         }
     }
 
     function openChangePasswordModal() {
-        document.getElementById('modalChangePassword').style.display = 'flex';
+        const modal = document.getElementById('modalChangePassword');
+        modal.classList.add('open');
+        document.body.style.overflow = 'hidden';
+        
         document.getElementById('formChangePassword').reset();
+        
         // Reset icons to eye-slash
-        document.querySelectorAll('.toggle-password').forEach(icon => {
+        document.querySelectorAll('.cp-toggle-icon').forEach(icon => {
             icon.classList.remove("ph-eye");
             icon.classList.add("ph-eye-slash");
+            icon.style.color = '#94a3b8';
             icon.previousElementSibling.type = "password";
         });
-        document.querySelectorAll('.text-danger').forEach(el => el.style.display = 'none');
+        
+        // Hide errors
+        document.querySelectorAll('.cp-error').forEach(el => {
+            el.style.display = 'none';
+        });
     }
 
     function closeChangePasswordModal() {
-        document.getElementById('modalChangePassword').style.display = 'none';
+        const modal = document.getElementById('modalChangePassword');
+        modal.classList.remove('open');
+        document.body.style.overflow = '';
+        
+        // Reset button state
+        setTimeout(() => {
+            const btn = document.getElementById('cp-submit-btn');
+            btn.disabled = false;
+            document.getElementById('cp-spinner').style.display = 'none';
+            document.getElementById('cp-btn-icon').style.display = 'inline-block';
+            document.getElementById('cp-btn-text').textContent = 'Simpan Perubahan';
+        }, 300);
     }
 
-    // Close on outside click
-    window.addEventListener('click', function(e) {
-        if (e.target == document.getElementById('modalChangePassword')) {
+    function handleCpOverlayClick(e) {
+        if (e.target === document.getElementById('modalChangePassword')) {
+            closeChangePasswordModal();
+        }
+    }
+
+    // Close on ESC key
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && document.getElementById('modalChangePassword').classList.contains('open')) {
             closeChangePasswordModal();
         }
     });
@@ -91,14 +300,21 @@
         e.preventDefault();
         
         let formData = new FormData(this);
-        let submitBtn = this.querySelector('button[type="submit"]');
+        let submitBtn = document.getElementById('cp-submit-btn');
+        let spinner   = document.getElementById('cp-spinner');
+        let btnIcon   = document.getElementById('cp-btn-icon');
+        let btnText   = document.getElementById('cp-btn-text');
+
+        // Loading state
         submitBtn.disabled = true;
-        submitBtn.textContent = 'Menyimpan...';
+        spinner.style.display = 'block';
+        btnIcon.style.display = 'none';
+        btnText.textContent = 'Menyimpan...';
 
         // Reset errors
-        document.querySelectorAll('.text-danger').forEach(el => {
-            el.textContent = '';
+        document.querySelectorAll('.cp-error').forEach(el => {
             el.style.display = 'none';
+            el.querySelector('span').textContent = '';
         });
 
         fetch("{{ route('change-password.update') }}", {
@@ -112,8 +328,11 @@
         })
         .then(response => response.json().then(data => ({ status: response.status, body: data })))
         .then(({ status, body }) => {
+            // Restore button state
             submitBtn.disabled = false;
-            submitBtn.textContent = 'Simpan';
+            spinner.style.display = 'none';
+            btnIcon.style.display = 'inline-block';
+            btnText.textContent = 'Simpan Perubahan';
 
             if (status === 200) {
                 closeChangePasswordModal();
@@ -121,10 +340,10 @@
             } else if (status === 422) {
                 // Validation Errors
                 for (let [key, messages] of Object.entries(body.errors)) {
-                    let errorSpan = document.querySelector(`.error-${key}`);
-                    if (errorSpan) {
-                        errorSpan.textContent = messages[0];
-                        errorSpan.style.display = 'block';
+                    let errorDiv = document.querySelector(`.error-${key}`);
+                    if (errorDiv) {
+                        errorDiv.querySelector('span').textContent = messages[0];
+                        errorDiv.style.display = 'flex';
                     }
                 }
             } else {
@@ -134,7 +353,9 @@
         .catch(error => {
             console.error('Error:', error);
             submitBtn.disabled = false;
-            submitBtn.textContent = 'Simpan';
+            spinner.style.display = 'none';
+            btnIcon.style.display = 'inline-block';
+            btnText.textContent = 'Simpan Perubahan';
             showCustomToast('Terjadi kesalahan jaringan!', 'error');
         });
     });

@@ -1,4 +1,4 @@
-﻿@extends('layouts.app')
+@extends('layouts.app')
 
 @section('title', 'Konfigurasi Pesan')
 
@@ -203,200 +203,265 @@
             </div>
 
         </div>
-    <!-- MODAL TAMBAH PESAN -->
-    <div id="modalTambahPesan" class="modal-overlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:2400; justify-content:center; align-items:center;">
-        <form id="formTambah" style="background:white; width:600px; max-width:95vw; padding:0; border-radius:12px; box-shadow:0 10px 40px rgba(0,0,0,0.2); overflow:hidden; display:flex; flex-direction:column; max-height:90vh;">
+    <!-- STYLES UNTUK MODAL PESAN -->
+    <style>
+        /* Overlay & Animasi */
+        .tm-overlay {
+            position: fixed; inset: 0; z-index: 2400;
+            background: rgba(10, 18, 40, 0.55);
+            backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+            display: flex; align-items: center; justify-content: center;
+            opacity: 0; visibility: hidden;
+            transition: opacity 0.25s ease, visibility 0.25s ease;
+        }
+        .tm-overlay.open { opacity: 1; visibility: visible; }
+        
+        /* Modal Card */
+        .tm-card {
+            background: #ffffff; border-radius: 20px;
+            box-shadow: 0 32px 64px -16px rgba(20,43,111,0.25), 0 0 0 1px rgba(20,43,111,0.06);
+            width: 100%; max-width: 600px;
+            display: flex; flex-direction: column; max-height: 92vh;
+            overflow: hidden;
+            transform: translateY(20px) scale(0.97);
+            transition: transform 0.3s cubic-bezier(0.16,1,0.3,1);
+        }
+        .tm-overlay.open .tm-card { transform: translateY(0) scale(1); }
+        
+        /* Header */
+        .tm-header {
+            background: linear-gradient(135deg, #142B6F 0%, #1e3a8a 100%);
+            padding: 24px 28px; position: relative; overflow: hidden;
+            display: flex; justify-content: space-between; align-items: flex-start;
+            flex-shrink: 0;
+        }
+        .tm-header::before {
+            content: ''; position: absolute; top: -30px; right: -30px;
+            width: 140px; height: 140px; background: rgba(255,201,40,0.08); border-radius: 50%;
+        }
+        .tm-header::after {
+            content: ''; position: absolute; bottom: -50px; left: -20px;
+            width: 160px; height: 160px; background: rgba(255,255,255,0.04); border-radius: 50%;
+        }
+        .tm-header-left { display: flex; align-items: center; gap: 14px; position: relative; z-index: 1; }
+        .tm-icon-wrap {
+            width: 48px; height: 48px; border-radius: 14px;
+            display: flex; align-items: center; justify-content: center;
+            background: rgba(255,255,255,0.1); border: 1.5px solid rgba(255,255,255,0.2);
+            font-size: 24px; color: #ffffff;
+        }
+        .tm-icon-wrap.edit { background: rgba(255,201,40,0.15); border-color: rgba(255,201,40,0.3); color: #FFC928; }
+        .tm-title-wrap h2 { margin: 0 0 2px 0; color: #ffffff; font-size: 18px; font-weight: 700; }
+        .tm-title-wrap p { margin: 0; color: rgba(255,255,255,0.7); font-size: 13px; }
+        
+        .tm-close-btn {
+            background: rgba(255,255,255,0.1); border: none; border-radius: 50%;
+            width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;
+            color: #ffffff; cursor: pointer; transition: all 0.2s; position: relative; z-index: 1;
+        }
+        .tm-close-btn:hover { background: rgba(255,255,255,0.2); transform: rotate(90deg); }
 
+        /* Body */
+        .tm-body { padding: 24px 28px; overflow-y: auto; flex: 1; }
+        .tm-form-group { margin-bottom: 20px; }
+        .tm-label {
+            display: block; font-size: 11px; font-weight: 700; color: #64748b;
+            margin-bottom: 8px; letter-spacing: 0.5px; text-transform: uppercase;
+        }
+        .tm-input, .tm-select, .tm-textarea {
+            width: 100%; padding: 12px 14px; border: 1.5px solid #e2e8f0;
+            border-radius: 10px; font-size: 14px; color: #1e293b; background: #f8fafc;
+            transition: all 0.2s ease; outline: none; box-sizing: border-box; font-family: inherit;
+        }
+        .tm-textarea { resize: vertical; min-height: 120px; line-height: 1.5; }
+        .tm-input:focus, .tm-select:focus, .tm-textarea:focus {
+            border-color: #142B6F; background: #ffffff; box-shadow: 0 0 0 4px rgba(20,43,111,0.08);
+        }
+        .tm-select { cursor: pointer; appearance: auto; }
+        
+        /* Guide Box */
+        .tm-guide-box {
+            background: #f8fafc; border: 1.5px solid #e2e8f0; border-radius: 12px;
+            padding: 16px; margin-top: 4px;
+        }
+        .tm-guide-header { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
+        .tm-guide-header i { color: #142B6F; font-size: 18px; }
+        .tm-guide-header span { font-size: 13px; font-weight: 700; color: #1e293b; }
+        
+        .tm-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+        .tm-grid-item {
+            background: #ffffff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px 12px;
+        }
+        .tm-grid-item code {
+            color: #142B6F; font-size: 13px; font-weight: 700; background: #f0f4ff;
+            padding: 2px 6px; border-radius: 4px; display: inline-block; margin-bottom: 4px;
+        }
+        .tm-grid-item span { color: #64748b; font-size: 11px; display: block; line-height: 1.3; }
+        
+        /* Footer */
+        .tm-footer {
+            padding: 16px 28px 24px; display: flex; justify-content: flex-end; gap: 10px; flex-shrink: 0;
+        }
+        .tm-btn-cancel {
+            padding: 12px 24px; border-radius: 10px; border: 1.5px solid #e2e8f0;
+            background: #f8fafc; font-size: 14px; font-weight: 600; color: #64748b;
+            cursor: pointer; transition: all 0.2s ease; font-family: inherit;
+        }
+        .tm-btn-cancel:hover { background: #f1f5f9; border-color: #cbd5e1; color: #374151; }
+        
+        .tm-btn-submit {
+            padding: 12px 24px; border-radius: 10px; border: none;
+            background: linear-gradient(135deg, #142B6F 0%, #1e3a8a 100%);
+            font-size: 14px; font-weight: 700; color: #ffffff;
+            cursor: pointer; transition: all 0.2s ease; display: flex; align-items: center; gap: 8px;
+            box-shadow: 0 4px 12px rgba(20,43,111,0.25); font-family: inherit;
+        }
+        .tm-btn-submit:hover { transform: translateY(-1px); box-shadow: 0 6px 16px rgba(20,43,111,0.35); }
+        .tm-btn-submit:active { transform: translateY(0); }
+        .tm-btn-submit.green { background: linear-gradient(135deg, #16a34a 0%, #15803d 100%); box-shadow: 0 4px 12px rgba(22,163,74,0.25); }
+        .tm-btn-submit.green:hover { box-shadow: 0 6px 16px rgba(22,163,74,0.35); }
+    </style>
+
+    <!-- MODAL TAMBAH PESAN -->
+    <div id="modalTambahPesan" class="tm-overlay" onclick="if(event.target===this) closeModal()">
+        <form id="formTambah" class="tm-card">
+            
             <!-- Header -->
-            <div style="padding:20px 25px; border-bottom:1px solid #e2e8f0; background:#f8fafc; display:flex; justify-content:space-between; align-items:center; flex-shrink:0;">
-                <div style="display:flex; align-items:center; gap:12px;">
-                    <div style="background:#dcfce7; color:#16a34a; width:40px; height:40px; border-radius:50%; display:flex; align-items:center; justify-content:center;">
-                        <i class="ph-bold ph-plus" style="font-size:20px;"></i>
+            <div class="tm-header">
+                <div class="tm-header-left">
+                    <div class="tm-icon-wrap">
+                        <i class="ph-bold ph-plus"></i>
                     </div>
-                    <div>
-                        <h2 style="margin:0; color:#1e293b; font-size:17px; font-weight:700;">Tambah Template Pesan</h2>
-                        <p style="margin:2px 0 0; font-size:12px; color:#64748b;">Buat template baru untuk pengingat manual</p>
+                    <div class="tm-title-wrap">
+                        <h2>Tambah Template Pesan</h2>
+                        <p>Buat template pengingat manual baru</p>
                     </div>
                 </div>
-                <button type="button" onclick="closeModal()" style="background:none; border:none; cursor:pointer; color:#94a3b8; transition:color 0.2s;" onmouseover="this.style.color='#ef4444'" onmouseout="this.style.color='#94a3b8'">
-                    <i class="ph-bold ph-x" style="font-size:20px;"></i>
+                <button type="button" class="tm-close-btn" onclick="closeModal()">
+                    <i class="ph-bold ph-x"></i>
                 </button>
             </div>
 
             <!-- Body -->
-            <div style="padding:25px; overflow-y:auto; flex:1;">
+            <div class="tm-body">
                 <input type="hidden" name="interval_hari" value="0">
-
-                <div style="margin-bottom:20px;">
-                    <label style="display:block; font-size:12px; font-weight:700; color:#475569; margin-bottom:6px; letter-spacing:0.5px;">NAMA TEMPLATE PESAN</label>
-                    <input type="text" name="kategori" placeholder="Contoh: Pengingat Berkas SKP" required
-                        style="width:100%; padding:11px 14px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:14px; color:#1e293b; outline:none; transition:border 0.2s; box-sizing:border-box; font-family:'Poppins',sans-serif;"
-                        onfocus="this.style.borderColor='#3b82f6'; this.style.boxShadow='0 0 0 3px rgba(59,130,246,0.1)'"
-                        onblur="this.style.borderColor='#e2e8f0'; this.style.boxShadow='none'">
+                
+                <div class="tm-form-group">
+                    <label class="tm-label">Nama Template Pesan</label>
+                    <input type="text" name="kategori" class="tm-input" placeholder="Contoh: Pengingat Berkas SKP" required>
                 </div>
 
-                <div style="margin-bottom:16px;">
-                    <label style="display:block; font-size:12px; font-weight:700; color:#475569; margin-bottom:6px; letter-spacing:0.5px;">ISI PESAN</label>
-                    <textarea name="template_pesan" rows="6" placeholder="Tulis template pesan di sini..." required
-                        style="width:100%; padding:12px 14px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:14px; color:#1e293b; outline:none; transition:border 0.2s; resize:vertical; box-sizing:border-box; font-family:'Poppins',sans-serif; min-height:130px;"
-                        onfocus="this.style.borderColor='#3b82f6'; this.style.boxShadow='0 0 0 3px rgba(59,130,246,0.1)'"
-                        onblur="this.style.borderColor='#e2e8f0'; this.style.boxShadow='none'"></textarea>
+                <div class="tm-form-group">
+                    <label class="tm-label">Isi Pesan</label>
+                    <textarea name="template_pesan" class="tm-textarea" placeholder="Tulis kerangka template pesan di sini..." required></textarea>
                 </div>
 
                 <!-- Panduan Placeholder -->
-                <div style="background:#eff6ff; border:1px solid #bfdbfe; border-radius:8px; padding:14px 16px;">
-                    <div style="display:flex; align-items:center; gap:8px; margin-bottom:10px;">
-                        <i class="ph-fill ph-info" style="color:#3b82f6; font-size:16px;"></i>
-                        <span style="font-size:13px; font-weight:700; color:#1e40af;">Panduan Variabel Placeholder</span>
+                <div class="tm-guide-box">
+                    <div class="tm-guide-header">
+                        <i class="ph-fill ph-info"></i>
+                        <span>Variabel Placeholder yang Tersedia</span>
                     </div>
-                    <p style="font-size:12px; color:#3b82f6; margin:0 0 10px 0;">Sisipkan variabel berikut dalam isi pesan Ã¢â‚¬â€ akan otomatis diganti data pegawai saat dikirim:</p>
-                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:6px;">
-                        <div style="background:white; border-radius:6px; padding:8px 10px; border:1px solid #dbeafe;">
-                            <code style="color:#1d4ed8; font-size:12px; font-weight:700;">{nama}</code>
-                            <span style="color:#64748b; font-size:11px; display:block; margin-top:2px;">Nama lengkap pegawai</span>
-                        </div>
-                        <div style="background:white; border-radius:6px; padding:8px 10px; border:1px solid #dbeafe;">
-                            <code style="color:#1d4ed8; font-size:12px; font-weight:700;">{nip}</code>
-                            <span style="color:#64748b; font-size:11px; display:block; margin-top:2px;">NIP pegawai</span>
-                        </div>
-                        <div style="background:white; border-radius:6px; padding:8px 10px; border:1px solid #dbeafe;">
-                            <code style="color:#1d4ed8; font-size:12px; font-weight:700;">{deadline}</code>
-                            <span style="color:#64748b; font-size:11px; display:block; margin-top:2px;">Tanggal jatuh tempo</span>
-                        </div>
-                        <div style="background:white; border-radius:6px; padding:8px 10px; border:1px solid #dbeafe;">
-                            <code style="color:#1d4ed8; font-size:12px; font-weight:700;">{poin}</code>
-                            <span style="color:#64748b; font-size:11px; display:block; margin-top:2px;">Angka kredit / poin</span>
-                        </div>
-                        <div style="background:white; border-radius:6px; padding:8px 10px; border:1px solid #dbeafe; grid-column:1/-1;">
-                            <code style="color:#1d4ed8; font-size:12px; font-weight:700;">{next_pangkat}</code>
-                            <span style="color:#64748b; font-size:11px; display:block; margin-top:2px;">Pangkat / golongan berikutnya</span>
-                        </div>
+                    <div class="tm-grid">
+                        <div class="tm-grid-item"><code>{nama}</code><span>Nama lengkap pegawai</span></div>
+                        <div class="tm-grid-item"><code>{nip}</code><span>NIP pegawai bersangkutan</span></div>
+                        <div class="tm-grid-item"><code>{deadline}</code><span>Tanggal jatuh tempo</span></div>
+                        <div class="tm-grid-item"><code>{poin}</code><span>Angka kredit / poin</span></div>
+                        <div class="tm-grid-item" style="grid-column: 1 / -1;"><code>{next_pangkat}</code><span>Pangkat / golongan tujuan berikutnya</span></div>
                     </div>
                 </div>
             </div>
 
             <!-- Footer -->
-            <div style="padding:18px 25px; border-top:1px solid #e2e8f0; background:#f8fafc; display:flex; justify-content:flex-end; gap:10px; flex-shrink:0;">
-                <button type="button" onclick="closeModal()"
-                    style="padding:10px 22px; background:white; color:#64748b; border:1.5px solid #e2e8f0; border-radius:8px; cursor:pointer; font-weight:600; font-size:14px; font-family:'Poppins',sans-serif; transition:all 0.2s;"
-                    onmouseover="this.style.background='#f1f5f9'" onmouseout="this.style.background='white'">Batal</button>
-                <button type="submit"
-                    style="padding:10px 22px; background:#16a34a; color:white; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:14px; font-family:'Poppins',sans-serif; display:flex; align-items:center; gap:8px; transition:all 0.2s;"
-                    onmouseover="this.style.background='#15803d'; this.style.transform='translateY(-1px)'" onmouseout="this.style.background='#16a34a'; this.style.transform='translateY(0)'">
-                    <i class="ph-bold ph-floppy-disk"></i> Simpan
+            <div class="tm-footer">
+                <button type="button" class="tm-btn-cancel" onclick="closeModal()">Batal</button>
+                <button type="submit" class="tm-btn-submit green">
+                    <i class="ph-bold ph-check-circle"></i> Simpan Template
                 </button>
             </div>
         </form>
     </div>
 
     <!-- MODAL EDIT PESAN -->
-    <div id="modalEditPesan" class="modal-overlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:2400; justify-content:center; align-items:center;">
-        <form id="formEdit" style="background:white; width:640px; max-width:95vw; padding:0; border-radius:12px; box-shadow:0 10px 40px rgba(0,0,0,0.2); overflow:hidden; display:flex; flex-direction:column; max-height:92vh;">
+    <div id="modalEditPesan" class="tm-overlay" onclick="if(event.target===this) closeEditModal()">
+        <form id="formEdit" class="tm-card" style="max-width: 680px;">
             <input type="hidden" id="editId" name="id">
 
             <!-- Header -->
-            <div style="padding:20px 25px; border-bottom:1px solid #e2e8f0; background:#f8fafc; display:flex; justify-content:space-between; align-items:center; flex-shrink:0;">
-                <div style="display:flex; align-items:center; gap:12px;">
-                    <div style="background:#dbeafe; color:#1e40af; width:40px; height:40px; border-radius:50%; display:flex; align-items:center; justify-content:center;">
-                        <i class="ph-bold ph-pencil-simple" style="font-size:20px;"></i>
+            <div class="tm-header">
+                <div class="tm-header-left">
+                    <div class="tm-icon-wrap edit">
+                        <i class="ph-bold ph-pencil-simple"></i>
                     </div>
-                    <div>
-                        <h2 style="margin:0; color:#1e293b; font-size:17px; font-weight:700;">Edit Template Pesan</h2>
-                        <p style="margin:2px 0 0; font-size:12px; color:#64748b;">Ubah konten atau jadwal notifikasi</p>
+                    <div class="tm-title-wrap">
+                        <h2>Edit Pengaturan Pesan</h2>
+                        <p>Ubah konten atau konfigurasi jadwal notifikasi</p>
                     </div>
                 </div>
-                <button type="button" onclick="closeEditModal()" style="background:none; border:none; cursor:pointer; color:#94a3b8; transition:color 0.2s;" onmouseover="this.style.color='#ef4444'" onmouseout="this.style.color='#94a3b8'">
-                    <i class="ph-bold ph-x" style="font-size:20px;"></i>
+                <button type="button" class="tm-close-btn" onclick="closeEditModal()">
+                    <i class="ph-bold ph-x"></i>
                 </button>
             </div>
 
             <!-- Body -->
-            <div style="padding:25px; overflow-y:auto; flex:1;">
-
-                <!-- Row: Nama + Jenis + Jeda -->
-                <div style="display:grid; grid-template-columns:3fr 2fr 1fr; gap:14px; margin-bottom:8px;">
+            <div class="tm-body">
+                
+                <div style="display:grid; grid-template-columns: 2fr 1.5fr 1fr; gap:16px; margin-bottom: 20px;">
                     <div>
-                        <label style="display:block; font-size:12px; font-weight:700; color:#475569; margin-bottom:6px; letter-spacing:0.5px;">NAMA NOTIFIKASI</label>
-                        <input type="text" id="editNama" name="kategori" required
-                            style="width:100%; padding:11px 14px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:13px; color:#1e293b; outline:none; transition:border 0.2s; box-sizing:border-box; font-family:'Poppins',sans-serif;"
-                            onfocus="this.style.borderColor='#3b82f6'; this.style.boxShadow='0 0 0 3px rgba(59,130,246,0.1)'"
-                            onblur="this.style.borderColor='#e2e8f0'; this.style.boxShadow='none'">
+                        <label class="tm-label">Nama Notifikasi</label>
+                        <input type="text" id="editNama" name="kategori" class="tm-input" required>
                     </div>
                     <div>
-                        <label style="display:block; font-size:12px; font-weight:700; color:#475569; margin-bottom:6px; letter-spacing:0.5px;">JENIS</label>
-                        <select id="editJenis" name="jenis" onchange="toggleJadwalEdit()"
-                            style="width:100%; padding:11px 14px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:13px; color:#1e293b; outline:none; background:white; box-sizing:border-box; font-family:'Poppins',sans-serif; cursor:pointer;">
-                            <option value="Penjadwalan">Otomatis</option>
+                        <label class="tm-label">Jenis Notifikasi</label>
+                        <select id="editJenis" name="jenis" class="tm-select" onchange="toggleJadwalEdit()">
+                            <option value="Penjadwalan">Otomatis Terjadwal</option>
                             <option value="Template">Manual / Template</option>
                         </select>
                     </div>
                     <div>
-                        <label style="display:block; font-size:12px; font-weight:700; color:#475569; margin-bottom:6px; letter-spacing:0.5px;">JEDA (HARI)</label>
-                        <input type="number" id="editJadwal" name="interval_hari" placeholder="0" required
-                            style="width:100%; padding:11px 14px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:13px; color:#1e293b; outline:none; transition:border 0.2s; box-sizing:border-box; font-family:'Poppins',sans-serif;"
-                            onfocus="this.style.borderColor='#3b82f6'; this.style.boxShadow='0 0 0 3px rgba(59,130,246,0.1)'"
-                            onblur="this.style.borderColor='#e2e8f0'; this.style.boxShadow='none'">
+                        <label class="tm-label">Jeda (Hari)</label>
+                        <input type="number" id="editJadwal" name="interval_hari" class="tm-input" placeholder="0" required>
                     </div>
                 </div>
 
-                <!-- Info jeda -->
-                <div style="background:#fefce8; border:1px solid #fde68a; border-radius:6px; padding:8px 12px; margin-bottom:20px; display:flex; align-items:center; gap:8px;">
-                    <i class="ph-fill ph-warning" style="color:#d97706; font-size:14px; flex-shrink:0;"></i>
-                    <span style="font-size:12px; color:#92400e;">Isi <b>1</b> = Harian &nbsp;|&nbsp; <b>7</b> = Mingguan &nbsp;|&nbsp; <b>30</b> = Bulanan &nbsp;|&nbsp; <b>365</b> = Tahunan. Isi <b>0</b> untuk Manual / Template.</span>
+                <div style="background:#fffbeb; border:1px solid #fde68a; border-radius:10px; padding:12px 16px; margin-bottom:20px; display:flex; align-items:flex-start; gap:10px;">
+                    <i class="ph-fill ph-warning" style="color:#d97706; font-size:18px; margin-top:2px;"></i>
+                    <span style="font-size:12.5px; color:#92400e; line-height: 1.5;">
+                        <b>Jeda Otomatis:</b> Isi <b>1</b> = Harian, <b>7</b> = Mingguan, <b>30</b> = Bulanan, <b>365</b> = Tahunan.<br>
+                        Isi <b>0</b> jika memilih tipe Manual / Template.
+                    </span>
                 </div>
 
-                <div style="margin-bottom:16px;">
-                    <label style="display:block; font-size:12px; font-weight:700; color:#475569; margin-bottom:6px; letter-spacing:0.5px;">ISI PESAN</label>
-                    <textarea id="editIsi" name="template_pesan" rows="6" required
-                        style="width:100%; padding:12px 14px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:14px; color:#1e293b; outline:none; transition:border 0.2s; resize:vertical; box-sizing:border-box; font-family:'Poppins',sans-serif; min-height:130px;"
-                        onfocus="this.style.borderColor='#3b82f6'; this.style.boxShadow='0 0 0 3px rgba(59,130,246,0.1)'"
-                        onblur="this.style.borderColor='#e2e8f0'; this.style.boxShadow='none'"></textarea>
+                <div class="tm-form-group">
+                    <label class="tm-label">Isi Pesan</label>
+                    <textarea id="editIsi" name="template_pesan" class="tm-textarea" required></textarea>
                 </div>
 
                 <!-- Panduan Placeholder -->
-                <div style="background:#eff6ff; border:1px solid #bfdbfe; border-radius:8px; padding:14px 16px;">
-                    <div style="display:flex; align-items:center; gap:8px; margin-bottom:10px;">
-                        <i class="ph-fill ph-info" style="color:#3b82f6; font-size:16px;"></i>
-                        <span style="font-size:13px; font-weight:700; color:#1e40af;">Panduan Variabel Placeholder</span>
+                <div class="tm-guide-box">
+                    <div class="tm-guide-header">
+                        <i class="ph-fill ph-info"></i>
+                        <span>Variabel Placeholder yang Tersedia</span>
                     </div>
-                    <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:6px;">
-                        <div style="background:white; border-radius:6px; padding:8px 10px; border:1px solid #dbeafe;">
-                            <code style="color:#1d4ed8; font-size:12px; font-weight:700;">{nama}</code>
-                            <span style="color:#64748b; font-size:11px; display:block; margin-top:2px;">Nama pegawai</span>
-                        </div>
-                        <div style="background:white; border-radius:6px; padding:8px 10px; border:1px solid #dbeafe;">
-                            <code style="color:#1d4ed8; font-size:12px; font-weight:700;">{nip}</code>
-                            <span style="color:#64748b; font-size:11px; display:block; margin-top:2px;">NIP pegawai</span>
-                        </div>
-                        <div style="background:white; border-radius:6px; padding:8px 10px; border:1px solid #dbeafe;">
-                            <code style="color:#1d4ed8; font-size:12px; font-weight:700;">{deadline}</code>
-                            <span style="color:#64748b; font-size:11px; display:block; margin-top:2px;">Jatuh tempo</span>
-                        </div>
-                        <div style="background:white; border-radius:6px; padding:8px 10px; border:1px solid #dbeafe;">
-                            <code style="color:#1d4ed8; font-size:12px; font-weight:700;">{poin}</code>
-                            <span style="color:#64748b; font-size:11px; display:block; margin-top:2px;">Angka kredit</span>
-                        </div>
-                        <div style="background:white; border-radius:6px; padding:8px 10px; border:1px solid #dbeafe; grid-column:span 2;">
-                            <code style="color:#1d4ed8; font-size:12px; font-weight:700;">{next_pangkat}</code>
-                            <span style="color:#64748b; font-size:11px; display:block; margin-top:2px;">Pangkat / golongan berikutnya</span>
-                        </div>
+                    <div class="tm-grid" style="grid-template-columns: repeat(3, 1fr);">
+                        <div class="tm-grid-item"><code>{nama}</code><span>Nama lengkap</span></div>
+                        <div class="tm-grid-item"><code>{nip}</code><span>NIP pegawai</span></div>
+                        <div class="tm-grid-item"><code>{deadline}</code><span>Jatuh tempo</span></div>
+                        <div class="tm-grid-item"><code>{poin}</code><span>Angka kredit</span></div>
+                        <div class="tm-grid-item" style="grid-column: span 2;"><code>{next_pangkat}</code><span>Pangkat tujuan berikutnya</span></div>
                     </div>
                 </div>
             </div>
 
             <!-- Footer -->
-            <div style="padding:18px 25px; border-top:1px solid #e2e8f0; background:#f8fafc; display:flex; justify-content:flex-end; gap:10px; flex-shrink:0;">
-                <button type="button" onclick="closeEditModal()"
-                    style="padding:10px 22px; background:white; color:#64748b; border:1.5px solid #e2e8f0; border-radius:8px; cursor:pointer; font-weight:600; font-size:14px; font-family:'Poppins',sans-serif; transition:all 0.2s;"
-                    onmouseover="this.style.background='#f1f5f9'" onmouseout="this.style.background='white'">Batal</button>
-                <button type="submit"
-                    style="padding:10px 22px; background:#1e40af; color:white; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:14px; font-family:'Poppins',sans-serif; display:flex; align-items:center; gap:8px; transition:all 0.2s;"
-                    onmouseover="this.style.background='#1e3a8a'; this.style.transform='translateY(-1px)'" onmouseout="this.style.background='#1e40af'; this.style.transform='translateY(0)'">
+            <div class="tm-footer">
+                <button type="button" class="tm-btn-cancel" onclick="closeEditModal()">Batal</button>
+                <button type="submit" class="tm-btn-submit">
                     <i class="ph-bold ph-floppy-disk"></i> Simpan Perubahan
                 </button>
             </div>
         </form>
-    </div>
+    </div>    </div>
 
     <!-- MODAL HAPUS PESAN -->
     <div id="modalHapusPesan" class="modal-overlay">
@@ -431,11 +496,11 @@
     // === TAMBAH ===
     function openModal() {
         document.getElementById('formTambah').reset();
-        document.getElementById('modalTambahPesan').style.display = 'flex';
+        document.getElementById('modalTambahPesan').classList.add('open');
     }
     function closeModal() {
-        document.getElementById('modalTambahPesan').style.display = 'none';
-        document.getElementById('formTambah').reset();
+        document.getElementById('modalTambahPesan').classList.remove('open');
+        setTimeout(() => document.getElementById('formTambah').reset(), 250);
     }
 
     document.getElementById('formTambah').addEventListener('submit', function(e) {
@@ -551,7 +616,7 @@
             if(hiddenJenis) hiddenJenis.remove();
         }
 
-        document.getElementById('modalEditPesan').style.display = 'flex';
+        document.getElementById('modalEditPesan').classList.add('open');
     }
 
     function toggleJadwalEdit() {
@@ -570,7 +635,8 @@
     }
 
     function closeEditModal() {
-        document.getElementById('modalEditPesan').style.display = 'none';
+        document.getElementById('modalEditPesan').classList.remove('open');
+        setTimeout(() => document.getElementById('formEdit').reset(), 250);
     }
 
     document.getElementById('formEdit').addEventListener('submit', function(e) {
