@@ -58,6 +58,10 @@
     <!-- Change Password Modal -->
     @include('partials.change_password_modal')
 
+    <!-- Backup Database Confirmation Modal -->
+    @include('partials.modal_backup_database')
+
+
     <!-- Per-page scripts -->
     @yield('scripts')
 
