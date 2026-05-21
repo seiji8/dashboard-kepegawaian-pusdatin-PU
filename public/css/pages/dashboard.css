@@ -1,4 +1,4 @@
-﻿/* --- Dashboard Title --- */
+/* --- Dashboard Title --- */
 .page-title-dashboard {
     color: #1e3a8a;
     font-size: 28px;
@@ -17,26 +17,34 @@
 }
 
 .summary-card {
-    background: white;
-    padding: 25px;
-    border-radius: 16px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.02);
-    border: 1px solid #f3f4f6;
+    background: #ffffff;
+    padding: 28px;
+    border-radius: 20px;
+    box-shadow: 0 4px 20px rgba(20, 43, 111, 0.04);
+    border: 1px solid rgba(20,43,111,0.05);
 
     display: flex;
     flex-direction: column;
     height: 100%;
     /* Memaksa card mengisi penuh tinggi baris grid */
     position: relative;
-    transition: all 0.3s ease;
+    transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    overflow: hidden;
+}
+
+.summary-card::after {
+    content: '';
+    position: absolute;
+    bottom: -40px; right: -40px;
+    width: 150px; height: 150px;
+    background: radial-gradient(circle, rgba(20,43,111,0.03) 0%, transparent 70%);
+    pointer-events: none;
 }
 
 .summary-card:hover {
-    transform: translateY(-4px);
-    box-shadow:
-        0 10px 15px -3px rgba(0, 0, 0, 0.1),
-        0 4px 6px -2px rgba(0, 0, 0, 0.05);
-    border-color: #e5e7eb;
+    transform: translateY(-6px);
+    box-shadow: 0 16px 32px rgba(20, 43, 111, 0.12);
+    border-color: rgba(20,43,111,0.1);
 }
 
 /* Wrapper text sekarang jadi Flex Container juga */
@@ -108,17 +116,23 @@
     position: absolute;
     top: 25px;
     right: 25px;
-    background-color: #1e3a8a;
-    width: 48px;
-    height: 48px;
-    border-radius: 12px;
+    background: linear-gradient(135deg, #1e3a8a 0%, #142B6F 100%);
+    width: 54px;
+    height: 54px;
+    border-radius: 14px;
     display: flex;
     align-items: center;
     justify-content: center;
+    box-shadow: 0 8px 16px rgba(20, 43, 111, 0.2);
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.summary-card:hover .card-icon-box {
+    transform: scale(1.05) rotate(5deg);
 }
 
 .card-icon-box i {
-    font-size: 24px;
+    font-size: 26px;
     color: #fbbf24;
 }
 
@@ -164,22 +178,24 @@
 }
 
 .task-badge {
-    background-color: #1e3a8a;
+    background: linear-gradient(135deg, #1e3a8a 0%, #142B6F 100%);
     color: white;
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
     display: flex;
     align-items: center;
     justify-content: center;
     font-weight: 700;
-    font-size: 14px;
+    font-size: 15px;
+    box-shadow: 0 4px 10px rgba(20,43,111,0.2);
 }
 
 .task-name {
-    font-weight: 600;
-    color: #111;
+    font-weight: 700;
+    color: #0f172a;
     font-size: 15px;
+    letter-spacing: -0.2px;
 }
 
 /* =========================================
@@ -191,25 +207,27 @@
     margin-bottom: 15px;
 }
 
-/* Style untuk Header Utama (Card Putih) */
 .task-header {
-    background: white;
-    padding: 20px 25px;
-    border-radius: 12px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
-    border: 1px solid #f3f4f6;
+    background: #ffffff;
+    padding: 22px 28px;
+    border-radius: 16px;
+    box-shadow: 0 4px 16px rgba(20, 43, 111, 0.03);
+    border: 1px solid rgba(20,43,111,0.06);
     border-left: 6px solid #fbbf24;
-    /* Aksen Kuning */
     display: flex;
     align-items: center;
     cursor: pointer;
-    transition: all 0.2s;
+    transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
     position: relative;
     z-index: 2;
 }
 
 .task-header:hover {
-    background-color: #f9fafb;
+    background-color: #f8faff;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(20, 43, 111, 0.08);
+    border-color: rgba(20,43,111,0.1);
+    border-left-color: #fbbf24;
 }
 
 /* Style untuk Container Sub-Kategori (Hidden by default) */
