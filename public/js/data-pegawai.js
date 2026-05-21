@@ -104,11 +104,11 @@ function openDeleteModal(nip, nama) {
     currentDeleteNip = nip;
     const nameEl = document.getElementById('deletePegawaiName');
     if (nameEl) nameEl.textContent = nama;
-    document.getElementById('modalHapusPegawai').style.display = 'flex';
+    document.getElementById('modalHapusPegawai').classList.add('open');
 }
 
 function closeDeleteModal() {
-    document.getElementById('modalHapusPegawai').style.display = 'none';
+    document.getElementById('modalHapusPegawai').classList.remove('open');
     currentDeleteNip = null;
 }
 
@@ -269,6 +269,6 @@ window.addEventListener('click', function (event) {
     const reminderModal = document.getElementById('modalReminder');
 
     if (detailModal && event.target == detailModal) detailModal.style.display = "none";
-    if (deleteModal && event.target == deleteModal) deleteModal.style.display = "none";
+    if (deleteModal && event.target == deleteModal) deleteModal.classList.remove('open');
     if (reminderModal && event.target == reminderModal) reminderModal.style.display = "none";
 });

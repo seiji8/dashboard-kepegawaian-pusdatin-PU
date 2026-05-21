@@ -216,20 +216,220 @@
             @endif
         </div>
 
-    <!-- MODAL HAPUS PEGAWAI -->
-    <div id="modalHapusPegawai" class="modal-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2500; justify-content: center; align-items: center;">
-        <div style="background:#fff; width:420px; max-width:90vw; border-radius:16px; box-shadow:0 10px 40px rgba(0,0,0,0.2); padding:30px; text-align:center;">
-            <div style="background:#fee2e2; width:80px; height:80px; border-radius:50%; display:flex; align-items:center; justify-content:center; margin: 0 auto 20px auto;">
-                <i class="ph-fill ph-warning-circle" style="font-size: 48px; color: #ef4444;"></i>
+    <!-- MODAL HAPUS PEGAWAI - AWWWARDS CLASS -->
+    <style>
+        /* === DELETE MODAL STYLES === */
+        #modalHapusPegawai {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(10, 18, 40, 0.55);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            z-index: 2500;
+            display: none;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #modalHapusPegawai.open {
+            display: flex;
+        }
+
+        .dm-card {
+            background: #ffffff;
+            border-radius: 24px;
+            box-shadow:
+                0 32px 64px -12px rgba(239, 68, 68, 0.2),
+                0 0 0 1px rgba(239, 68, 68, 0.06);
+            width: 100%;
+            max-width: 440px;
+            padding: 40px 36px 32px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            transform: scale(0.9) translateY(20px);
+            opacity: 0;
+            transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+                        opacity 0.3s ease;
+        }
+
+        #modalHapusPegawai.open .dm-card {
+            transform: scale(1) translateY(0);
+            opacity: 1;
+        }
+
+        /* Background decoration */
+        .dm-card::after {
+            content: '';
+            position: absolute;
+            bottom: -60px; right: -60px;
+            width: 200px; height: 200px;
+            background: radial-gradient(circle, rgba(239,68,68,0.05) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        /* Icon Container - triple layer */
+        .dm-icon-wrap {
+            position: relative;
+            width: 96px;
+            height: 96px;
+            margin: 0 auto 24px;
+        }
+
+        /* Outermost pulsing ring */
+        .dm-icon-wrap::before {
+            content: '';
+            position: absolute;
+            inset: -8px;
+            border-radius: 50%;
+            background: rgba(239, 68, 68, 0.1);
+            animation: dm-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+
+        @keyframes dm-pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(1.08); }
+        }
+
+        .dm-icon-inner {
+            width: 96px;
+            height: 96px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid rgba(239, 68, 68, 0.15);
+            position: relative;
+            z-index: 1;
+        }
+
+        .dm-icon-inner i {
+            font-size: 48px;
+            color: #ef4444;
+        }
+
+        .dm-title {
+            font-size: 20px;
+            font-weight: 800;
+            color: #0f172a;
+            margin-bottom: 12px;
+            letter-spacing: -0.3px;
+        }
+
+        .dm-desc {
+            font-size: 14px;
+            color: #64748b;
+            line-height: 1.7;
+            margin-bottom: 28px;
+        }
+
+        .dm-name-highlight {
+            color: #dc2626;
+            font-weight: 700;
+        }
+
+        .dm-danger-tag {
+            display: inline-block;
+            background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+            color: #dc2626;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            padding: 3px 10px;
+            border-radius: 20px;
+            border: 1px solid rgba(220, 38, 38, 0.15);
+            margin-bottom: 12px;
+        }
+
+        .dm-actions {
+            display: flex;
+            gap: 12px;
+        }
+
+        .dm-btn-cancel {
+            flex: 1;
+            padding: 12px 20px;
+            border-radius: 12px;
+            border: 1.5px solid #e2e8f0;
+            background: #f8fafc;
+            color: #64748b;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .dm-btn-cancel:hover {
+            background: #f1f5f9;
+            border-color: #cbd5e1;
+            color: #374151;
+            transform: translateY(-1px);
+        }
+
+        .dm-btn-confirm {
+            flex: 1;
+            padding: 12px 20px;
+            border-radius: 12px;
+            border: none;
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            color: #ffffff;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+            font-family: 'Poppins', sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .dm-btn-confirm:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(239, 68, 68, 0.4);
+        }
+
+        .dm-btn-confirm:active {
+            transform: translateY(0);
+        }
+    </style>
+
+    <div id="modalHapusPegawai">
+        <div class="dm-card">
+            <!-- Triple-layer warning icon with pulse -->
+            <div class="dm-icon-wrap">
+                <div class="dm-icon-inner">
+                    <i class="ph-fill ph-warning-circle"></i>
+                </div>
             </div>
-            <h3 style="margin:0 0 10px; font-size:18px; font-weight:700; color:#0f172a;">Hapus Data Pegawai?</h3>
-            <p style="margin:0 0 25px; font-size:14px; color:#475569; line-height:1.5;">Tindakan ini tidak dapat dibatalkan. Data pegawai <strong id="deletePegawaiName" style="color:#ef4444;"></strong> beserta seluruh riwayat dokumennya akan <strong>dihapus permanen</strong> dari sistem.</p>
-            <div style="display:flex; gap:12px; justify-content:center;">
-                <button onclick="closeDeleteModal()" style="padding:10px 24px; background:white; color:#64748b; border:1px solid #cbd5e1; border-radius:8px; cursor:pointer; font-weight:600; font-size:14px; flex:1; transition:all 0.2s; font-family:'Poppins', sans-serif;" onmouseover="this.style.background='#f1f5f9'" onmouseout="this.style.background='white'">Batal</button>
-                <button onclick="confirmDelete()" id="btnConfirmDelete" style="padding:10px 24px; background:#ef4444; color:white; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:14px; flex:1; transition:all 0.2s; box-shadow:0 4px 6px -1px rgba(239,68,68,0.2); font-family:'Poppins', sans-serif;" onmouseover="this.style.background='#dc2626'; this.style.transform='translateY(-1px)'" onmouseout="this.style.background='#ef4444'; this.style.transform='translateY(0)'">Ya, Hapus</button>
+
+            <!-- Danger badge -->
+            <div class="dm-danger-tag">⚠ Aksi Tidak Dapat Dibatalkan</div>
+
+            <h3 class="dm-title">Hapus Data Pegawai?</h3>
+            <p class="dm-desc">
+                Data pegawai <strong class="dm-name-highlight" id="deletePegawaiName"></strong>
+                beserta seluruh riwayat dokumennya akan
+                <strong>dihapus permanen</strong> dari sistem.
+            </p>
+
+            <div class="dm-actions">
+                <button class="dm-btn-cancel" onclick="closeDeleteModal()">
+                    Batal
+                </button>
+                <button class="dm-btn-confirm" onclick="confirmDelete()" id="btnConfirmDelete">
+                    <i class="ph-bold ph-trash"></i>
+                    Ya, Hapus
+                </button>
             </div>
         </div>
     </div>
+
 
     <!-- MODAL DETAIL PEGAWAI MODERN -->
     <div id="modalDetailPegawai" class="modal-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2000; justify-content: center; align-items: center;">

@@ -463,18 +463,183 @@
         </form>
     </div>    </div>
 
-    <!-- MODAL HAPUS PESAN -->
-    <div id="modalHapusPesan" class="modal-overlay">
-        <div class="modal-box modal-delete-size">
-            <div class="delete-content">
-                <h3 class="delete-title">
-                    Hapus Pesan Ini?
-                    <i class="ph-fill ph-warning" style="color: #fbbf24; font-size: 24px;"></i>
-                </h3>
-                <div class="delete-actions">
-                    <button class="btn-pill confirm-delete" onclick="confirmDeletePesan()">Yakin</button>
-                    <button class="btn-pill" onclick="closeDeletePesanModal()">Batal</button>
+    <!-- MODAL HAPUS PESAN - AWWWARDS CLASS -->
+    <style>
+        #modalHapusPesan {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(10, 18, 40, 0.55);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            z-index: 2500;
+            display: none;
+            justify-content: center;
+            align-items: center;
+        }
+        #modalHapusPesan.open {
+            display: flex;
+        }
+        .dm-pesan-card {
+            background: #ffffff;
+            border-radius: 24px;
+            box-shadow:
+                0 32px 64px -12px rgba(239, 68, 68, 0.2),
+                0 0 0 1px rgba(239, 68, 68, 0.06);
+            width: 100%;
+            max-width: 440px;
+            padding: 40px 36px 32px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            transform: scale(0.9) translateY(20px);
+            opacity: 0;
+            transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+                        opacity 0.3s ease;
+        }
+        #modalHapusPesan.open .dm-pesan-card {
+            transform: scale(1) translateY(0);
+            opacity: 1;
+        }
+        .dm-pesan-card::after {
+            content: '';
+            position: absolute;
+            bottom: -60px; right: -60px;
+            width: 200px; height: 200px;
+            background: radial-gradient(circle, rgba(239,68,68,0.05) 0%, transparent 70%);
+            pointer-events: none;
+        }
+        .dm-pesan-icon-wrap {
+            position: relative;
+            width: 96px;
+            height: 96px;
+            margin: 0 auto 24px;
+        }
+        .dm-pesan-icon-wrap::before {
+            content: '';
+            position: absolute;
+            inset: -8px;
+            border-radius: 50%;
+            background: rgba(239, 68, 68, 0.1);
+            animation: dm-pesan-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        @keyframes dm-pesan-pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(1.08); }
+        }
+        .dm-pesan-icon-inner {
+            width: 96px;
+            height: 96px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid rgba(239, 68, 68, 0.15);
+            position: relative;
+            z-index: 1;
+        }
+        .dm-pesan-icon-inner i {
+            font-size: 48px;
+            color: #ef4444;
+        }
+        .dm-pesan-danger-tag {
+            display: inline-block;
+            background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+            color: #dc2626;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            padding: 3px 10px;
+            border-radius: 20px;
+            border: 1px solid rgba(220, 38, 38, 0.15);
+            margin-bottom: 12px;
+        }
+        .dm-pesan-title {
+            font-size: 20px;
+            font-weight: 800;
+            color: #0f172a;
+            margin-bottom: 12px;
+            letter-spacing: -0.3px;
+        }
+        .dm-pesan-desc {
+            font-size: 14px;
+            color: #64748b;
+            line-height: 1.7;
+            margin-bottom: 28px;
+        }
+        .dm-pesan-actions {
+            display: flex;
+            gap: 12px;
+        }
+        .dm-pesan-btn-cancel {
+            flex: 1;
+            padding: 12px 20px;
+            border-radius: 12px;
+            border: 1.5px solid #e2e8f0;
+            background: #f8fafc;
+            color: #64748b;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: 'Poppins', sans-serif;
+        }
+        .dm-pesan-btn-cancel:hover {
+            background: #f1f5f9;
+            border-color: #cbd5e1;
+            color: #374151;
+            transform: translateY(-1px);
+        }
+        .dm-pesan-btn-confirm {
+            flex: 1;
+            padding: 12px 20px;
+            border-radius: 12px;
+            border: none;
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            color: #ffffff;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+            font-family: 'Poppins', sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+        .dm-pesan-btn-confirm:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(239, 68, 68, 0.4);
+        }
+        .dm-pesan-btn-confirm:active {
+            transform: translateY(0);
+        }
+    </style>
+
+    <div id="modalHapusPesan" onclick="if(event.target===this) closeDeletePesanModal()">
+        <div class="dm-pesan-card">
+            <div class="dm-pesan-icon-wrap">
+                <div class="dm-pesan-icon-inner">
+                    <i class="ph-fill ph-warning-circle"></i>
                 </div>
+            </div>
+            <div class="dm-pesan-danger-tag">⚠ Aksi Tidak Dapat Dibatalkan</div>
+            <h3 class="dm-pesan-title">Hapus Pesan Ini?</h3>
+            <p class="dm-pesan-desc">
+                Pesan yang dipilih akan <strong>dihapus permanen</strong> dari sistem
+                dan tidak dapat dikembalikan.
+            </p>
+            <div class="dm-pesan-actions">
+                <button class="dm-pesan-btn-cancel" onclick="closeDeletePesanModal()">
+                    Batal
+                </button>
+                <button class="dm-pesan-btn-confirm" onclick="confirmDeletePesan()">
+                    <i class="ph-bold ph-trash"></i>
+                    Ya, Hapus
+                </button>
             </div>
         </div>
     </div>
@@ -679,11 +844,11 @@
     // === HAPUS ===
     function openDeletePesanModal(id) {
         currentDeleteId = id;
-        document.getElementById('modalHapusPesan').style.display = 'flex';
+        document.getElementById('modalHapusPesan').classList.add('open');
     }
 
     function closeDeletePesanModal() {
-        document.getElementById('modalHapusPesan').style.display = 'none';
+        document.getElementById('modalHapusPesan').classList.remove('open');
         currentDeleteId = null;
     }
 
