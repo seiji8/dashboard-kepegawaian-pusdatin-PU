@@ -15,7 +15,7 @@
                     <option value="otomatis">Otomatis</option>
                     <option value="manual">Manual / Template</option>
                 </select>
-                <button class="btn-tambah" onclick="openModal()">+ Tambah</button>
+                <button class="btn-tambah" onclick="openModal()"><i class="ph-bold ph-plus" style="font-size: 16px;"></i> Tambah</button>
             </div>
         </div>
 

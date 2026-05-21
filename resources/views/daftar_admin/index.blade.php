@@ -51,7 +51,7 @@
                     <i class="ph-bold ph-magnifying-glass search-icon"></i>
                     <input type="text" name="search" placeholder="Cari Admin" class="search-input" value="{{ request('search') }}">
                 </form>
-                <a href="#" class="btn-tambah" onclick="openAddModal()">Tambah</a>
+                <a href="#" class="btn-tambah" onclick="openAddModal()"><i class="ph-bold ph-user-plus" style="font-size: 16px; margin-right: 6px;"></i>Tambah</a>
             </div>
         </div>
 
