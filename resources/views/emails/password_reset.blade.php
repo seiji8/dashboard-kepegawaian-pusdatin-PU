@@ -16,13 +16,40 @@
                 <table width="600" cellpadding="0" cellspacing="0" border="0" style="max-width: 600px; width: 100%; background-color: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 10px 30px rgba(20, 43, 111, 0.12);">
 
 
-                    <!-- ===== HEADER: Gambar Banner (CID Inline) ===== -->
+                    <!-- ===== HEADER: Gradient Brand Bar ===== -->
                     <tr>
-                        <td style="padding: 0; margin: 0; line-height: 0;">
-                            <img src="{{ $message->embed(public_path('assets/header_email.png')) }}"
-                                 alt="Dashboard Kepegawaian Pusdatin PU"
-                                 width="600"
-                                 style="display: block; width: 100%; max-width: 600px; height: auto; border: 0;">
+                        <td style="background:linear-gradient(135deg,#142B6F 0%,#1e3a8a 60%,#1d4ed8 100%);padding:32px 40px;">
+                            <table cellpadding="0" cellspacing="0" border="0" width="100%">
+                                <tr>
+                                    <td style="vertical-align:middle;width:60px;">
+                                        <img src="{{ $message->embed(public_path('assets/Logo_PU.png')) }}"
+                                             alt="Logo PU"
+                                             width="52"
+                                             style="display:block;height:auto;border:0;">
+                                    </td>
+                                    <td style="vertical-align:middle;padding-left:16px;">
+                                        <p style="margin:0;font-size:22px;font-weight:800;color:#ffffff;letter-spacing:0.3px;line-height:1.2;">
+                                            <span style="color:#FFC928;">Dashboard</span>Alert
+                                        </p>
+                                        <p style="margin:4px 0 0;font-size:12px;color:rgba(255,255,255,0.75);letter-spacing:0.5px;">
+                                            PUSDATIN Kementerian PU &mdash; Keamanan Akun
+                                        </p>
+                                    </td>
+                                    <td style="vertical-align:middle;text-align:right;">
+                                        <!-- Badge -->
+                                        <span style="display:inline-block;background:rgba(255,201,40,0.15);border:1px solid rgba(255,201,40,0.4);color:#FFC928;font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:5px 12px;border-radius:20px;">
+                                            🔐 Reset Sandi
+                                        </span>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+
+                    <!-- ===== Accent Divider ===== -->
+                    <tr>
+                        <td style="padding:0;line-height:0;">
+                            <div style="height:4px;background:linear-gradient(90deg,#FFC928 0%,#142B6F 50%,#FFC928 100%);"></div>
                         </td>
                     </tr>
 
@@ -30,15 +57,7 @@
                     <tr>
                         <td style="padding: 40px 48px 32px 48px;">
 
-                            <!-- Badge / Label -->
-                            <table cellpadding="0" cellspacing="0" border="0" style="margin-bottom: 24px;">
-                                <tr>
-                                    <td style="background-color: #EEF2FF; color: #142B6F; font-size: 11px; font-weight: 700; letter-spacing: 1.2px; text-transform: uppercase; padding: 6px 14px; border-radius: 20px;">
-                                        🔐 Keamanan Akun
-                                    </td>
-                                </tr>
-                            </table>
-
+                            <!-- Badge / Label was moved to header -->
                             <!-- Heading -->
                             <h1 style="margin: 0 0 12px 0; font-size: 24px; font-weight: 700; color: #0f172a; line-height: 1.3;">
                                 Permintaan Reset Password

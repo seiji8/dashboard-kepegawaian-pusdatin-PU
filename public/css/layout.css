@@ -311,11 +311,19 @@
     font-family: inherit;
     padding: 4px 10px;
     border-radius: 20px;
-    transition: all 0.2s;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .notif-mark-read:hover {
-    background: rgba(255,255,255,0.22);
+    background: rgba(255,255,255,0.25) !important;
+    border-color: rgba(255,255,255,0.4) !important;
+    transform: translateY(-2px) scale(1.02);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+
+.notif-mark-read:active {
+    transform: translateY(0) scale(0.95);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
 /* Scrollable list */
@@ -609,6 +617,7 @@
     color: #374151;
     font-size: 14px;
     transition: background 0.2s;
+    background-color: transparent;
 }
 
 .dropdown-item:hover {
@@ -620,6 +629,6 @@
 }
 
 .dropdown-item.text-red:hover {
-    background-color: #fef2f2;
+    background-color: #f3f4f6;
 }
 

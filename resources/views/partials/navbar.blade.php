@@ -42,7 +42,7 @@
             </button>
 
             <div id="profileDropdown" class="dropdown-menu">
-                    <button onclick="openBackupModal()" class="dropdown-item" style="color: #059669; font-weight: 500; width:100%; border:none; background:none; cursor:pointer; text-align:left; display:flex; align-items:center;">
+                    <button onclick="openBackupModal()" class="dropdown-item" style="color: #059669; font-weight: 500; width:100%; border:none; cursor:pointer; text-align:left; display:flex; align-items:center;">
                         <i class="ph-fill ph-database" style="font-size: 18px; margin-right: 8px;"></i>
                         Backup Database
                     </button>
@@ -52,7 +52,7 @@
                     </a>
                 <form action="{{ route('logout') }}" method="POST">
                     @csrf
-                    <button type="submit" class="dropdown-item text-red" style="width:100%; border:none; background:none; cursor:pointer;">
+                    <button type="submit" class="dropdown-item text-red" style="width:100%; border:none; cursor:pointer; text-align:left; display:flex; align-items:center;">
                         <i class="ph-fill ph-sign-out" style="font-size: 18px; margin-right: 8px;"></i>
                         Keluar
                     </button>

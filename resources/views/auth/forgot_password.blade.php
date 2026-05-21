@@ -166,7 +166,7 @@
               <div class="flex flex-col items-center mb-4">
                   <img src="{{ asset('assets/Logo_PU.png') }}" alt="Logo" class="h-14 mb-3">
                   <h2 class="text-2xl font-bold tracking-tight">
-                      <span class="text-[#FFC928]">Dashboard</span> <span class="text-[#142B6F]">Alert</span>
+                      <span style="color: #142B6F;">Dashboard</span> <span style="color: #000000;">Alert</span>
                   </h2>
                   <div class="mt-3 text-center">
                       <h3 class="text-lg font-bold text-[#142B6F] mb-1">Atur Ulang Password</h3>
