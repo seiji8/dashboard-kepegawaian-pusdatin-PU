@@ -233,7 +233,7 @@
               <div class="flex flex-col items-center mb-8">
                   <img src="{{ asset('assets/Logo_PU.png') }}" alt="Logo" class="h-16 mb-3">
                   <h2 class="text-2xl font-bold tracking-tight">
-                      <span style="color: #142B6F;">Dashboard</span> <span style="color: #000000;">Alert</span>
+                      <span style="color: #142B6F;">Dashboard</span> <span style="color: #FFC928;">Alert</span>
                   </h2>
                   <p class="text-[14px] text-slate-500 mt-1">
                       Silakan masuk untuk mengelola data kepegawaian.
