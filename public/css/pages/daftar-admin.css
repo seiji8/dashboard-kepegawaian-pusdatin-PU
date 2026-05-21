@@ -1,4 +1,4 @@
-﻿/* --- Source: daftar_admin.css --- */
+/* --- Source: daftar_admin.css --- */
 
 .welcome-title {
     color: #1e3a8a;
@@ -285,16 +285,26 @@
 
 .search-box {
     position: relative;
-    width: 250px;
+    width: 260px;
 }
 
 .search-input {
     width: 100%;
     padding: 10px 16px 10px 40px;
-    border: 1px solid #e5e7eb;
-    border-radius: 8px;
+    border: 1.5px solid #cbd5e1;
+    border-radius: 10px;
     outline: none;
-    font-family: "Poppins";
+    font-family: "Poppins", sans-serif;
+    font-size: 14px;
+    color: #1e293b;
+    background: #ffffff;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 2px 6px rgba(20,43,111,0.05);
+}
+
+.search-input:focus {
+    border-color: #142B6F;
+    box-shadow: 0 0 0 4px rgba(20, 43, 111, 0.08);
 }
 
 .search-icon {
@@ -307,36 +317,46 @@
 }
 
 .btn-tambah {
-    background-color: #354777;
+    background: linear-gradient(135deg, #1e3a8a 0%, #142B6F 100%);
     color: white;
     padding: 10px 24px;
-    border-radius: 8px;
+    border-radius: 10px;
     text-decoration: none;
-    font-weight: 600;
+    font-weight: 700;
     font-size: 14px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 10px rgba(20,43,111,0.25);
 }
 
 .btn-tambah:hover {
-    background-color: #1e40af;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(20,43,111,0.35);
+}
+
+.btn-tambah:active {
+    transform: translateY(0);
 }
 
 /* =========================================
    4. TABLE STYLES
    ========================================= */
 .content-section {
-    background-color: white;
-    border-radius: 12px;
-    padding: 24px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    background: linear-gradient(135deg, #f8faff 0%, #f1f5fb 100%);
+    border-radius: 20px;
+    padding: 28px;
+    box-shadow: 0 4px 24px rgba(20, 43, 111, 0.07), 0 1px 4px rgba(20,43,111,0.04);
+    border: 1px solid rgba(20,43,111,0.06);
 }
 
 .section-title {
-    font-size: 18px;
+    font-size: 16px;
     font-weight: 700;
+    color: #1e293b;
     margin-bottom: 24px;
+    letter-spacing: 0.1px;
 }
 
 .table-responsive {
@@ -349,39 +369,58 @@
     border-collapse: separate;
     border-spacing: 0;
     min-width: 800px;
-    border: 1px solid #e5e7eb;
-    border-radius: 8px;
-    overflow: hidden;
 }
 
 .data-table th {
-    background-color: #e5e7eb;
-    padding: 16px;
-    font-weight: 600;
+    background: linear-gradient(135deg, #142B6F 0%, #1e3a8a 100%);
+    padding: 14px 16px;
+    font-weight: 700;
     text-align: left;
-    font-size: 14px;
-    border-bottom: 1px solid #d1d5db;
-    border-right: 1px solid #d1d5db;
+    font-size: 11px;
+    color: #ffffff;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    border: none;
+}
+
+.data-table th:first-child {
+    border-radius: 12px 0 0 12px;
 }
 
 .data-table th:last-child {
+    border-radius: 0 12px 12px 0;
     border-right: none;
+}
+
+.data-table tbody tr {
+    background: #ffffff;
+    transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1),
+                box-shadow 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: default;
+}
+
+.data-table tbody tr:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(20, 43, 111, 0.1);
+    position: relative;
+    z-index: 1;
 }
 
 .data-table td {
     padding: 16px;
-    color: #333;
-    font-size: 14px;
+    color: #374151;
+    font-size: 13.5px;
     vertical-align: middle;
-    border-bottom: 1px solid #e5e7eb;
-    border-right: 1px solid #e5e7eb;
+    border-bottom: 1px solid rgba(20,43,111,0.06);
+    border-right: none;
+    background: inherit;
 }
 
 .data-table td:last-child {
     border-right: none;
 }
 
-.data-table tr:last-child td {
+.data-table tbody tr:last-child td {
     border-bottom: none;
 }
 
@@ -391,24 +430,33 @@
 
 /* BADGES */
 .badge {
-    padding: 6px 16px;
-    border-radius: 6px;
-    font-weight: 500;
-    font-size: 13px;
+    padding: 5px 14px;
+    border-radius: 20px;
+    font-weight: 700;
+    font-size: 12px;
     display: inline-block;
+    letter-spacing: 0.2px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.badge:hover {
+    transform: scale(1.05);
+    box-shadow: 0 3px 8px rgba(0,0,0,0.12);
 }
 
 .badge-super {
-    background-color: #ffe5e5;
-    color: #ff5252;
+    background: linear-gradient(135deg, #ffe5e5 0%, #fecaca 100%);
+    color: #dc2626;
+    border: 1px solid rgba(220, 38, 38, 0.15);
 }
 
 .badge-pegawai {
-    background-color: #e0f7f4;
-    color: #00bfa5;
+    background: linear-gradient(135deg, rgba(38,191,148,0.12) 0%, rgba(38,191,148,0.22) 100%);
+    color: #0f9b77;
+    border: 1px solid rgba(38,191,148,0.25);
 }
 
-/* ACTION BUTTONS (Edit & Delete) */
+/* ACTION BUTTONS — inherits .btn-edit, .btn-delete from components.css */
 .btn-icon {
     width: 36px;
     height: 36px;
@@ -418,11 +466,7 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    transition: 0.2s;
-}
-
-.btn-icon:hover {
-    transform: scale(1.05);
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .btn-icon img {

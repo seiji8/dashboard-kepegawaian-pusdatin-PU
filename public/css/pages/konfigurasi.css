@@ -1,4 +1,4 @@
-﻿/* --- Source: konfigurasi_pesan.css --- */
+/* --- Source: konfigurasi_pesan.css --- */
 
 .welcome-title {
     color: #1e3a8a;
@@ -351,11 +351,12 @@ select.select-filter:active {
    3. CONFIG CONTAINER & CARDS
    ========================================= */
 .config-container {
-    background-color: white;
-    border-radius: 12px;
-    padding: 24px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    background: linear-gradient(135deg, #f8faff 0%, #f1f5fb 100%);
+    border-radius: 20px;
+    padding: 28px;
+    box-shadow: 0 4px 24px rgba(20, 43, 111, 0.07), 0 1px 4px rgba(20,43,111,0.04);
     min-height: 600px;
+    border: 1px solid rgba(20,43,111,0.06);
 }
 
 .config-grid {
@@ -366,13 +367,15 @@ select.select-filter:active {
 }
 
 .table-header {
-    font-weight: 600;
-    color: #374151;
-    font-size: 14px;
+    font-weight: 700;
+    color: #475569;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
     padding-bottom: 16px;
     margin-bottom: 16px;
-    border-bottom: 2px solid #e5e7eb;
-    padding-left: 24px;
+    border-bottom: 1.5px solid rgba(20,43,111,0.1);
+    padding-left: 28px;
 }
 
 .header-center {
@@ -380,53 +383,114 @@ select.select-filter:active {
 }
 
 .message-card {
-    background-color: white;
-    border-radius: 12px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-    border: 1px solid #e5e7eb;
-    margin-bottom: 20px;
-    padding: 24px;
-    border-left: 5px solid #fbbf24;
+    background: #ffffff;
+    border-radius: 16px;
+    box-shadow: 0 2px 12px rgba(20, 43, 111, 0.06), 0 1px 3px rgba(20,43,111,0.04);
+    border: 1px solid rgba(20, 43, 111, 0.08);
+    margin-bottom: 16px;
+    padding: 22px 24px;
+    border-left: 4px solid #FFC928;
 
     display: grid;
     grid-template-columns: 1.2fr 3fr 1fr 0.8fr;
     gap: 24px;
     align-items: center;
-    transition: transform 0.2s;
+    transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+                box-shadow 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+                border-color 0.25s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.message-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(20,43,111,0.02) 0%, transparent 60%);
+    pointer-events: none;
+    border-radius: inherit;
+    opacity: 0;
+    transition: opacity 0.25s ease;
 }
 
 .message-card:hover {
-    background-color: #f9fafb;
+    transform: translateY(-3px);
+    box-shadow: 0 12px 32px rgba(20, 43, 111, 0.12), 0 4px 8px rgba(20,43,111,0.06);
+    border-color: rgba(20, 43, 111, 0.18);
+    border-left-color: #FFC928;
+}
+
+.message-card:hover::before {
+    opacity: 1;
 }
 
 .notif-name {
-    color: #1f2937;
+    color: #1e293b;
     font-weight: 700;
     font-size: 14px;
+    letter-spacing: 0.1px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
 }
 
 .message-content {
     color: #4b5563;
     font-size: 13px;
-    /* Slightly adjusted for readability */
-    line-height: 1.6;
+    line-height: 1.7;
+    /* Truncate to 3 lines */
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    position: relative;
+}
+
+.message-card:hover .message-content {
+    -webkit-line-clamp: unset;
+    overflow: visible;
 }
 
 .schedule-col {
     display: flex;
+    flex-direction: column;
     justify-content: center;
+    align-items: center;
+    gap: 6px;
 }
 
 .badge-schedule {
-    background-color: #f3f1ff;
-    color: #846cf9;
-    padding: 6px 16px;
+    padding: 5px 14px;
     border-radius: 50px;
-    font-weight: 600;
-    font-size: 13px;
+    font-weight: 700;
+    font-size: 12px;
     display: inline-block;
-    min-width: 90px;
     text-align: center;
+    letter-spacing: 0.3px;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.badge-schedule:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+/* Shimmer sweep on hover */
+.badge-schedule::after {
+    content: '';
+    position: absolute;
+    top: 0; left: -60%;
+    width: 40%; height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.45), transparent);
+    transform: skewX(-15deg);
+    transition: left 0.5s ease;
+    pointer-events: none;
+}
+
+.badge-schedule:hover::after {
+    left: 130%;
 }
 
 .badge-dash {
@@ -440,23 +504,6 @@ select.select-filter:active {
     gap: 8px;
 }
 
-.btn-icon {
-    border: none;
-    background-color: transparent;
-    cursor: pointer;
-    padding: 8px;
-    border-radius: 6px;
-    transition: all 0.3s ease;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 36px;
-    height: 36px;
-}
-
-.btn-icon i {
-    font-size: 18px;
-}
 
 /* =========================================
    4. MODALS

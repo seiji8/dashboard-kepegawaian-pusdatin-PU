@@ -136,13 +136,13 @@
                                     $tipe = strtolower($pegawai->tipe_jabatan ?? '');
                                 @endphp
                                 @if(str_contains($tipe, 'struktural'))
-                                    <span style="background: #fefce8; color: #a16207; padding: 4px 8px; border-radius: 6px; font-size: 12px; font-weight: 600; border: 1px solid #fef08a; display: inline-block; white-space: nowrap;">Struktural</span>
+                                    <span class="badge-tipe badge-struktural">Struktural</span>
                                 @elseif(str_contains($tipe, 'fungsional'))
-                                    <span style="background: #eff6ff; color: #1e40af; padding: 4px 8px; border-radius: 6px; font-size: 12px; font-weight: 600; border: 1px solid #bfdbfe; display: inline-block; white-space: nowrap;">Fungsional</span>
+                                    <span class="badge-tipe badge-fungsional">Fungsional</span>
                                 @elseif(str_contains($tipe, 'pelaksana'))
-                                    <span style="background: #f0fdf4; color: #166534; padding: 4px 8px; border-radius: 6px; font-size: 12px; font-weight: 600; border: 1px solid #bbf7d0; display: inline-block; white-space: nowrap;">Pelaksana</span>
+                                    <span class="badge-tipe badge-pelaksana">Pelaksana</span>
                                 @else
-                                    <span style="background: #f1f5f9; color: #475569; padding: 4px 8px; border-radius: 6px; font-size: 12px; font-weight: 600; border: 1px solid #cbd5e1; display: inline-block; white-space: nowrap;">{{ str_replace('JABATAN ', '', strtoupper($pegawai->tipe_jabatan ?? 'Lainnya')) }}</span>
+                                    <span class="badge-tipe badge-lainnya">{{ str_replace('JABATAN ', '', strtoupper($pegawai->tipe_jabatan ?? 'Lainnya')) }}</span>
                                 @endif
                             </td>
                             <td>

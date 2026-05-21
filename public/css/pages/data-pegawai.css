@@ -1,4 +1,4 @@
-﻿/* --- Source: data_pegawai.css --- */
+/* --- Source: data_pegawai.css --- */
 
 .welcome-title {
     color: #1e3a8a;
@@ -284,26 +284,175 @@
 
 .search-input {
     width: 100%;
-    padding: 10px 16px 10px 40px;
-    border: 1px solid #e5e7eb;
-    border-radius: 8px;
+    padding: 10px 16px 10px 42px;
+    border: 1.5px solid #cbd5e1;
+    border-radius: 10px;
     font-family: "Poppins", sans-serif;
     font-size: 14px;
-    background-color: white;
+    color: #1e293b;
+    background-color: #ffffff;
     outline: none;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 2px 6px rgba(20,43,111,0.05);
 }
 
 .search-input:focus {
-    border-color: #3b82f6;
+    border-color: #142B6F;
+    box-shadow: 0 0 0 4px rgba(20, 43, 111, 0.08);
 }
 
 .search-icon-inside {
     position: absolute;
-    left: 12px;
+    left: 14px;
     top: 50%;
     transform: translateY(-50%);
     font-size: 18px;
-    color: #9ca3af;
+    color: #94a3b8;
     pointer-events: none;
 }
 
+/* =========================================
+   4. DATA TABLE & FILTER SECTION
+   ========================================= */
+.select-filter {
+    padding: 10px 16px;
+    border: 1.5px solid #cbd5e1;
+    border-radius: 10px;
+    font-family: "Poppins", sans-serif;
+    font-size: 14px;
+    color: #1e293b;
+    background-color: #ffffff;
+    outline: none;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 2px 6px rgba(20,43,111,0.05);
+    cursor: pointer;
+}
+
+.select-filter:focus {
+    border-color: #142B6F;
+    box-shadow: 0 0 0 4px rgba(20, 43, 111, 0.08);
+}
+
+.content-section {
+    background: linear-gradient(135deg, #f8faff 0%, #f1f5fb 100%);
+    border-radius: 20px;
+    padding: 28px;
+    box-shadow: 0 4px 24px rgba(20, 43, 111, 0.07), 0 1px 4px rgba(20,43,111,0.04);
+    border: 1px solid rgba(20,43,111,0.06);
+}
+
+.section-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: #1e293b;
+    margin-bottom: 24px;
+    letter-spacing: 0.1px;
+}
+
+.table-responsive {
+    overflow-x: auto;
+    margin-bottom: 24px;
+}
+
+.data-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    min-width: 800px;
+}
+
+.data-table th {
+    background: linear-gradient(135deg, #142B6F 0%, #1e3a8a 100%);
+    padding: 14px 16px;
+    font-weight: 700;
+    text-align: left;
+    font-size: 11px;
+    color: #ffffff;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    border: none;
+}
+
+.data-table th:first-child {
+    border-radius: 12px 0 0 12px;
+}
+
+.data-table th:last-child {
+    border-radius: 0 12px 12px 0;
+    border-right: none;
+}
+
+.data-table tbody tr {
+    background: #ffffff;
+    transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1),
+                box-shadow 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: default;
+}
+
+/* Maintain active row highlight logic but upgrade visually */
+.data-table tbody tr:hover,
+.data-table tbody tr.active-row {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(20, 43, 111, 0.1) !important;
+    background-color: #ffffff !important;
+    position: relative;
+    z-index: 1;
+}
+
+.data-table td {
+    padding: 16px;
+    color: #374151;
+    font-size: 13.5px;
+    vertical-align: middle;
+    border-bottom: 1px solid rgba(20,43,111,0.06);
+    border-right: none;
+    border-left: none;
+    border-top: none;
+    background: inherit;
+}
+
+.data-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+/* BADGES - TIPE JABATAN */
+.badge-tipe {
+    padding: 5px 14px;
+    border-radius: 20px;
+    font-weight: 700;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    display: inline-block;
+    white-space: nowrap;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.badge-tipe:hover {
+    transform: scale(1.05);
+    box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+}
+
+.badge-struktural {
+    background: linear-gradient(135deg, rgba(234,179,8,0.12) 0%, rgba(234,179,8,0.22) 100%);
+    color: #a16207;
+    border: 1px solid rgba(234,179,8,0.25);
+}
+
+.badge-fungsional {
+    background: linear-gradient(135deg, rgba(59,130,246,0.12) 0%, rgba(59,130,246,0.22) 100%);
+    color: #1d4ed8;
+    border: 1px solid rgba(59,130,246,0.25);
+}
+
+.badge-pelaksana {
+    background: linear-gradient(135deg, rgba(34,197,94,0.12) 0%, rgba(34,197,94,0.22) 100%);
+    color: #15803d;
+    border: 1px solid rgba(34,197,94,0.25);
+}
+
+.badge-lainnya {
+    background: linear-gradient(135deg, rgba(148,163,184,0.12) 0%, rgba(148,163,184,0.22) 100%);
+    color: #475569;
+    border: 1px solid rgba(148,163,184,0.25);
+}
