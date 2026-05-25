@@ -195,7 +195,7 @@ function uploadLampiran() {
     const formData = new FormData();
     formData.append('_token', document.querySelector('meta[name="csrf-token"]').getAttribute('content'));
     formData.append('judul_lampiran', judul);
-    formData.append('file_lampiran', file);
+    formData.append('file', file); // Controller expects 'file', not 'file_lampiran'
     formData.append('tracker_id', currentTrackerId);
     
     const progressDiv = document.getElementById('uploadProgress');
@@ -207,7 +207,7 @@ function uploadLampiran() {
     progressDiv.style.display = 'block';
     
     const xhr = new XMLHttpRequest();
-    xhr.open('POST', '/lampiran/upload', true);
+    xhr.open('POST', '/lampiran', true); // Route is /lampiran, not /lampiran/upload
     
     xhr.upload.onprogress = function(e) {
         if (e.lengthComputable) {
