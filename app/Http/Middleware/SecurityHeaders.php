@@ -18,8 +18,8 @@ class SecurityHeaders
     {
         $response = $next($request);
 
-        // Mencegah Clickjacking: Web tidak bisa di-iframe di web orang lain
-        $response->headers->set('X-Frame-Options', 'DENY');
+        // Mencegah Clickjacking: Web tidak bisa di-iframe di web orang lain (kecuali origin yang sama)
+        $response->headers->set('X-Frame-Options', 'SAMEORIGIN');
 
         // Mencegah MIME Sniffing: Browser wajib patuhi content-type dari server
         $response->headers->set('X-Content-Type-Options', 'nosniff');

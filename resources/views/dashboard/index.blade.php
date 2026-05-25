@@ -203,11 +203,11 @@
                                                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
                                                         </button>
                                                         @if(in_array($item->status_saat_ini, ['Usulan', 'Mendekati']))
-                                                        <button class="btn-action-confirm" onclick="konfirmasiPerBaris(this, {{ $item->id }}, '{{ addslashes($item->pegawai->nama) }}', '{{ $item->kategori }}')" title="Konfirmasi Usulan ke Proses TTE">
+                                                        <button class="btn-action-confirm" data-id="{{ $item->id }}" data-nama="{{ $item->pegawai->nama }}" data-kategori="{{ $item->kategori }}" onclick="konfirmasiPerBaris(this, this.dataset.id, this.dataset.nama, this.dataset.kategori)" title="Konfirmasi Usulan ke Proses TTE">
                                                             <i class="ph-bold ph-check" style="font-size: 16px;"></i>
                                                         </button>
                                                         @elseif($item->status_saat_ini == 'Proses')
-                                                        <button class="btn-action-confirm" onclick="openConfirmModal(this, {{ $item->id }}, '{{ addslashes($item->pegawai->nama) }}')" title="Konfirmasi TTE Selesai">
+                                                        <button class="btn-action-confirm" data-id="{{ $item->id }}" data-nama="{{ $item->pegawai->nama }}" onclick="openConfirmModal(this, this.dataset.id, this.dataset.nama)" title="Konfirmasi TTE Selesai">
                                                             <i class="ph-bold ph-check" style="font-size: 16px;"></i>
                                                         </button>
                                                         @endif
@@ -272,11 +272,11 @@
                                                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
                                                         </button>
                                                         @if(in_array($item->status_saat_ini, ['Usulan', 'Mendekati']))
-                                                        <button class="btn-action-confirm" onclick="konfirmasiPerBaris(this, {{ $item->id }}, '{{ addslashes($item->pegawai->nama) }}', '{{ $item->kategori }}')" title="Konfirmasi Usulan ke Proses TTE">
+                                                        <button class="btn-action-confirm" data-id="{{ $item->id }}" data-nama="{{ $item->pegawai->nama }}" data-kategori="{{ $item->kategori }}" onclick="konfirmasiPerBaris(this, this.dataset.id, this.dataset.nama, this.dataset.kategori)" title="Konfirmasi Usulan ke Proses TTE">
                                                             <i class="ph-bold ph-check" style="font-size: 16px;"></i>
                                                         </button>
                                                         @elseif($item->status_saat_ini == 'Proses')
-                                                        <button class="btn-action-confirm" onclick="openConfirmModal(this, {{ $item->id }}, '{{ addslashes($item->pegawai->nama) }}')" title="Konfirmasi TTE Selesai">
+                                                        <button class="btn-action-confirm" data-id="{{ $item->id }}" data-nama="{{ $item->pegawai->nama }}" onclick="openConfirmModal(this, this.dataset.id, this.dataset.nama)" title="Konfirmasi TTE Selesai">
                                                             <i class="ph-bold ph-check" style="font-size: 16px;"></i>
                                                         </button>
                                                         @endif
@@ -341,11 +341,11 @@
                                                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
                                                         </button>
                                                         @if(in_array($item->status_saat_ini, ['Usulan', 'Mendekati']))
-                                                        <button class="btn-action-confirm" onclick="konfirmasiPerBaris(this, {{ $item->id }}, '{{ addslashes($item->pegawai->nama) }}', '{{ $item->kategori }}')" title="Konfirmasi Usulan ke Proses TTE">
+                                                        <button class="btn-action-confirm" data-id="{{ $item->id }}" data-nama="{{ $item->pegawai->nama }}" data-kategori="{{ $item->kategori }}" onclick="konfirmasiPerBaris(this, this.dataset.id, this.dataset.nama, this.dataset.kategori)" title="Konfirmasi Usulan ke Proses TTE">
                                                             <i class="ph-bold ph-check" style="font-size: 16px;"></i>
                                                         </button>
                                                         @elseif($item->status_saat_ini == 'Proses')
-                                                        <button class="btn-action-confirm" onclick="openConfirmModal(this, {{ $item->id }}, '{{ addslashes($item->pegawai->nama) }}')" title="Konfirmasi TTE Selesai">
+                                                        <button class="btn-action-confirm" data-id="{{ $item->id }}" data-nama="{{ $item->pegawai->nama }}" onclick="openConfirmModal(this, this.dataset.id, this.dataset.nama)" title="Konfirmasi TTE Selesai">
                                                             <i class="ph-bold ph-check" style="font-size: 16px;"></i>
                                                         </button>
                                                         @endif
@@ -416,17 +416,18 @@
                                                         <span style="color: #dc2626; font-weight: 600;">{{ $sisa }} Belum</span>
                                                     @endif
                                                 </td>
-                                                <td style="display: flex; gap: 6px;">
-                                                    <button class="btn-action-view" onclick="openDashboardDetail('{{ $item->pegawai->nip }}', '{{ $item->kategori }}')">
+                                                <td style="display: flex; gap: 6px; align-items: center;">
+                                                    <button class="btn-action-view" onclick="openDashboardDetail('{{ $item->pegawai->nip }}', '{{ $item->kategori }}')" title="Lihat Detail">
                                                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
                                                     </button>
+
                                                     @if($item->status_saat_ini == 'Mendekati' || $item->status_saat_ini == 'Menunggu UKOM')
-                                                    <button class="btn-action-confirm" onclick="openUkomModal('{{ $item->id }}', '{{ addslashes($item->pegawai->nama) }}')" title="Kirim ke Modul UKOM">
+                                                    <button class="btn-action-confirm" data-id="{{ $item->id }}" data-nama="{{ $item->pegawai->nama }}" onclick="openUkomModal(this.dataset.id, this.dataset.nama)" title="Kirim ke Modul UKOM">
                                                         <i class="ph-bold ph-check" style="font-size: 16px;"></i>
                                                     </button>
                                                     @endif
                                                     @if($item->status_saat_ini == 'Proses')
-                                                    <button class="btn-action-confirm" onclick="openUkomModal(this, {{ $item->id }}, '{{ $item->pegawai->nama }}')" title="Konfirmasi TTE Selesai">
+                                                    <button class="btn-action-confirm" data-id="{{ $item->id }}" data-nama="{{ $item->pegawai->nama }}" onclick="openUkomModal(this, this.dataset.id, this.dataset.nama)" title="Konfirmasi TTE Selesai">
                                                         <i class="ph-bold ph-check" style="font-size: 16px;"></i>
                                                     </button>
                                                     @endif
@@ -495,11 +496,11 @@
                                                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
                                                         </button>
                                                         @if(in_array($kgb->status_saat_ini, ['Usulan', 'Mendekati']))
-                                                        <button class="btn-action-confirm" onclick="konfirmasiPerBaris(this, {{ $kgb->id }}, '{{ addslashes($kgb->pegawai->nama) }}', 'KGB')" title="Konfirmasi Usulan ke Proses TTE">
+                                                        <button class="btn-action-confirm" data-id="{{ $kgb->id }}" data-nama="{{ $kgb->pegawai->nama }}" onclick="konfirmasiPerBaris(this, this.dataset.id, this.dataset.nama, 'KGB')" title="Konfirmasi Usulan ke Proses TTE">
                                                             <i class="ph-bold ph-check" style="font-size: 16px;"></i>
                                                         </button>
                                                         @elseif($kgb->status_saat_ini == 'Proses')
-                                                        <button class="btn-action-confirm" onclick="openConfirmModal(this, {{ $kgb->id }}, '{{ addslashes($kgb->pegawai->nama) }}')" title="Konfirmasi TTE Selesai">
+                                                        <button class="btn-action-confirm" data-id="{{ $kgb->id }}" data-nama="{{ $kgb->pegawai->nama }}" onclick="openConfirmModal(this, this.dataset.id, this.dataset.nama)" title="Konfirmasi TTE Selesai">
                                                             <i class="ph-bold ph-check" style="font-size: 16px;"></i>
                                                         </button>
                                                         @endif
@@ -564,7 +565,7 @@
                                                     </button>
                                                     @if($item->status_saat_ini == 'Proses Pengembalian' || $item->status_saat_ini == 'Proses Pengaktifan Kembali' || $item->status_saat_ini == 'Proses Pengaktifan' || $item->status_saat_ini == 'Proses')
                                                     {{-- Konfirmasi selesai Ã¢â€ â€™ hilang dari dashboard --}}
-                                                    <button class="btn-action-confirm" onclick="konfirmasiSelesaiTubel({{ $item->id }}, '{{ addslashes($item->pegawai->nama) }}')" title="Konfirmasi Pengaktifan Kembali Selesai">
+                                                    <button class="btn-action-confirm" data-id="{{ $item->id }}" data-nama="{{ $item->pegawai->nama }}" onclick="konfirmasiSelesaiTubel(this.dataset.id, this.dataset.nama)" title="Konfirmasi Pengaktifan Kembali Selesai">
                                                         <i class="ph-bold ph-check" style="font-size:15px;"></i>
                                                     </button>
                                                     @endif
@@ -607,7 +608,11 @@
                                             <td>{{ $item->pegawai->nama }}</td>
                                             <td style="max-width: 280px;">{{ $item->keterangan }}</td>
                                             <td>
-                                                <span style="font-weight: 600; color: {{ $item->kategori == 'DIKLAT_HUTANG' ? '#dc2626' : '#d97706' }};">
+                                                @if($item->kategori == 'DIKLAT_HUTANG')
+                                                <span style="font-weight: 600; color: #dc2626;">
+                                                @else
+                                                <span style="font-weight: 600; color: #d97706;">
+                                                @endif
                                                     {{ $item->dokumen_total }} Diklat
                                                 </span>
                                             </td>
@@ -678,7 +683,7 @@
                                                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
                                                         </button>
                                                         @if($ukom->status_saat_ini == 'Usulan')
-                                                        <button class="btn-action-confirm" onclick="setKelulusanUkom({{ $ukom->id }}, true, '{{ addslashes($ukom->pegawai->nama) }}')" title="Set Lulus UKOM">
+                                                        <button class="btn-action-confirm" data-id="{{ $ukom->id }}" data-nama="{{ $ukom->pegawai->nama }}" onclick="setKelulusanUkom(this.dataset.id, true, this.dataset.nama)" title="Set Lulus UKOM">
                                                             <i class="ph-bold ph-check" style="font-size: 16px;"></i>
                                                         </button>
                                                         @endif
@@ -734,7 +739,7 @@
                                                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
                                                         </button>
                                                         @if($ukom->status_saat_ini == 'Usulan')
-                                                        <button class="btn-action-confirm" onclick="setKelulusanUkom({{ $ukom->id }}, true, '{{ addslashes($ukom->pegawai->nama) }}')" title="Set Lulus UKOM">
+                                                        <button class="btn-action-confirm" data-id="{{ $ukom->id }}" data-nama="{{ $ukom->pegawai->nama }}" onclick="setKelulusanUkom(this.dataset.id, true, this.dataset.nama)" title="Set Lulus UKOM">
                                                             <i class="ph-bold ph-check" style="font-size: 16px;"></i>
                                                         </button>
                                                         @endif
@@ -1173,47 +1178,7 @@
         </div>
     </div>
 
-    <!-- MODAL DETAIL DIKLAT -->
-    <div id="diklatModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:2200; justify-content:center; align-items:center;">
-        <div style="background:#fff; width:900px; max-width:92vw; max-height:85vh; border-radius:12px; box-shadow:0 10px 40px rgba(0,0,0,0.15); overflow:hidden; display:flex; flex-direction:column;">
-            <div style="padding:20px 25px; border-bottom:1px solid #e2e8f0; display:flex; align-items:center; justify-content:space-between; flex-shrink:0;">
-                <div>
-                    <h3 id="diklatModalTitle" style="margin:0; font-size:17px; font-weight:700; color:#0f172a;"></h3>
-                    <p id="diklatModalSub" style="margin:4px 0 0; font-size:13px; color:#64748b;"></p>
-                </div>
-                <button onclick="closeDiklatModal()" style="background:none; border:none; cursor:pointer; padding:5px;">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-                </button>
-            </div>
-            <div style="padding:15px 25px 25px; overflow-y:auto; flex:1;">
-                <div id="diklatModalLoading" style="text-align:center; padding:30px; color:#64748b;">
-                    <p>Memuat data...</p>
-                </div>
-                <div style="overflow-x:auto;">
-                    <table id="diklatModalTable" class="custom-table" style="display:none; min-width:750px;">
-                        <thead>
-                            <tr>
-                                <th style="width:35px; text-align:center;">No</th>
-                                <th style="min-width:200px;">Nama Diklat</th>
-                                <th style="min-width:120px;">Periode</th>
-                                <th style="width:80px; text-align:center;">Jenis</th>
-                                <th style="min-width:150px;">Sertifikat</th>
-                                <th style="width:80px; text-align:center;">Arsip</th>
-                            </tr>
-                        </thead>
-                        <tbody id="diklatModalBody"></tbody>
-                    </table>
-                </div>
-            </div>
-            
-            <!-- Footer Diklat Modal -->
-            <div style="padding:15px 25px; border-top:1px solid #e2e8f0; background:#f8fafc; display:flex; justify-content:flex-end; flex-shrink:0;">
-                <button class="btn-reminder-yellow" onclick="openReminderModal()" style="width:auto; padding:8px 20px; margin:0; display:flex; align-items:center; gap:8px;">
-                    <i class="ph-bold ph-bell-ringing"></i> Kirim Pengingat
-                </button>
-            </div>
-        </div>
-    </div>
+    @include('dashboard.partials.modal_diklat')
 
     <script>
     function openDiklatModal(nip, kategori) {
@@ -1272,200 +1237,8 @@
     });
     </script>
 
-    <!-- SURAT PENGAJUAN MODAL -->
-    <div id="suratModal" class="modal-overlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:2500; justify-content:center; align-items:center;">
-        <div style="background:#fff; width:800px; max-width:94vw; max-height:90vh; border-radius:14px; box-shadow:0 20px 60px rgba(0,0,0,0.2); overflow:hidden; display:flex; flex-direction:column;">
-            
-            <!-- Header -->
-            <div style="padding:20px 25px; border-bottom:1px solid #e2e8f0; background:#f8fafc; display:flex; align-items:center; justify-content:space-between; flex-shrink:0;">
-                <div style="display:flex; align-items:center; gap:12px;">
-                    <div style="background:#dbeafe; color:#1e3a8a; width:42px; height:42px; border-radius:10px; display:flex; align-items:center; justify-content:center;">
-                        <i class="ph-bold ph-file-text" style="font-size:22px;"></i>
-                    </div>
-                    <div>
-                        <h3 id="suratModalTitle" style="margin:0; font-size:17px; font-weight:700; color:#1e293b;">Cetak Surat Pengajuan</h3>
-                        <p id="suratModalSub" style="margin:2px 0 0; font-size:12px; color:#64748b;">Pilih pegawai dan isi data surat</p>
-                    </div>
-                </div>
-                <button onclick="closeSuratModal()" style="background:none; border:none; cursor:pointer; padding:5px; color:#94a3b8; transition:color 0.2s;" onmouseover="this.style.color='#ef4444'" onmouseout="this.style.color='#94a3b8'">
-                    <i class="ph-bold ph-x" style="font-size:22px;"></i>
-                </button>
-            </div>
-
-            <!-- Body -->
-            <div style="padding:20px 25px; overflow-y:auto; flex:1;">
-
-                <!-- Loading -->
-                <div id="suratLoading" style="text-align:center; padding:40px; color:#64748b;">
-                    <i class="ph-bold ph-spinner" style="font-size:32px; color:#0f172a; animation:spin 1s linear infinite;"></i>
-                    <p style="margin-top:10px;">Mengambil data pegawai...</p>
-                </div>
-
-                <!-- Content (hidden until loaded) -->
-                <div id="suratContent" style="display:none;">
-
-                    <!-- STEP 1: Pilih Pegawai -->
-                    <div style="margin-bottom:20px;">
-                        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px;">
-                            <h4 style="margin:0; font-size:14px; font-weight:700; color:#1e293b;">1. Pilih Pegawai</h4>
-                            <label id="labelSelectAllSurat" style="display:flex; align-items:center; gap:8px; cursor:pointer; font-size:13px; font-weight:600; color:#3b82f6;">
-                                <input type="checkbox" id="suratSelectAll" onchange="suratToggleAll()" style="width:16px; height:16px; accent-color:#1e3a8a; cursor:pointer;">
-                                Pilih Semua
-                            </label>
-                        </div>
-
-                        <div id="suratGroupsContainer">
-                            <!-- Groups injected by JS -->
-                        </div>
-                    </div>
-
-                    <!-- STEP 2: Data Surat -->
-                    <div style="border-top:1px solid #e2e8f0; padding-top:20px;">
-                        <h4 style="margin:0 0 15px; font-size:14px; font-weight:700; color:#1e293b;">2. Data Surat</h4>
-                        
-                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:15px;">
-                            <div>
-                                <label style="display:block; font-size:12px; font-weight:700; color:#475569; margin-bottom:5px; letter-spacing:0.3px;">NOMOR SURAT</label>
-                                <input type="text" id="suratNomor" placeholder="Contoh: B-123/KP.01/04/2026" style="width:100%; padding:10px 14px; border:1px solid #cbd5e1; border-radius:8px; font-size:13px; outline:none; transition:border 0.2s; box-sizing:border-box;" onfocus="this.style.borderColor='#3b82f6'" onblur="this.style.borderColor='#cbd5e1'">
-                            </div>
-                            <div>
-                                <label style="display:block; font-size:12px; font-weight:700; color:#475569; margin-bottom:5px; letter-spacing:0.3px;">TANGGAL SURAT</label>
-                                <input type="date" id="suratTanggal" style="width:100%; padding:10px 14px; border:1px solid #cbd5e1; border-radius:8px; font-size:13px; outline:none; transition:border 0.2s; box-sizing:border-box;" onfocus="this.style.borderColor='#3b82f6'" onblur="this.style.borderColor='#cbd5e1'">
-                            </div>
-                            <div style="grid-column: 1 / -1;">
-                                <label style="display:block; font-size:12px; font-weight:700; color:#475569; margin-bottom:5px; letter-spacing:0.3px;">TUJUAN SURAT (KEPADA YTH.)</label>
-                                <input type="text" id="suratTujuan" placeholder="Contoh: Kepala Biro Kepegawaian" value="Kepala Biro Kepegawaian, Organisasi, dan Tata Laksana, Sekretariat Jenderal, Kementerian Pekerjaan Umum" style="width:100%; padding:10px 14px; border:1px solid #cbd5e1; border-radius:8px; font-size:13px; outline:none; transition:border 0.2s; box-sizing:border-box;" onfocus="this.style.borderColor='#3b82f6'" onblur="this.style.borderColor='#cbd5e1'">
-                            </div>
-                            <div id="suratKPFields" style="display:none; grid-column: 1 / -1;">
-                                <div style="display:grid; grid-template-columns:1fr 1fr; gap:15px;">
-                                    <div>
-                                        <label style="display:block; font-size:12px; font-weight:700; color:#475569; margin-bottom:5px; letter-spacing:0.3px;">MASA KERJA (TH/BLN)</label>
-                                        <input type="text" id="suratMasaKerja" placeholder="Kosongkan untuk hitung otomatis" style="width:100%; padding:10px 14px; border:1px solid #cbd5e1; border-radius:8px; font-size:13px; outline:none; transition:border 0.2s; box-sizing:border-box;" onfocus="this.style.borderColor='#3b82f6'" onblur="this.style.borderColor='#cbd5e1'">
-                                        <span style="font-size:10px; color:#94a3b8; margin-top:3px; display:block;">Kosongkan = otomatis dari data CPNS</span>
-                                    </div>
-                                    <div>
-                                        <label style="display:block; font-size:12px; font-weight:700; color:#475569; margin-bottom:5px; letter-spacing:0.3px;">KPPN</label>
-                                        <input type="text" id="suratKPPN" placeholder="Contoh: V Jakarta" value="V Jakarta" style="width:100%; padding:10px 14px; border:1px solid #cbd5e1; border-radius:8px; font-size:13px; outline:none; transition:border 0.2s; box-sizing:border-box;" onfocus="this.style.borderColor='#3b82f6'" onblur="this.style.borderColor='#cbd5e1'">
-                                    </div>
-                                </div>
-                            </div>
-                            <div id="suratKGBFields" style="display:none; grid-column: 1 / -1;">
-                                <div style="display:grid; grid-template-columns:1fr 1fr; gap:15px;">
-                                    <div style="grid-column: 1 / -1;">
-                                        <label style="display:block; font-size:12px; font-weight:700; color:#475569; margin-bottom:5px; letter-spacing:0.3px;">OLEH PEJABAT (SK LAMA)</label>
-                                        <input type="text" id="kgbSkPejabat" placeholder="Contoh: Kepala Biro Kepegawaian..." value="Kepala Biro Kepegawaian, Organisasi dan Tata Laksana" style="width:100%; padding:10px 14px; border:1px solid #cbd5e1; border-radius:8px; font-size:13px; outline:none; transition:border 0.2s; box-sizing:border-box;" onfocus="this.style.borderColor='#3b82f6'" onblur="this.style.borderColor='#cbd5e1'">
-                                    </div>
-                                    <div style="grid-column: 1 / -1;">
-                                        <label style="display:block; font-size:12px; font-weight:700; color:#475569; margin-bottom:5px; letter-spacing:0.3px;">NOMOR & TANGGAL SK LAMA</label>
-                                        <div style="display:flex; gap:10px;">
-                                            <input type="text" id="kgbSkNomor" placeholder="No. SK Lama" value="318/KPTS/M/2026" style="flex:1; padding:10px 14px; border:1px solid #cbd5e1; border-radius:8px; font-size:13px; outline:none; transition:border 0.2s; box-sizing:border-box;" onfocus="this.style.borderColor='#3b82f6'" onblur="this.style.borderColor='#cbd5e1'">
-                                            <input type="text" id="kgbSkTanggal" placeholder="Tgl. SK Lama" value="20 Februari 2026" style="flex:1; padding:10px 14px; border:1px solid #cbd5e1; border-radius:8px; font-size:13px; outline:none; transition:border 0.2s; box-sizing:border-box;" onfocus="this.style.borderColor='#3b82f6'" onblur="this.style.borderColor='#cbd5e1'">
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <label style="display:block; font-size:12px; font-weight:700; color:#475569; margin-bottom:5px; letter-spacing:0.3px;">GAJI POKOK LAMA (ANGKA)</label>
-                                        <input type="number" id="kgbGajiLama" placeholder="Contoh: 3186600" style="width:100%; padding:10px 14px; border:1px solid #cbd5e1; border-radius:8px; font-size:13px; outline:none; transition:border 0.2s; box-sizing:border-box;" onfocus="this.style.borderColor='#3b82f6'" onblur="this.style.borderColor='#cbd5e1'">
-                                        <span style="font-size:10px; color:#94a3b8; margin-top:3px; display:block;">Hanya angka, tanpa titik/koma. Teks terbilang otomatis di-generate.</span>
-                                    </div>
-                                    <div>
-                                        <label style="display:block; font-size:12px; font-weight:700; color:#475569; margin-bottom:5px; letter-spacing:0.3px;">GAJI POKOK BARU (ANGKA)</label>
-                                        <input type="number" id="kgbGajiBaru" placeholder="Contoh: 3287000" style="width:100%; padding:10px 14px; border:1px solid #cbd5e1; border-radius:8px; font-size:13px; outline:none; transition:border 0.2s; box-sizing:border-box;" onfocus="this.style.borderColor='#3b82f6'" onblur="this.style.borderColor='#cbd5e1'">
-                                        <span style="font-size:10px; color:#94a3b8; margin-top:3px; display:block;">Hanya angka, tanpa titik/koma. Teks terbilang otomatis di-generate.</span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div>
-                                <label style="display:block; font-size:12px; font-weight:700; color:#475569; margin-bottom:5px; letter-spacing:0.3px;">NAMA PENANDATANGAN</label>
-                                <input type="text" id="suratNamaTTD" placeholder="Nama lengkap pejabat" value="Komang Sri Hartini" style="width:100%; padding:10px 14px; border:1px solid #cbd5e1; border-radius:8px; font-size:13px; outline:none; transition:border 0.2s; box-sizing:border-box;" onfocus="this.style.borderColor='#3b82f6'" onblur="this.style.borderColor='#cbd5e1'">
-                            </div>
-                            <div>
-                                <label style="display:block; font-size:12px; font-weight:700; color:#475569; margin-bottom:5px; letter-spacing:0.3px;">NIP PENANDATANGAN</label>
-                                <input type="text" id="suratNipTTD" placeholder="NIP pejabat" value="196811201994032001" style="width:100%; padding:10px 14px; border:1px solid #cbd5e1; border-radius:8px; font-size:13px; outline:none; transition:border 0.2s; box-sizing:border-box;" onfocus="this.style.borderColor='#3b82f6'" onblur="this.style.borderColor='#cbd5e1'">
-                            </div>
-                            <div style="grid-column: 1 / -1;">
-                                <label style="display:block; font-size:12px; font-weight:700; color:#475569; margin-bottom:5px; letter-spacing:0.3px;">JABATAN PENANDATANGAN</label>
-                                <input type="text" id="suratJabatanTTD" placeholder="Contoh: Kepala Pusat Data dan Teknologi Informasi" value="Kepala Pusat Data dan Teknologi Informasi" style="width:100%; padding:10px 14px; border:1px solid #cbd5e1; border-radius:8px; font-size:13px; outline:none; transition:border 0.2s; box-sizing:border-box;" onfocus="this.style.borderColor='#3b82f6'" onblur="this.style.borderColor='#cbd5e1'">
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- STEP 3: Preview Surat -->
-                    <div id="suratPreviewContainer" style="display:none; margin-top:25px; border-top:1px dashed #cbd5e1; padding-top:20px;">
-                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-                            <h4 style="margin:0; font-size:14px; font-weight:700; color:#1e293b;"><i class="ph-fill ph-file-pdf" style="color:#ef4444;"></i> Preview Dokumen</h4>
-                            <button type="button" onclick="document.getElementById('suratPreviewContainer').style.display='none'; document.getElementById('suratPreviewFrame').src=''" style="background:none; border:none; cursor:pointer; color:#ef4444; font-size:12px; font-weight:600; display:flex; align-items:center; gap:4px;"><i class="ph-bold ph-x"></i> Tutup Preview</button>
-                        </div>
-                        <div style="background:#f1f5f9; padding:8px; border-radius:10px; border:1px solid #e2e8f0;">
-                            <iframe id="suratPreviewFrame" style="width:100%; height:500px; border:1px solid #cbd5e1; border-radius:6px; background:#fff;" src=""></iframe>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Footer -->
-            <div id="suratFooter" style="display:none; padding:16px 25px; border-top:1px solid #e2e8f0; background:#f8fafc; justify-content:space-between; align-items:center; flex-shrink:0;">
-                <span id="suratSelectedCount" style="font-size:13px; font-weight:600; color:#64748b;">0 pegawai terpilih</span>
-                <div style="display:flex; gap:10px;">
-                    <button onclick="closeSuratModal()" style="padding:10px 22px; background:white; color:#64748b; border:1px solid #cbd5e1; border-radius:8px; cursor:pointer; font-weight:600; font-size:13px; transition:all 0.2s; font-family:'Poppins',sans-serif;" onmouseover="this.style.background='#f1f5f9'" onmouseout="this.style.background='white'">Batal</button>
-                    <button id="btnPreviewSurat" onclick="generateSurat(true)" style="padding:10px 22px; background:white; color:#3b82f6; border:1px solid #3b82f6; border-radius:8px; cursor:pointer; font-weight:600; font-size:13px; display:flex; align-items:center; gap:8px; transition:all 0.2s; font-family:'Poppins',sans-serif;" onmouseover="this.style.background='#eff6ff'" onmouseout="this.style.background='white'">
-                        <i class="ph-bold ph-eye"></i> Preview PDF
-                    </button>
-                    <button id="btnGenerateSurat" onclick="generateSurat(false)" style="padding:10px 22px; background:linear-gradient(135deg,#1e3a8a,#2563eb); color:white; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:13px; display:flex; align-items:center; gap:8px; transition:all 0.2s; box-shadow:0 4px 6px -1px rgba(30,58,138,0.2); font-family:'Poppins',sans-serif;" onmouseover="this.style.transform='translateY(-1px)'" onmouseout="this.style.transform='translateY(0)'">
-                        <i class="ph-bold ph-download-simple"></i> Download PDF
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-
-    {{-- MODAL: Konfirmasi Usulan KP & KGB --}}
-    <div id="modalKonfirmasiUsulan" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:9999; align-items:center; justify-content:center;">
-        <div style="background:#fff; border-radius:16px; width:620px; max-width:95vw; max-height:90vh; overflow:hidden; display:flex; flex-direction:column; box-shadow:0 20px 60px rgba(0,0,0,0.3);">
-            <!-- Header -->
-            <div style="background:linear-gradient(135deg,#1e3a8a,#15803d); padding:20px 24px; color:white; display:flex; justify-content:space-between; align-items:center; flex-shrink:0;">
-                <div>
-                    <h3 style="margin:0; font-size:17px; font-weight:700;"><i class="ph-fill ph-check-circle" style="font-size:16px; vertical-align:-2px;"></i> Konfirmasi Usulan</h3>
-                    <p id="konfirmasiSubtitle" style="margin:4px 0 0; font-size:12px; opacity:0.85;">Kenaikan Pangkat / KGB</p>
-                </div>
-                <button onclick="closeKonfirmasiModal()" style="background:rgba(255,255,255,0.2); border:none; border-radius:8px; color:white; width:32px; height:32px; cursor:pointer; font-size:16px; display:flex; align-items:center; justify-content:center;">&times;</button>
-            </div>
-            <!-- Info Banner -->
-            <div style="background:#f0fdf4; border-left:4px solid #16a34a; margin:16px 24px 0; padding:12px 16px; border-radius:0 8px 8px 0;">
-                <p style="margin:0; font-size:12px; color:#15803d; line-height:1.5;">
-                    <strong>Informasi:</strong> Surat pengajuan untuk kategori ini dibuat langsung melalui <strong>E-HRM</strong>.
-                    Klik konfirmasi untuk menandai bahwa usulan sudah diproses dan mengubah status ke <strong>Proses TTE</strong>.
-                </p>
-            </div>
-            <!-- Body -->
-            <div style="padding:16px 24px; overflow-y:auto; flex:1;">
-                <!-- Catatan -->
-                <div style="margin-bottom:16px;">
-                    <label style="display:block; font-size:13px; font-weight:600; color:#374151; margin-bottom:6px;">Catatan / Keterangan <span style="color:#9ca3af; font-weight:400;">(opsional)</span></label>
-                    <textarea id="konfirmasiCatatan" rows="3" placeholder="Contoh: Sudah diinput ke E-HRM pada 30 April 2026 oleh Admin..." style="width:100%; border:1.5px solid #d1d5db; border-radius:8px; padding:10px 12px; font-size:13px; font-family:'Poppins',sans-serif; resize:vertical; outline:none; box-sizing:border-box; transition:border 0.2s;" onfocus="this.style.borderColor='#1e3a8a'" onblur="this.style.borderColor='#d1d5db'"></textarea>
-                </div>
-                <!-- Daftar Pegawai -->
-                <div style="font-size:13px; font-weight:600; color:#374151; margin-bottom:10px;">
-                    Pilih Pegawai yang akan Dikonfirmasi:
-                </div>
-                <div id="konfirmasiPegawaiList" style="display:flex; flex-direction:column; gap:6px; max-height:280px; overflow-y:auto;">
-                    <div style="text-align:center; padding:20px; color:#9ca3af;">Memuat data...</div>
-                </div>
-                <!-- Pilih Semua -->
-                <div style="margin-top:10px; display:flex; gap:8px;">
-                    <button onclick="toggleSelectAllKonfirmasi(true)" style="font-size:12px; padding:5px 12px; background:#f0fdf4; color:#16a34a; border:1px solid #bbf7d0; border-radius:6px; cursor:pointer;"><i class="ph-fill ph-check-square" style="vertical-align:-1px;"></i> Pilih Semua</button>
-                    <button onclick="toggleSelectAllKonfirmasi(false)" style="font-size:12px; padding:5px 12px; background:#f9fafb; color:#6b7280; border:1px solid #e5e7eb; border-radius:6px; cursor:pointer;"><i class="ph-bold ph-square" style="vertical-align:-1px;"></i> Batal Semua</button>
-                </div>
-            </div>
-            <!-- Footer -->
-            <div style="padding:16px 24px; border-top:1px solid #f1f5f9; display:flex; justify-content:flex-end; gap:10px; flex-shrink:0;">
-                <button onclick="closeKonfirmasiModal()" style="padding:10px 20px; background:#f1f5f9; color:#374151; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:13px;">Batal</button>
-                <button id="btnSubmitKonfirmasi" onclick="submitKonfirmasi()" style="padding:10px 22px; background:linear-gradient(135deg,#1e3a8a,#15803d); color:white; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:13px; display:flex; align-items:center; gap:8px;">
-                    <i class="ph-bold ph-check-circle"></i> Konfirmasi Usulan
-                </button>
-            </div>
-        </div>
-    </div>
+    @include('dashboard.partials.modal_surat')
+    @include('dashboard.partials.modal_konfirmasi')
 @endsection
 
 @section('scripts')
@@ -1474,6 +1247,7 @@
     <script src="{{ asset('js/dashboard-modals-data.js') }}?v={{ time() }}"></script>
     <script src="{{ asset('js/dashboard-actions.js') }}?v={{ time() }}"></script>
     <script src="{{ asset('js/dashboard-surat.js') }}?v={{ time() }}"></script>
+    <script src="{{ asset('js/dashboard-lampiran.js') }}?v={{ time() }}"></script>
 @endsection
 
 @section('tour')
@@ -1520,4 +1294,5 @@
         }
     </script>
 @endsection
+
 

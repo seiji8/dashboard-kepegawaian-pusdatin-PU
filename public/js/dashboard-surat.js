@@ -31,6 +31,8 @@ function openSuratModal(kategori) {
         "Kepala Pusat Data dan Teknologi Informasi";
     document.getElementById("suratSelectAll").checked = false;
 
+
+
     // Show/hide KP-only fields (Masa Kerja & KPPN)
     const kpFields = document.getElementById("suratKPFields");
     const isKP = ["KP", "KP_Jafung", "KP_Struktural", "KP_Reguler"].includes(
@@ -47,10 +49,22 @@ function openSuratModal(kategori) {
     const isKGB = kategori === "KGB";
     kgbFields.style.display = isKGB ? "block" : "none";
 
-    // Hide "Pilih Semua" for KGB
+    // Show/hide Narahubung fields (Only for KJ_Jafung)
+    const narahubungFields = document.getElementById("suratNarahubungFields");
+    if (narahubungFields) {
+        const isKJ = kategori === "KJ_Jafung";
+        narahubungFields.style.display = isKJ ? "block" : "none";
+        if (isKJ) {
+            document.getElementById("suratNarahubungNama").value = "Sdri. Julia";
+            document.getElementById("suratNarahubungHp").value = "0822-9824-6907";
+            document.getElementById("suratNarahubungEmail").value = "julia.pujilestari@pu.go.id";
+        }
+    }
+
+    // Hide "Pilih Semua" globally since only 1 employee can be selected at a time
     const labelSelectAll = document.getElementById("labelSelectAllSurat");
     if (labelSelectAll) {
-        labelSelectAll.style.display = isKGB ? "none" : "flex";
+        labelSelectAll.style.display = "none";
     }
 
     if (isKGB) {
@@ -61,6 +75,36 @@ function openSuratModal(kategori) {
         document.getElementById("kgbGajiLama").value = "";
         document.getElementById("kgbGajiBaru").value = "";
     }
+
+
+
+    const isKJ = kategori === "KJ_Jafung";
+    const previewStepEl = document.getElementById("suratPreviewStepNumber");
+    const lampiranStepEl = document.getElementById("suratLampiranStepNumber");
+    if (previewStepEl) {
+        previewStepEl.textContent = isKJ ? "Langkah 04 / Live Preview" : "Langkah 03 / Live Preview";
+    }
+    if (lampiranStepEl) {
+        lampiranStepEl.textContent = "Langkah 03";
+    }
+
+    const lampiranContainer = document.getElementById("suratLampiranContainer");
+    if (lampiranContainer) {
+        lampiranContainer.style.display = "none";
+    }
+
+    // Reset preview iframe agar tidak tampil PDF sesi sebelumnya
+    const previewContainer = document.getElementById("suratPreviewContainer");
+    const previewFrame = document.getElementById("suratPreviewFrame");
+    if (previewContainer) previewContainer.style.display = "none";
+    if (previewFrame) previewFrame.src = "";
+
+    // Reset state tracker & lampiran list
+    currentTrackerId = null;
+    const lampiranList = document.getElementById("lampiranList");
+    const lampiranCount = document.getElementById("lampiranCount");
+    if (lampiranList) lampiranList.innerHTML = "";
+    if (lampiranCount) lampiranCount.textContent = "0";
 
     // Fetch data
     fetch(`/surat-pengajuan/preview/${kategori}`)
@@ -154,13 +198,13 @@ function renderSuratGroups(groups) {
     // SECTION: Belum Dicetak
     if (belumDicetak.length > 0) {
         html += `
-        <div style="margin-bottom:16px;">
-            <div style="display:flex; align-items:center; gap:8px; margin-bottom:10px;">
-                <span style="background:#dc2626; width:8px; height:8px; border-radius:50; display:inline-block;"></span>
-                <span style="font-weight:700; font-size:13px; color:#dc2626;">Belum Dicetak</span>
-                <span style="background:#fee2e2; color:#dc2626; padding:2px 10px; border-radius:10px; font-size:11px; font-weight:700;">${belumDicetak.length} Orang</span>
+        <div style="margin-bottom:20px;">
+            <div style="display:flex; align-items:center; gap:8px; margin-bottom:12px; padding-left:4px;">
+                <span style="background: linear-gradient(135deg, #ef4444, #b91c1c); width:8px; height:8px; border-radius:50%; display:inline-block; box-shadow: 0 0 8px rgba(239, 68, 68, 0.5);"></span>
+                <span style="font-weight:800; font-size:12.5px; color:#0f172a; text-transform:uppercase; letter-spacing:0.8px;">Belum Dicetak</span>
+                <span style="background:#fee2e2; color:#b91c1c; padding:2px 8px; border-radius:30px; font-size:11px; font-weight:800; border: 1px solid rgba(239,68,68,0.1);">${belumDicetak.length} Orang</span>
             </div>
-            <div style="border:1px solid #fecaca; border-radius:10px; overflow:hidden;">`;
+            <div style="display:flex; flex-direction:column; gap:2px;">`;
 
         belumDicetak.forEach((p) => {
             html += renderPegawaiRow(
@@ -177,13 +221,13 @@ function renderSuratGroups(groups) {
     // SECTION: Sudah Dicetak (Cetak Ulang)
     if (sudahDicetak.length > 0) {
         html += `
-        <div style="margin-bottom:16px;">
-            <div style="display:flex; align-items:center; gap:8px; margin-bottom:10px;">
-                <span style="background:#d97706; width:8px; height:8px; border-radius:50; display:inline-block;"></span>
-                <span style="font-weight:700; font-size:13px; color:#d97706;">Sudah Dicetak &mdash; Cetak Ulang</span>
-                <span style="background:#fef3c7; color:#d97706; padding:2px 10px; border-radius:10px; font-size:11px; font-weight:700;">${sudahDicetak.length} Orang</span>
+        <div style="margin-bottom:20px;">
+            <div style="display:flex; align-items:center; gap:8px; margin-bottom:12px; padding-left:4px;">
+                <span style="background: linear-gradient(135deg, #f59e0b, #b45309); width:8px; height:8px; border-radius:50%; display:inline-block; box-shadow: 0 0 8px rgba(245, 158, 11, 0.5);"></span>
+                <span style="font-weight:800; font-size:12.5px; color:#0f172a; text-transform:uppercase; letter-spacing:0.8px;">Sudah Dicetak &mdash; Cetak Ulang</span>
+                <span style="background:#fef3c7; color:#b45309; padding:2px 8px; border-radius:30px; font-size:11px; font-weight:800; border: 1px solid rgba(245,158,11,0.1);">${sudahDicetak.length} Orang</span>
             </div>
-            <div style="border:1px solid #fde68a; border-radius:10px; overflow:hidden; opacity:0.85;">`;
+            <div style="display:flex; flex-direction:column; gap:2px; opacity:0.95;">`;
 
         sudahDicetak.forEach((p) => {
             html += renderPegawaiRow(
@@ -202,17 +246,23 @@ function renderSuratGroups(groups) {
 
 function renderPegawaiRow(p, statusLabel, statusColor, statusBg) {
     return `
-        <label style="display:flex; align-items:center; gap:12px; padding:10px 15px; border-bottom:1px solid #f1f5f9; cursor:pointer; transition:background 0.15s;" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='transparent'">
-            <input type="checkbox" class="surat-pegawai-cb" data-tracker-id="${p.tracker_id}" onchange="handleSuratCbChange(this)" style="width:16px; height:16px; accent-color:#1e3a8a; cursor:pointer; flex-shrink:0;">
+        <label class="pegawai-row-card">
+            <div class="surat-radio-indicator"></div>
+            <input type="radio" name="surat_pegawai_radio" class="surat-pegawai-cb" data-tracker-id="${p.tracker_id}" data-jabatan="${p.jabatan || ''}" data-jenjang="${p.jenjang || ''}" onchange="handleSuratCbChange(this)" style="display:none;">
             <div style="flex:1; min-width:0;">
-                <div style="font-weight:600; font-size:13px; color:#1e293b;">${p.nama}</div>
-                <div style="font-size:11px; color:#64748b; margin-top:2px;">NIP: ${p.nip} &middot; ${p.pangkat_golongan} &middot; ${p.jabatan}</div>
+                <div style="font-weight:700; font-size:14px; color:#0f172a; letter-spacing:-0.2px;">${p.nama}</div>
+                <div style="font-size:12px; color:#475569; margin-top:4px; font-weight:500;">
+                    <span style="color:#64748b;">NIP:</span> <span style="color:#334155; font-weight:600;">${p.nip}</span> &middot; 
+                    <span style="color:#64748b;">Pangkat:</span> <span style="color:#334155; font-weight:600;">${p.pangkat_golongan}</span> &middot; 
+                    <span style="color:#64748b;">Jabatan:</span> <span style="color:#334155; font-weight:600;">${p.jabatan}</span>
+                </div>
             </div>
-            <span style="background:${statusBg}; color:${statusColor}; padding:3px 10px; border-radius:12px; font-size:10px; font-weight:700; white-space:nowrap;">${statusLabel}</span>
+            <span style="background:${statusBg}; color:${statusColor}; padding:4px 12px; border-radius:30px; font-size:11px; font-weight:800; white-space:nowrap; letter-spacing:0.3px; border: 1px solid rgba(0,0,0,0.04);">${statusLabel}</span>
         </label>`;
 }
 
 function suratToggleAll() {
+    // Hidden globally, kept for compatibility
     const isChecked = document.getElementById("suratSelectAll").checked;
     document
         .querySelectorAll(".surat-pegawai-cb")
@@ -221,11 +271,17 @@ function suratToggleAll() {
 }
 
 function handleSuratCbChange(cb) {
-    // KGB: Enforce single selection
-    if (suratKategori === "KGB" && cb.checked) {
+    // Enforce single selection globally
+    if (cb.checked) {
         document.querySelectorAll(".surat-pegawai-cb").forEach((other) => {
-            if (other !== cb) other.checked = false;
+            if (other !== cb) {
+                other.checked = false;
+                const card = other.closest(".pegawai-row-card");
+                if (card) card.classList.remove("selected");
+            }
         });
+        const card = cb.closest(".pegawai-row-card");
+        if (card) card.classList.add("selected");
     }
     updateSuratCount();
 }
@@ -242,6 +298,42 @@ function updateSuratCount() {
     if (countEl) countEl.textContent = checked.length + " pegawai terpilih";
     if (btn) btn.disabled = checked.length === 0;
 
+    // Manage Lampiran UI for KJ
+    if (suratKategori === "KJ_Jafung") {
+        const lampiranContainer = document.getElementById("suratLampiranContainer");
+        if (lampiranContainer) {
+            if (checked.length === 1) {
+                lampiranContainer.style.display = "block";
+                const cb = checked[0];
+                const newTrackerId = parseInt(cb.dataset.trackerId);
+
+                // Jika pegawai berganti, reset preview agar tidak tampil PDF sesi lama
+                if (newTrackerId !== currentTrackerId) {
+                    const previewContainer = document.getElementById("suratPreviewContainer");
+                    const previewFrame = document.getElementById("suratPreviewFrame");
+                    if (previewContainer) previewContainer.style.display = "none";
+                    if (previewFrame) previewFrame.src = "";
+                }
+
+                currentTrackerId = newTrackerId;
+                // Selalu fetch lampiran terbaru dari server setiap kali pegawai dipilih
+                fetchLampiran(currentTrackerId);
+            } else {
+                // Lebih dari 1 atau tidak ada pegawai dipilih: sembunyikan lampiran & reset preview
+                lampiranContainer.style.display = "none";
+                currentTrackerId = null;
+                const previewContainer = document.getElementById("suratPreviewContainer");
+                const previewFrame = document.getElementById("suratPreviewFrame");
+                if (previewContainer) previewContainer.style.display = "none";
+                if (previewFrame) previewFrame.src = "";
+                const lampiranList = document.getElementById("lampiranList");
+                const lampiranCount = document.getElementById("lampiranCount");
+                if (lampiranList) lampiranList.innerHTML = "";
+                if (lampiranCount) lampiranCount.textContent = "0";
+            }
+        }
+    }
+
     // Sync "select all" checkbox
     const allCbs = document.querySelectorAll(".surat-pegawai-cb");
     const selectAll = document.getElementById("suratSelectAll");
@@ -250,21 +342,27 @@ function updateSuratCount() {
             allCbs.length > 0 && checked.length === allCbs.length;
 }
 
-function generateSurat(isPreview = false) {
+
+
+function generateSurat(isPreview = false, isAutoRefresh = false) {
     const selectedIds = [];
     document.querySelectorAll(".surat-pegawai-cb:checked").forEach((cb) => {
         selectedIds.push(parseInt(cb.dataset.trackerId));
     });
 
     if (selectedIds.length === 0) {
-        showCustomToast("Pilih minimal 1 pegawai!", "error");
+        if (!isAutoRefresh) {
+            showCustomToast("Pilih minimal 1 pegawai!", "error");
+        }
         return;
     }
 
     const btn = document.getElementById(isPreview ? "btnPreviewSurat" : "btnGenerateSurat");
     const originalHTML = btn.innerHTML;
-    btn.innerHTML = `<i class="ph-bold ph-spinner ph-spin"></i> ${isPreview ? 'Previewing...' : 'Generating...'}`;
-    btn.disabled = true;
+    if (!isAutoRefresh) {
+        btn.innerHTML = `<i class="ph-bold ph-spinner ph-spin"></i> ${isPreview ? 'Previewing...' : 'Generating...'}`;
+        btn.disabled = true;
+    }
 
     const csrfToken = document
         .querySelector('meta[name="csrf-token"]')
@@ -273,6 +371,7 @@ function generateSurat(isPreview = false) {
     const payload = new FormData();
     payload.append("_token", csrfToken);
     payload.append("kategori", suratKategori);
+    payload.append("format", "pdf");
     selectedIds.forEach((id) => payload.append("tracker_ids[]", id));
 
     const fields = {
@@ -310,38 +409,60 @@ function generateSurat(isPreview = false) {
         fields["gaji_baru"] = document.getElementById("kgbGajiBaru").value;
     }
 
+    // KJ-only: Narahubung fields
+    if (suratKategori === "KJ_Jafung") {
+        fields["narahubung_nama"] = document.getElementById("suratNarahubungNama").value;
+        fields["narahubung_hp"] = document.getElementById("suratNarahubungHp").value;
+        fields["narahubung_email"] = document.getElementById("suratNarahubungEmail").value;
+    }
+
     Object.keys(fields).forEach((key) => {
         payload.append(key, fields[key]);
     });
 
+    // IF Category is KJ_Jafung, use the bundle logic
     if (suratKategori === "KJ_Jafung") {
         const queryParams = new URLSearchParams({
             nomor_surat: fields["nomor_surat"],
             tanggal: fields["tanggal_surat"],
+            tujuan_surat: fields["tujuan_surat"],
+            nama_ttd: fields["nama_ttd"],
+            nip_ttd: fields["nip_ttd"],
+            jabatan_ttd: fields["jabatan_ttd"],
+            narahubung_nama: fields["narahubung_nama"],
+            narahubung_hp: fields["narahubung_hp"],
+            narahubung_email: fields["narahubung_email"],
         }).toString();
 
-        btn.innerHTML = originalHTML;
-        btn.disabled = false;
+        if (!isAutoRefresh) {
+            btn.innerHTML = originalHTML;
+            btn.disabled = false;
+        }
         
         if (isPreview) {
             const firstId = selectedIds[0];
-            const previewUrl = `/dashboard/cetak-surat-kj/${firstId}?${queryParams}&preview=1`;
+            const timestamp = new Date().getTime();
+            const previewUrl = `/surat-kj/${firstId}/generate-bundle?${queryParams}&preview=1&_t=${timestamp}`;
+            
             document.getElementById("suratPreviewFrame").src = previewUrl;
             document.getElementById("suratPreviewContainer").style.display = "block";
             
-            setTimeout(() => {
-                document.getElementById("suratPreviewContainer").scrollIntoView({ behavior: 'smooth', block: 'start' });
-            }, 100);
+            if (!isAutoRefresh) {
+                setTimeout(() => {
+                    document.getElementById("suratPreviewContainer").scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }, 100);
+            }
 
-            if (selectedIds.length > 1) {
+            if (selectedIds.length > 1 && !isAutoRefresh) {
                 showCustomToast("Preview hanya menampilkan surat pegawai pertama.", "info");
             }
         } else {
             selectedIds.forEach((id, index) => {
                 // Jeda 500ms per file untuk mencegah browser memblokir terlalu agresif
                 setTimeout(() => {
+                    const timestamp = new Date().getTime() + index;
                     window.open(
-                        `/dashboard/cetak-surat-kj/${id}?${queryParams}`,
+                        `/surat-kj/${id}/generate-bundle?${queryParams}&_t=${timestamp}`,
                         "_blank",
                     );
                 }, index * 500);
@@ -349,7 +470,7 @@ function generateSurat(isPreview = false) {
 
             closeSuratModal();
             showCustomToast(
-                `Mencetak ${selectedIds.length} surat usulan KJ...`,
+                `Mencetak ${selectedIds.length} bundle KJ...`,
                 "success",
             );
             setTimeout(() => {
@@ -387,12 +508,16 @@ function generateSurat(isPreview = false) {
                 document.getElementById("suratPreviewFrame").src = url;
                 document.getElementById("suratPreviewContainer").style.display = "block";
                 
-                setTimeout(() => {
-                    document.getElementById("suratPreviewContainer").scrollIntoView({ behavior: 'smooth', block: 'start' });
-                }, 100);
+                if (!isAutoRefresh) {
+                    setTimeout(() => {
+                        document.getElementById("suratPreviewContainer").scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }, 100);
+                }
 
-                btn.innerHTML = originalHTML;
-                btn.disabled = false;
+                if (!isAutoRefresh) {
+                    btn.innerHTML = originalHTML;
+                    btn.disabled = false;
+                }
             } else {
                 // Trigger manual file download
                 const a = document.createElement("a");
@@ -414,9 +539,11 @@ function generateSurat(isPreview = false) {
         })
         .catch((error) => {
             console.error("Error generating surat:", error);
-            showCustomToast(error.message, "error");
-            btn.innerHTML = originalHTML;
-            btn.disabled = false;
+            if (!isAutoRefresh) {
+                showCustomToast(error.message, "error");
+                btn.innerHTML = originalHTML;
+                btn.disabled = false;
+            }
         });
 }
 
@@ -622,38 +749,42 @@ function submitKonfirmasiPerBaris(trackerId, kategori) {
 // ============================================================
 
 function cetakSuratPengaktifan(trackerId, nama) {
-    if (!confirm(`Cetak surat pengaktifan kembali untuk pegawai ${nama}?`))
-        return;
+    showPremiumConfirmModal({
+        title: 'Cetak Surat Pengaktifan?',
+        message: `Apakah Anda yakin ingin memproses cetak surat pengaktifan kembali tugas belajar untuk pegawai ${nama}?`,
+        confirmText: 'Ya, Proses',
+        cancelText: 'Batal',
+        type: 'info',
+        onConfirm: () => {
+            const formData = new FormData();
+            formData.append("kategori", "TUBEL");
+            formData.append("tracker_ids[]", trackerId);
+            formData.append(
+                "_token",
+                document
+                    .querySelector('meta[name="csrf-token"]')
+                    .getAttribute("content"),
+            );
+            formData.append("catatan", "Surat Pengaktifan Dicetak");
 
-    // Untuk sementara, kita ganti statusnya menjadi 'Proses' menggunakan endpoint konfirmasi
-    // Jika ada template surat khusus Tubel, bisa diarahkan ke generate surat
-    const formData = new FormData();
-    formData.append("kategori", "TUBEL");
-    formData.append("tracker_ids[]", trackerId);
-    formData.append(
-        "_token",
-        document
-            .querySelector('meta[name="csrf-token"]')
-            .getAttribute("content"),
-    );
-    formData.append("catatan", "Surat Pengaktifan Dicetak");
-
-    fetch("/surat-pengajuan/konfirmasi", { method: "POST", body: formData })
-        .then((r) => r.json())
-        .then((data) => {
-            if (data.success) {
-                showCustomToast(
-                    "Surat pengaktifan diproses (Status: Surat Dicetak)",
-                    "success",
-                );
-                setTimeout(() => window.location.reload(), 1000);
-            } else {
-                showCustomToast(data.message || "Terjadi kesalahan.", "error");
-            }
-        })
-        .catch(() => {
-            showCustomToast("Gagal terhubung ke server.", "error");
-        });
+            fetch("/surat-pengajuan/konfirmasi", { method: "POST", body: formData })
+                .then((r) => r.json())
+                .then((data) => {
+                    if (data.success) {
+                        showCustomToast(
+                            "Surat pengaktifan diproses (Status: Surat Dicetak)",
+                            "success",
+                        );
+                        setTimeout(() => window.location.reload(), 1000);
+                    } else {
+                        showCustomToast(data.message || "Terjadi kesalahan.", "error");
+                    }
+                })
+                .catch(() => {
+                    showCustomToast("Gagal terhubung ke server.", "error");
+                });
+        }
+    });
 }
 
 function konfirmasiSelesaiTubel(trackerId, nama) {
@@ -730,3 +861,54 @@ function submitSelesaiTubel(trackerId) {
             btn.disabled = false;
         });
 }
+
+// ============================================================
+// AUTO-REFRESH PREVIEW LOGIC
+// ============================================================
+let autoRefreshTimer = null;
+
+function triggerAutoRefresh() {
+    const previewContainer = document.getElementById("suratPreviewContainer");
+    if (previewContainer && previewContainer.style.display === "block" && suratKategori) {
+        clearTimeout(autoRefreshTimer);
+        autoRefreshTimer = setTimeout(() => {
+            generateSurat(true, true);
+        }, 500); // 500ms debounce
+    }
+}
+
+function initAutoRefreshListeners() {
+    const inputsToWatch = [
+        "suratNomor",
+        "suratTanggal",
+        "suratTujuan",
+        "suratNamaTTD",
+        "suratNipTTD",
+        "suratJabatanTTD",
+        "suratMasaKerja",
+        "suratKPPN",
+        "kgbSkPejabat",
+        "kgbSkNomor",
+        "kgbSkTanggal",
+        "kgbGajiLama",
+        "kgbGajiBaru",
+        "suratNarahubungNama",
+        "suratNarahubungHp",
+        "suratNarahubungEmail"
+    ];
+
+    inputsToWatch.forEach((id) => {
+        const el = document.getElementById(id);
+        if (el) {
+            el.addEventListener("input", triggerAutoRefresh);
+            el.addEventListener("change", triggerAutoRefresh);
+        }
+    });
+}
+
+if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initAutoRefreshListeners);
+} else {
+    initAutoRefreshListeners();
+}
+

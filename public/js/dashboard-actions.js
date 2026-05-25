@@ -47,33 +47,38 @@ function submitUkom() {
         });
 }
 
-// --- MOVE TO UKOM FROM KJ ---
 function moveToUkomFromKJ(trackerId) {
-    if (!confirm("Kirim pegawai ini ke antrean Uji Kompetensi?")) return;
+    showPremiumConfirmModal({
+        title: 'Daftarkan UKOM?',
+        message: 'Kirim pegawai ini ke antrean Uji Kompetensi (UKOM) untuk diproses lebih lanjut?',
+        confirmText: 'Ya, Kirim',
+        cancelText: 'Batal',
+        type: 'info',
+        onConfirm: () => {
+            const csrfToken = document
+                .querySelector('meta[name="csrf-token"]')
+                .getAttribute("content");
 
-    // Gunakan fungsi submitUkom/moveToUkom API yang sudah ada
-    const csrfToken = document
-        .querySelector('meta[name="csrf-token"]')
-        .getAttribute("content");
-
-    fetch("/tracker/" + trackerId + "/move-to-ukom", {
-        method: "POST",
-        headers: {
-            Accept: "application/json",
-            "Content-Type": "application/json",
-            "X-CSRF-TOKEN": csrfToken,
-            "X-Requested-With": "XMLHttpRequest",
-        },
-    })
-        .then((res) => res.json())
-        .then((data) => {
-            if (data.success) {
-                showCustomToast("Berhasil dipindah ke modul UKOM", "success");
-                setTimeout(() => window.location.reload(), 1000);
-            } else {
-                showCustomToast(data.message || "Gagal", "error");
-            }
-        });
+            fetch("/tracker/" + trackerId + "/move-to-ukom", {
+                method: "POST",
+                headers: {
+                    Accept: "application/json",
+                    "Content-Type": "application/json",
+                    "X-CSRF-TOKEN": csrfToken,
+                    "X-Requested-With": "XMLHttpRequest",
+                },
+            })
+                .then((res) => res.json())
+                .then((data) => {
+                    if (data.success) {
+                        showCustomToast("Berhasil dipindah ke modul UKOM", "success");
+                        setTimeout(() => window.location.reload(), 1000);
+                    } else {
+                        showCustomToast(data.message || "Gagal", "error");
+                    }
+                });
+        }
+    });
 }
 
 // --- SET KELULUSAN UKOM ---

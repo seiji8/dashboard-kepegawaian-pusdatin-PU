@@ -147,7 +147,7 @@ class SuratPengajuanController extends Controller
             $pegawaiNames = $trackers->pluck('pegawai.nama')->filter()->implode(', ');
             $label = $this->kategoriLabels[$request->kategori] ?? $request->kategori;
             $catatan = $request->catatan ? " | Catatan: {$request->catatan}" : '';
-            logActivity(
+            \logActivity(
                 'Konfirmasi Usulan',
                 "Konfirmasi usulan {$label} untuk {$trackers->count()} pegawai ({$updatedCount} status → Proses TTE): {$pegawaiNames}{$catatan}"
             );
@@ -223,7 +223,7 @@ class SuratPengajuanController extends Controller
         if (function_exists('logActivity')) {
             $pegawaiNames = $trackers->pluck('pegawai.nama')->filter()->implode(', ');
             $label = $this->kategoriLabels[$kategori] ?? $kategori;
-            logActivity(
+            \logActivity(
                 'Cetak Surat Pengajuan',
                 "Mencetak surat {$label} untuk {$trackers->count()} pegawai ({$updatedCount} status diperbarui ke Proses TTE): {$pegawaiNames}"
             );

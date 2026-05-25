@@ -197,12 +197,12 @@
             <tr>
                 <td class="td-label">Yth.</td>
                 <td class="td-colon">:</td>
-                <td>Kepala Biro Kepegawaian, Organisasi dan Tata Laksana</td>
+                <td>{{ $data['tujuan_surat'] ?? 'Kepala Biro Kepegawaian, Organisasi dan Tata Laksana' }}</td>
             </tr>
             <tr>
                 <td class="td-label">Dari</td>
                 <td class="td-colon">:</td>
-                <td>Kepala Pusat Data dan Teknologi Informasi</td>
+                <td>{{ $data['jabatan_ttd'] ?? 'Kepala Pusat Data dan Teknologi Informasi' }}</td>
             </tr>
             <tr>
                 <td class="td-label">Hal</td>
@@ -244,7 +244,7 @@
                 </ol>
             </li>
             <li>
-                Kami menugaskan narahubung Sdri. {{ $data['narahubung_nama'] ?? 'Julia' }} (HP. {{ $data['narahubung_hp'] ?? '0822-9824-6907' }}) surel <a href="mailto:{{ $data['narahubung_email'] ?? 'julia.pujilestari@pu.go.id' }}" style="color: #0000FF; text-decoration: underline;">{{ $data['narahubung_email'] ?? 'julia.pujilestari@pu.go.id' }}</a> jika terdapat hal-hal yang perlu dikoordinasikan.
+                Kami menugaskan narahubung {{ $data['narahubung_nama'] ?? 'Sdri. Julia' }} (HP. {{ $data['narahubung_hp'] ?? '0822-9824-6907' }}) surel <a href="mailto:{{ $data['narahubung_email'] ?? 'julia.pujilestari@pu.go.id' }}" style="color: #0000FF; text-decoration: underline;">{{ $data['narahubung_email'] ?? 'julia.pujilestari@pu.go.id' }}</a> jika terdapat hal-hal yang perlu dikoordinasikan.
             </li>
         </ol>
 
@@ -263,7 +263,7 @@
             <tr>
                 <td class="ttd-kiri"></td>
                 <td class="ttd-kanan">
-                    <p class="ttd-jabatan">Kepala Pusat Data dan Teknologi Informasi,</p>
+                    <p class="ttd-jabatan">{{ $data['jabatan_ttd'] ?? 'Kepala Pusat Data dan Teknologi Informasi' }},</p>
                     <!-- Space untuk QR Code TTE BSrE -->
                     <div class="ttd-qr-box"></div>
                     <p class="ttd-nama">{{ $data['nama_ttd'] ?? 'Komang Sri Hartini' }}</p>

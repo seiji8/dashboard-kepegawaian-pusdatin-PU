@@ -9,6 +9,7 @@ use App\Http\Controllers\DataPegawaiController;
 use App\Http\Controllers\KonfigurasiPesanController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\SuratPengajuanController;
+use App\Http\Controllers\LampiranController;
 use App\Http\Controllers\DatabaseBackupController;
 
 // 1. Halaman Depan (Redirect ke Login aja)
@@ -86,5 +87,13 @@ Route::middleware(['auth', \App\Http\Middleware\ForcePasswordChange::class])->gr
     Route::get('/surat-pengajuan/preview/{kategori}', [SuratPengajuanController::class, 'preview'])->name('surat-pengajuan.preview');
     Route::post('/surat-pengajuan/generate', [SuratPengajuanController::class, 'generate'])->name('surat-pengajuan.generate');
     Route::post('/surat-pengajuan/konfirmasi', [SuratPengajuanController::class, 'konfirmasiUsulan'])->name('surat-pengajuan.konfirmasi');
+
+    // Lampiran Dokumen
+    Route::get('/lampiran/{tracker_id}', [LampiranController::class, 'index'])->name('lampiran.index');
+    Route::post('/lampiran', [LampiranController::class, 'store'])->name('lampiran.store');
+    Route::delete('/lampiran/{id}', [LampiranController::class, 'destroy'])->name('lampiran.destroy');
+    Route::post('/lampiran/reorder', [LampiranController::class, 'reorder'])->name('lampiran.reorder');
+    Route::put('/lampiran/{id}/update-judul', [LampiranController::class, 'updateJudul'])->name('lampiran.update-judul');
+    Route::get('/surat-kj/{id}/generate-bundle', [DashboardController::class, 'generateBundleKj'])->name('surat-kj.generate-bundle');
 
 });

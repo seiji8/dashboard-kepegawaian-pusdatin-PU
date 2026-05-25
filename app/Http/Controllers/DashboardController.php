@@ -396,4 +396,83 @@ public function syncProgress()
 
         return $pdf->stream($filename);
     }
+
+    /**
+     * Generate PDF Bundle KJ: Cover Nota Dinas + Semua Lampiran
+     */
+    public function generateBundleKj(Request $request, $id)
+    {
+        $tracker = DashboardTracker::with(['pegawai', 'kelengkapan_dokumen'])->findOrFail($id);
+        $pegawai = $tracker->pegawai;
+
+        if (!$pegawai) {
+            return response()->json(['success' => false, 'message' => 'Data pegawai tidak ditemukan.'], 404);
+        }
+
+        // Ambil lampiran yang punya file fisik, urutkan
+        $lampirans = $tracker->kelengkapan_dokumen
+            ->whereNotNull('file_path')
+            ->sortBy('urutan');
+
+        // Siapkan data surat cover
+        $data = [
+            'nomor_surat'        => $request->query('nomor_surat', '............................................'),
+            'tanggal_surat'      => $request->query('tanggal')
+                ? \Carbon\Carbon::parse($request->query('tanggal'))->translatedFormat('d F Y')
+                : \Carbon\Carbon::now()->translatedFormat('d F Y'),
+            'tujuan_surat'       => $request->query('tujuan_surat', 'Kepala Biro Kepegawaian, Organisasi dan Tata Laksana'),
+            'nama_ttd'           => $request->query('nama_ttd', 'Komang Sri Hartini'),
+            'nip_ttd'            => $request->query('nip_ttd', '196811201994032001'),
+            'jabatan_ttd'        => $request->query('jabatan_ttd', 'Kepala Pusat Data dan Teknologi Informasi'),
+            'nama_pegawai'       => $pegawai->nama . ($pegawai->gelar_belakang ? ', ' . $pegawai->gelar_belakang : ''),
+            'jabatan_fungsional' => $pegawai->jabatan_fungsional ?? $pegawai->jabatan,
+            'jenjang_baru'       => $pegawai->jenjang_baru ?? 'Ahli Madya',
+            'ref_nota_dinas'     => 'KP0303/B/Sp/' . date('Y') . '/506',
+            'tgl_nota_dinas'     => '31 Maret ' . date('Y'),
+            'nomor_surat_bkn'    => '1589/B-BJ.03.02/SD/C/' . date('Y'),
+            'tgl_surat_bkn'      => '25 Maret ' . date('Y'),
+            'narahubung_nama'    => $request->query('narahubung_nama', 'Sdri. Julia'),
+            'narahubung_hp'      => $request->query('narahubung_hp', '0822-9824-6907'),
+            'narahubung_email'   => $request->query('narahubung_email', 'julia.pujilestari@pu.go.id'),
+        ];
+
+        // Pastikan folder temp ada
+        $tempDir = storage_path('app/temp');
+        if (!file_exists($tempDir)) mkdir($tempDir, 0755, true);
+
+        // Generate cover surat (Nota Dinas) jadi PDF dulu
+        $coverPdf     = \Barryvdh\DomPDF\Facade\Pdf::loadView('surat.surat_usul_kj_pdf', ['data' => $data])->setPaper('A4', 'portrait');
+        $coverPath    = $tempDir . '/cover_kj_' . time() . '_' . uniqid() . '.pdf';
+        file_put_contents($coverPath, $coverPdf->output());
+
+        // Jika ada lampiran, gabungkan
+        if ($lampirans->count() > 0) {
+            $suratService = new \App\Services\SuratPengajuanService();
+            $bundlePath   = $suratService->appendLampiran(
+                $coverPath, 
+                $lampirans,
+                $data['nomor_surat'],
+                $data['tanggal_surat']
+            );
+            @unlink($coverPath); // Hapus file cover sementara
+            $finalPath = $bundlePath;
+        } else {
+            $finalPath = $coverPath;
+        }
+
+        $filename = 'Surat_Usul_KJ_Bundle_' . str_replace(' ', '_', $pegawai->nama) . '_' . date('Ymd') . '.pdf';
+
+        if (!$request->has('preview')) {
+            ActivityLogger::logSystem(
+                'Mencetak Bundle Surat Usul KJ untuk: ' . $pegawai->nama . ' (dengan ' . $lampirans->count() . ' lampiran)',
+                Auth::user()->name
+            );
+            return response()->download($finalPath, $filename)->deleteFileAfterSend(true);
+        }
+
+        return response()->file($finalPath, [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => 'inline; filename="' . $filename . '"'
+        ])->deleteFileAfterSend(true);
+    }
 }
