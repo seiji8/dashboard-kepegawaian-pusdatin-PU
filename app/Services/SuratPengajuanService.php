@@ -299,7 +299,15 @@ class SuratPengajuanService
 
                     $xPos = 25 + ($idx * ($halfW + $gap));
 
-                    [$origW, $origH] = getimagesize($imgPath);
+                    $imageInfo = getimagesize($imgPath);
+                    if (!$imageInfo) continue;
+                    $origW = $imageInfo[0];
+                    $origH = $imageInfo[1];
+                    $fpdfType = '';
+                    if ($imageInfo[2] === IMAGETYPE_JPEG) $fpdfType = 'JPEG';
+                    elseif ($imageInfo[2] === IMAGETYPE_PNG) $fpdfType = 'PNG';
+                    elseif ($imageInfo[2] === IMAGETYPE_GIF) $fpdfType = 'GIF';
+
                     $pxToMm = 25.4 / 96;
                     $physicalW = $origW * $pxToMm;
                     $physicalH = $origH * $pxToMm;
@@ -312,7 +320,7 @@ class SuratPengajuanService
                     $imgX  = $xPos + ($halfW - $newW) / 2;
                     $imgY  = $boxY; // Rata atas
 
-                    $fpdi->Image($imgPath, $imgX, $imgY, $newW, $newH);
+                    $fpdi->Image($imgPath, $imgX, $imgY, $newW, $newH, $fpdfType);
                     $fpdi->Rect($imgX, $imgY, $newW, $newH);
                 }
 
@@ -336,7 +344,15 @@ class SuratPengajuanService
 
                     $boxX = 25; $boxW = 166;
 
-                    [$origW, $origH] = getimagesize($imgPath);
+                    $imageInfo = getimagesize($imgPath);
+                    if (!$imageInfo) continue;
+                    $origW = $imageInfo[0];
+                    $origH = $imageInfo[1];
+                    $fpdfType = '';
+                    if ($imageInfo[2] === IMAGETYPE_JPEG) $fpdfType = 'JPEG';
+                    elseif ($imageInfo[2] === IMAGETYPE_PNG) $fpdfType = 'PNG';
+                    elseif ($imageInfo[2] === IMAGETYPE_GIF) $fpdfType = 'GIF';
+
                     $pxToMm = 25.4 / 96;
                     $physicalW = $origW * $pxToMm;
                     $physicalH = $origH * $pxToMm;
@@ -349,7 +365,7 @@ class SuratPengajuanService
                     $imgX  = $boxX + ($boxW - $newW) / 2;
                     $imgY  = $boxY; // Rata atas
 
-                    $fpdi->Image($imgPath, $imgX, $imgY, $newW, $newH);
+                    $fpdi->Image($imgPath, $imgX, $imgY, $newW, $newH, $fpdfType);
                     $fpdi->Rect($imgX, $imgY, $newW, $newH);
                 }
             }
@@ -445,10 +461,14 @@ class SuratPengajuanService
                 $origW = $size['width'];
                 $origH = $size['height'];
             } elseif ($page['type'] === 'image') {
-                [$origW, $origH] = getimagesize($page['path']);
-                $pxToMm = 25.4 / 96;
-                $origW = $origW * $pxToMm;
-                $origH = $origH * $pxToMm;
+                $imageInfo = getimagesize($page['path']);
+                if ($imageInfo) {
+                    $origW = $imageInfo[0];
+                    $origH = $imageInfo[1];
+                    $pxToMm = 25.4 / 96;
+                    $origW = $origW * $pxToMm;
+                    $origH = $origH * $pxToMm;
+                }
             }
 
             if ($origW > 0 && $origH > 0) {
@@ -490,10 +510,14 @@ class SuratPengajuanService
                 $origW = $size['width'];
                 $origH = $size['height'];
             } elseif ($page3['type'] === 'image') {
-                [$origW, $origH] = getimagesize($page3['path']);
-                $pxToMm = 25.4 / 96;
-                $origW = $origW * $pxToMm;
-                $origH = $origH * $pxToMm;
+                $imageInfo = getimagesize($page3['path']);
+                if ($imageInfo) {
+                    $origW = $imageInfo[0];
+                    $origH = $imageInfo[1];
+                    $pxToMm = 25.4 / 96;
+                    $origW = $origW * $pxToMm;
+                    $origH = $origH * $pxToMm;
+                }
             }
 
             if ($origW > 0 && $origH > 0) {
@@ -537,7 +561,15 @@ class SuratPengajuanService
                 $fpdi->Rect($xPos, $yPos, $newW, $newH);
 
             } elseif ($page['type'] === 'image') {
-                $fpdi->Image($page['path'], $xPos, $yPos, $newW, $newH);
+                $fpdfType = '';
+                $imageInfo = @getimagesize($page['path']);
+                if ($imageInfo) {
+                    if ($imageInfo[2] === IMAGETYPE_JPEG) $fpdfType = 'JPEG';
+                    elseif ($imageInfo[2] === IMAGETYPE_PNG) $fpdfType = 'PNG';
+                    elseif ($imageInfo[2] === IMAGETYPE_GIF) $fpdfType = 'GIF';
+                }
+                
+                $fpdi->Image($page['path'], $xPos, $yPos, $newW, $newH, $fpdfType);
 
                 // Gambar border hitam tipis di sekeliling media hasil skala
                 $fpdi->SetDrawColor(0, 0, 0);

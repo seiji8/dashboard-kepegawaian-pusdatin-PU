@@ -128,6 +128,28 @@ class LampiranController extends Controller
     }
 
     /**
+     * Hapus semua lampiran untuk tracker tertentu.
+     */
+    public function clearAll($tracker_id)
+    {
+        $lampirans = KelengkapanDokumen::where('dashboard_tracker_id', $tracker_id)
+            ->whereNotNull('file_path')
+            ->get();
+
+        foreach ($lampirans as $lampiran) {
+            if (Storage::disk('public')->exists($lampiran->file_path)) {
+                Storage::disk('public')->delete($lampiran->file_path);
+            }
+            $lampiran->delete();
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Semua lampiran berhasil dibersihkan.',
+        ]);
+    }
+
+    /**
      * Update urutan lampiran.
      */
     public function reorder(Request $request)

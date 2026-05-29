@@ -38,8 +38,13 @@ function fetchLampiran(trackerId) {
 function renderLampiranList(items) {
     const list = document.getElementById('lampiranList');
     const count = document.getElementById('lampiranCount');
+    const btnClearAll = document.getElementById('btnClearAllLampiran');
 
     if (count) count.textContent = items.length;
+    
+    if (btnClearAll) {
+        btnClearAll.style.display = items.length > 0 ? 'flex' : 'none';
+    }
 
     if (items.length === 0) {
         list.innerHTML = '<p style="font-size:13px; color:#94a3b8; text-align:center; padding:20px 0;">Belum ada lampiran diupload.</p>';
@@ -174,6 +179,52 @@ function deleteLampiran(id) {
                 showCustomToast('Gagal terhubung ke server.', 'error');
             });
         }
+    });
+}
+
+function clearAllLampiran() {
+    if (!currentTrackerId) return;
+    
+    showPremiumConfirmModal({
+        title: 'Bersihkan Semua Lampiran?',
+        message: 'Semua lampiran yang Anda upload untuk pegawai ini akan dihapus permanen. Lanjutkan?',
+        confirmText: 'Ya, Bersihkan',
+        cancelText: 'Batal',
+        type: 'danger',
+        onConfirm: () => {
+            executeClearAllLampiran();
+        }
+    });
+}
+
+function executeClearAllLampiran(isSilent = false) {
+    if (!currentTrackerId) return;
+    
+    fetch(`/lampiran/clear/${currentTrackerId}`, {
+        method: 'DELETE',
+        headers: {
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+            'Accept': 'application/json'
+        }
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.success) {
+            currentLampiransData = [];
+            renderLampiranList(currentLampiransData);
+            closeLampiranDetailPreview();
+            
+            if (!isSilent) {
+                showCustomToast('Semua lampiran berhasil dibersihkan!', 'success');
+                // Re-trigger bundle preview to refresh automatically!
+                if (typeof generateSurat === "function" && document.getElementById("suratPreviewContainer").style.display !== "none") {
+                    generateSurat(true);
+                }
+            }
+        }
+    })
+    .catch(() => {
+        if (!isSilent) showCustomToast('Gagal terhubung ke server.', 'error');
     });
 }
 

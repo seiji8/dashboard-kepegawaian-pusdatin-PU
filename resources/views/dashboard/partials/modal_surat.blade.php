@@ -174,7 +174,12 @@
                         </div>
 
                         <div style="border-top:1px solid #e2e8f0; padding-top:20px; margin-top:15px;">
-                            <p style="font-size:12.5px; font-weight:800; color:#334155; margin:0 0 12px; text-transform:uppercase; letter-spacing:0.5px;">Lampiran Tersimpan (<span id="lampiranCount" style="color:#2563eb;">0</span>)</p>
+                            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                                <p style="font-size:12.5px; font-weight:800; color:#334155; margin:0; text-transform:uppercase; letter-spacing:0.5px;">Lampiran Tersimpan (<span id="lampiranCount" style="color:#2563eb;">0</span>)</p>
+                                <button type="button" onclick="clearAllLampiran()" id="btnClearAllLampiran" style="background:#fee2e2; border:none; color:#ef4444; font-size:11px; font-weight:700; padding:4px 10px; border-radius:6px; cursor:pointer; display:none; align-items:center; gap:4px; transition:all 0.2s;" onmouseover="this.style.background='#fecaca'" onmouseout="this.style.background='#fee2e2'">
+                                    <i class="ph-bold ph-trash"></i> Bersihkan Semua
+                                </button>
+                            </div>
                             <div id="lampiranList" style="display:flex; flex-direction:column; gap:8px; max-height:220px; overflow-y:auto; padding-right:5px;">
                             </div>
                         </div>
