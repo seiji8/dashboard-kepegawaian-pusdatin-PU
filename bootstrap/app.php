@@ -13,10 +13,6 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         // Security Headers: Clickjacking, MIME Sniffing, XSS protection
         $middleware->append(\App\Http\Middleware\SecurityHeaders::class);
-
-        $middleware->validateCsrfTokens(except: [
-            '/sync-now',
-        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //
