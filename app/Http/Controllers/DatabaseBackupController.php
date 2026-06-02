@@ -52,15 +52,16 @@ class DatabaseBackupController extends Controller
             $sqlScript .= "DROP TABLE IF EXISTS `{$table}`;\n";
             $sqlScript .= ((array)$createTableStmt[0])[$createTableKey] . ";\n\n";
 
-            // Get Data
-            $rows = DB::table($table)->get();
+            // Get Data - Cek apakah tabel ada datanya secara efisien
+            $hasData = DB::table($table)->exists();
 
-            if ($rows->count() > 0) {
+            if ($hasData) {
                 $sqlScript .= "-- Data for table `{$table}`\n";
-                $sqlScript .= "INSERT INTO `{$table}` VALUES \n";
-
+                
                 $insertStatements = [];
-                foreach ($rows as $row) {
+                
+                // Gunakan lazy() untuk memproses baris data secara bertahap (memori flat)
+                foreach (DB::table($table)->lazy() as $row) {
                     $rowValues = [];
                     foreach ((array)$row as $value) {
                         if (is_null($value)) {
@@ -73,17 +74,19 @@ class DatabaseBackupController extends Controller
                         }
                     }
                     $insertStatements[] = "(" . implode(',', $rowValues) . ")";
+
+                    // Jika buffer mencapai 100 baris, langsung tulis ke script dan kosongkan buffer
+                    if (count($insertStatements) === 100) {
+                        $sqlScript .= "INSERT INTO `{$table}` VALUES \n";
+                        $sqlScript .= implode(",\n", $insertStatements) . ";\n\n";
+                        $insertStatements = [];
+                    }
                 }
 
-                // Chunk inserts to avoid massive single lines if table is big
-                $chunks = array_chunk($insertStatements, 100);
-                foreach ($chunks as $index => $chunk) {
-                    $sqlScript .= implode(",\n", $chunk);
-                    if ($index < count($chunks) - 1) {
-                        $sqlScript .= ";\nINSERT INTO `{$table}` VALUES \n";
-                    } else {
-                        $sqlScript .= ";\n\n";
-                    }
+                // Tulis sisa baris yang ada di buffer (jika ada)
+                if (count($insertStatements) > 0) {
+                    $sqlScript .= "INSERT INTO `{$table}` VALUES \n";
+                    $sqlScript .= implode(",\n", $insertStatements) . ";\n\n";
                 }
             }
         }

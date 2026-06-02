@@ -71,6 +71,7 @@ class LampiranController extends Controller
         if (in_array($mimeType, ['image/jpeg', 'image/png']) && function_exists('imagecreatefromjpeg') && function_exists('imagecreatefrompng')) {
             $compressedPath = $this->compressImage($file->getRealPath(), $mimeType, $folder, $filename);
             $storedPath     = $compressedPath;
+            $mimeType       = 'image/jpeg'; // Paksa set ke jpeg karena output compressImage selalu jpg
         } else {
             // File PDF atau fungsi kompresi tidak tersedia: simpan file aslinya langsung
             $storedPath = $file->storeAs($folder, $filename, 'public');
