@@ -1,0 +1,1834 @@
+﻿/* =========================================
+   PREMIUM TABLE UI
+   ========================================= */
+.custom-table,
+.data-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    font-size: 14px;
+    overflow: hidden;
+    border-radius: 10px;
+    border: 1px solid #e2e8f0;
+}
+
+.custom-table th,
+.data-table th {
+    background-color: #e5e7eb;
+    color: #374151;
+    font-weight: 600;
+    padding: 14px 18px;
+    text-align: left;
+    font-size: 13px;
+    white-space: nowrap;
+}
+
+.custom-table th:first-child,
+.data-table th:first-child {
+    border-radius: 10px 0 0 0;
+}
+
+.custom-table th:last-child,
+.data-table th:last-child {
+    border-radius: 0 10px 0 0;
+}
+
+.custom-table td,
+.data-table td {
+    padding: 14px 18px;
+    border-bottom: 1px solid #f1f5f9;
+    color: #334155;
+    vertical-align: middle;
+    font-size: 13px;
+    transition: all 0.15s ease;
+}
+
+/* Alternating Row Colors (Zebra Striping) */
+.custom-table tbody tr:nth-child(even),
+.data-table tbody tr:nth-child(even) {
+    background-color: #f8fafc;
+}
+
+.custom-table tbody tr:nth-child(odd),
+.data-table tbody tr:nth-child(odd) {
+    background-color: #ffffff;
+}
+
+/* Row Hover Effect */
+.custom-table tbody tr,
+.data-table tbody tr {
+    transition: all 0.2s ease;
+}
+
+.custom-table tbody tr:hover,
+.data-table tbody tr:hover {
+    background-color: #eff6ff;
+    box-shadow: inset 4px 0 0 0 #3b82f6;
+}
+
+.custom-table tbody tr:last-child td,
+.data-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.custom-table tbody tr:last-child td:first-child,
+.data-table tbody tr:last-child td:first-child {
+    border-radius: 0 0 0 10px;
+}
+
+.custom-table tbody tr:last-child td:last-child,
+.data-table tbody tr:last-child td:last-child {
+    border-radius: 0 0 10px 0;
+}
+
+/* =========================================
+   STATUS BADGES (Premium)
+   ========================================= */
+.status-badge {
+    padding: 5px 14px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    white-space: nowrap;
+}
+
+/* Merah â€” Usulan */
+.status-missing {
+    background: linear-gradient(135deg, #fee2e2, #fecaca);
+    color: #b91c1c;
+    border: 1px solid #fca5a5;
+}
+
+/* Kuning â€” Warning / Mendekati / Proses */
+.status-warning {
+    background: linear-gradient(135deg, #fef3c7, #fde68a);
+    color: #92400e;
+    border: 1px solid #fcd34d;
+}
+
+/* Hijau â€” OK / Upload E-HRM */
+.status-ok {
+    background: linear-gradient(135deg, #d1fae5, #a7f3d0);
+    color: #065f46;
+    border: 1px solid #6ee7b7;
+}
+
+/* Secondary */
+.status-secondary {
+    background: linear-gradient(135deg, #f1f5f9, #e2e8f0);
+    color: #475569;
+    border: 1px solid #cbd5e1;
+}
+
+/* --- Loading Modal --- */
+.loading-modal-content {
+    background: white;
+    padding: 40px;
+    border-radius: 16px;
+    box-shadow:
+        0 20px 25px -5px rgba(0, 0, 0, 0.1),
+        0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    text-align: center;
+    width: 320px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+}
+
+.loading-spinner {
+    width: 60px;
+    height: 60px;
+    border: 5px solid #e5e7eb;
+    border-top: 5px solid #2563eb;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+.loading-text {
+    font-size: 16px;
+    font-weight: 600;
+    color: #1e3a8a;
+}
+
+.loading-subtext {
+    font-size: 13px;
+    color: #6b7280;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+/* Dokumen Badge (Angka merah background pink) */
+.doc-badge {
+    background-color: #fce7f3;
+    color: #be185d;
+    padding: 4px 12px;
+    border-radius: 6px;
+    font-weight: 700;
+    font-size: 12px;
+}
+
+/* =========================================
+   ACTION BUTTONS (Premium)
+   ========================================= */
+.btn-action-view {
+    background: linear-gradient(135deg, #1e3a8a, #2563eb);
+    color: white;
+    border: none;
+    width: 34px;
+    height: 34px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 4px rgba(30, 58, 138, 0.25);
+}
+
+.btn-action-view:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(30, 58, 138, 0.35);
+}
+
+.btn-action-view:active {
+    transform: translateY(0);
+}
+
+/* Tombol Konfirmasi */
+.btn-action-confirm {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: white;
+    border: none;
+    width: 34px;
+    height: 34px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 4px rgba(16, 185, 129, 0.25);
+}
+
+.btn-action-confirm:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(16, 185, 129, 0.35);
+}
+
+.btn-action-confirm:active {
+    transform: translateY(0);
+}
+
+/* Tombol Cetak Surat (di atas tabel) */
+.btn-cetak-surat {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 8px 18px;
+    background: white;
+    color: #1e3a8a;
+    border: 1.5px solid #1e3a8a;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 12px;
+    font-family: "Poppins", sans-serif;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+    letter-spacing: 0.2px;
+}
+
+.btn-cetak-surat:hover {
+    background: #1e3a8a;
+    color: #fbbf24;
+    border-color: #1e3a8a;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(30, 58, 138, 0.3);
+}
+
+.btn-cetak-surat:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 4px rgba(30, 58, 138, 0.2);
+}
+
+.btn-cetak-surat i {
+    font-size: 15px;
+}
+
+/* Variant biru: Konfirmasi Usulan (KP & KGB) â€” pakai warna primer dashboard */
+.btn-konfirmasi-usulan {
+    color: #1e3a8a !important;
+    border-color: #1e3a8a !important;
+}
+.btn-konfirmasi-usulan:hover {
+    background: #1e3a8a !important;
+    color: white !important;
+    border-color: #1e3a8a !important;
+    box-shadow: 0 4px 12px rgba(30, 58, 138, 0.3) !important;
+}
+
+/* Container for Cetak Surat button above table */
+.surat-btn-row {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 14px;
+    padding-bottom: 0;
+}
+
+/* Confirm Modal */
+.confirm-modal-content {
+    background: white;
+    width: 420px;
+    padding: 40px 30px;
+    border-radius: 16px;
+    text-align: center;
+    position: relative;
+    animation: slideDown 0.2s ease-out;
+}
+
+.confirm-modal-icon {
+    margin-bottom: 16px;
+}
+
+.confirm-modal-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: #111;
+    margin-bottom: 8px;
+}
+
+.confirm-modal-text {
+    font-size: 14px;
+    color: #6b7280;
+    margin-bottom: 4px;
+}
+
+.confirm-modal-name {
+    font-size: 16px;
+    font-weight: 700;
+    color: #1e3a8a;
+    margin-bottom: 28px;
+}
+
+.confirm-modal-actions {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+}
+
+.confirm-btn-cancel {
+    padding: 10px 28px;
+    background: #f3f4f6;
+    color: #374151;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 14px;
+    font-family: "Poppins", sans-serif;
+    transition: all 0.2s;
+}
+
+.confirm-btn-cancel:hover {
+    background: #e5e7eb;
+}
+
+.confirm-btn-yes {
+    padding: 10px 28px;
+    background: #10b981;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 14px;
+    font-family: "Poppins", sans-serif;
+    transition: all 0.2s;
+}
+
+.confirm-btn-yes:hover {
+    background: #059669;
+}
+
+.confirm-btn-yes:disabled {
+    background: #9ca3af;
+    cursor: not-allowed;
+}
+
+/* Animasi Slide Down */
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Rotasi Panah Accordion */
+.rotate-icon {
+    transform: rotate(180deg);
+    transition: transform 0.3s;
+}
+
+/* Style untuk Notifikasi Sinkronisasi */
+.toast-notification {
+    visibility: hidden;
+    min-width: 250px;
+    background-color: #10b981;
+    /* Warna Hijau Sukses */
+    color: #fff;
+    text-align: center;
+    border-radius: 8px;
+    padding: 16px;
+    position: fixed;
+    z-index: 3000;
+    /* Lebih tinggi dari modal */
+    left: 50%;
+    top: 30px;
+    transform: translateX(-50%);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    font-size: 14px;
+    font-weight: 600;
+    opacity: 0;
+    transition:
+        opacity 0.5s,
+        top 0.5s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+/* Class yang ditambahkan saat aktif */
+.toast-notification.show {
+    visibility: visible;
+    opacity: 1;
+    top: 50px;
+    /* Efek turun sedikit */
+}
+
+/* Spinner Animation */
+.ph-spin {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+/* --- Source: data_pegawai.css --- */
+
+/* =========================================
+   3. CONTENT SECTION
+   ========================================= */
+.content-section {
+    background-color: white;
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.section-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: #1f2937;
+    margin-bottom: 20px;
+}
+
+/* =========================================
+   4. TABLE STYLES
+   ========================================= */
+.table-responsive {
+    overflow-x: auto;
+    margin-bottom: 24px;
+    border-radius: 12px; /* Lebih membulat */
+    box-shadow:
+        0 4px 6px -1px rgba(0, 0, 0, 0.05),
+        0 2px 4px -1px rgba(0, 0, 0, 0.03); /* Tambah soft shadow */
+    border: 1px solid #f3f4f6; /* Border luaran super tipis/soft */
+}
+
+/* Action Buttons */
+.btn-view,
+.btn-edit,
+.btn-delete {
+    border: none;
+    border-radius: 8px;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+/* Tombol Biru (Lihat Detail / Edit) */
+.btn-view,
+.btn-edit {
+    background: linear-gradient(135deg, #1e3a8a, #2563eb);
+    color: white;
+    box-shadow: 0 2px 4px rgba(30, 58, 138, 0.25);
+}
+
+.btn-view:hover,
+.btn-edit:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(30, 58, 138, 0.35);
+}
+
+.btn-view:active,
+.btn-edit:active {
+    transform: translateY(0);
+}
+
+/* Tombol Merah (Hapus) */
+.btn-delete {
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+    color: white;
+    box-shadow: 0 2px 4px rgba(239, 68, 68, 0.25);
+}
+
+.btn-delete:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(239, 68, 68, 0.35);
+}
+
+.btn-delete:active {
+    transform: translateY(0);
+}
+
+/* Pagination */
+.pagination {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 8px;
+}
+
+.pagination-btn {
+    width: 32px;
+    height: 32px;
+    border: 1px solid #e5e7eb;
+    background-color: white;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    color: #374151;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.pagination-btn:hover {
+    background-color: #f3f4f6;
+}
+
+.pagination-btn.active {
+    background-color: #1e3a8a;
+    color: white;
+    border-color: #1e3a8a;
+}
+
+.pagination-text {
+    font-size: 14px;
+    color: #6b7280;
+    text-decoration: none;
+    padding: 0 8px;
+}
+
+/* =========================================
+   5. MODALS
+   ========================================= */
+.modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Modal Detail Besar */
+.modal-box-large {
+    background: white;
+    width: 800px;
+    max-width: 95%;
+    padding: 30px 40px;
+    border-radius: 12px;
+    position: relative;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
+.detail-header {
+    text-align: center;
+    border-bottom: 1px solid #e5e7eb;
+    padding-bottom: 20px;
+    margin-bottom: 30px;
+}
+
+.detail-header h2 {
+    color: #1e3a8a;
+    font-size: 24px;
+    font-weight: 700;
+}
+
+.detail-layout {
+    display: flex;
+    gap: 40px;
+    margin-bottom: 30px;
+}
+
+.profile-area {
+    width: 200px;
+    flex-shrink: 0;
+}
+
+.profile-placeholder {
+    width: 100%;
+    height: 200px;
+    background-color: #f3f4f6;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #9ca3af;
+}
+
+.info-area {
+    flex: 1;
+}
+
+.info-row {
+    display: flex;
+    margin-bottom: 12px;
+    font-size: 14px;
+}
+
+.label {
+    width: 150px;
+    font-weight: 600;
+    color: #374151;
+}
+
+.separator {
+    margin-right: 12px;
+    font-weight: 600;
+    color: #374151;
+}
+
+.value {
+    color: #4b5563;
+    flex: 1;
+}
+
+/* Doc Section in Modal */
+.doc-section {
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.doc-header {
+    background-color: #f1f5f9;
+    padding: 12px 20px;
+    display: flex;
+    font-weight: 700;
+    color: #1e3a8a;
+    font-size: 14px;
+}
+
+.doc-row {
+    padding: 12px 20px;
+    display: flex;
+    border-bottom: 1px solid #e5e7eb;
+    font-size: 14px;
+    background-color: white;
+}
+
+.doc-row:last-child {
+    border-bottom: none;
+}
+
+.col-no {
+    width: 40px;
+    font-weight: 600;
+    text-align: center;
+    margin-right: 16px;
+}
+
+.col-name {
+    flex: 1;
+    color: #ef4444;
+    font-weight: 500;
+}
+
+.detail-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 24px;
+}
+
+.btn-bell {
+    background-color: #fef3c7;
+    border: 1px solid #fbbf24;
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: #d97706;
+}
+
+.btn-back {
+    background-color: #1e3a8a;
+    color: white;
+    padding: 8px 24px;
+    border-radius: 8px;
+    border: none;
+    font-family: "Poppins";
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.btn-back:hover {
+    background-color: #1e40af;
+}
+
+/* Modal Hapus (Floating) */
+.modal-delete-size {
+    background: white;
+    width: auto;
+    min-width: 300px;
+    max-width: 90%;
+    padding: 24px 32px;
+    text-align: center;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+    /* animation: slideDownFadeIn 0.3s ease-out; */
+}
+
+.delete-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+}
+
+.delete-title {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    font-size: 18px;
+    font-weight: 600;
+    color: #1f2937;
+    margin: 0;
+}
+
+.delete-actions {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    width: 100%;
+}
+
+.btn-pill {
+    padding: 8px 32px;
+    border-radius: 50px;
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+    font-family: "Poppins", sans-serif;
+    border: 1px solid #d1d5db;
+    background-color: white;
+    transition: all 0.2s;
+}
+
+.confirm-delete {
+    background-color: #ef4444;
+    color: white;
+    border-color: #ef4444;
+}
+
+.confirm-delete:hover {
+    background-color: #dc2626;
+}
+
+/* Modal Reminder */
+.reminder-modal-box {
+    background: white;
+    width: 500px;
+    max-width: 90%;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
+.reminder-title {
+    text-align: center;
+    color: #1e3a8a;
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 24px;
+}
+
+.form-group {
+    margin-bottom: 16px;
+}
+
+.form-label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: #374151;
+    font-size: 14px;
+}
+
+.form-textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    font-family: "Poppins", sans-serif;
+    font-size: 14px;
+    color: #374151;
+    outline: none;
+}
+
+.form-textarea {
+    height: 100px;
+    resize: none;
+}
+
+.checkbox-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 16px;
+    font-size: 14px;
+}
+
+.reminder-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 24px;
+}
+
+.btn-cancel-soft {
+    background-color: #fee2e2;
+    color: #ef4444;
+    padding: 8px 24px;
+    border-radius: 8px;
+    border: none;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.btn-send-soft {
+    background-color: #e0f2fe;
+    color: #0284c7;
+    padding: 8px 24px;
+    border-radius: 8px;
+    border: none;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.reminder-modal-box .select-wrapper {
+    width: 100%;
+}
+
+.reminder-modal-box .ts-control {
+    padding: 12px 14px !important;
+    border: 2px solid #e2e8f0 !important;
+    border-radius: 8px !important;
+    font-size: 14.5px !important;
+    color: #1e293b !important;
+    font-family: "Poppins", sans-serif !important;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05) !important;
+    transition: all 0.2s ease !important;
+    min-height: 48px;
+}
+
+.reminder-modal-box .ts-control.focus {
+    border-color: #3b82f6 !important;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1) !important;
+}
+
+.reminder-modal-box .ts-dropdown {
+    font-family: "Poppins", sans-serif !important;
+    font-size: 14px !important;
+    border-radius: 8px !important;
+    border: 1px solid #e2e8f0 !important;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1) !important;
+    margin-top: 5px !important;
+}
+
+.reminder-modal-box .ts-dropdown .option {
+    padding: 10px 14px !important;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.reminder-modal-box .ts-dropdown .option:last-child {
+    border-bottom: none;
+}
+
+.reminder-modal-box .ts-dropdown .active {
+    background-color: #eff6ff !important;
+    color: #1e3a8a !important;
+}
+
+.reminder-modal-box .ts-control input::placeholder {
+    color: #94a3b8 !important;
+}
+
+/* Toast */
+.toast-notification {
+    visibility: hidden;
+    min-width: 250px;
+    background-color: #10b981;
+    color: #fff;
+    text-align: center;
+    border-radius: 8px;
+    padding: 16px;
+    position: fixed;
+    z-index: 3000;
+    left: 50%;
+    top: 30px;
+    transform: translateX(-50%);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    font-size: 14px;
+    font-weight: 600;
+    opacity: 0;
+    transition:
+        opacity 0.5s,
+        top 0.5s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.toast-notification.show {
+    visibility: visible;
+    opacity: 1;
+    top: 50px;
+}
+
+/* --- Source: konfigurasi_pesan.css --- */
+
+/* =========================================
+   5. MODAL GLOBAL (Overlay Standard)
+   ========================================= */
+.modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Box standar untuk Edit/Tambah */
+.modal-box {
+    background: white;
+    width: 500px;
+    padding: 30px;
+    border-radius: 12px;
+    position: relative;
+}
+
+/* STYLE KHUSUS MODAL EDIT */
+.modal-header h2 {
+    font-size: 24px;
+    color: #1e3a8a;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.info-group {
+    margin-bottom: 20px;
+}
+
+.info-group h3,
+.input-group h3 {
+    font-size: 16px;
+    margin-bottom: 10px;
+    color: #000;
+    font-weight: 600;
+}
+
+.info-row {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    margin-bottom: 8px;
+    font-size: 14px;
+    gap: 16px;
+}
+
+.info-label {
+    font-weight: 600;
+    color: #333;
+    width: 80px;
+}
+
+.info-value {
+    color: #555;
+    text-align: left;
+    flex: 1;
+}
+
+.select-wrapper {
+    width: 100%;
+}
+
+.form-select {
+    width: 100%;
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    font-family: "Poppins";
+    outline: none;
+}
+
+.modal-footer {
+    display: flex;
+    gap: 10px;
+    margin-top: 30px;
+}
+
+.btn-modal-cancel {
+    flex: 1;
+    padding: 10px;
+    border: none;
+    background-color: #fee2e2;
+    color: #ef4444;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    font-family: "Poppins";
+}
+
+.btn-modal-save {
+    flex: 1;
+    padding: 10px;
+    border: none;
+    background-color: #dbeafe;
+    color: #2563eb;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    font-family: "Poppins";
+}
+
+/* =========================================
+
+/* =========================================
+   6. STYLE KHUSUS MODAL HAPUS (MENGAMBANG)
+   ========================================= */
+
+/* Animasi untuk pop-up mengambang */
+@keyframes slideDownFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-30px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Override Overlay Hapus agar di atas */
+#modalHapusAdmin {
+    align-items: flex-start;
+    padding-top: 20px;
+}
+
+/* Ukuran dan style box hapus yang kecil dan mengambang */
+.modal-delete-size {
+    width: auto;
+    min-width: 280px;
+    max-width: 90%;
+    padding: 15px 25px;
+    text-align: center;
+    border-radius: 12px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+    animation: slideDownFadeIn 0.3s ease-out;
+}
+
+.delete-title {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    font-size: 15px;
+    font-weight: 600;
+    margin-bottom: 15px;
+    color: #000;
+}
+
+.warning-icon {
+    width: 20px;
+    height: 20px;
+    color: #f59e0b;
+}
+
+.delete-actions {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+}
+
+.btn-pill {
+    padding: 6px 24px;
+    border-radius: 50px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: "Poppins";
+    font-size: 12px;
+    background-color: white;
+    border: 1px solid #d1d5db;
+    transition: 0.2s;
+    color: #333;
+}
+
+.btn-pill:hover {
+    background-color: #f3f4f6;
+    border-color: #9ca3af;
+}
+
+.confirm-delete {
+    background-color: #ef4444;
+    color: white;
+    border-color: #ef4444;
+}
+
+.confirm-delete:hover {
+    background-color: #dc2626;
+    border-color: #dc2626;
+}
+
+/* Style untuk Notifikasi Sinkronisasi */
+.toast-notification {
+    visibility: hidden;
+    min-width: 250px;
+    background-color: #10b981;
+    color: #fff;
+    text-align: center;
+    border-radius: 8px;
+    padding: 16px;
+    position: fixed;
+    z-index: 3000;
+    left: 50%;
+    top: 30px;
+    transform: translateX(-50%);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    font-size: 14px;
+    font-weight: 600;
+    opacity: 0;
+    transition:
+        opacity 0.5s,
+        top 0.5s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+/* Class yang ditambahkan saat aktif */
+.toast-notification.show {
+    visibility: visible;
+    opacity: 1;
+    top: 50px;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+    .sidebar {
+        position: relative;
+        height: auto;
+        width: 100%;
+    }
+
+    .main-content {
+        margin-left: 0;
+        width: 100%;
+        padding: 20px;
+    }
+
+    .sidebar-nav {
+        flex-direction: row;
+        flex-wrap: wrap;
+    }
+
+    .nav-item {
+        flex: 1;
+        justify-content: center;
+    }
+
+    .logo,
+    .sidebar-footer {
+        display: none;
+    }
+
+    .content-header {
+        flex-direction: column;
+        gap: 16px;
+        align-items: flex-start;
+    }
+
+    .search-box {
+        width: 100%;
+    }
+}
+
+
+/* =========================================
+   MODAL DETAIL MODERN (Redesign)
+   ========================================= */
+
+/* Box Modal yang Lebih Lebar */
+.modal-modern-content {
+    background: white;
+    width: 900px;
+    max-width: 95%;
+    border-radius: 16px;
+    overflow: hidden;
+    position: relative;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    animation: slideUp 0.3s ease-out;
+}
+
+/* Header Biru Gradient */
+.modal-modern-header {
+    background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+    padding: 20px 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: white;
+}
+
+.modal-modern-title {
+    font-size: 18px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.btn-close-modern {
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.btn-close-modern:hover {
+    background: rgba(255, 255, 255, 0.4);
+}
+
+/* Body: Split Layout (Kiri & Kanan) */
+.modal-modern-body {
+    display: flex;
+    padding: 40px;
+    gap: 50px;
+    /* Jarak antar kolom */
+}
+
+/* Kiri: Sidebar Profil */
+.profile-sidebar {
+    width: 250px;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    border-right: 1px solid #f3f4f6;
+    padding-right: 30px;
+}
+
+.profile-avatar-large {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    background: #d4d4d8;
+    /* Placeholder color */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 48px;
+    font-weight: 600;
+    color: #52525b;
+    margin-bottom: 20px;
+    border: 4px solid white;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+.profile-name-large {
+    font-size: 22px;
+    font-weight: 800;
+    color: #111;
+    margin-bottom: 5px;
+}
+
+.profile-role-large {
+    font-size: 14px;
+    color: #6b7280;
+    margin-bottom: 30px;
+}
+
+.btn-reminder-yellow {
+    background-color: #fef3c7;
+    color: #d97706;
+    border: 1px solid #fcd34d;
+    padding: 12px 20px;
+    border-radius: 10px;
+    font-weight: 700;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-reminder-yellow:hover {
+    background-color: #fde68a;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+/* Kanan: Info Grid & Dokumen */
+.info-section {
+    flex: 1;
+}
+
+.info-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 25px 40px;
+    margin-bottom: 40px;
+}
+
+.info-item label {
+    display: block;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    color: #9ca3af;
+    margin-bottom: 6px;
+}
+
+.info-item span {
+    display: block;
+    font-size: 15px;
+    font-weight: 600;
+    color: #1f2937;
+}
+
+/* Dokumen Section */
+.doc-section-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: #111;
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.doc-success-box {
+    background-color: #ecfdf5;
+    border: 1px solid #a7f3d0;
+    border-radius: 10px;
+    padding: 15px 20px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    color: #059669;
+    font-weight: 600;
+}
+
+.doc-warning-box {
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.doc-warning-header {
+    background-color: #fef2f2;
+    padding: 12px 20px;
+    border-bottom: 1px solid #fee2e2;
+    color: #b91c1c;
+    font-weight: 700;
+    font-size: 13px;
+    display: flex;
+    justify-content: space-between;
+}
+
+.doc-list-item {
+    padding: 12px 20px;
+    border-bottom: 1px solid #f1f5f9;
+    font-size: 14px;
+    color: #4b5563;
+    display: flex;
+    gap: 15px;
+}
+
+.doc-list-item:last-child {
+    border-bottom: none;
+}
+
+.doc-number {
+    font-weight: 700;
+    color: #94a3b8;
+    width: 20px;
+}
+
+/* SWEETALERT2 OVERRIDE */
+.swal2-container {
+    z-index: 9999 !important;
+}
+/* Utility to remove border from doc-section */
+.doc-section.borderless {
+    border: none;
+    box-shadow: none;
+}
+
+/* =========================================
+
+/* =========================================
+   EMPTY STATE UI (AWWWARDS CLASS)
+   ========================================= */
+.empty-state-container {
+    padding: 80px 20px;
+    text-align: center;
+    background-color: white; /* Match table logic */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.empty-state-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    max-width: 500px;
+    margin: 0 auto;
+    animation: emptyFadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.empty-state-icon {
+    width: 120px;
+    height: 120px;
+    background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 28px;
+    box-shadow:
+        0 15px 35px rgba(59, 130, 246, 0.15),
+        inset 0 0 0 4px white;
+    position: relative;
+}
+
+.empty-state-icon::after {
+    content: "";
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    border: 2px dashed #93c5fd;
+    animation: emptySpinSlow 15s linear infinite;
+    top: -6px;
+    left: -6px;
+    box-sizing: content-box;
+    padding: 4px;
+}
+
+.empty-state-icon i {
+    font-size: 56px;
+    color: #3b82f6;
+    animation: emptyPulse 2s ease-in-out infinite alternate;
+}
+
+.empty-state-title {
+    font-size: 24px;
+    font-weight: 800;
+    color: #1e3a8a;
+    margin-bottom: 12px;
+    letter-spacing: -0.5px;
+}
+
+.empty-state-desc {
+    font-size: 15px;
+    color: #64748b;
+    line-height: 1.7;
+    margin-bottom: 32px;
+}
+
+.empty-state-desc strong {
+    color: #0f172a;
+    background: #f1f5f9;
+    padding: 4px 8px;
+    border-radius: 6px;
+    display: inline-block;
+    margin: 4px 0;
+    font-weight: 600;
+    border: 1px solid #e2e8f0;
+}
+
+.btn-reset-search {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 14px 28px;
+    background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+    color: white;
+    font-weight: 600;
+    font-size: 15px;
+    border-radius: 50px;
+    text-decoration: none;
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    box-shadow: 0 8px 20px rgba(59, 130, 246, 0.3);
+}
+
+.btn-reset-search:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 25px rgba(59, 130, 246, 0.4);
+    background: linear-gradient(135deg, #1e40af 0%, #2563eb 100%);
+    color: white; /* Maintain color on hover */
+}
+
+.btn-reset-search:active {
+    transform: translateY(0);
+}
+
+.btn-reset-search i {
+    font-size: 20px;
+    transition: transform 0.3s ease;
+}
+
+.btn-reset-search:hover i {
+    transform: rotate(-45deg);
+}
+
+@keyframes emptyFadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes emptySpinSlow {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes emptyPulse {
+    0% {
+        transform: scale(1);
+    }
+    100% {
+        transform: scale(1.05);
+    }
+}
+
+/* =========================================
+   SHARED UI COMPONENTS (Cross-page)
+   ========================================= */
+
+/* --- Select Filter Dropdown --- */
+select.select-filter {
+    appearance: none;
+    -webkit-appearance: none;
+    padding: 10px 40px 10px 16px;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    font-family: "Poppins", sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    background-color: white;
+    color: #374151;
+    outline: none;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%236b7280'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    background-size: 16px;
+}
+
+select.select-filter option {
+    color: #9ca3af; /* Gray text by default like the placeholder */
+    background-color: white;
+}
+
+select.select-filter option:checked,
+select.select-filter option:hover {
+    color: #111827; /* Black/Dark text when selected or hovered */
+}
+
+select.select-filter:hover {
+    border-color: #3b82f6;
+    box-shadow: 0 4px 6px rgba(59, 130, 246, 0.1);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%233b82f6'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+}
+
+select.select-filter:focus {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+    /* Flipped arrow (points up) */
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%233b82f6'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M5 15l7-7 7 7'%3E%3C/path%3E%3C/svg%3E");
+}
+
+select.select-filter:active {
+    transform: scale(0.97);
+}
+
+
+/* --- Button: Tambah --- */
+.btn-tambah {
+    background-color: #354777;
+    color: white;
+    border: none;
+    padding: 8px 24px;
+    border-radius: 6px;
+    font-family: "Poppins", sans-serif;
+    font-weight: 500;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.btn-tambah:hover {
+    background-color: #1e40af;
+}
+
+/* --- Page Title (Shared) --- */
+.page-title {
+    font-size: 32px;
+    font-weight: 700;
+    color: #1e3a8a;
+}
+
+
+/* --- Header Actions (Shared) --- */
+.header-actions {
+    display: flex;
+    gap: 12px;
+}
+
+/* =========================================
+   SKELETON LOADING SYSTEM (Global)
+   ========================================= */
+
+/* Shimmer Animation */
+@keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+}
+
+/* Base skeleton box */
+.skeleton-box {
+    background: #f0f2f5;
+    background-image: linear-gradient(90deg, #f0f2f5 0%, #e6e8eb 50%, #f0f2f5 100%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite linear;
+    border-radius: 6px;
+}
+
+/* Toggle layers */
+.skeleton-layer {
+    transition: opacity 0.3s ease;
+}
+.skeleton-layer.hidden {
+    opacity: 0;
+    position: absolute;
+    pointer-events: none;
+    height: 0;
+    overflow: hidden;
+}
+.real-content {
+    transition: opacity 0.3s ease;
+}
+.real-content.hidden {
+    opacity: 0;
+    position: absolute;
+    pointer-events: none;
+    height: 0;
+    overflow: hidden;
+}
+
+/* Skeleton: Summary Card */
+.skeleton-summary-cards {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 24px;
+    margin-bottom: 30px;
+}
+.skeleton-summary-card {
+    background: white;
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+.skeleton-summary-card .skel-label {
+    height: 14px;
+    width: 60%;
+    margin-bottom: 16px;
+}
+.skeleton-summary-card .skel-value {
+    height: 36px;
+    width: 40%;
+    margin-bottom: 12px;
+}
+.skeleton-summary-card .skel-tag {
+    height: 24px;
+    width: 50%;
+    border-radius: 20px;
+}
+
+/* Skeleton: Table Row */
+.skeleton-table-row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 16px 20px;
+    border-bottom: 1px solid #f1f5f9;
+}
+.skeleton-table-row .skel-cell {
+    height: 16px;
+    flex: 1;
+}
+.skeleton-table-row .skel-cell-sm {
+    height: 16px;
+    width: 80px;
+    flex-shrink: 0;
+}
+.skeleton-table-row .skel-cell-badge {
+    height: 28px;
+    width: 90px;
+    border-radius: 20px;
+    flex-shrink: 0;
+}
+.skeleton-table-row .skel-cell-actions {
+    display: flex;
+    gap: 8px;
+    flex-shrink: 0;
+}
+.skeleton-table-row .skel-btn {
+    height: 36px;
+    width: 36px;
+    border-radius: 8px;
+}
+
+/* Skeleton: Accordion Section */
+.skeleton-accordion {
+    background: white;
+    border-radius: 12px;
+    padding: 20px 24px;
+    margin-bottom: 16px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+.skeleton-accordion .skel-badge {
+    height: 40px;
+    width: 40px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+.skeleton-accordion .skel-title {
+    height: 18px;
+    flex: 1;
+}
+.skeleton-accordion .skel-arrow {
+    height: 20px;
+    width: 20px;
+    border-radius: 4px;
+    flex-shrink: 0;
+}
+
+/* Skeleton: Config Card */
+.skeleton-config-card {
+    background: white;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 12px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+}
+.skeleton-config-card .skel-line {
+    height: 14px;
+    margin-bottom: 10px;
+}
+.skeleton-config-card .skel-line:last-child {
+    margin-bottom: 0;
+}
+
+/* Wrapper for positioning */
+.skeleton-wrapper {
+    position: relative;
+}

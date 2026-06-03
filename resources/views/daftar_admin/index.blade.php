@@ -2,9 +2,7 @@
 
 @section('title', 'Daftar Admin')
 
-@section('page_css')
-    <link rel="stylesheet" href="{{ asset('css/pages/daftar-admin.css') }}">
-@endsection
+
 
 @section('head')
     <!-- TomSelect CSS (Dropdown Pencarian) -->

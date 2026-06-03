@@ -5,9 +5,7 @@
 
 @section('title', 'Data Pegawai')
 
-@section('page_css')
-    <link rel="stylesheet" href="{{ asset('css/pages/data-pegawai.css') }}">
-@endsection
+
 
 @section('head')
     <!-- TomSelect CSS (Dropdown Pencarian) -->
@@ -445,8 +443,7 @@
                 </button>
             </div>
 
-            <!-- SKELETON LOADING -->
-            <link rel="stylesheet" href="{{ asset('css/partials/skeleton.css') }}">
+
             
             <div id="detailSkeleton" class="modal-modern-body" style="display: none;">
                 <!-- Left Skeleton -->

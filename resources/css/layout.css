@@ -1,0 +1,634 @@
+/* =========================================
+ /* ===== SIDEBAR ===== */
+.sidebar {
+    width: 240px;
+    background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%);
+    color: white;
+    padding: 24px 16px;
+    /* Padding samping dikurangi */
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    left: 0;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+}
+
+.sidebar-header {
+    margin-bottom: 40px;
+    text-align: center;
+    /* Tambahkan ini untuk center */
+    display: flex;
+    justify-content: center;
+    /* Center horizontal */
+    align-items: center;
+    /* Center vertical */
+}
+
+.logo {
+    font-size: 20px;
+    font-weight: 700;
+    -webkit-user-drag: none;
+    user-select: none;
+}
+
+.logo-highlight {
+    color: #fbbf24;
+}
+
+.sidebar-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    /* Gap dikurangi */
+    flex: 1;
+}
+
+.nav-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 12px;
+    /* Padding dikurangi */
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    color: white;
+    cursor: pointer;
+    font-size: 14px;
+    white-space: nowrap;
+    /* DITAMBAHKAN: Mencegah teks wrap */
+    -webkit-user-drag: none;
+    user-select: none;
+}
+
+.sidebar a,
+.sidebar img,
+.sidebar i,
+.sidebar span {
+    -webkit-user-drag: none;
+    user-select: none;
+}
+
+.nav-item:hover {
+    background-color: rgba(255, 255, 255, 0.15);
+    transform: translateX(6px);
+}
+
+.nav-item.active {
+    background-color: rgba(59, 130, 246, 0.3);
+    border-left: 3px solid #fbbf24;
+    padding-left: 9px;
+    /* Disesuaikan */
+}
+
+.nav-icon {
+    font-size: 24px;
+    /* width & height dihapus karena ini font */
+    flex-shrink: 0;
+    /* DITAMBAHKAN: Mencegah ikon menyusut */
+}
+
+.nav-text {
+    font-weight: 500;
+    white-space: nowrap;
+    /* DITAMBAHKAN: Mencegah teks wrap */
+    overflow: hidden;
+    text-overflow: ellipsis;
+    /* DITAMBAHKAN: Menambahkan ... jika teks terlalu panjang */
+}
+
+.sidebar-footer {
+    margin-top: auto;
+    padding-top: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.sync-btn {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px 16px;
+    background-color: white;
+    color: #1e3a8a;
+    border: none;
+    border-radius: 30px;
+    /* Radius 30px sesuai permintaan */
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 14px;
+    font-family: "Poppins", sans-serif;
+    transition: all 0.3s ease;
+}
+
+.sync-btn:hover {
+    background-color: #f3f4f6;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.sync-btn:hover .sync-img {
+    transform: rotate(180deg);
+}
+
+.sync-img {
+    font-size: 24px;
+    transition: transform 0.5s ease;
+}
+
+.sync-icon {
+    font-size: 14px;
+    /* Disesuaikan sedikit agar pas */
+}
+
+/* =========================================
+   MAIN CONTENT & HEADER LAYOUT
+   ========================================= */
+
+/* 1. Container Utama: Menempel langsung dengan Sidebar */
+.main-content {
+    margin-left: 240px;
+    /* Geser area ini ke kanan sejauh lebar sidebar */
+    width: calc(100% - 240px);
+    /* Lebar sisanya */
+    padding: 0;
+    /* PENTING: Harus 0 agar Header menyentuh tepi kiri margin */
+    background-color: #f3f4f6;
+    height: 100vh; /* Fixed height for app shell feel */
+    overflow: hidden; /* Prevent body scroll, use content-area scroll instead */
+    display: flex;
+    flex-direction: column;
+    position: relative;
+}
+
+.top-navbar {
+    width: 100%;
+    background-color: white;
+    padding: 20px 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #e5e7eb;
+
+    /* Sticky Removed -> Handled by Flex Layout */
+    /* position: sticky; */
+    /* top: 0; */
+    z-index: 500;
+    margin: 0;
+    /* Hapus margin tak terduga */
+}
+
+/* 3. Area Konten Bawah (Dashboard Cards & Task List) */
+.content-area {
+    padding: 30px 40px;
+    /* Jarak (Padding) dipindahkan ke sini */
+    flex: 1;
+    /* Mengisi sisa ruang ke bawah */
+    overflow-y: auto;
+    /* Agar bisa discroll jika konten panjang */
+}
+
+.welcome-title {
+    color: #1e3a8a;
+    font-size: 20px;
+    font-weight: 700;
+}
+
+.welcome-subtitle {
+    font-size: 13px;
+    color: #6b7280;
+    margin-top: 2px;
+}
+
+.user-actions {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+/* Notif Button */
+.btn-icon-header {
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    width: 45px;
+    height: 45px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    position: relative;
+    transition: all 0.2s;
+}
+
+.btn-icon-header:hover {
+    background: #f9fafb;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+}
+
+.btn-icon-header.active {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+    z-index: 10;
+}
+
+.btn-icon-header .badge,
+.notif-badge {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background-color: #fbbf24;
+    color: #1e3a8a;
+    font-size: 10px;
+    font-weight: 700;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid white;
+}
+
+/* Notif Dropdown */
+.notif-wrapper {
+    position: relative;
+}
+
+.notif-dropdown {
+    display: none;
+    position: absolute;
+    right: 0;
+    top: 58px;
+    width: 400px;
+    background: #ffffff;
+    border-radius: 16px;
+    box-shadow: 0 24px 48px -8px rgba(20,43,111,0.18), 0 0 0 1px rgba(20,43,111,0.06);
+    border: none;
+    z-index: 600;
+    overflow: hidden;
+    animation: notifSlideIn 0.25s cubic-bezier(0.16,1,0.3,1);
+}
+
+@keyframes notifSlideIn {
+    from { opacity: 0; transform: translateY(-8px) scale(0.98); }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.notif-dropdown.active {
+    display: block;
+}
+
+/* Header */
+.notif-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 20px;
+    background: linear-gradient(135deg, #142B6F 0%, #1e3a8a 100%);
+}
+
+.notif-header-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: #ffffff !important;
+    letter-spacing: 0.2px;
+}
+
+.notif-mark-read {
+    background: rgba(255,255,255,0.12) !important;
+    border: 1px solid rgba(255,255,255,0.2) !important;
+    color: #ffffff !important;
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    padding: 4px 10px;
+    border-radius: 20px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.notif-mark-read:hover {
+    background: rgba(255,255,255,0.25) !important;
+    border-color: rgba(255,255,255,0.4) !important;
+    transform: translateY(-2px) scale(1.02);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+
+.notif-mark-read:active {
+    transform: translateY(0) scale(0.95);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+/* Scrollable list */
+.notif-list {
+    max-height: 420px;
+    overflow-y: auto;
+    padding: 8px 0;
+    scrollbar-width: thin;
+    scrollbar-color: #e2e8f0 transparent;
+}
+.notif-list::-webkit-scrollbar { width: 4px; }
+.notif-list::-webkit-scrollbar-track { background: transparent; }
+.notif-list::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 4px; }
+
+/* ===== Notification Item ===== */
+.notif-item {
+    display: flex;
+    gap: 12px;
+    padding: 12px 16px;
+    cursor: pointer;
+    transition: background 0.15s;
+    border-bottom: 1px solid #f1f5f9;
+    align-items: flex-start;
+}
+
+.notif-item:last-child { border-bottom: none; }
+
+.notif-item:hover {
+    background-color: #f8fafc;
+}
+
+.notif-item.unread {
+    background-color: #f0f4ff;
+}
+
+.notif-item.unread:hover {
+    background-color: #e8eeff;
+}
+
+/* Icon Avatar */
+.notif-icon-wrap {
+    position: relative;
+    flex-shrink: 0;
+    width: 40px;
+    height: 40px;
+}
+
+.notif-icon-letter {
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #142B6F, #1e3a8a);
+    color: #FFC928;
+    font-size: 16px;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    letter-spacing: 0;
+}
+
+.notif-item.unread .notif-icon-letter {
+    background: linear-gradient(135deg, #142B6F, #2563eb);
+}
+
+.notif-unread-dot {
+    position: absolute;
+    top: -3px;
+    right: -3px;
+    width: 10px;
+    height: 10px;
+    background: #FFC928;
+    border: 2px solid #fff;
+    border-radius: 50%;
+}
+
+/* Content */
+.notif-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.notif-title-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 5px;
+}
+
+.notif-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: #0f172a;
+    margin: 0;
+    line-height: 1.3;
+}
+
+/* Message lines (intro/outro text) */
+.notif-msg-line {
+    font-size: 12px;
+    color: #475569;
+    line-height: 1.5;
+    margin: 0 0 5px;
+}
+
+/* Bullet list inside notif */
+.notif-bullet-list {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 6px 8px;
+    margin: 4px 0 6px;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.notif-bullet-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11.5px;
+}
+
+.notif-bullet-label {
+    flex: 1;
+    font-weight: 600;
+    color: #1e293b;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.notif-bullet-badge {
+    background: #142B6F;
+    color: #ffffff;
+    font-size: 10px;
+    font-weight: 800;
+    padding: 1px 8px;
+    border-radius: 20px;
+    flex-shrink: 0;
+}
+
+.notif-bullet-unit {
+    font-size: 10.5px;
+    color: #64748b;
+    flex-shrink: 0;
+}
+
+/* Time chip */
+.notif-time-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 10.5px;
+    color: #94a3b8;
+    margin-top: 6px;
+    font-weight: 500;
+}
+
+.notif-time-chip i {
+    font-size: 11px;
+}
+
+/* Empty state */
+.notif-empty {
+    padding: 40px 20px;
+    text-align: center;
+}
+
+.notif-empty-icon {
+    width: 56px;
+    height: 56px;
+    background: #f1f5f9;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 12px;
+    font-size: 28px;
+    color: #94a3b8;
+}
+
+.notif-empty-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: #1e293b;
+    margin: 0 0 4px;
+}
+
+.notif-empty-sub {
+    font-size: 12px;
+    color: #94a3b8;
+    margin: 0;
+}
+
+/* Profile Dropdown Area */
+.profile-wrapper {
+    position: relative;
+}
+
+.profile-btn {
+    display: flex;
+    align-items: center;
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 50px;
+    /* Pill Shape */
+    padding: 6px 16px 6px 6px;
+    cursor: pointer;
+    gap: 10px;
+    transition: all 0.2s;
+}
+
+.profile-btn:hover {
+    border-color: #d1d5db;
+    background: #f9fafb;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+}
+
+.profile-btn.active {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+}
+
+.profile-btn i.ph-caret-down {
+    transition: transform 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.profile-btn.active i.ph-caret-down {
+    transform: rotate(180deg);
+    color: #3b82f6 !important;
+}
+
+.avatar-circle {
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    overflow: hidden;
+    background: #e5e7eb;
+}
+
+.avatar-circle img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    -webkit-user-drag: none;
+}
+
+.profile-info {
+    text-align: left;
+    line-height: 1.2;
+}
+
+.profile-name {
+    display: block;
+    font-size: 14px;
+    font-weight: 600;
+    color: #111;
+}
+
+.profile-role {
+    display: block;
+    font-size: 11px;
+    font-weight: 600;
+    color: #6b7280;
+}
+
+/* Dropdown Menu */
+.dropdown-menu {
+    display: none;
+    position: absolute;
+    right: 0;
+    top: 55px;
+    background-color: white;
+    min-width: 200px;
+    box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    z-index: 100;
+    overflow: hidden;
+    border: 1px solid #e5e7eb;
+}
+
+.dropdown-item {
+    padding: 12px 16px;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: #374151;
+    font-size: 14px;
+    transition: background 0.2s;
+    background-color: transparent;
+}
+
+.dropdown-item:hover {
+    background-color: #f3f4f6;
+}
+
+.dropdown-item.text-red {
+    color: #dc2626;
+}
+
+.dropdown-item.text-red:hover {
+    background-color: #f3f4f6;
+}
+

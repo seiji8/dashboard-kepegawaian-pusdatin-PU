@@ -2,9 +2,7 @@
 
 @section('title', 'Dashboard')
 
-@section('page_css')
-    <link rel="stylesheet" href="{{ asset('css/pages/dashboard.css') }}?v={{ time() }}">
-@endsection
+
 
 @section('head')
     <!-- Tom Select -->
@@ -773,8 +771,7 @@
                 </button>
             </div>
 
-            <!-- SKELETON LOADING -->
-            <link rel="stylesheet" href="{{ asset('css/partials/skeleton.css') }}">
+
             
             <div id="detailSkeleton" class="modal-modern-body" style="display: none;">
                 <!-- Left Skeleton -->

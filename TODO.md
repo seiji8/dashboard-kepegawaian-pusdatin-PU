@@ -8,53 +8,31 @@
 
 ## 🔴 KRITIS — Wajib Sebelum Deploy Production
 
-### 1. Aktifkan Pengiriman Email Reset Password
-- **File:** `app/Http/Controllers/AuthController.php` (line 121-126)
-- **Status:** Email reset password masih di-comment (`Mail::send`). Fitur "Lupa Password" saat ini tidak mengirim email apapun.
-- **Yang harus dilakukan:**
-  - Konfigurasi SMTP di `.env` (MAIL_HOST, MAIL_PORT, MAIL_USERNAME, MAIL_PASSWORD)
+### 1. [x] Aktifkan Pengiriman Email Reset Password
+- **File:** `app/Http/Controllers/AuthController.php` (line 122-125)
+- **Status:** **SELESAI** — Blok `Mail::send(...)` sudah di-uncomment dan template email premium `emails.password_reset` sudah terverifikasi aktif.
+- **Yang sudah dilakukan:**
   - Uncomment blok `Mail::send(...)` di method `sendResetLinkEmail()`
   - Buat/verifikasi template email `emails.password_reset`
-  - Test kirim email ke alamat sungguhan
+  - *Catatan:* Konfigurasi SMTP di `.env` (MAIL_HOST, MAIL_PORT, dst.) tetap wajib dikonfigurasi ke server email sungguhan di environment target.
 
 ### 2. Set `APP_DEBUG=false` di Production
-- **File:** `.env` di server production
-- **Status:** Saat ini `APP_DEBUG=true` (benar untuk development, BAHAYA untuk production)
-- **Yang harus dilakukan:**
+- **File:** `.env` di server production (Reminder saja, tidak diubah di local dev)
+- **Status:** Saat ini `APP_DEBUG=true` di local dev (benar untuk development, BAHAYA untuk production)
+- **Yang harus dilakukan saat deploy:**
   ```env
   APP_ENV=production
   APP_DEBUG=false
   ```
 - **Risiko jika lupa:** Setiap error akan menampilkan stack trace lengkap ke browser (termasuk path file, DB credentials, environment variables)
 
-### 3. Ganti `env()` dengan `config()` di Controller & Command
-- **File yang terdampak:**
-  - `app/Http/Controllers/DatabaseBackupController.php` (line 22)
-    ```php
-    // Ganti:
-    $databaseName = env('DB_DATABASE');
-    // Menjadi:
-    $databaseName = config('database.connections.mysql.database');
-    ```
-  - `app/Console/Commands/SyncEhrmData.php` (line 23-26)
-    ```php
-    // Ganti semua env() menjadi config():
-    $baseUrl  = config('ehrm.base_url');
-    $apiKey   = config('ehrm.api_key');
-    $email    = config('ehrm.email');
-    $password = config('ehrm.password');
-    ```
-- **File baru yang perlu dibuat:** `config/ehrm.php`
-  ```php
-  <?php
-  return [
-      'base_url' => env('EHRM_BASE_URL'),
-      'api_key'  => env('EHRM_API_KEY'),
-      'email'    => env('EHRM_USER_EMAIL'),
-      'password' => env('EHRM_USER_PASS'),
-  ];
-  ```
-- **Risiko jika lupa:** Semua `env()` di luar folder `config/` akan return `null` setelah menjalankan `php artisan config:cache` di production. Akibatnya fitur Backup DB dan Sync API **mati total**.
+### 3. [x] Ganti `env()` dengan `config()` di Controller & Command
+- **Status:** **SELESAI** — Parameter eksternal sudah dipindahkan ke `config/ehrm.php` dan semua controller/command telah diubah menggunakan `config()`.
+- **Yang sudah dilakukan:**
+  - Mengubah `DatabaseBackupController.php` ke `config('database.connections.mysql.database')`.
+  - Mengubah `SyncEhrmData.php` untuk mengambil base_url, api_key, dll dari config.
+  - Membuat berkas `config/ehrm.php` baru.
+  - *Manfaat:* Menghindari malfungsi database backup dan API sinkronisasi setelah menjalankan command `php artisan config:cache` di production.
 
 ---
 

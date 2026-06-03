@@ -9,11 +9,8 @@
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-    <!-- Modular CSS -->
-    <link rel="stylesheet" href="{{ asset('css/core.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/layout.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/components.css') }}">
-    @yield('page_css')
+    <!-- Modular CSS via Vite -->
+    @vite(['resources/css/app.css'])
 
     <!-- Phosphor Icons -->
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
@@ -31,7 +28,7 @@
     @yield('head')
 </head>
 <body>
-    <div class="container">
+    <div class="app-container">
         @include('partials.sidebar')
 
         <main class="main-content">

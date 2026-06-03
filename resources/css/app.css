@@ -1,5 +1,15 @@
 @import 'tailwindcss';
 
+@import './core.css';
+@import './layout.css';
+@import './components.css';
+@import './partials/skeleton.css';
+@import './pages/daftar-admin.css';
+@import './pages/dashboard.css';
+@import './pages/data-pegawai.css';
+@import './pages/konfigurasi.css';
+@import './pages/log-aktivitas.css';
+
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
 @source '../../storage/framework/views/*.php';
 @source '../**/*.blade.php';

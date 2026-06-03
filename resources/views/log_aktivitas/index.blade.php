@@ -2,9 +2,7 @@
 
 @section('title', 'Log Aktivitas')
 
-@section('page_css')
-    <link rel="stylesheet" href="{{ asset('css/pages/log-aktivitas.css') }}">
-@endsection
+
 
 @section('content')
         <div class="content-header">

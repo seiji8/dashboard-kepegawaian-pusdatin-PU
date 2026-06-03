@@ -2,9 +2,7 @@
 
 @section('title', 'Konfigurasi Pesan')
 
-@section('page_css')
-    <link rel="stylesheet" href="{{ asset('css/pages/konfigurasi.css') }}">
-@endsection
+
 
 @section('content')
         <div class="content-header">
