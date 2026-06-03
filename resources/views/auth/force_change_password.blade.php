@@ -5,13 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Ubah Password Wajib - Dashboard Kepegawaian</title>
 
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
   <script src="https://unpkg.com/@phosphor-icons/web"></script>
 
   <style>
       body {
-          font-family: 'Outfit', sans-serif;
+          font-family: 'Inter', sans-serif;
           background: linear-gradient(135deg, #ffffff 0%, #f1f5f9 50%, #e0e7ff 100%);
           min-height: 100vh;
           display: flex;
@@ -94,7 +94,7 @@
           font-size: 14px; color: #1e293b;
           transition: all 0.2s ease;
           background-color: #f8fafc;
-          font-family: 'Outfit', sans-serif;
+          font-family: 'Inter', sans-serif;
       }
       .form-input:focus {
           outline: none;
@@ -109,7 +109,7 @@
           width: 100%; padding: 13px;
           border-radius: 10px;
           font-weight: 600; font-size: 15px;
-          font-family: 'Outfit', sans-serif;
+          font-family: 'Inter', sans-serif;
           transition: all 0.2s ease;
           display: flex; justify-content: center; align-items: center; gap: 8px;
           box-shadow: 0 4px 6px -1px rgba(20,43,111,0.2);

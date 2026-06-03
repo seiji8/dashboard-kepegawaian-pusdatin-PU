@@ -21,7 +21,7 @@
             <!-- Catatan -->
             <div style="margin-bottom:16px;">
                 <label style="display:block; font-size:13px; font-weight:600; color:#374151; margin-bottom:6px;">Catatan / Keterangan <span style="color:#9ca3af; font-weight:400;">(opsional)</span></label>
-                <textarea id="konfirmasiCatatan" rows="3" placeholder="Contoh: Sudah diinput ke E-HRM pada 30 April 2026 oleh Admin..." style="width:100%; border:1.5px solid #d1d5db; border-radius:8px; padding:10px 12px; font-size:13px; font-family:'Poppins',sans-serif; resize:vertical; outline:none; box-sizing:border-box; transition:border 0.2s;" onfocus="this.style.borderColor='#1e3a8a'" onblur="this.style.borderColor='#d1d5db'"></textarea>
+                <textarea id="konfirmasiCatatan" rows="3" placeholder="Contoh: Sudah diinput ke E-HRM pada 30 April 2026 oleh Admin..." style="width:100%; border:1.5px solid #d1d5db; border-radius:8px; padding:10px 12px; font-size:13px; font-family:'Inter',sans-serif; resize:vertical; outline:none; box-sizing:border-box; transition:border 0.2s;" onfocus="this.style.borderColor='#1e3a8a'" onblur="this.style.borderColor='#d1d5db'"></textarea>
             </div>
             <!-- Daftar Pegawai -->
             <div style="font-size:13px; font-weight:600; color:#374151; margin-bottom:10px;">

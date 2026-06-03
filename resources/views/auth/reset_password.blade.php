@@ -5,8 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Reset Password - Dashboard Kepegawaian</title>
   
-  <!-- Google Fonts: Outfit -->
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <!-- Google Fonts: Inter -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   
   <!-- Tailwind CSS (Standard classes only to avoid CDN JIT issues) -->
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
@@ -16,7 +16,7 @@
   
   <style>
       body { 
-          font-family: 'Outfit', sans-serif; 
+          font-family: 'Inter', sans-serif; 
           /* Awwwards style subtle gradient background (White to very light blue/yellow hint) */
           background: linear-gradient(135deg, #ffffff 0%, #f1f5f9 50%, #e0e7ff 100%);
           min-height: 100vh;

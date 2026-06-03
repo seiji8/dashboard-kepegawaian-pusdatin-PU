@@ -1,4 +1,4 @@
-﻿/* =========================================
+/* =========================================
    PREMIUM TABLE UI
    ========================================= */
 .custom-table,
@@ -246,7 +246,7 @@
     cursor: pointer;
     font-weight: 600;
     font-size: 12px;
-    font-family: "Poppins", sans-serif;
+    font-family: "Inter", sans-serif;
     transition: all 0.2s ease;
     white-space: nowrap;
     letter-spacing: 0.2px;
@@ -339,7 +339,7 @@
     cursor: pointer;
     font-weight: 600;
     font-size: 14px;
-    font-family: "Poppins", sans-serif;
+    font-family: "Inter", sans-serif;
     transition: all 0.2s;
 }
 
@@ -356,7 +356,7 @@
     cursor: pointer;
     font-weight: 600;
     font-size: 14px;
-    font-family: "Poppins", sans-serif;
+    font-family: "Inter", sans-serif;
     transition: all 0.2s;
 }
 
@@ -716,7 +716,7 @@
     padding: 8px 24px;
     border-radius: 8px;
     border: none;
-    font-family: "Poppins";
+    font-family: "Inter", sans-serif;
     font-weight: 600;
     cursor: pointer;
 }
@@ -769,7 +769,7 @@
     font-weight: 600;
     font-size: 14px;
     cursor: pointer;
-    font-family: "Poppins", sans-serif;
+    font-family: "Inter", sans-serif;
     border: 1px solid #d1d5db;
     background-color: white;
     transition: all 0.2s;
@@ -820,7 +820,7 @@
     padding: 10px;
     border: 1px solid #d1d5db;
     border-radius: 8px;
-    font-family: "Poppins", sans-serif;
+    font-family: "Inter", sans-serif;
     font-size: 14px;
     color: #374151;
     outline: none;
@@ -876,7 +876,7 @@
     border-radius: 8px !important;
     font-size: 14.5px !important;
     color: #1e293b !important;
-    font-family: "Poppins", sans-serif !important;
+    font-family: "Inter", sans-serif !important;
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05) !important;
     transition: all 0.2s ease !important;
     min-height: 48px;
@@ -888,7 +888,7 @@
 }
 
 .reminder-modal-box .ts-dropdown {
-    font-family: "Poppins", sans-serif !important;
+    font-family: "Inter", sans-serif !important;
     font-size: 14px !important;
     border-radius: 8px !important;
     border: 1px solid #e2e8f0 !important;
@@ -1024,7 +1024,7 @@
     padding: 10px;
     border-radius: 8px;
     border: 1px solid #ccc;
-    font-family: "Poppins";
+    font-family: "Inter", sans-serif;
     outline: none;
 }
 
@@ -1043,7 +1043,7 @@
     border-radius: 8px;
     cursor: pointer;
     font-weight: 600;
-    font-family: "Poppins";
+    font-family: "Inter", sans-serif;
 }
 
 .btn-modal-save {
@@ -1055,7 +1055,7 @@
     border-radius: 8px;
     cursor: pointer;
     font-weight: 600;
-    font-family: "Poppins";
+    font-family: "Inter", sans-serif;
 }
 
 /* =========================================
@@ -1123,7 +1123,7 @@
     border-radius: 50px;
     font-weight: 600;
     cursor: pointer;
-    font-family: "Poppins";
+    font-family: "Inter", sans-serif;
     font-size: 12px;
     background-color: white;
     border: 1px solid #d1d5db;
@@ -1605,7 +1605,7 @@ select.select-filter {
     padding: 10px 40px 10px 16px;
     border: 1px solid #d1d5db;
     border-radius: 8px;
-    font-family: "Poppins", sans-serif;
+    font-family: "Inter", sans-serif;
     font-size: 14px;
     font-weight: 500;
     background-color: white;
@@ -1655,7 +1655,7 @@ select.select-filter:active {
     border: none;
     padding: 8px 24px;
     border-radius: 6px;
-    font-family: "Poppins", sans-serif;
+    font-family: "Inter", sans-serif;
     font-weight: 500;
     font-size: 14px;
     cursor: pointer;

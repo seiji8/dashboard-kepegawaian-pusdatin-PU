@@ -3,7 +3,7 @@
 <style>
     /* Kustomisasi Mewah Driver.js (Panduan Tour) */
     .driver-popover {
-        font-family: 'Poppins', sans-serif !important;
+        font-family: 'Inter', sans-serif !important;
         border-radius: 14px !important;
         padding: 24px !important;
         box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(0, 0, 0, 0.05) !important;
@@ -33,7 +33,7 @@
         font-weight: 600 !important;
     }
     .driver-popover-next-btn, .driver-popover-prev-btn {
-        font-family: 'Poppins', sans-serif !important;
+        font-family: 'Inter', sans-serif !important;
         font-weight: 600 !important;
         border-radius: 8px !important;
         padding: 8px 18px !important;

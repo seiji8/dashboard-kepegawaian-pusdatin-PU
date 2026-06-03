@@ -15,7 +15,7 @@
             border-radius: 8px !important;
             font-size: 14.5px !important;
             color: #1e293b !important;
-            font-family: 'Poppins', sans-serif !important;
+            font-family: 'Inter', sans-serif !important;
             box-shadow: 0 1px 2px rgba(0,0,0,0.05) !important;
             transition: all 0.2s ease !important;
         }
@@ -24,7 +24,7 @@
             box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1) !important;
         }
         .ts-dropdown {
-            font-family: 'Poppins', sans-serif !important;
+            font-family: 'Inter', sans-serif !important;
             font-size: 14px !important;
             border-radius: 8px !important;
             border: 1px solid #e2e8f0 !important;
@@ -452,7 +452,7 @@
             font-weight: 600;
             cursor: pointer;
             transition: all 0.2s ease;
-            font-family: 'Poppins', sans-serif;
+            font-family: 'Inter', sans-serif;
         }
         .dm-admin-btn-cancel:hover {
             background: #f1f5f9;
@@ -472,7 +472,7 @@
             cursor: pointer;
             transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
             box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
-            font-family: 'Poppins', sans-serif;
+            font-family: 'Inter', sans-serif;
             display: flex;
             align-items: center;
             justify-content: center;
