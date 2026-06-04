@@ -15,8 +15,8 @@ class TubelService implements TrackerInterface
     public function process(Pegawai $pegawai, Carbon $today, array &$daftarUsulanBaru, array $context = []): void
     {
         // Skip dummy/test data as they don't need Tubel calculation
-        if (str_contains(strtolower($pegawai->id_pegawai_api), 'dummy') || 
-            str_contains(strtolower($pegawai->nip), 'dummy')) {
+        if (str_contains(strtolower($pegawai->id_pegawai_api ?? ''), 'dummy') || 
+            str_contains(strtolower($pegawai->nip ?? ''), 'dummy')) {
             return;
         }
 
@@ -25,8 +25,12 @@ class TubelService implements TrackerInterface
         // Cari tubel yang masih aktif: tanggal_mulai ada dan belum selesai
         $tubelAktif = $riwayatTubel->first(function ($t) use ($today) {
             if (!$t->tanggal_mulai) return false;
-            if ($today->lt(Carbon::parse($t->tanggal_mulai))) return false;
             
+            /** @var Carbon $tanggalMulai */
+            $tanggalMulai = $t->tanggal_mulai;
+            if ($today->lt($tanggalMulai)) return false;
+            
+            /** @var Carbon|null $selesai */
             $selesai = $t->perpanjangan2_tanggal_mulai
                 ?? $t->perpanjangan1_tanggal_mulai
                 ?? $t->tanggal_selesai;
@@ -36,6 +40,7 @@ class TubelService implements TrackerInterface
         });
 
         if ($tubelAktif) {
+            /** @var Carbon|null $selesaiEfektif */
             $selesaiEfektif = $tubelAktif->perpanjangan2_tanggal_mulai
                 ?? $tubelAktif->perpanjangan1_tanggal_mulai
                 ?? $tubelAktif->tanggal_selesai;

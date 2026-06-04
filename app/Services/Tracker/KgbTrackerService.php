@@ -16,8 +16,8 @@ class KgbTrackerService implements TrackerInterface
     public function process(Pegawai $pegawai, Carbon $today, array &$daftarUsulanBaru, array $context = []): void
     {
         // Skip dummy/test data as they are manually seeded and don't need KGB calculation
-        if (str_contains(strtolower($pegawai->id_pegawai_api), 'dummy') || 
-            str_contains(strtolower($pegawai->nip), 'dummy')) {
+        if (str_contains(strtolower($pegawai->id_pegawai_api ?? ''), 'dummy') || 
+            str_contains(strtolower($pegawai->nip ?? ''), 'dummy')) {
             return;
         }
 

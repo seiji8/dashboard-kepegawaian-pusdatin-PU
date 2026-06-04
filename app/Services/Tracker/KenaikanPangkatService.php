@@ -22,11 +22,11 @@ class KenaikanPangkatService implements TrackerInterface
         $this->processReguler($pegawai, $today, $daftarUsulanBaru);
     }
 
-    private function processJafung(Pegawai $pegawai, Carbon $today, array &$daftarUsulanBaru, $matriksKamus): void
+    private function processJafung(Pegawai $pegawai, Carbon $today, array &$daftarUsulanBaru, \Illuminate\Support\Collection $matriksKamus): void
     {
         // Skip dummy/test data as they are manually seeded and don't have real Angka Kredit history
-        if (str_contains(strtolower($pegawai->id_pegawai_api), 'dummy') || 
-            str_contains(strtolower($pegawai->nip), 'dummy')) {
+        if (str_contains(strtolower($pegawai->id_pegawai_api ?? ''), 'dummy') || 
+            str_contains(strtolower($pegawai->nip ?? ''), 'dummy')) {
             return;
         }
 
@@ -60,18 +60,7 @@ class KenaikanPangkatService implements TrackerInterface
                 $tujuanProses = $matriks->next_pangkat ?? 'Pangkat Berikutnya';
 
                 $latestAK = $pegawai->riwayatAngkaKredit->first();
-                $currentAK = 0;
-
-                if ($latestAK && $pegawai->tmt_pangkat_terakhir) {
-                    $tmtAK = Carbon::parse($latestAK->tmt_angka_kredit);
-                    $tmtPangkat = Carbon::parse($pegawai->tmt_pangkat_terakhir);
-                    
-                    if ($tmtAK->greaterThan($tmtPangkat)) {
-                        $currentAK = $latestAK->total_kredit;
-                    }
-                } elseif ($latestAK && empty($pegawai->tmt_pangkat_terakhir)) {
-                    $currentAK = $latestAK->total_kredit;
-                }
+                $currentAK = $this->calculateCurrentAK($pegawai, $latestAK);
 
                 if ($targetAK > 0) {
                     $kekuranganAK = $targetAK - $currentAK;
@@ -102,41 +91,14 @@ class KenaikanPangkatService implements TrackerInterface
                         $keteranganAK = 'Peringatan: Data Riwayat AK tidak ditemukan di e-HRM atau bernilai 0. Segera upload/update SK PAK Anda.';
                     } else {
                         if ($kekuranganAK <= 0) {
-                            $annualSkps = \App\Models\RiwayatSkp::where('nip', $pegawai->nip)
-                                ->where('status', 'LIKE', '%Tahunan%')
-                                ->orderBy('tahun', 'desc')
-                                ->limit(2)
-                                ->get();
-                            
-                            $skpMemenuhi = true;
-                            $badSkpYear = null;
-                            $alasanSkp = "";
+                            $skpResult = $this->checkSkpCompliance($pegawai);
 
-                            if ($annualSkps->count() < 2) {
-                                $skpMemenuhi = false;
-                                $alasanSkp = "Data SKP Tahunan 2 tahun terakhir tidak lengkap di E-HRM";
-                            } else {
-                                foreach ($annualSkps as $skp) {
-                                    $nilai = strtoupper(trim($skp->nilai_skp));
-                                    if (!in_array($nilai, ['BAIK', 'SANGAT BAIK'])) {
-                                        $skpMemenuhi = false;
-                                        if (is_null($badSkpYear) || $skp->tahun > $badSkpYear) {
-                                            $badSkpYear = $skp->tahun;
-                                        }
-                                    }
-                                }
-                                if (!$skpMemenuhi) {
-                                    $targetYear = $badSkpYear + 2;
-                                    $alasanSkp = "Nilai SKP Tahunan ({$badSkpYear}) bukan BAIK/SANGAT BAIK. Harus menunggu 2 tahun (Target Usulan: Tahun {$targetYear})";
-                                }
-                            }
-
-                            if ($skpMemenuhi) {
+                            if ($skpResult['meet']) {
                                 $statusAK = 'Usulan';
                                 $keteranganAK = "AK & SKP memenuhi target. Segera usulkan {$namaProses} ke {$tujuanProses}";
                             } else {
                                 $statusAK = 'Aman';
-                                $keteranganAK = "AK memenuhi target, namun " . $alasanSkp;
+                                $keteranganAK = "AK memenuhi target, namun " . $skpResult['reason'];
                             }
                         } elseif ($kekuranganAK <= $akTriwulanBaik) {
                             $statusAK = 'Mendekati';
@@ -151,31 +113,7 @@ class KenaikanPangkatService implements TrackerInterface
                     }
 
                     if ($statusAK === 'Mendekati') {
-                        DashboardTracker::where('pegawai_id', $pegawai->id_pegawai_api)
-                            ->whereIn('kategori', [$kategoriSekarang, $kategoriLawan])
-                            ->where('status_saat_ini', 'Mendekati')
-                            ->delete();
-
-                        $notifCacheKey = 'mendekati_notif_' . $pegawai->id_pegawai_api . '_' . $kategoriSekarang;
-                        if (!Cache::has($notifCacheKey)) {
-                            $notifiable = User::where('email', $pegawai->email)->first();
-                            if (!$notifiable && $pegawai->email) {
-                                $notifiable = Notification::route('mail', $pegawai->email);
-                            }
-                            if ($notifiable) {
-                                $subjekMendekati = "🔔 Informasi Angka Kredit: Mendekati Target {$namaProses}";
-                                $pesanMendekati = "Yth. {$pegawai->nama} (NIP: {$pegawai->nip}),\n\n"
-                                    . "Angka Kredit (AK) Anda saat ini telah mendekati target untuk {$namaProses}.\n"
-                                    . "{$keteranganAK}\n\n"
-                                    . "Harap terus tingkatkan kinerja Anda agar target AK dapat segera tercapai.\n\n"
-                                    . "Terima kasih.";
-                                try {
-                                    $notifiable->notify(new SystemAlertNotification($pegawai, $subjekMendekati, $pesanMendekati));
-                                    Cache::put($notifCacheKey, true, now()->addDays(30));
-                                    ActivityLogger::logSystem("Mengirim notifikasi 'Mendekati' AK ke pegawai {$pegawai->nama} ({$kategoriSekarang})", $pegawai->nip);
-                                } catch (\Exception $e) {}
-                            }
-                        }
+                        $this->sendMendekatiNotification($pegawai, $kategoriSekarang, $keteranganAK);
                         return;
                     }
 
@@ -189,53 +127,160 @@ class KenaikanPangkatService implements TrackerInterface
                     }
 
                     if (!$skipTrackerUpdate) {
-                        if (in_array($statusAK, ['Usulan', 'Proses'])) {
-                            $dokumenTerupload = 0;
-                            if (!empty($pegawai->arsip_skp_2_tahun) && count($pegawai->arsip_skp_2_tahun) >= 2) {
-                                $dokumenTerupload++;
-                            }
-                            if (!empty($pegawai->sk_pangkat_terakhir)) {
-                                $dokumenTerupload++;
-                            } elseif ($existingAK) {
-                                $uploadedNames = $existingAK->kelengkapan_dokumen->where('is_uploaded', true)->pluck('nama_dokumen')->toArray();
-                                if (in_array("SK Pangkat Terakhir", $uploadedNames)) $dokumenTerupload++;
-                            }
-
-                            $tracker = DashboardTracker::updateOrCreate(
-                                [
-                                    'pegawai_id' => $pegawai->id_pegawai_api,
-                                    'kategori'   => $kategoriSekarang,
-                                ],
-                                [
-                                    'status_saat_ini'   => $statusAK,
-                                    'keterangan'        => $keteranganAK,
-                                    'dokumen_total'     => $dokumenTotal,
-                                    'dokumen_terupload' => $dokumenTerupload,
-                                    'tanggal_target'    => $targetDate,
-                                ]
-                            );
-
-                            if ($statusAK == 'Usulan' && !$tracker->notified_at) {
-                                $daftarUsulanBaru[] = [
-                                    'nama' => $pegawai->nama,
-                                    'nip' => $pegawai->nip,
-                                    'kategori' => $kategoriSekarang
-                                ];
-                                $tracker->update(['notified_at' => now()]);
-                            }
-
-                            DashboardTracker::where('pegawai_id', $pegawai->id_pegawai_api)
-                                ->where('kategori', $kategoriLawan)
-                                ->delete();
-                        } else {
-                            DashboardTracker::where('pegawai_id', $pegawai->id_pegawai_api)
-                                ->whereIn('kategori', ['KP_Jafung', 'KJ_Jafung', 'UKOM'])
-                                ->delete();
-                        }
+                        $this->updateTracker(
+                            $pegawai,
+                            $statusAK,
+                            $keteranganAK,
+                            $kategoriSekarang,
+                            $dokumenTotal,
+                            $targetDate,
+                            $daftarUsulanBaru,
+                            $existingAK,
+                            $kategoriLawan
+                        );
                     }
                 }
             }
         }
+    }
+
+    private function calculateCurrentAK(Pegawai $pegawai, ?\App\Models\RiwayatAngkaKredit $latestAK): float
+    {
+        $currentAK = 0;
+
+        if ($latestAK && $pegawai->tmt_pangkat_terakhir) {
+            $tmtAK = Carbon::parse($latestAK->tmt_angka_kredit);
+            $tmtPangkat = Carbon::parse($pegawai->tmt_pangkat_terakhir);
+            
+            if ($tmtAK->greaterThan($tmtPangkat)) {
+                $currentAK = $latestAK->total_kredit;
+            }
+        } elseif ($latestAK && empty($pegawai->tmt_pangkat_terakhir)) {
+            $currentAK = $latestAK->total_kredit;
+        }
+
+        return (float) $currentAK;
+    }
+
+    private function checkSkpCompliance(Pegawai $pegawai): array
+    {
+        $annualSkps = \App\Models\RiwayatSkp::where('nip', $pegawai->nip)
+            ->where('status', 'LIKE', '%Tahunan%')
+            ->orderBy('tahun', 'desc')
+            ->limit(2)
+            ->get();
+        
+        $skpMemenuhi = true;
+        $badSkpYear = null;
+        $alasanSkp = "";
+
+        if ($annualSkps->count() < 2) {
+            $skpMemenuhi = false;
+            $alasanSkp = "Data SKP Tahunan 2 tahun terakhir tidak lengkap di E-HRM";
+        } else {
+            foreach ($annualSkps as $skp) {
+                $nilai = strtoupper(trim($skp->nilai_skp));
+                if (!in_array($nilai, ['BAIK', 'SANGAT BAIK'])) {
+                    $skpMemenuhi = false;
+                    if (is_null($badSkpYear) || $skp->tahun > $badSkpYear) {
+                        $badSkpYear = $skp->tahun;
+                    }
+                }
+            }
+            if (!$skpMemenuhi) {
+                $targetYear = $badSkpYear + 2;
+                $alasanSkp = "Nilai SKP Tahunan ({$badSkpYear}) bukan BAIK/SANGAT BAIK. Harus menunggu 2 tahun (Target Usulan: Tahun {$targetYear})";
+            }
+        }
+
+        return [
+            'meet' => $skpMemenuhi,
+            'reason' => $alasanSkp
+        ];
+    }
+
+    private function sendMendekatiNotification(Pegawai $pegawai, string $kategoriSekarang, string $keteranganAK): void
+    {
+        $kategoriLawan = 'KJ_Jafung';
+        $namaProses = 'Kenaikan Pangkat';
+
+        DashboardTracker::where('pegawai_id', $pegawai->id_pegawai_api)
+            ->whereIn('kategori', [$kategoriSekarang, $kategoriLawan])
+            ->where('status_saat_ini', 'Mendekati')
+            ->delete();
+
+        $notifCacheKey = 'mendekati_notif_' . $pegawai->id_pegawai_api . '_' . $kategoriSekarang;
+        if (!Cache::has($notifCacheKey)) {
+            $notifiable = User::where('email', $pegawai->email)->first();
+            if (!$notifiable && $pegawai->email) {
+                $notifiable = Notification::route('mail', $pegawai->email);
+            }
+            if ($notifiable) {
+                $subjekMendekati = "🔔 Informasi Angka Kredit: Mendekati Target {$namaProses}";
+                $pesanMendekati = "Yth. {$pegawai->nama} (NIP: {$pegawai->nip}),\n\n"
+                    . "Angka Kredit (AK) Anda saat ini telah mendekati target untuk {$namaProses}.\n"
+                    . "{$keteranganAK}\n\n"
+                    . "Harap terus tingkatkan kinerja Anda agar target AK dapat segera tercapai.\n\n"
+                    . "Terima kasih.";
+                try {
+                    $notifiable->notify(new SystemAlertNotification($pegawai, $subjekMendekati, $pesanMendekati));
+                    Cache::put($notifCacheKey, true, now()->addDays(30));
+                    ActivityLogger::logSystem("Mengirim notifikasi 'Mendekati' AK ke pegawai {$pegawai->nama} ({$kategoriSekarang})", $pegawai->nip);
+                } catch (\Exception $e) {}
+            }
+        }
+    }
+
+    private function updateTracker(
+        Pegawai $pegawai,
+        string $statusAK,
+        string $keteranganAK,
+        string $kategoriSekarang,
+        int $dokumenTotal,
+        ?string $targetDate,
+        array &$daftarUsulanBaru,
+        ?DashboardTracker $existingAK,
+        string $kategoriLawan
+    ): void {
+        $dokumenTerupload = 0;
+        if (!empty($pegawai->arsip_skp_2_tahun) && count($pegawai->arsip_skp_2_tahun) >= 2) {
+            $dokumenTerupload++;
+        }
+        if (!empty($pegawai->sk_pangkat_terakhir)) {
+            $dokumenTerupload++;
+        } elseif ($existingAK) {
+            $uploadedNames = $existingAK->kelengkapan_dokumen->where('is_uploaded', true)->pluck('nama_dokumen')->toArray();
+            if (in_array("SK Pangkat Terakhir", $uploadedNames)) {
+                $dokumenTerupload++;
+            }
+        }
+
+        $tracker = DashboardTracker::updateOrCreate(
+            [
+                'pegawai_id' => $pegawai->id_pegawai_api,
+                'kategori'   => $kategoriSekarang,
+            ],
+            [
+                'status_saat_ini'   => $statusAK,
+                'keterangan'        => $keteranganAK,
+                'dokumen_total'     => $dokumenTotal,
+                'dokumen_terupload' => $dokumenTerupload,
+                'tanggal_target'    => $targetDate,
+            ]
+        );
+
+        if ($statusAK == 'Usulan' && !$tracker->notified_at) {
+            $daftarUsulanBaru[] = [
+                'nama' => $pegawai->nama,
+                'nip' => $pegawai->nip,
+                'kategori' => $kategoriSekarang
+            ];
+            $tracker->update(['notified_at' => now()]);
+        }
+
+        DashboardTracker::where('pegawai_id', $pegawai->id_pegawai_api)
+            ->where('kategori', $kategoriLawan)
+            ->delete();
     }
 
     private function processStruktural(Pegawai $pegawai, Carbon $today, array &$daftarUsulanBaru): void
@@ -410,8 +455,8 @@ class KenaikanPangkatService implements TrackerInterface
     private function processReguler(Pegawai $pegawai, Carbon $today, array &$daftarUsulanBaru): void
     {
         // Skip dummy/test data as they don't need reguler calculations
-        if (str_contains(strtolower($pegawai->id_pegawai_api), 'dummy') || 
-            str_contains(strtolower($pegawai->nip), 'dummy')) {
+        if (str_contains(strtolower($pegawai->id_pegawai_api ?? ''), 'dummy') || 
+            str_contains(strtolower($pegawai->nip ?? ''), 'dummy')) {
             return;
         }
 
@@ -424,11 +469,17 @@ class KenaikanPangkatService implements TrackerInterface
             $riwayatTubel = \App\Models\RiwayatTubel::where('nip', $pegawai->nip)->get();
             $tubelAktif = $riwayatTubel->first(function ($t) use ($today) {
                 if (!$t->tanggal_mulai) return false;
-                if ($today->lt(Carbon::parse($t->tanggal_mulai))) return false;
+                
+                /** @var Carbon $tanggalMulai */
+                $tanggalMulai = $t->tanggal_mulai;
+                if ($today->lt($tanggalMulai)) return false;
+                
+                /** @var Carbon|null $selesai */
                 $selesai = $t->perpanjangan2_tanggal_mulai
                     ?? $t->perpanjangan1_tanggal_mulai
                     ?? $t->tanggal_selesai;
-                if ($selesai && $today->gt(Carbon::parse($selesai))) return false;
+                    
+                if ($selesai && $today->gt($selesai)) return false;
                 return true;
             });
             if ($tubelAktif) {

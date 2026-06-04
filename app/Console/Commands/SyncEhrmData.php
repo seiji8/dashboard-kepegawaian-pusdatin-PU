@@ -48,6 +48,39 @@ class SyncEhrmData extends Command
         // ============================================================
         // TAHAP 1: SINKRONISASI DATA UTAMA PEGAWAI
         // ============================================================
+        $this->syncTahap1DataUtamaPegawai($baseUrl, $apiKey, $token);
+
+        // ============================================================
+        // TAHAP 2: RIWAYAT JABATAN
+        // ============================================================
+        $this->syncTahap2RiwayatJabatan($baseUrl, $apiKey, $token);
+
+        // ============================================================
+        // TAHAP 3: RIWAYAT ANGKA KREDIT
+        // ============================================================
+        $this->syncTahap3RiwayatAngkaKredit($baseUrl, $apiKey, $token);
+
+        // ============================================================
+        // TAHAP 4: RIWAYAT DIKLAT
+        // ============================================================
+        $this->syncTahap4RiwayatDiklat($baseUrl, $apiKey, $token);
+
+        // ============================================================
+        // TAHAP 5: SINKRONISASI DATA TAMBAHAN (API BARU)
+        // ============================================================
+        $newToken = config('ehrm.new_token');
+        $newBaseUrl = 'https://ehrm.pu.go.id/api/modules-api';
+        $this->syncTahap5DataTambahan($newBaseUrl, $newToken);
+
+        $this->info('🎉 Sinkronisasi LENGKAP Selesai!');
+        ActivityLogger::logApiSync('Sinkronisasi data pegawai dari API e-HRM selesai');
+    }
+
+    /**
+     * TAHAP 1: SINKRONISASI DATA UTAMA PEGAWAI
+     */
+    private function syncTahap1DataUtamaPegawai(string $baseUrl, string $apiKey, string $token): void
+    {
         $this->info('⬇️  [1/4] Mengunduh data utama pegawai...');
         $pegawaiResponse = Http::timeout(60)->withHeaders([
             'X-DreamFactory-Api-Key' => $apiKey,
@@ -141,11 +174,13 @@ class SyncEhrmData extends Command
         $this->updateProgressCache(25, 1, 'done', 'Data Utama Pegawai Selesai');
         $bar->finish();
         $this->newLine();
+    }
 
-
-        // ============================================================
-        // TAHAP 2: RIWAYAT JABATAN
-        // ============================================================
+    /**
+     * TAHAP 2: RIWAYAT JABATAN
+     */
+    private function syncTahap2RiwayatJabatan(string $baseUrl, string $apiKey, string $token): void
+    {
         $this->info('⬇️  [2/4] Mengunduh Riwayat Jabatan...');
         $riwResponse = Http::timeout(60)->withHeaders([
             'X-DreamFactory-Api-Key' => $apiKey,
@@ -320,11 +355,13 @@ class SyncEhrmData extends Command
             $this->error('❌ Gagal ambil Riwayat Jabatan.');
         }
         $this->newLine();
+    }
 
-
-        // ============================================================
-        // TAHAP 3: RIWAYAT ANGKA KREDIT
-        // ============================================================
+    /**
+     * TAHAP 3: RIWAYAT ANGKA KREDIT
+     */
+    private function syncTahap3RiwayatAngkaKredit(string $baseUrl, string $apiKey, string $token): void
+    {
         $this->info('⬇️  [3/4] Mengunduh Riwayat Angka Kredit...');
         
         // Hanya ambil pegawai yang sudah punya numeric_api_id (ID numerik dari API)
@@ -405,10 +442,13 @@ class SyncEhrmData extends Command
         $this->updateProgressCache(70, 3, 'done', 'Angka Kredit Selesai');
         $bar3->finish();
         $this->newLine();
+    }
 
-        // ============================================================
-        // TAHAP 4: RIWAYAT DIKLAT
-        // ============================================================
+    /**
+     * TAHAP 4: RIWAYAT DIKLAT
+     */
+    private function syncTahap4RiwayatDiklat(string $baseUrl, string $apiKey, string $token): void
+    {
         $this->info('⬇️  [4/4] Mengunduh Riwayat Diklat (Per NIP)...');
         
         $allPegawai = Pegawai::select('nip', 'nama')->get();
@@ -487,259 +527,258 @@ class SyncEhrmData extends Command
         $this->updateProgressCache(80, 4, 'done', 'Riwayat Diklat Selesai');
         $bar4->finish();
         $this->newLine();
+    }
 
-        // ============================================================
-        // TAHAP 5: SINKRONISASI DATA TAMBAHAN (API BARU)
-        // ============================================================
+    /**
+     * TAHAP 5: SINKRONISASI DATA TAMBAHAN (API BARU)
+     */
+    private function syncTahap5DataTambahan(string $newBaseUrl, ?string $newToken): void
+    {
         $this->info('⬇️  [5/5] Mengunduh Data Tambahan (KGB, SKP, Diklat, Jabatan, Tubel)...');
-        
-        $newToken = config('ehrm.new_token');
-        $newBaseUrl = 'https://ehrm.pu.go.id/api/modules-api';
 
         if (!$newToken) {
             $this->error('❌ EHRM_NEW_TOKEN tidak ditemukan di .env. Lewati tahap ini.');
-        } else {
-            // PENTING: sertakan 'id_pegawai_api' (PRIMARY KEY model Pegawai) agar $peg->update() tidak silently fail
-            $allPegawai = Pegawai::select('nip', 'nama', 'id_pegawai_api')->get();
-            $totalBaru = $allPegawai->count();
-            $bar5 = $this->output->createProgressBar($totalBaru);
-            $bar5->start();
+            return;
+        }
 
-            $this->updateProgressCache(80, 5, 'processing', 'Memulai sinkronisasi data tambahan...');
+        // PENTING: sertakan 'id_pegawai_api' (PRIMARY KEY model Pegawai) agar $peg->update() tidak silently fail
+        $allPegawai = Pegawai::select('nip', 'nama', 'id_pegawai_api')->get();
+        $totalBaru = $allPegawai->count();
+        $bar5 = $this->output->createProgressBar($totalBaru);
+        $bar5->start();
 
-            $currentBaru = 0;
-            $baruChunks = $allPegawai->chunk(3);
-            foreach ($baruChunks as $chunk) {
-                $responses = Http::pool(function (\Illuminate\Http\Client\Pool $pool) use ($chunk, $newBaseUrl, $newToken) {
-                    $reqs = [];
-                    foreach ($chunk as $peg) {
-                        $nip = $peg->nip;
-                        $headers = [
-                            'Authorization' => "Bearer {$newToken}",
-                            'Accept' => 'application/json'
-                        ];
-                        
-                        $reqs[] = $pool->as("kgb_".$nip)->timeout(20)->withHeaders($headers)->get("$newBaseUrl/gaji-pokok-latest", ['nip' => $nip]);
-                        $reqs[] = $pool->as("kp_".$nip)->timeout(20)->withHeaders($headers)->get("$newBaseUrl/skp-2tahun", ['nip' => $nip]);
-                        $reqs[] = $pool->as("diklat_".$nip)->timeout(20)->withHeaders($headers)->get("$newBaseUrl/all-diklat", ['nip' => $nip]);
-                        $reqs[] = $pool->as("jabatan_".$nip)->timeout(20)->withHeaders($headers)->get("$newBaseUrl/jabatan-latest", ['nip' => $nip]);
-                        $reqs[] = $pool->as("tubel_".$nip)->timeout(20)->withHeaders($headers)->get("$newBaseUrl/tubel-latest", ['nip' => $nip]);
-                    }
-                    return $reqs;
-                });
+        $this->updateProgressCache(80, 5, 'processing', 'Memulai sinkronisasi data tambahan...');
 
+        $currentBaru = 0;
+        $baruChunks = $allPegawai->chunk(3);
+        foreach ($baruChunks as $chunk) {
+            $responses = Http::pool(function (\Illuminate\Http\Client\Pool $pool) use ($chunk, $newBaseUrl, $newToken) {
+                $reqs = [];
                 foreach ($chunk as $peg) {
                     $nip = $peg->nip;
+                    $headers = [
+                        'Authorization' => "Bearer {$newToken}",
+                        'Accept' => 'application/json'
+                    ];
                     
-                    // 1. KGB — sumber kebenaran tmt_kgb_terakhir (API baru lebih akurat dari API lama)
-                    $kgbResp = $responses["kgb_".$nip] ?? null;
-                    if ($kgbResp instanceof \Illuminate\Http\Client\Response && $kgbResp->successful()) {
-                        $dataKgb = $kgbResp->json()['data'][$nip] ?? [];
-                        if (is_array($dataKgb) && !empty($dataKgb)) {
-                            // Sort by tanggal_berlaku desc agar [0] selalu KGB terbaru
-                            $latestKgb = collect($dataKgb)->sortByDesc(function ($item) {
-                                return \Carbon\Carbon::parse($item['tanggal_berlaku'])->timestamp;
-                            })->first();
-                            if ($latestKgb && !empty($latestKgb['tanggal_berlaku'])) {
-                                $peg->update([
-                                    'tmt_kgb_terakhir' => $this->parseDate($latestKgb['tanggal_berlaku'])
-                                ]);
-                            }
+                    $reqs[] = $pool->as("kgb_".$nip)->timeout(20)->withHeaders($headers)->get("$newBaseUrl/gaji-pokok-latest", ['nip' => $nip]);
+                    $reqs[] = $pool->as("kp_".$nip)->timeout(20)->withHeaders($headers)->get("$newBaseUrl/skp-2tahun", ['nip' => $nip]);
+                    $reqs[] = $pool->as("diklat_".$nip)->timeout(20)->withHeaders($headers)->get("$newBaseUrl/all-diklat", ['nip' => $nip]);
+                    $reqs[] = $pool->as("jabatan_".$nip)->timeout(20)->withHeaders($headers)->get("$newBaseUrl/jabatan-latest", ['nip' => $nip]);
+                    $reqs[] = $pool->as("tubel_".$nip)->timeout(20)->withHeaders($headers)->get("$newBaseUrl/tubel-latest", ['nip' => $nip]);
+                }
+                return $reqs;
+            });
+
+            foreach ($chunk as $peg) {
+                $nip = $peg->nip;
+                
+                // 1. KGB — sumber kebenaran tmt_kgb_terakhir (API baru lebih akurat dari API lama)
+                $kgbResp = $responses["kgb_".$nip] ?? null;
+                if ($kgbResp instanceof \Illuminate\Http\Client\Response && $kgbResp->successful()) {
+                    $dataKgb = $kgbResp->json()['data'][$nip] ?? [];
+                    if (is_array($dataKgb) && !empty($dataKgb)) {
+                        // Sort by tanggal_berlaku desc agar [0] selalu KGB terbaru
+                        $latestKgb = collect($dataKgb)->sortByDesc(function ($item) {
+                            return Carbon::parse($item['tanggal_berlaku'])->timestamp;
+                        })->first();
+                        if ($latestKgb && !empty($latestKgb['tanggal_berlaku'])) {
+                            $peg->update([
+                                'tmt_kgb_terakhir' => $this->parseDate($latestKgb['tanggal_berlaku'])
+                            ]);
                         }
                     }
+                }
 
-                    // 2. SKP (Kp)
-                    $kpResp = $responses["kp_".$nip] ?? null;
-                    if ($kpResp instanceof \Illuminate\Http\Client\Response && $kpResp->successful()) {
-                        $dataKp = $kpResp->json()['data'][$nip] ?? [];
-                        if (is_array($dataKp) && !empty($dataKp)) {
-                            \App\Models\RiwayatSkp::where('nip', $nip)->delete();
+                // 2. SKP (Kp)
+                $kpResp = $responses["kp_".$nip] ?? null;
+                if ($kpResp instanceof \Illuminate\Http\Client\Response && $kpResp->successful()) {
+                    $dataKp = $kpResp->json()['data'][$nip] ?? [];
+                    if (is_array($dataKp) && !empty($dataKp)) {
+                        \App\Models\RiwayatSkp::where('nip', $nip)->delete();
+                        
+                        $distinctArsip = [];
+
+                        $currentYear = intval(date('Y'));
+                        
+                        foreach ($dataKp as $kp) {
+                            $tahunSkp = isset($kp['tahun']) ? intval($kp['tahun']) : 0;
                             
-                            $distinctArsip = [];
-
-                            $currentYear = intval(date('Y'));
-                            
-                            foreach ($dataKp as $kp) {
-                                $tahunSkp = isset($kp['tahun']) ? intval($kp['tahun']) : 0;
-                                
-                                // Simpan data SKP (triwulan & tahunan) untuk 3 tahun terakhir saja
-                                if ($tahunSkp >= ($currentYear - 3)) {
-                                    \App\Models\RiwayatSkp::create([
-                                        'nip' => $nip,
-                                        'tahun' => $kp['tahun'] ?? null,
-                                        'status' => $kp['status'] ?? null,
-                                        'nilai_kinerja' => $kp['nilai_kinerja'] ?? null,
-                                        'nilai_skp' => $kp['nilai_skp'] ?? null,
-                                        'arsip_skp' => $kp['arsip_skp'] ?? null,
-                                    ]);
-                                    
-                                    if (!empty($kp['arsip_skp'])) {
-                                        $distinctArsip[] = $kp['arsip_skp'];
-                                    }
-                                }
-                            }
-                            
-                            // Ambil maksimal 2 arsip distinct
-                            if (!empty($distinctArsip)) {
-                                $distinctArsip = array_values(array_unique($distinctArsip));
-                                $distinctArsip = array_slice($distinctArsip, 0, 2);
-                                $peg->update(['arsip_skp_2_tahun' => $distinctArsip]);
-                            }
-
-                            // Tempatkan arsip SKP di modul KJ jika ada
-                            // Gunakan id_pegawai_api (bisa berisi numeric ID setelah Tahap 1)
-                            $kjTracker = \App\Models\DashboardTracker::where('pegawai_id', $peg->id_pegawai_api)->where('kategori', 'KJ_Jafung')->first();
-                            if ($kjTracker) {
-                                $latestSkp = collect($dataKp)->whereNotNull('arsip_skp')->sortByDesc('tahun')->first();
-                                if ($latestSkp) {
-                                    \App\Models\KelengkapanDokumen::updateOrCreate(
-                                        [
-                                            'dashboard_tracker_id' => $kjTracker->id,
-                                            'nama_dokumen' => 'SKP 2 Tahun Terakhir',
-                                            'nip' => $nip
-                                        ],
-                                        [
-                                            'is_uploaded' => true,
-                                            'link_file' => $latestSkp['arsip_skp']
-                                        ]
-                                    );
-                                }
-                            }
-
-                            // Tempatkan arsip SKP di modul KP_Jafung jika ada
-                            $kpJafungTracker = \App\Models\DashboardTracker::where('pegawai_id', $peg->id_pegawai_api)->where('kategori', 'KP_Jafung')->first();
-                            if ($kpJafungTracker) {
-                                $latestSkp = collect($dataKp)->whereNotNull('arsip_skp')->sortByDesc('tahun')->first();
-                                if ($latestSkp) {
-                                    \App\Models\KelengkapanDokumen::updateOrCreate(
-                                        [
-                                            'dashboard_tracker_id' => $kpJafungTracker->id,
-                                            'nama_dokumen' => 'SKP 2 Tahun Terakhir',
-                                            'nip' => $nip
-                                        ],
-                                        [
-                                            'is_uploaded' => true,
-                                            'link_file' => $latestSkp['arsip_skp']
-                                        ]
-                                    );
-                                }
-                            }
-                        }
-                    }
-
-                    // 3. Diklat Baru
-                    $diklatResp = $responses["diklat_".$nip] ?? null;
-                    if ($diklatResp instanceof \Illuminate\Http\Client\Response && $diklatResp->successful()) {
-                        $dataDiklat = $diklatResp->json()['data'][$nip] ?? [];
-                        if (is_array($dataDiklat) && !empty($dataDiklat)) {
-                            foreach ($dataDiklat as $d) {
-                                $arsipDoc = $d['arsip'] ?? $d['arsip_bpsdm'] ?? null;
-                                if ($arsipDoc) {
-                                    $existing = \App\Models\RiwayatDiklat::where('nip', $nip)
-                                        ->where(function($q) use ($arsipDoc) {
-                                            $q->where('file_sertifikat', $arsipDoc)
-                                              ->orWhere('arsip', $arsipDoc);
-                                        })->first();
-                                        
-                                    if (!$existing) {
-                                        \App\Models\RiwayatDiklat::create([
-                                            'nip' => $nip,
-                                            'jenis_diklat' => $d['jenis_diklat'] ?? null,
-                                            'file_sertifikat' => $d['arsip'] ?? null,
-                                            'arsip' => $d['arsip_bpsdm'] ?? $d['arsip'] ?? null,
-                                            'status_diklat' => 1,
-                                            'nama_diklat' => $d['jenis_diklat'] ?? 'DIKLAT TAMBAHAN',
-                                        ]);
-                                    }
-                                }
-                            }
-                        }
-                    }
-
-                    // 4. Jabatan
-                    $jabatanResp = $responses["jabatan_".$nip] ?? null;
-                    if ($jabatanResp instanceof \Illuminate\Http\Client\Response && $jabatanResp->successful()) {
-                        $dataJab = $jabatanResp->json()['data'][$nip] ?? [];
-                        if (is_array($dataJab) && !empty($dataJab)) {
-                            $j = $dataJab[0];
-                            \App\Models\RiwayatJabatan::updateOrCreate(
-                                [
+                            // Simpan data SKP (triwulan & tahunan) untuk 3 tahun terakhir saja
+                            if ($tahunSkp >= ($currentYear - 3)) {
+                                \App\Models\RiwayatSkp::create([
                                     'nip' => $nip,
-                                    'nosk' => $j['no_sk'] ?? '-',
-                                ],
-                                [
-                                    'tmt_jabatan' => $this->parseDate($j['tanggal_mulai'] ?? null),
-                                    'tgl_selesai' => $this->parseDate($j['tanggal_selesai'] ?? null),
-                                    'jabatan' => $j['jabatan_utama'] ?? $j['jabatan_nama'] ?? null,
-                                    'file_sk' => $j['arsip'] ?? null,
-                                ]
-                            );
+                                    'tahun' => $kp['tahun'] ?? null,
+                                    'status' => $kp['status'] ?? null,
+                                    'nilai_kinerja' => $kp['nilai_kinerja'] ?? null,
+                                    'nilai_skp' => $kp['nilai_skp'] ?? null,
+                                    'arsip_skp' => $kp['arsip_skp'] ?? null,
+                                ]);
+                                
+                                if (!empty($kp['arsip_skp'])) {
+                                    $distinctArsip[] = $kp['arsip_skp'];
+                                }
+                            }
+                        }
+                        
+                        // Ambil maksimal 2 arsip distinct
+                        if (!empty($distinctArsip)) {
+                            $distinctArsip = array_values(array_unique($distinctArsip));
+                            $distinctArsip = array_slice($distinctArsip, 0, 2);
+                            $peg->update(['arsip_skp_2_tahun' => $distinctArsip]);
+                        }
 
-                            // Tempatkan arsip jabatan di modul KJ
-                            // Gunakan id_pegawai_api (bisa berisi numeric ID setelah Tahap 1)
-                            $kjTracker = \App\Models\DashboardTracker::where('pegawai_id', $peg->id_pegawai_api)->where('kategori', 'KJ_Jafung')->first();
-                            if ($kjTracker && !empty($j['arsip'])) {
+                        // Tempatkan arsip SKP di modul KJ jika ada
+                        // Gunakan id_pegawai_api (bisa berisi numeric ID setelah Tahap 1)
+                        $kjTracker = \App\Models\DashboardTracker::where('pegawai_id', $peg->id_pegawai_api)->where('kategori', 'KJ_Jafung')->first();
+                        if ($kjTracker) {
+                            $latestSkp = collect($dataKp)->whereNotNull('arsip_skp')->sortByDesc('tahun')->first();
+                            if ($latestSkp) {
                                 \App\Models\KelengkapanDokumen::updateOrCreate(
                                     [
                                         'dashboard_tracker_id' => $kjTracker->id,
-                                        'nama_dokumen' => 'SK Jabatan Terakhir',
+                                        'nama_dokumen' => 'SKP 2 Tahun Terakhir',
                                         'nip' => $nip
                                     ],
                                     [
                                         'is_uploaded' => true,
-                                        'link_file' => $j['arsip']
+                                        'link_file' => $latestSkp['arsip_skp']
+                                    ]
+                                );
+                            }
+                        }
+
+                        // Tempatkan arsip SKP di modul KP_Jafung jika ada
+                        $kpJafungTracker = \App\Models\DashboardTracker::where('pegawai_id', $peg->id_pegawai_api)->where('kategori', 'KP_Jafung')->first();
+                        if ($kpJafungTracker) {
+                            $latestSkp = collect($dataKp)->whereNotNull('arsip_skp')->sortByDesc('tahun')->first();
+                            if ($latestSkp) {
+                                \App\Models\KelengkapanDokumen::updateOrCreate(
+                                    [
+                                        'dashboard_tracker_id' => $kpJafungTracker->id,
+                                        'nama_dokumen' => 'SKP 2 Tahun Terakhir',
+                                        'nip' => $nip
+                                    ],
+                                    [
+                                        'is_uploaded' => true,
+                                        'link_file' => $latestSkp['arsip_skp']
                                     ]
                                 );
                             }
                         }
                     }
+                }
 
-                    // 5. Tubel
-                    $tubelResp = $responses["tubel_".$nip] ?? null;
-                    if ($tubelResp instanceof \Illuminate\Http\Client\Response && $tubelResp->successful()) {
-                        $dataTubel = $tubelResp->json()['data'][$nip] ?? [];
-                        if (is_array($dataTubel) && !empty($dataTubel)) {
-                            \App\Models\RiwayatTubel::where('nip', $nip)->delete();
-                            foreach ($dataTubel as $t) {
-                                \App\Models\RiwayatTubel::create([
-                                    'nip' => $nip,
-                                    'keterangan' => $t['keterangan'] ?? null,
-                                    'pendidikan' => $t['pendidikan'] ?? null,
-                                    'tanggal_mulai' => $this->parseDate($t['tanggal_mulai'] ?? null),
-                                    'tanggal_selesai' => $this->parseDate($t['tanggal_selesai'] ?? null),
-                                    'perpanjangan1_tanggal_mulai' => $this->parseDate($t['perpanjangan1_tanggal_mulai'] ?? null),
-                                    'perpanjangan2_tanggal_mulai' => $this->parseDate($t['perpanjangan2_tanggal_mulai'] ?? null),
-                                    'no_izin' => $t['no_izin'] ?? null,
-                                    'arsip_izin_belajar' => $t['arsip_izin_belajar'] ?? null,
-                                    'arsip_perpanjangan1' => $t['arsip_perpanjangan1'] ?? null,
-                                    'arsip_perpanjangan2' => $t['arsip_perpanjangan2'] ?? null,
-                                    'arsip_pengembalian' => $t['arsip_pengembalian'] ?? null,
-                                    'status_tubel' => $t['status_tubel'] ?? null,
-                                ]);
+                // 3. Diklat Baru
+                $diklatResp = $responses["diklat_".$nip] ?? null;
+                if ($diklatResp instanceof \Illuminate\Http\Client\Response && $diklatResp->successful()) {
+                    $dataDiklat = $diklatResp->json()['data'][$nip] ?? [];
+                    if (is_array($dataDiklat) && !empty($dataDiklat)) {
+                        foreach ($dataDiklat as $d) {
+                            $arsipDoc = $d['arsip'] ?? $d['arsip_bpsdm'] ?? null;
+                            if ($arsipDoc) {
+                                $existing = \App\Models\RiwayatDiklat::where('nip', $nip)
+                                    ->where(function($q) use ($arsipDoc) {
+                                        $q->where('file_sertifikat', $arsipDoc)
+                                          ->orWhere('arsip', $arsipDoc);
+                                    })->first();
+                                    
+                                if (!$existing) {
+                                    \App\Models\RiwayatDiklat::create([
+                                        'nip' => $nip,
+                                        'jenis_diklat' => $d['jenis_diklat'] ?? null,
+                                        'file_sertifikat' => $d['arsip'] ?? null,
+                                        'arsip' => $d['arsip_bpsdm'] ?? $d['arsip'] ?? null,
+                                        'status_diklat' => 1,
+                                        'nama_diklat' => $d['jenis_diklat'] ?? 'DIKLAT TAMBAHAN',
+                                    ]);
+                                }
                             }
                         }
                     }
-                    
-                    $currentBaru++;
-                    // Tahap 5: progress 80% → 100%
-                    $stepProgress = 80 + intval(($currentBaru / max(1, $totalBaru)) * 20);
-                    if ($currentBaru % 5 === 0 || $currentBaru === $totalBaru) {
-                        $this->updateProgressCache($stepProgress, 5, 'processing', "Memproses data tambahan $currentBaru / $totalBaru pegawai...");
-                    }
-                    $bar5->advance();
                 }
-                // Beri jeda 1 detik tiap 3 chunk request
-                sleep(1);
+
+                // 4. Jabatan
+                $jabatanResp = $responses["jabatan_".$nip] ?? null;
+                if ($jabatanResp instanceof \Illuminate\Http\Client\Response && $jabatanResp->successful()) {
+                    $dataJab = $jabatanResp->json()['data'][$nip] ?? [];
+                    if (is_array($dataJab) && !empty($dataJab)) {
+                        $j = $dataJab[0];
+                        \App\Models\RiwayatJabatan::updateOrCreate(
+                            [
+                                'nip' => $nip,
+                                'nosk' => $j['no_sk'] ?? '-',
+                            ],
+                            [
+                                'tmt_jabatan' => $this->parseDate($j['tanggal_mulai'] ?? null),
+                                'tgl_selesai' => $this->parseDate($j['tanggal_selesai'] ?? null),
+                                'jabatan' => $j['jabatan_utama'] ?? $j['jabatan_nama'] ?? null,
+                                'file_sk' => $j['arsip'] ?? null,
+                            ]
+                        );
+
+                        // Tempatkan arsip jabatan di modul KJ
+                        // Gunakan id_pegawai_api (bisa berisi numeric ID setelah Tahap 1)
+                        $kjTracker = \App\Models\DashboardTracker::where('pegawai_id', $peg->id_pegawai_api)->where('kategori', 'KJ_Jafung')->first();
+                        if ($kjTracker && !empty($j['arsip'])) {
+                            \App\Models\KelengkapanDokumen::updateOrCreate(
+                                [
+                                    'dashboard_tracker_id' => $kjTracker->id,
+                                    'nama_dokumen' => 'SK Jabatan Terakhir',
+                                    'nip' => $nip
+                                ],
+                                [
+                                    'is_uploaded' => true,
+                                    'link_file' => $j['arsip']
+                                ]
+                            );
+                        }
+                    }
+                }
+
+                // 5. Tubel
+                $tubelResp = $responses["tubel_".$nip] ?? null;
+                if ($tubelResp instanceof \Illuminate\Http\Client\Response && $tubelResp->successful()) {
+                    $dataTubel = $tubelResp->json()['data'][$nip] ?? [];
+                    if (is_array($dataTubel) && !empty($dataTubel)) {
+                        \App\Models\RiwayatTubel::where('nip', $nip)->delete();
+                        foreach ($dataTubel as $t) {
+                            \App\Models\RiwayatTubel::create([
+                                'nip' => $nip,
+                                'keterangan' => $t['keterangan'] ?? null,
+                                'pendidikan' => $t['pendidikan'] ?? null,
+                                'tanggal_mulai' => $this->parseDate($t['tanggal_mulai'] ?? null),
+                                'tanggal_selesai' => $this->parseDate($t['tanggal_selesai'] ?? null),
+                                'perpanjangan1_tanggal_mulai' => $this->parseDate($t['perpanjangan1_tanggal_mulai'] ?? null),
+                                'perpanjangan2_tanggal_mulai' => $this->parseDate($t['perpanjangan2_tanggal_mulai'] ?? null),
+                                'no_izin' => $t['no_izin'] ?? null,
+                                'arsip_izin_belajar' => $t['arsip_izin_belajar'] ?? null,
+                                'arsip_perpanjangan1' => $t['arsip_perpanjangan1'] ?? null,
+                                'arsip_perpanjangan2' => $t['arsip_perpanjangan2'] ?? null,
+                                'arsip_pengembalian' => $t['arsip_pengembalian'] ?? null,
+                                'status_tubel' => $t['status_tubel'] ?? null,
+                            ]);
+                        }
+                    }
+                }
+                
+                $currentBaru++;
+                // Tahap 5: progress 80% → 100%
+                $stepProgress = 80 + intval(($currentBaru / max(1, $totalBaru)) * 20);
+                if ($currentBaru % 5 === 0 || $currentBaru === $totalBaru) {
+                    $this->updateProgressCache($stepProgress, 5, 'processing', "Memproses data tambahan $currentBaru / $totalBaru pegawai...");
+                }
+                $bar5->advance();
             }
-            $bar5->finish();
-            $this->updateProgressCache(100, 5, 'done', 'Data Tambahan Selesai');
-            $this->newLine();
+            // Beri jeda 1 detik tiap 3 chunk request
+            sleep(1);
         }
-        $this->info('🎉 Sinkronisasi LENGKAP Selesai!');
-        ActivityLogger::logApiSync('Sinkronisasi data pegawai dari API e-HRM selesai');
+        $bar5->finish();
+        $this->updateProgressCache(100, 5, 'done', 'Data Tambahan Selesai');
+        $this->newLine();
     }
 
-    private function parseDate($dateString)
+    private function parseDate(?string $dateString): ?string
     {
         // Guard: null, false, 0, atau string kosong/whitespace → return null
         if (!$dateString || trim((string) $dateString) === '') return null;
@@ -755,7 +794,7 @@ class SyncEhrmData extends Command
     /**
      * Memperbarui progress ke Cache untuk divisualisasikan real-time di frontend.
      */
-    private function updateProgressCache($progress, $step, $status, $detailText)
+    private function updateProgressCache(int $progress, int $step, string $status, string $detailText): void
     {
         $currentCache = Cache::get('sync_status', []);
         
