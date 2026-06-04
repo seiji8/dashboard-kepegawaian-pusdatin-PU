@@ -12,7 +12,7 @@ class LampiranController extends Controller
     /**
      * Ambil daftar lampiran milik 1 tracker, dikelompokkan per judul.
      */
-    public function index($tracker_id)
+    public function index(string $tracker_id)
     {
         $tracker = DashboardTracker::with('pegawai')->findOrFail($tracker_id);
 
@@ -112,7 +112,7 @@ class LampiranController extends Controller
     /**
      * Hapus lampiran (file fisik + record DB).
      */
-    public function destroy($id)
+    public function destroy(string $id)
     {
         $lampiran = KelengkapanDokumen::findOrFail($id);
 
@@ -131,7 +131,7 @@ class LampiranController extends Controller
     /**
      * Hapus semua lampiran untuk tracker tertentu.
      */
-    public function clearAll($tracker_id)
+    public function clearAll(string $tracker_id)
     {
         $lampirans = KelengkapanDokumen::where('dashboard_tracker_id', $tracker_id)
             ->whereNotNull('file_path')
@@ -221,7 +221,7 @@ class LampiranController extends Controller
     /**
      * Update judul lampiran (opsional).
      */
-    public function updateJudul(Request $request, $id)
+    public function updateJudul(Request $request, string $id)
     {
         $request->validate([
             'judul_lampiran' => 'nullable|string|max:255',

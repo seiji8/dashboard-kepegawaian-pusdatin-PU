@@ -27,7 +27,7 @@ class SuratPengajuanController extends Controller
      * Preview: Ambil data pegawai per kategori, grouped by periode (tanggal_target).
      * Dipanggil via AJAX untuk populate modal.
      */
-    public function preview($kategori)
+    public function preview(string $kategori)
     {
         // Validasi kategori
         $validKategori = array_keys($this->kategoriLabels);

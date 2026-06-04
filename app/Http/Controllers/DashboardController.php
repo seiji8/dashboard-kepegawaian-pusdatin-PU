@@ -145,7 +145,7 @@ class DashboardController extends Controller
     /**
      * Detail Diklat bermasalah per pegawai (AJAX)
      */
-    public function diklatDetail($nip, $kategori)
+    public function diklatDetail(string $nip, string $kategori)
     {
         $pegawai = Pegawai::where('nip', $nip)->firstOrFail();
         $today = \Carbon\Carbon::now();
@@ -184,7 +184,7 @@ class DashboardController extends Controller
 /**
  * Pindahkan Tracker ke Uji Kompetensi (UKOM)
  */
-public function moveToUkom(Request $request, $id)
+public function moveToUkom(Request $request, string $id)
 {
     $tracker = DashboardTracker::with('pegawai')->findOrFail($id);
 
@@ -219,7 +219,7 @@ public function moveToUkom(Request $request, $id)
 /**
  * Konfirmasi manual bahwa tugas KGB sudah diproses di dunia nyata.
  */
-public function confirmTracker(Request $request, $id)
+public function confirmTracker(Request $request, string $id)
 {
     $tracker = DashboardTracker::with('pegawai')->findOrFail($id);
 
@@ -228,7 +228,7 @@ public function confirmTracker(Request $request, $id)
 
     $tracker->update([
         'dikonfirmasi_at'   => now(),
-        'dikonfirmasi_oleh' => auth()->id(),
+        'dikonfirmasi_oleh' => Auth::id(),
         'status_saat_ini'   => $newStatus,
     ]);
 
@@ -254,7 +254,7 @@ public function confirmTracker(Request $request, $id)
 /**
  * Handle kelulusan UKOM
  */
-public function setKelulusanUkom(Request $request, $id)
+public function setKelulusanUkom(Request $request, string $id)
 {
     $tracker = DashboardTracker::with('pegawai')->findOrFail($id);
     $isLulus = $request->input('lulus');
@@ -359,7 +359,7 @@ public function syncProgress()
     return response()->json($status);
 }
 
-    public function cetakSuratKj(Request $request, $id)
+    public function cetakSuratKj(Request $request, string $id)
     {
         $tracker = DashboardTracker::with('pegawai')->findOrFail($id);
         $pegawai = $tracker->pegawai;
@@ -400,7 +400,7 @@ public function syncProgress()
     /**
      * Generate PDF Bundle KJ: Cover Nota Dinas + Semua Lampiran
      */
-    public function generateBundleKj(Request $request, $id)
+    public function generateBundleKj(Request $request, string $id)
     {
         $tracker = DashboardTracker::with(['pegawai', 'kelengkapan_dokumen'])->findOrFail($id);
         $pegawai = $tracker->pegawai;
@@ -441,7 +441,7 @@ public function syncProgress()
         if (!file_exists($tempDir)) mkdir($tempDir, 0755, true);
 
         // Generate cover surat (Nota Dinas) jadi PDF dulu
-        $coverPdf     = \Barryvdh\DomPDF\Facade\Pdf::loadView('surat.surat_usul_kj_pdf', ['data' => $data])->setPaper('A4', 'portrait');
+        $coverPdf     = Pdf::loadView('surat.surat_usul_kj_pdf', ['data' => $data])->setPaper('A4', 'portrait');
         $coverPath    = $tempDir . '/cover_kj_' . time() . '_' . uniqid() . '.pdf';
         file_put_contents($coverPath, $coverPdf->output());
 
