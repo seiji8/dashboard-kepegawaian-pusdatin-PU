@@ -15,10 +15,17 @@ class KenaikanJenjangService implements TrackerInterface
 {
     public function process(Pegawai $pegawai, Carbon $today, array &$daftarUsulanBaru, array $context = []): void
     {
+        // Skip dummy/test data as they are manually seeded and don't have real Angka Kredit history
+        if (str_contains(strtolower($pegawai->id_pegawai_api), 'dummy') || 
+            str_contains(strtolower($pegawai->nip), 'dummy')) {
+            return;
+        }
+
         $matriksKamus = $context['matriksKamus'] ?? collect();
         
         $tipeJabatan = strtolower(trim($pegawai->tipe_jabatan ?? ''));
-        $isFungsional = in_array($tipeJabatan, ['fungsional', 'jafung', 'jabatan fungsional']);
+        $isFungsional = in_array($tipeJabatan, ['fungsional', 'jafung', 'jabatan fungsional']) || 
+                        (!empty($pegawai->jenjang) && empty($tipeJabatan));
 
         if ($isFungsional && !empty($pegawai->pangkat_golongan) && !empty($pegawai->jabatan_saat_ini)) {
             $normalizedJenjang = ucwords(strtolower(trim($pegawai->jenjang)));

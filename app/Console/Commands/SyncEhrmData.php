@@ -124,6 +124,20 @@ class SyncEhrmData extends Command
             }
             $bar->advance();
         }
+
+        // Hapus pegawai (dan relasinya via Cascade Delete) yang sudah tidak ada di API e-HRM (misal pindah tugas dari Pusdatin)
+        // KECUALI pegawai dummy/seeder yang digunakan untuk testing (id_pegawai_api mengandung kata 'dummy')
+        $apiNips = collect($dataPegawai)->pluck('nip')->filter()->all();
+        if (count($apiNips) > 0) {
+            $deletedCount = Pegawai::whereNotIn('nip', $apiNips)
+                ->where('id_pegawai_api', 'NOT LIKE', '%dummy%')
+                ->delete();
+            if ($deletedCount > 0) {
+                $this->info("🗑️ Berhasil menghapus {$deletedCount} pegawai yang sudah tidak terdaftar di e-HRM Pusdatin.");
+                ActivityLogger::logApiSync("Menghapus {$deletedCount} pegawai dari database lokal karena tidak terdaftar lagi di e-HRM Pusdatin");
+            }
+        }
+
         $this->updateProgressCache(25, 1, 'done', 'Data Utama Pegawai Selesai');
         $bar->finish();
         $this->newLine();
@@ -155,7 +169,22 @@ class SyncEhrmData extends Command
                 if (!$apiId) continue;
 
                 // Sort riwjabatan by tglmulai desc agar [0] selalu yang terbaru
-                $riwJabatanSorted = collect($item['riwjabatan'] ?? [])->sortByDesc('tglmulai')->values()->all();
+                // Sort riwjabatan by tglmulai desc, if equal, prefer records with tipejabatan and kd_eselon
+                $riwJabatanSorted = collect($item['riwjabatan'] ?? [])->sort(function ($a, $b) {
+                    $tmtA = $a['tglmulai'] ?? '';
+                    $tmtB = $b['tglmulai'] ?? '';
+                    if ($tmtA !== $tmtB) {
+                        return strcmp($tmtB, $tmtA);
+                    }
+                    $tipeA = !empty($a['tipejabatan']) ? 1 : 0;
+                    $tipeB = !empty($b['tipejabatan']) ? 1 : 0;
+                    if ($tipeA !== $tipeB) {
+                        return $tipeB <=> $tipeA;
+                    }
+                    $eselonA = !empty($a['kd_eselon']) ? 1 : 0;
+                    $eselonB = !empty($b['kd_eselon']) ? 1 : 0;
+                    return $eselonB <=> $eselonA;
+                })->values()->all();
                 $riwPangkatArr    = $item['riwpangkat'] ?? [];
 
                 // Ambil NIP dari nipbaru di riwjabatan / riwpangkat (sudah sorted)

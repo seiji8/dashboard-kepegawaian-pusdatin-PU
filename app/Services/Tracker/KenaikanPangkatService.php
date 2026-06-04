@@ -24,8 +24,15 @@ class KenaikanPangkatService implements TrackerInterface
 
     private function processJafung(Pegawai $pegawai, Carbon $today, array &$daftarUsulanBaru, $matriksKamus): void
     {
+        // Skip dummy/test data as they are manually seeded and don't have real Angka Kredit history
+        if (str_contains(strtolower($pegawai->id_pegawai_api), 'dummy') || 
+            str_contains(strtolower($pegawai->nip), 'dummy')) {
+            return;
+        }
+
         $tipeJabatan = strtolower(trim($pegawai->tipe_jabatan ?? ''));
-        $isFungsional = in_array($tipeJabatan, ['fungsional', 'jafung', 'jabatan fungsional']);
+        $isFungsional = in_array($tipeJabatan, ['fungsional', 'jafung', 'jabatan fungsional']) || 
+                        (!empty($pegawai->jenjang) && empty($tipeJabatan));
 
         if ($isFungsional && !empty($pegawai->pangkat_golongan) && !empty($pegawai->jabatan_saat_ini)) {
             $normalizedJenjang = ucwords(strtolower(trim($pegawai->jenjang)));
@@ -402,8 +409,15 @@ class KenaikanPangkatService implements TrackerInterface
 
     private function processReguler(Pegawai $pegawai, Carbon $today, array &$daftarUsulanBaru): void
     {
+        // Skip dummy/test data as they don't need reguler calculations
+        if (str_contains(strtolower($pegawai->id_pegawai_api), 'dummy') || 
+            str_contains(strtolower($pegawai->nip), 'dummy')) {
+            return;
+        }
+
         $tipeJabatanReg = strtolower(trim($pegawai->tipe_jabatan ?? ''));
-        $isPelaksana = in_array($tipeJabatanReg, ['pelaksana', 'reguler', 'jabatan pelaksana']);
+        $isPelaksana = in_array($tipeJabatanReg, ['pelaksana', 'reguler', 'jabatan pelaksana']) || 
+                       (empty($tipeJabatanReg) && empty($pegawai->kd_eselon) && empty($pegawai->jenjang));
 
         // Khusus: Jabatan Lainnya (Karyasiswa) yang sedang Tubel aktif diperlakukan sebagai Reguler
         if ($tipeJabatanReg === 'jabatan lainnya') {

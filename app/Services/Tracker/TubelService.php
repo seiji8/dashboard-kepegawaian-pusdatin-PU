@@ -14,6 +14,12 @@ class TubelService implements TrackerInterface
 {
     public function process(Pegawai $pegawai, Carbon $today, array &$daftarUsulanBaru, array $context = []): void
     {
+        // Skip dummy/test data as they don't need Tubel calculation
+        if (str_contains(strtolower($pegawai->id_pegawai_api), 'dummy') || 
+            str_contains(strtolower($pegawai->nip), 'dummy')) {
+            return;
+        }
+
         $riwayatTubel = \App\Models\RiwayatTubel::where('nip', $pegawai->nip)->get();
 
         // Cari tubel yang masih aktif: tanggal_mulai ada dan belum selesai

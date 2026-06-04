@@ -82,18 +82,30 @@ class DashboardController extends Controller
             return 4;
         });
         
-        // Pisahkan berdasarkan tipe_jabatan (Exact Match - kedua format API & manual)
+        // Pisahkan berdasarkan kategori tracker, dengan fallback ke tipe_jabatan jika kategori tidak spesifik
         $kpStruktural = $listKenaikanPangkat->filter(function($item) {
+            if ($item->kategori === 'KP_Struktural') return true;
+            if (in_array($item->kategori, ['KP_Jafung', 'KP_Reguler'])) return false;
+
             $tipe = strtolower(trim($item->pegawai->tipe_jabatan ?? ''));
-            return in_array($tipe, ['struktural', 'jabatan struktural']);
+            return in_array($tipe, ['struktural', 'jabatan struktural']) || (!empty($item->pegawai->kd_eselon) && empty($tipe));
         });
 
         $kpFungsional = $listKenaikanPangkat->filter(function($item) {
+            if ($item->kategori === 'KP_Jafung') return true;
+            if (in_array($item->kategori, ['KP_Struktural', 'KP_Reguler'])) return false;
+
             $tipe = strtolower(trim($item->pegawai->tipe_jabatan ?? ''));
-            return in_array($tipe, ['fungsional', 'jafung', 'jabatan fungsional']);
+            return in_array($tipe, ['fungsional', 'jafung', 'jabatan fungsional']) || (!empty($item->pegawai->jenjang) && empty($tipe));
         });
 
-        $kpReguler = $trackers->where('kategori', 'KP_Reguler')->sortBy('tanggal_target');
+        $kpReguler = $listKenaikanPangkat->filter(function($item) {
+            if ($item->kategori === 'KP_Reguler') return true;
+            if (in_array($item->kategori, ['KP_Struktural', 'KP_Jafung'])) return false;
+
+            $tipe = strtolower(trim($item->pegawai->tipe_jabatan ?? ''));
+            return in_array($tipe, ['reguler', 'pelaksana']) || (empty($tipe) && empty($item->pegawai->kd_eselon) && empty($item->pegawai->jenjang));
+        })->sortBy('tanggal_target');
 
         // Monitoring Kompetensi (Diklat)
         $diklatHutang = $trackers->where('kategori', 'DIKLAT_HUTANG')->sortBy('tanggal_target');

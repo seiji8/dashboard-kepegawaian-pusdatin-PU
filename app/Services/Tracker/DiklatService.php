@@ -10,6 +10,12 @@ class DiklatService implements TrackerInterface
 {
     public function process(Pegawai $pegawai, Carbon $today, array &$daftarUsulanBaru, array $context = []): void
     {
+        // Skip dummy/test data as they don't need Diklat calculation
+        if (str_contains(strtolower($pegawai->id_pegawai_api), 'dummy') || 
+            str_contains(strtolower($pegawai->nip), 'dummy')) {
+            return;
+        }
+
         $riwayatDiklat = \App\Models\RiwayatDiklat::where('nip', $pegawai->nip)->get();
 
         if ($riwayatDiklat->isNotEmpty()) {
