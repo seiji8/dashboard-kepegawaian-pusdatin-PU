@@ -6,6 +6,9 @@ function openDetailModal(nip) {
     currentDetailNip = nip;
     document.getElementById('modalDetailPegawai').style.display = 'flex';
 
+    // Reset tabs to default (Information & Documents)
+    switchModalTab('info');
+
     // Toggle Skeleton vs Content
     const skeleton = document.getElementById('detailSkeleton');
     const content = document.getElementById('detailContent');
@@ -73,6 +76,37 @@ function openDetailModal(nip) {
                                 <i class="ph-bold ph-check" style="color: white; font-size: 14px;"></i>
                             </div>
                             Semua Dokumen Lengkap
+                        </div>
+                    `;
+                }
+            }
+
+            // Render History Logs
+            const historyContainer = document.getElementById('pegawaiHistoryContainer');
+            if (historyContainer) {
+                if (data.history && data.history.length > 0) {
+                    let historyHtml = '';
+                    data.history.forEach(log => {
+                        const typeClass = getLogTypeClass(log.tipe);
+                        historyHtml += `
+                            <div class="modal-timeline-item ${typeClass}">
+                                <div class="modal-timeline-dot"></div>
+                                <div class="modal-timeline-content">
+                                    <div class="modal-timeline-header">
+                                        <span class="modal-timeline-admin">${log.admin_name}</span>
+                                        <span class="modal-timeline-time" title="${log.waktu}">${log.waktu_ago}</span>
+                                    </div>
+                                    <p class="modal-timeline-desc">${log.deskripsi}</p>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    historyContainer.innerHTML = historyHtml;
+                } else {
+                    historyContainer.innerHTML = `
+                        <div class="modal-timeline-empty">
+                            <i class="ph-bold ph-calendar-blank"></i>
+                            <p>Belum ada riwayat aktivitas untuk pegawai ini.</p>
                         </div>
                     `;
                 }
@@ -272,3 +306,36 @@ window.addEventListener('click', function (event) {
     if (deleteModal && event.target == deleteModal) deleteModal.classList.remove('open');
     if (reminderModal && event.target == reminderModal) reminderModal.style.display = "none";
 });
+
+// === TAB SWITCHER AND TIMELINE HELPERS ===
+function switchModalTab(tab) {
+    const tabInfoBtn = document.getElementById('tabInfoBtn');
+    const tabHistoryBtn = document.getElementById('tabHistoryBtn');
+    const panelInfo = document.getElementById('panelInfo');
+    const panelHistory = document.getElementById('panelHistory');
+
+    if (!tabInfoBtn || !tabHistoryBtn || !panelInfo || !panelHistory) return;
+
+    if (tab === 'info') {
+        tabInfoBtn.classList.add('active');
+        tabHistoryBtn.classList.remove('active');
+        panelInfo.style.display = 'block';
+        panelHistory.style.display = 'none';
+    } else if (tab === 'history') {
+        tabHistoryBtn.classList.add('active');
+        tabInfoBtn.classList.remove('active');
+        panelInfo.style.display = 'none';
+        panelHistory.style.display = 'block';
+    }
+}
+
+function getLogTypeClass(type) {
+    if (!type) return 'dot-other';
+    type = type.toLowerCase();
+    if (type.includes('login')) return 'dot-login';
+    if (type.includes('logout')) return 'dot-logout';
+    if (type.includes('sync') || type.includes('sinkronisasi')) return 'dot-sync';
+    if (type.includes('notif') || type.includes('pengingat') || type.includes('reminder') || type.includes('email')) return 'dot-notif';
+    if (type.includes('admin') || type.includes('pegawai') || type.includes('hapus') || type.includes('tambah') || type.includes('update') || type.includes('ubah')) return 'dot-admin';
+    return 'dot-other';
+}

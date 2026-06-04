@@ -45,7 +45,13 @@ class DataPegawaiController extends Controller
 
     public function show(Request $request, $nip)
     {
-        $pegawai = Pegawai::with(['riwayat_angka_kredit', 'riwayat_jabatan'])->where('nip', $nip)->first();
+        $pegawai = Pegawai::with([
+            'riwayat_angka_kredit', 
+            'riwayat_jabatan',
+            'logs' => function($q) {
+                $q->with('admin')->orderBy('waktu', 'desc');
+            }
+        ])->where('nip', $nip)->first();
 
         if (!$pegawai) {
             return response()->json(['success' => false, 'message' => 'Pegawai tidak ditemukan'], 404);
@@ -219,6 +225,16 @@ class DataPegawaiController extends Controller
             }
         }
 
+        $history = $pegawai->logs->map(function($log) {
+            return [
+                'tipe' => $log->tipe,
+                'deskripsi' => $log->deskripsi,
+                'admin_name' => $log->admin ? $log->admin->nama_lengkap : 'Sistem',
+                'waktu' => \Carbon\Carbon::parse($log->waktu)->translatedFormat('d M Y, H:i') . ' WIB',
+                'waktu_ago' => \Carbon\Carbon::parse($log->waktu)->diffForHumans()
+            ];
+        });
+
         return response()->json([
             'success' => true,
             'data' => [
@@ -240,6 +256,7 @@ class DataPegawaiController extends Controller
                 'tracker_id'       => $trackerId,
                 'tracker_keterangan' => $trackerKeterangan,
                 'tubel_data'       => $tubelData,
+                'history'          => $history,
             ]
         ]);
     }

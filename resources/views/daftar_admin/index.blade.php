@@ -712,7 +712,7 @@
                     {
                         element: '.header-actions',
                         popover: {
-                            title: 'Manajemen Admin Ã°Å¸â€ºÂ¡Ã¯Â¸Â',
+                            title: 'Manajemen Admin 🛡️',
                             description: 'Anda bisa mencari admin spesifik atau menambahkan admin baru jika memiliki hak akses Super Admin.',
                             side: "bottom",
                             align: 'center'

@@ -456,3 +456,189 @@
     color: #475569;
     border: 1px solid rgba(148,163,184,0.25);
 }
+
+/* Modal Detail Tabs */
+.modal-tabs {
+    display: flex;
+    border-bottom: 2px solid #e2e8f0;
+    margin-bottom: 20px;
+    gap: 24px;
+}
+
+.modal-tab-btn {
+    background: none;
+    border: none;
+    padding: 10px 0;
+    font-size: 14px;
+    font-weight: 700;
+    color: #64748b;
+    cursor: pointer;
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.2s ease;
+    font-family: 'Inter', sans-serif;
+}
+
+.modal-tab-btn i {
+    font-size: 16px;
+}
+
+.modal-tab-btn:hover {
+    color: #1e3a8a;
+}
+
+.modal-tab-btn.active {
+    color: #1e3a8a;
+}
+
+.modal-tab-btn.active::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background-color: #1e3a8a;
+    border-radius: 2px;
+}
+
+/* Modal Timeline Audit Trail */
+.modal-history-section {
+    padding: 5px 0;
+    padding-left: 15px; /* Give room so dots don't clip at the scrollable container edge */
+    max-height: 350px;
+    overflow-y: auto;
+    padding-right: 5px;
+}
+
+.modal-timeline {
+    position: relative;
+    padding-left: 20px;
+    margin-top: 10px;
+}
+
+/* Custom Scrollbar for History Section */
+.modal-history-section::-webkit-scrollbar {
+    width: 6px;
+}
+.modal-history-section::-webkit-scrollbar-track {
+    background: #f1f5f9;
+    border-radius: 10px;
+}
+.modal-history-section::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 10px;
+}
+.modal-history-section::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}
+
+/* Axis Line */
+.modal-timeline::before {
+    content: '';
+    position: absolute;
+    left: 7px;
+    top: 5px;
+    bottom: 5px;
+    width: 2px;
+    background: #e2e8f0;
+}
+
+/* Timeline Item */
+.modal-timeline-item {
+    position: relative;
+    margin-bottom: 20px;
+    padding-left: 10px;
+}
+
+.modal-timeline-item:last-child {
+    margin-bottom: 0;
+}
+
+/* Timeline Dot / Indicator */
+.modal-timeline-dot {
+    position: absolute;
+    left: -20px;
+    top: 5px;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: #ffffff;
+    border: 3px solid #cbd5e1;
+    z-index: 2;
+    box-sizing: border-box;
+    transition: transform 0.2s ease;
+}
+
+.modal-timeline-item:hover .modal-timeline-dot {
+    transform: scale(1.2);
+}
+
+/* Dynamic Dot Colors */
+.modal-timeline-item.dot-login .modal-timeline-dot { border-color: #3b82f6; background-color: #eff6ff; }
+.modal-timeline-item.dot-logout .modal-timeline-dot { border-color: #ef4444; background-color: #fef2f2; }
+.modal-timeline-item.dot-sync .modal-timeline-dot { border-color: #10b981; background-color: #f0fdf4; }
+.modal-timeline-item.dot-notif .modal-timeline-dot { border-color: #a855f7; background-color: #faf5ff; }
+.modal-timeline-item.dot-admin .modal-timeline-dot { border-color: #eab308; background-color: #fefce8; }
+.modal-timeline-item.dot-other .modal-timeline-dot { border-color: #64748b; background-color: #f1f5f9; }
+
+.modal-timeline-content {
+    background: #ffffff;
+    border-radius: 10px;
+    padding: 14px 16px;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.modal-timeline-item:hover .modal-timeline-content {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+.modal-timeline-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 6px;
+}
+
+.modal-timeline-admin {
+    font-size: 12px;
+    font-weight: 700;
+    color: #1e293b;
+}
+
+.modal-timeline-time {
+    font-size: 11px;
+    color: #94a3b8;
+    font-weight: 500;
+}
+
+.modal-timeline-desc {
+    font-size: 13px;
+    color: #475569;
+    line-height: 1.5;
+    margin: 0;
+}
+
+.modal-timeline-empty {
+    text-align: center;
+    padding: 40px 20px;
+    color: #94a3b8;
+}
+
+.modal-timeline-empty i {
+    font-size: 36px;
+    margin-bottom: 12px;
+    display: block;
+    color: #cbd5e1;
+}
+
+.modal-timeline-empty p {
+    font-size: 13px;
+    margin: 0;
+    font-weight: 500;
+}

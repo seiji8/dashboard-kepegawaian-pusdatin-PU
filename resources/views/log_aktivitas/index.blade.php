@@ -64,107 +64,133 @@
         <div class="content-section">
             <h3 class="section-title">Data Log</h3>
             
-            <div class="table-responsive">
-                <table class="data-table">
-                    <thead>
-                        <tr>
-                            <th style="width: 20%;">Waktu</th>
-                            <th style="width: 18%;">Jenis Pengguna</th>
-                            <th style="width: 17%;">Aksi</th>
-                            <th style="width: 45%;">Deskripsi</th>
-                        </tr>
-                    </thead>
-                    <tbody class="skeleton-layer">
-                        @for ($i = 0; $i < 8; $i++)
-                        <tr>
-                            <td><div class="skeleton-box" style="height:14px; width:80%;"></div></td>
-                            <td><div class="skeleton-box" style="height:28px; width:90px; border-radius:20px;"></div></td>
-                            <td><div class="skeleton-box" style="height:14px; width:70%;"></div></td>
-                            <td><div class="skeleton-box" style="height:14px; width:95%;"></div></td>
-                        </tr>
-                        @endfor
-                    </tbody>
+            <div class="timeline-container">
+                <div class="timeline-axis"></div>
+                
+                {{-- Skeleton: Timeline Items --}}
+                <div class="timeline-items skeleton-layer">
+                    @for ($i = 0; $i < 6; $i++)
+                    <div class="timeline-item">
+                        <div class="timeline-badge-skeleton skeleton-box"></div>
+                        <div class="timeline-card skeleton-card">
+                            <div class="skeleton-box" style="height:14px; width:150px; margin-bottom:10px;"></div>
+                            <div class="skeleton-box" style="height:12px; width:80px; margin-bottom:12px; border-radius:20px;"></div>
+                            <div class="skeleton-box" style="height:14px; width:95%;"></div>
+                        </div>
+                    </div>
+                    @endfor
+                </div>
 
-                    {{-- Real: Table Rows --}}
-                    <tbody class="real-content hidden">
-                        @forelse($logs as $log)
-                        <tr>
-                            <td>
-                                <div class="time-cell">
-                                    <span class="date-text">{{ \Carbon\Carbon::parse($log->waktu)->format('M d, Y') }}</span>
-                                    <span class="time-badge">{{ \Carbon\Carbon::parse($log->waktu)->format('H:i') }}</span>
+                {{-- Real: Timeline Items --}}
+                <div class="timeline-items real-content hidden">
+                    @forelse($logs as $log)
+                    <div class="timeline-item">
+                        @php
+                            $desc = $log->deskripsi ?? '';
+                            $tipe = $log->tipe ?? '';
+                            
+                            $iconClass = 'ph-fill ph-gear';
+                            $iconColorClass = 'color-lain';
+                            $badgeText = 'Aksi Lain';
+                            $badgeClass = 'badge-sistem';
+                            
+                            if ($tipe == 'API_SYNC') {
+                                $iconClass = 'ph-fill ph-arrows-clockwise';
+                                $iconColorClass = 'color-sync';
+                                $badgeText = 'Sinkronisasi';
+                                $badgeClass = 'badge-sync';
+                            } elseif ($tipe == 'NOTIF_SENT') {
+                                $iconClass = 'ph-fill ph-bell';
+                                $iconColorClass = 'color-notif';
+                                $badgeText = 'Notifikasi';
+                                $badgeClass = 'badge-notif';
+                            } elseif (str_contains($desc, 'Login')) {
+                                $iconClass = 'ph-fill ph-key';
+                                $iconColorClass = 'color-login';
+                                $badgeText = 'Login';
+                                $badgeClass = 'badge-login';
+                            } elseif (str_contains($desc, 'Logout')) {
+                                $iconClass = 'ph-fill ph-sign-out';
+                                $iconColorClass = 'color-logout';
+                                $badgeText = 'Logout';
+                                $badgeClass = 'badge-logout';
+                            } elseif (str_contains($desc, 'Menambahkan admin') || str_contains($desc, 'Menghapus admin') || str_contains($desc, 'Mengubah role')) {
+                                $iconClass = 'ph-fill ph-user-gear';
+                                $iconColorClass = 'color-admin';
+                                $badgeText = 'Kelola Admin';
+                                $badgeClass = 'badge-admin-manage';
+                            } elseif (str_contains($desc, 'konfirmasi') || str_contains($desc, 'Konfirmasi')) {
+                                $iconClass = 'ph-fill ph-check-circle';
+                                $iconColorClass = 'color-confirm';
+                                $badgeText = 'Konfirmasi';
+                                $badgeClass = 'badge-confirm';
+                            } elseif (str_contains($desc, 'Mencetak') || str_contains($desc, 'mencetak') || str_contains($desc, 'Cetak') || str_contains($desc, 'cetak')) {
+                                $iconClass = 'ph-fill ph-printer';
+                                $iconColorClass = 'color-print';
+                                $badgeText = 'Cetak Surat';
+                                $badgeClass = 'badge-print';
+                            } elseif (str_contains($desc, 'Backup') || str_contains($desc, 'backup')) {
+                                $iconClass = 'ph-fill ph-database';
+                                $iconColorClass = 'color-backup';
+                                $badgeText = 'Backup DB';
+                                $badgeClass = 'badge-backup';
+                            }
+                        @endphp
+                        
+                        <div class="timeline-badge {{ $iconColorClass }}">
+                            <i class="{{ $iconClass }}"></i>
+                        </div>
+                        
+                        <div class="timeline-card">
+                            <div class="timeline-card-header">
+                                <div class="timeline-admin-info">
+                                    <span class="timeline-admin-name">
+                                        @if($log->admin)
+                                            {{ $log->admin->nama_lengkap }}
+                                        @else
+                                            Sistem
+                                        @endif
+                                    </span>
+                                    <span class="timeline-user-role">
+                                        @if($log->admin)
+                                            @if($log->admin->role === 'super_admin')
+                                                Super Admin
+                                            @else
+                                                Admin Pegawai
+                                            @endif
+                                        @else
+                                            System Automation
+                                        @endif
+                                    </span>
                                 </div>
-                                <span class="time-ago">{{ \Carbon\Carbon::parse($log->waktu)->diffForHumans() }}</span>
-                            </td>
-                            <td>
-                                @if($log->admin)
-                                    @if($log->admin->role === 'super_admin')
-                                        <span class="badge badge-admin-super">Admin Super</span>
-                                    @else
-                                        <span class="badge badge-pegawai">Admin Kepegawaian</span>
-                                    @endif
-                                @else
-                                    <span class="badge badge-sistem">Sistem</span>
-                                @endif
-                            </td>
-                            <td>
-                                @php
-                                    $desc = $log->deskripsi ?? '';
-                                    $tipe = $log->tipe ?? '';
-                                @endphp
-                                @if($tipe == 'API_SYNC')
-                                    <span style="background:#f0fdf4; color:#166534; padding:4px 10px; border-radius:6px; font-size:12px; font-weight:600; border:1px solid #bbf7d0; display:inline-block; white-space:nowrap;">
-                                        <i class="ph-bold ph-arrows-clockwise" style="margin-right:3px;"></i>Sinkronisasi
-                                    </span>
-                                @elseif($tipe == 'NOTIF_SENT')
-                                    <span style="background:#faf5ff; color:#7e22ce; padding:4px 10px; border-radius:6px; font-size:12px; font-weight:600; border:1px solid #e9d5ff; display:inline-block; white-space:nowrap;">
-                                        <i class="ph-bold ph-bell" style="margin-right:3px;"></i>Notifikasi
-                                    </span>
-                                @elseif(str_contains($desc, 'Login'))
-                                    <span style="background:#eff6ff; color:#1e40af; padding:4px 10px; border-radius:6px; font-size:12px; font-weight:600; border:1px solid #bfdbfe; display:inline-block; white-space:nowrap;">
-                                        <i class="ph-bold ph-sign-in" style="margin-right:3px;"></i>Login
-                                    </span>
-                                @elseif(str_contains($desc, 'Menambahkan admin') || str_contains($desc, 'Menghapus admin') || str_contains($desc, 'Mengubah role'))
-                                    <span style="background:#fefce8; color:#a16207; padding:4px 10px; border-radius:6px; font-size:12px; font-weight:600; border:1px solid #fef08a; display:inline-block; white-space:nowrap;">
-                                        <i class="ph-bold ph-user-gear" style="margin-right:3px;"></i>Kelola Admin
-                                    </span>
-                                @elseif(str_contains($desc, 'konfirmasi') || str_contains($desc, 'Konfirmasi'))
-                                    <span style="background:#f0fdf4; color:#166534; padding:4px 10px; border-radius:6px; font-size:12px; font-weight:600; border:1px solid #bbf7d0; display:inline-block; white-space:nowrap;">
-                                        <i class="ph-bold ph-check-circle" style="margin-right:3px;"></i>Konfirmasi
-                                    </span>
-                                @elseif(str_contains($desc, 'Logout'))
-                                    <span style="background:#fef2f2; color:#991b1b; padding:4px 10px; border-radius:6px; font-size:12px; font-weight:600; border:1px solid #fecaca; display:inline-block; white-space:nowrap;">
-                                        <i class="ph-bold ph-sign-out" style="margin-right:3px;"></i>Logout
-                                    </span>
-                                @else
-                                    <span style="background:#f1f5f9; color:#475569; padding:4px 10px; border-radius:6px; font-size:12px; font-weight:600; border:1px solid #cbd5e1; display:inline-block; white-space:nowrap;">
-                                        <i class="ph-bold ph-gear" style="margin-right:3px;"></i>Aksi Lain
-                                    </span>
-                                @endif
-                            </td>
-                            <td>{{ $log->deskripsi }}</td>
-                        </tr>
-                        @empty
-                        <tr>
-                            <td colspan="4" style="padding: 0; border: none;">
-                                <div class="empty-state-container">
-                                    <div class="empty-state-content">
-                                        <div class="empty-state-icon">
-                                            <i class="ph-duotone ph-magnifying-glass-minus"></i>
-                                        </div>
-                                        <h4 class="empty-state-title">Data Tidak Ditemukan</h4>
-                                        <p class="empty-state-desc">Maaf, kami tidak dapat menemukan log aktivitas yang sesuai dengan filter pencarian Anda.<br>Silakan sesuaikan kriteria pencarian atau filter tanggal yang digunakan.</p>
-                                        <a href="{{ route('log-aktivitas') }}" class="btn-reset-search" style="cursor: pointer;">
-                                            <i class="ph-bold ph-arrow-counter-clockwise"></i>
-                                            Reset Filter
-                                        </a>
-                                    </div>
+                                <div class="timeline-time-group">
+                                    <span class="timeline-time-ago">{{ \Carbon\Carbon::parse($log->waktu)->diffForHumans() }}</span>
+                                    <span class="timeline-time-exact">{{ \Carbon\Carbon::parse($log->waktu)->format('d M Y, H:i') }} WIB</span>
                                 </div>
-                            </td>
-                        </tr>
-                        @endforelse
-                    </tbody>
-                </table>
+                            </div>
+                            
+                            <div class="timeline-card-body">
+                                <span class="timeline-badge-pill {{ $badgeClass }}">{{ $badgeText }}</span>
+                                <p class="timeline-desc">{{ $log->deskripsi }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    @empty
+                    <div class="empty-state-container" style="border: none; background: transparent; box-shadow: none;">
+                        <div class="empty-state-content">
+                            <div class="empty-state-icon">
+                                <i class="ph-duotone ph-magnifying-glass-minus"></i>
+                            </div>
+                            <h4 class="empty-state-title">Data Tidak Ditemukan</h4>
+                            <p class="empty-state-desc">Maaf, kami tidak dapat menemukan log aktivitas yang sesuai dengan filter pencarian Anda.<br>Silakan sesuaikan kriteria pencarian atau filter tanggal yang digunakan.</p>
+                            <a href="{{ route('log-aktivitas') }}" class="btn-reset-search" style="cursor: pointer;">
+                                <i class="ph-bold ph-arrow-counter-clockwise"></i>
+                                Reset Filter
+                            </a>
+                        </div>
+                    </div>
+                    @endforelse
+                </div>
             </div>
 
             <!-- PAGINATION -->
@@ -235,7 +261,7 @@
                     {
                         element: '.filter-section',
                         popover: {
-                            title: 'Filter Pencarian ðŸ”',
+                            title: 'Filter Pencarian 🔍',
                             description: 'Gunakan fitur ini untuk mencari log spesifik berdasarkan jenis pengguna, tanggal, atau aksi tertentu.',
                             side: "bottom",
                             align: 'center'

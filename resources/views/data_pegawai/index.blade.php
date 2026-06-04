@@ -497,50 +497,72 @@
                 <!-- RIGHT CONTENT -->
                 <div class="info-section">
                     
-                    <div class="info-grid">
-                        <div class="info-item">
-                            <label>NIP / ID</label>
-                            <span id="detNIP">-</span>
+                    <!-- Tabs Navigation -->
+                    <div class="modal-tabs">
+                        <button class="modal-tab-btn active" onclick="switchModalTab('info')" id="tabInfoBtn">
+                            <i class="ph-bold ph-info"></i> Informasi & Dokumen
+                        </button>
+                        <button class="modal-tab-btn" onclick="switchModalTab('history')" id="tabHistoryBtn">
+                            <i class="ph-bold ph-clock-counter-clockwise"></i> Riwayat Aktivitas
+                        </button>
+                    </div>
+
+                    <!-- Panel Info (Default Panel) -->
+                    <div id="panelInfo">
+                        <div class="info-grid">
+                            <div class="info-item">
+                                <label>NIP / ID</label>
+                                <span id="detNIP">-</span>
+                            </div>
+                            <div class="info-item">
+                                <label>EMAIL</label>
+                                <span id="detEmail">-</span>
+                            </div>
+                            <div class="info-item">
+                                <label>NO. HP</label>
+                                <span id="detHP">-</span>
+                            </div>
+                            <div class="info-item">
+                                <label>TIPE JABATAN</label>
+                                <span id="detTipeJabatan">-</span>
+                            </div>
+                            <div class="info-item">
+                                <label>PANGKAT / GOLONGAN</label>
+                                <span id="detPangkat">-</span>
+                            </div>
+                            <div class="info-item">
+                                <label>JENJANG</label>
+                                <span id="detJenjang">-</span>
+                            </div>
+                            <div class="info-item">
+                                <label>TMT CPNS</label>
+                                <span id="detTmt">-</span>
+                            </div>
+                            <div class="info-item">
+                                <label>ANGKA KREDIT</label>
+                                <span id="detKredit">-</span>
+                            </div>
                         </div>
-                        <div class="info-item">
-                            <label>EMAIL</label>
-                            <span id="detEmail">-</span>
-                        </div>
-                        <div class="info-item">
-                            <label>NO. HP</label>
-                            <span id="detHP">-</span>
-                        </div>
-                        <div class="info-item">
-                            <label>TIPE JABATAN</label>
-                            <span id="detTipeJabatan">-</span>
-                        </div>
-                        <div class="info-item">
-                            <label>PANGKAT / GOLONGAN</label>
-                            <span id="detPangkat">-</span>
-                        </div>
-                        <div class="info-item">
-                            <label>JENJANG</label>
-                            <span id="detJenjang">-</span>
-                        </div>
-                        <div class="info-item">
-                            <label>TMT CPNS</label>
-                            <span id="detTmt">-</span>
-                        </div>
-                        <div class="info-item">
-                            <label>ANGKA KREDIT</label>
-                            <span id="detKredit">-</span>
+
+                        <div class="doc-section borderless">
+                            <div class="doc-section-title">
+                                <i class="ph-fill ph-file-text" style="color: #4b5563;"></i>
+                                Dokumen Wajib
+                            </div>
+                            
+                            <!-- Container for dynamic doc status -->
+                            <div id="docStatusContainer">
+                                <!-- Injected by JS -->
+                            </div>
                         </div>
                     </div>
 
-                    <div class="doc-section borderless">
-                        <div class="doc-section-title">
-                            <i class="ph-fill ph-file-text" style="color: #4b5563;"></i>
-                            Dokumen Wajib
-                        </div>
-                        
-                        <!-- Container for dynamic doc status -->
-                        <div id="docStatusContainer">
-                            <!-- Injected by JS -->
+                    <!-- Panel History (Audit Trail Panel) -->
+                    <div id="panelHistory" style="display: none;">
+                        <div class="modal-history-section">
+                            <div id="pegawaiHistoryContainer" class="modal-timeline">
+                                <!-- Injected dynamically by JS -->
+                            </div>
                         </div>
                     </div>
 
@@ -605,7 +627,7 @@
 @endsection
 
 @section('scripts')
-    <script src="{{ asset('js/data-pegawai.js') }}"></script>
+    <script src="{{ asset('js/data-pegawai.js') }}?v={{ filemtime(public_path('js/data-pegawai.js')) }}"></script>
     <style>
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
@@ -649,7 +671,7 @@
                     {
                         element: '.content-header',
                         popover: {
-                            title: 'Pencarian & Filter Ã°Å¸â€Â',
+                            title: 'Pencarian & Filter 🔍',
                             description: 'Gunakan fitur ini untuk mencari pegawai berdasarkan nama atau memfilter berdasarkan tipe jabatan.',
                             side: "bottom",
                             align: 'center'

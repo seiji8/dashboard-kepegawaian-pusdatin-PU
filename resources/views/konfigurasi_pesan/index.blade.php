@@ -892,7 +892,7 @@
                     {
                         element: '.top-navbar',
                         popover: {
-                            title: 'Area Profil & Notifikasi',
+                            title: 'Area Profil & Notifikasi 👋',
                             description: 'Akses notifikasi dan pengaturan akun Anda di sini.',
                             side: "bottom",
                             align: 'end'
@@ -901,7 +901,7 @@
                     {
                         element: '.header-actions',
                         popover: {
-                            title: 'Manajemen Pesan',
+                            title: 'Manajemen Pesan ✉️',
                             description: 'Gunakan fitur ini untuk mencari filter jenis pesan atau menambahkan template pesan baru.',
                             side: "bottom",
                             align: 'center'
@@ -910,7 +910,7 @@
                     {
                         element: '.config-container',
                         popover: {
-                            title: 'Daftar Template Pesan',
+                            title: 'Daftar Template Pesan 📋',
                             description: 'Kumpulan notifikasi yang otomatis berjalan atau yang dapat Anda gunakan sebagai template manual.',
                             side: "top",
                             align: 'center'
