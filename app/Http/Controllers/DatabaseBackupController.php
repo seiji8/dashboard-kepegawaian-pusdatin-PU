@@ -29,12 +29,17 @@ class DatabaseBackupController extends Controller
         
         $filePath = $tempDir . '/' . $fileName;
 
-        // Generate SQL native via PHP
-        $sqlScript = "-- Database Backup\n";
-        $sqlScript .= "-- Generated at: " . Carbon::now()->format('Y-m-d H:i:s') . "\n";
-        $sqlScript .= "-- Database: {$databaseName}\n\n";
+        // Buka file pointer untuk penulisan langsung (Streaming)
+        $handle = fopen($filePath, 'w');
+        if (!$handle) {
+            abort(500, 'Gagal membuka file backup untuk penulisan.');
+        }
 
-        $sqlScript .= "SET FOREIGN_KEY_CHECKS=0;\n\n";
+        // Tulis header database langsung ke file disk
+        fwrite($handle, "-- Database Backup\n");
+        fwrite($handle, "-- Generated at: " . Carbon::now()->format('Y-m-d H:i:s') . "\n");
+        fwrite($handle, "-- Database: {$databaseName}\n\n");
+        fwrite($handle, "SET FOREIGN_KEY_CHECKS=0;\n\n");
 
         // Get all tables
         $tables = DB::select('SHOW TABLES');
@@ -49,19 +54,19 @@ class DatabaseBackupController extends Controller
             $createTableStmt = DB::select("SHOW CREATE TABLE `{$table}`");
             $createTableKey = 'Create Table';
             
-            $sqlScript .= "DROP TABLE IF EXISTS `{$table}`;\n";
-            $sqlScript .= ((array)$createTableStmt[0])[$createTableKey] . ";\n\n";
+            fwrite($handle, "DROP TABLE IF EXISTS `{$table}`;\n");
+            fwrite($handle, ((array)$createTableStmt[0])[$createTableKey] . ";\n\n");
 
             // Get Data - Cek apakah tabel ada datanya secara efisien
             $hasData = DB::table($table)->exists();
 
             if ($hasData) {
-                $sqlScript .= "-- Data for table `{$table}`\n";
+                fwrite($handle, "-- Data for table `{$table}`\n");
                 
                 $insertStatements = [];
                 
-                // Gunakan lazy() untuk memproses baris data secara bertahap (memori flat)
-                foreach (DB::table($table)->lazy() as $row) {
+                // Gunakan cursor() agar kompatibel dengan semua skema tabel tanpa perlu orderBy
+                foreach (DB::table($table)->cursor() as $row) {
                     $rowValues = [];
                     foreach ((array)$row as $value) {
                         if (is_null($value)) {
@@ -75,26 +80,23 @@ class DatabaseBackupController extends Controller
                     }
                     $insertStatements[] = "(" . implode(',', $rowValues) . ")";
 
-                    // Jika buffer mencapai 100 baris, langsung tulis ke script dan kosongkan buffer
+                    // Jika buffer mencapai 100 baris, langsung tulis ke file disk & kosongkan buffer
                     if (count($insertStatements) === 100) {
-                        $sqlScript .= "INSERT INTO `{$table}` VALUES \n";
-                        $sqlScript .= implode(",\n", $insertStatements) . ";\n\n";
+                        fwrite($handle, "INSERT INTO `{$table}` VALUES \n" . implode(",\n", $insertStatements) . ";\n\n");
                         $insertStatements = [];
                     }
                 }
 
                 // Tulis sisa baris yang ada di buffer (jika ada)
                 if (count($insertStatements) > 0) {
-                    $sqlScript .= "INSERT INTO `{$table}` VALUES \n";
-                    $sqlScript .= implode(",\n", $insertStatements) . ";\n\n";
+                    fwrite($handle, "INSERT INTO `{$table}` VALUES \n" . implode(",\n", $insertStatements) . ";\n\n");
                 }
             }
         }
 
-        $sqlScript .= "SET FOREIGN_KEY_CHECKS=1;\n";
-
-        // Write to file
-        file_put_contents($filePath, $sqlScript);
+        // Tulis penutup dan tutup file pointer
+        fwrite($handle, "SET FOREIGN_KEY_CHECKS=1;\n");
+        fclose($handle);
 
         // Log aktivitas backup
         \App\Helpers\ActivityLogger::logAdminAction('Mengunduh backup database');
