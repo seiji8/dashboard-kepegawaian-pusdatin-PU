@@ -200,7 +200,7 @@ class SyncEhrmData extends Command
                 $currentRiw++;
                 $bar2->advance();
 
-                $apiId = $item['id'] ?? null;
+                $apiId = $item['id_pegawai'] ?? $item['id'] ?? null;
                 if (!$apiId) continue;
 
                 // Sort riwjabatan by tglmulai desc agar [0] selalu yang terbaru
@@ -216,8 +216,8 @@ class SyncEhrmData extends Command
                     if ($tipeA !== $tipeB) {
                         return $tipeB <=> $tipeA;
                     }
-                    $eselonA = !empty($a['kd_eselon']) ? 1 : 0;
-                    $eselonB = !empty($b['kd_eselon']) ? 1 : 0;
+                    $eselonA = (!empty($a['kd_eselon']) || !empty($a['kdeselon'])) ? 1 : 0;
+                    $eselonB = (!empty($b['kd_eselon']) || !empty($b['kdeselon'])) ? 1 : 0;
                     return $eselonB <=> $eselonA;
                 })->values()->all();
                 $riwPangkatArr    = $item['riwpangkat'] ?? [];
@@ -247,7 +247,9 @@ class SyncEhrmData extends Command
                     $updateData = ['tipe_jabatan' => $latest['tipejabatan'] ?? null];
 
                     // Ambil kd_eselon dari riwayat jabatan terbaru
-                    if (!empty($latest['kd_eselon'])) {
+                    if (!empty($latest['kdeselon'])) {
+                        $updateData['kd_eselon'] = $latest['kdeselon'];
+                    } elseif (!empty($latest['kd_eselon'])) {
                         $updateData['kd_eselon'] = $latest['kd_eselon'];
                     }
 

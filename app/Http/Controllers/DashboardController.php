@@ -55,9 +55,9 @@ class DashboardController extends Controller
                                                                     $q->where('kategori', 'TUBEL')
                                                                         ->whereIn('status_saat_ini', ['Sedang Tubel', 'Proses Pengaktifan Kembali', 'Proses Pengembalian', 'Proses Pengaktifan']);
                                                             })
-                              ->orWhereIn('status_saat_ini', ['Upload E-HRM', 'Proses', 'Menunggu UKOM', 'Data Tidak Lengkap', 'Menunggu SKP']);
+                              ->orWhereIn('status_saat_ini', ['Upload E-HRM', 'Proses', 'Menunggu UKOM', 'Menunggu SKP']);
                     })
-                    ->where('status_saat_ini', '!=', 'Mendekati') // Mendekati hanya kirim notif, tidak tampil di dashboard
+                    ->whereNotIn('status_saat_ini', ['Mendekati', 'Aman', 'Data Tidak Lengkap']) // Hide Mendekati, Aman, and Data Tidak Lengkap
                     ->get();
 
         $listTubel = $trackers->where('kategori', 'TUBEL')
@@ -104,7 +104,7 @@ class DashboardController extends Controller
             if (in_array($item->kategori, ['KP_Struktural', 'KP_Jafung'])) return false;
 
             $tipe = strtolower(trim($item->pegawai->tipe_jabatan ?? ''));
-            return in_array($tipe, ['reguler', 'pelaksana']) || (empty($tipe) && empty($item->pegawai->kd_eselon) && empty($item->pegawai->jenjang));
+            return in_array($tipe, ['reguler', 'pelaksana', 'jabatan pelaksana']) || (empty($tipe) && empty($item->pegawai->kd_eselon) && empty($item->pegawai->jenjang));
         })->sortBy('tanggal_target');
 
         // Monitoring Kompetensi (Diklat)
