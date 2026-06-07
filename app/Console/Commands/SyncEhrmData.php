@@ -61,11 +61,6 @@ class SyncEhrmData extends Command
         $this->syncTahap3RiwayatAngkaKredit($baseUrl, $apiKey, $token);
 
         // ============================================================
-        // TAHAP 4: RIWAYAT DIKLAT
-        // ============================================================
-        $this->syncTahap4RiwayatDiklat($baseUrl, $apiKey, $token);
-
-        // ============================================================
         // TAHAP 5: SINKRONISASI DATA TAMBAHAN (API BARU)
         // ============================================================
         $newToken = config('ehrm.new_token');
@@ -446,90 +441,7 @@ class SyncEhrmData extends Command
         $this->newLine();
     }
 
-    /**
-     * TAHAP 4: RIWAYAT DIKLAT
-     */
-    private function syncTahap4RiwayatDiklat(string $baseUrl, string $apiKey, string $token): void
-    {
-        $this->info('⬇️  [4/4] Mengunduh Riwayat Diklat (Per NIP)...');
-        
-        $allPegawai = Pegawai::select('nip', 'nama')->get();
-        $totalDiklat = $allPegawai->count();
-        $bar4 = $this->output->createProgressBar($totalDiklat);
-        $bar4->start();
 
-        $this->updateProgressCache(70, 4, 'processing', 'Memulai sinkronisasi riwayat diklat...');
-
-        $currentDiklat = 0;
-        $diklatChunks = $allPegawai->chunk(3);
-        foreach ($diklatChunks as $chunk) {
-            $responses = Http::pool(function (\Illuminate\Http\Client\Pool $pool) use ($chunk, $baseUrl, $apiKey, $token) {
-                $reqs = [];
-                foreach ($chunk as $peg) {
-                    $reqs[] = $pool->as("nip_".$peg->nip)->timeout(20)->withHeaders([
-                        'X-DreamFactory-Api-Key' => $apiKey,
-                        'X-DreamFactory-Session-Token' => $token,
-                    ])->get("$baseUrl/v1/ehrm/riw/diklat", ['nip' => $peg->nip]);
-                }
-                return $reqs;
-            });
-
-            foreach ($chunk as $peg) {
-                $nip = $peg->nip;
-                $diklatKey = "nip_".$nip;
-
-                if (isset($responses[$diklatKey])) {
-                    $diklatResp = $responses[$diklatKey];
-
-                    if ($diklatResp instanceof \Illuminate\Http\Client\Response && $diklatResp->successful()) {
-                        $listDiklat = $diklatResp->json()['resource'] ?? $diklatResp->json();
-                        
-                        if (is_array($listDiklat)) {
-                            // Hapus data lama → replace dengan data fresh dari API
-                            \App\Models\RiwayatDiklat::where('nip', $nip)->delete();
-
-                            foreach ($listDiklat as $d) {
-                                $namaDiklat = $d['uraian'] ?? $d['nmdiklat'] ?? $d['nama_diklat'] ?? '-';
-                                $noSertif = $d['nomor_sertifikat'] ?? $d['no_sertifikat'] ?? $d['nosertifikat'] ?? null;
-
-                                \App\Models\RiwayatDiklat::create([
-                                    'nip' => $nip,
-                                    'nama_diklat' => $namaDiklat,
-                                    'nomor_sertifikat' => $noSertif,
-                                    'id_diklat' => $d['id_diklat'] ?? $d['id'] ?? null,
-                                    'penyelenggara' => $d['institusi_penyelenggara'] ?? $d['penyelenggara'] ?? null,
-                                    'tanggal_mulai' => $this->parseDate($d['tglmulaidiklat'] ?? $d['tgl_mulai'] ?? null),
-                                    'tanggal_selesai' => $this->parseDate($d['tglakhirdiklat'] ?? $d['tgl_selesai'] ?? null),
-                                    'jumlah_jam' => $d['jam_diklat'] ?? $d['jam'] ?? null,
-                                    'tanggal_sertifikat' => $this->parseDate($d['tgl_sertifikat'] ?? null),
-                                    'file_sertifikat' => $d['arsip'] ?? $d['file'] ?? null,
-                                    'status_diklat' => intval($d['status'] ?? 0),
-                                    'kode_jenis' => $d['kode_jenis'] ?? null,
-                                    'jenis_diklat' => $d['jenisdiklat'] ?? null,
-                                    'arsip' => $d['arsip'] ?? null,
-                                ]);
-                            }
-                        }
-                    } elseif ($diklatResp instanceof \Exception) {
-                        \Illuminate\Support\Facades\Log::warning("Gagal ambil Diklat NIP {$nip}: " . $diklatResp->getMessage());
-                    }
-                }
-
-                $currentDiklat++;
-                // Tahap 4: progress 70% → 80% (bukan 95%, sisakan 80-100 untuk Tahap 5)
-                $stepProgress = 70 + intval(($currentDiklat / max(1, $totalDiklat)) * 10);
-                if ($currentDiklat % 5 === 0 || $currentDiklat === $totalDiklat) {
-                    $this->updateProgressCache($stepProgress, 4, 'processing', "Memproses riwayat diklat $currentDiklat / $totalDiklat pegawai...");
-                }
-                $bar4->advance();
-            }
-            // Beri jeda 1 detik tiap 3 request bersamaan
-            sleep(1);
-        }
-        $this->updateProgressCache(80, 4, 'done', 'Riwayat Diklat Selesai');
-        $bar4->finish();
-        $this->newLine();
-    }
 
     /**
      * TAHAP 5: SINKRONISASI DATA TAMBAHAN (API BARU)
@@ -671,30 +583,24 @@ class SyncEhrmData extends Command
                     }
                 }
 
-                // 3. Diklat Baru
+                // 3. Diklat Baru (Menggunakan API Baru sebagai satu-satunya sumber)
                 $diklatResp = $responses["diklat_".$nip] ?? null;
                 if ($diklatResp instanceof \Illuminate\Http\Client\Response && $diklatResp->successful()) {
                     $dataDiklat = $diklatResp->json()['data'][$nip] ?? [];
-                    if (is_array($dataDiklat) && !empty($dataDiklat)) {
-                        foreach ($dataDiklat as $d) {
-                            $arsipDoc = $d['arsip'] ?? $d['arsip_bpsdm'] ?? null;
-                            if ($arsipDoc) {
-                                $existing = \App\Models\RiwayatDiklat::where('nip', $nip)
-                                    ->where(function($q) use ($arsipDoc) {
-                                        $q->where('file_sertifikat', $arsipDoc)
-                                          ->orWhere('arsip', $arsipDoc);
-                                    })->first();
-                                    
-                                if (!$existing) {
-                                    \App\Models\RiwayatDiklat::create([
-                                        'nip' => $nip,
-                                        'jenis_diklat' => $d['jenis_diklat'] ?? null,
-                                        'file_sertifikat' => $d['arsip'] ?? null,
-                                        'arsip' => $d['arsip_bpsdm'] ?? $d['arsip'] ?? null,
-                                        'status_diklat' => 1,
-                                        'nama_diklat' => $d['jenis_diklat'] ?? 'DIKLAT TAMBAHAN',
-                                    ]);
-                                }
+                    if (is_array($dataDiklat)) {
+                        // Hapus semua data diklat lama karena kita sekarang hanya menggunakan API baru
+                        \App\Models\RiwayatDiklat::where('nip', $nip)->delete();
+                        
+                        if (!empty($dataDiklat)) {
+                            foreach ($dataDiklat as $d) {
+                                \App\Models\RiwayatDiklat::create([
+                                    'nip' => $nip,
+                                    'jenis_diklat' => $d['jenis_diklat'] ?? null,
+                                    'file_sertifikat' => $d['arsip'] ?? null,
+                                    'arsip' => $d['arsip_bpsdm'] ?? null,
+                                    'status_diklat' => 1, // Asumsikan selesai jika ada di API ini
+                                    'nama_diklat' => $d['nama_diklat'] ?? $d['jenis_diklat'] ?? 'DIKLAT TAMBAHAN',
+                                ]);
                             }
                         }
                     }

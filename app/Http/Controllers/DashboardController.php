@@ -186,8 +186,8 @@ class DashboardController extends Controller
                 'tanggal_mulai' => $d->tanggal_mulai ? \Carbon\Carbon::parse($d->tanggal_mulai)->format('d M Y') : '-',
                 'tanggal_selesai' => $d->tanggal_selesai ? \Carbon\Carbon::parse($d->tanggal_selesai)->format('d M Y') : '-',
                 'jenis' => $d->jenis_diklat ?? '-',
-                'sertifikat' => $d->nomor_sertifikat ?: '-',
-                'arsip' => $d->arsip ? 'Ada' : 'Tidak Ada',
+                'arsip_biasa' => $d->file_sertifikat ? 'Ada' : 'Tidak Ada',
+                'arsip_bpsdm' => $d->arsip ? 'Ada' : 'Tidak Ada',
                 'status' => $d->status_diklat == 1 ? 'Lulus' : 'Proses',
             ])->values(),
         ]);

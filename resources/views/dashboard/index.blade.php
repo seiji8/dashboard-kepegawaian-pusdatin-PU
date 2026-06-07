@@ -1202,17 +1202,38 @@
                 document.getElementById('diklatModalSub').textContent = `NIP: ${data.nip} - ${data.total} diklat (${label})`;
 
                 data.data.forEach((d, i) => {
-                    const arsipClass = d.arsip === 'Ada'
+                    let textBiasa = d.arsip_biasa;
+                    let textBpsdm = d.arsip_bpsdm;
+
+                    if (d.arsip_biasa === 'Ada' && d.arsip_bpsdm === 'Tidak Ada') {
+                        textBpsdm = '-';
+                    } else if (d.arsip_bpsdm === 'Ada' && d.arsip_biasa === 'Tidak Ada') {
+                        textBiasa = '-';
+                    }
+
+                    const arsipBiasaClass = textBiasa === 'Ada'
                         ? 'style="color:#166534; font-weight:600; white-space:nowrap; text-align:center;"'
-                        : 'style="color:#dc2626; font-weight:600; white-space:nowrap; text-align:center;"';
+                        : (textBiasa === '-' ? 'style="color:#94a3b8; font-weight:600; white-space:nowrap; text-align:center;"' : 'style="color:#dc2626; font-weight:600; white-space:nowrap; text-align:center;"');
+                    
+                    const arsipBpsdmClass = textBpsdm === 'Ada'
+                        ? 'style="color:#166534; font-weight:600; white-space:nowrap; text-align:center;"'
+                        : (textBpsdm === '-' ? 'style="color:#94a3b8; font-weight:600; white-space:nowrap; text-align:center;"' : 'style="color:#dc2626; font-weight:600; white-space:nowrap; text-align:center;"');
+                    
+                    let rowStyle = '';
+                    let missingBadge = '';
+                    if (textBiasa === 'Tidak Ada' && textBpsdm === 'Tidak Ada') {
+                        rowStyle = 'style="background-color: #fef2f2;"';
+                        missingBadge = '<div style="margin-top:6px;"><span style="background:#fee2e2; color:#dc2626; padding:3px 6px; border-radius:4px; font-size:10px; font-weight:700;"><i class="ph-bold ph-warning" style="margin-right:3px;"></i>Belum Ada Arsip</span></div>';
+                    }
+
                     body.innerHTML += `
-                        <tr>
+                        <tr ${rowStyle}>
                             <td>${i + 1}</td>
-                            <td style="max-width:200px; font-weight:500;">${d.nama_diklat}</td>
+                            <td style="max-width:200px; font-weight:500;">${d.nama_diklat}${missingBadge}</td>
                             <td style="white-space:nowrap; font-size:12px;">${d.tanggal_mulai}<br>s/d ${d.tanggal_selesai}</td>
                             <td><span style="background:#e0e7ff; color:#3730a3; padding:2px 8px; border-radius:4px; font-size:11px; font-weight:600;">${d.jenis}</span></td>
-                            <td style="font-size:12px;">${d.sertifikat}</td>
-                            <td ${arsipClass}>${d.arsip}</td>
+                            <td ${arsipBiasaClass}>${textBiasa}</td>
+                            <td ${arsipBpsdmClass}>${textBpsdm}</td>
                         </tr>`;
                 });
 

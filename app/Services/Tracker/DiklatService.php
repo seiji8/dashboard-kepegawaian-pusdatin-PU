@@ -47,10 +47,10 @@ class DiklatService implements TrackerInterface
                     ->where('kategori', 'DIKLAT_HUTANG')->delete();
             }
 
-            // --- ANOMALI DOKUMEN: status_diklat=1 tapi arsip/nomor_sertifikat null ---
+            // --- ANOMALI DOKUMEN: status_diklat=1 tapi file_sertifikat dan arsip null ---
             $anomaliDiklat = $riwayatDiklat->filter(function ($d) {
                 return $d->status_diklat == 1
-                    && (empty($d->arsip) || empty($d->nomor_sertifikat) || $d->nomor_sertifikat === '-');
+                    && empty($d->file_sertifikat) && empty($d->arsip);
             });
 
             if ($anomaliDiklat->isNotEmpty()) {
