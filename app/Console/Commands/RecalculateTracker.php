@@ -76,7 +76,7 @@ class RecalculateTracker extends Command
             $query->orderBy('tmt_angka_kredit', 'desc');
         }, 'riwayat_jabatan' => function ($query) {
             $query->orderBy('tmt_jabatan', 'desc');
-        }])->chunkById(500, function ($pegawais) use ($bar, $context, &$daftarUsulanBaru, $kgbService, $kpService, $kjService, $tubelService, $diklatService) {
+        }])->chunk(500, function ($pegawais) use ($bar, $context, &$daftarUsulanBaru, $kgbService, $kpService, $kjService, $tubelService, $diklatService) {
 
             foreach ($pegawais as $pegawai) {
                 /** @var \App\Models\Pegawai $pegawai */
@@ -90,7 +90,7 @@ class RecalculateTracker extends Command
 
                 $bar->advance();
             }
-        }, 'id_pegawai_api');
+        });
 
         $bar->finish();
         $this->newLine();

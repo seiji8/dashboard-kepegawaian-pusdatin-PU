@@ -55,6 +55,10 @@ class AuthController extends Controller
 
             // LOG: Login berhasil
             $user = Auth::user();
+            
+            // Cek sekali saja saat login dan simpan ke session
+            $request->session()->put('needs_password_change', Hash::check($user->username, $user->password));
+
             ActivityLogger::logAdminAction(
                 'Login berhasil oleh ' . $user->nama_lengkap . ' (' . $user->email . ')'
             );
@@ -226,6 +230,9 @@ class AuthController extends Controller
         $user->password = $request->new_password;
         $user->save();
 
+        // Update status session menjadi false karena password sudah diubah
+        $request->session()->put('needs_password_change', false);
+
         // 3. Log Aktivitas
         ActivityLogger::logAdminAction(
             'Mengubah password akun sendiri (' . $user->nama_lengkap . ')'
@@ -253,6 +260,9 @@ class AuthController extends Controller
         /** @var \App\Models\User $user */
         $user->password = $request->password;
         $user->save();
+
+        // Update status session menjadi false karena password sudah diubah
+        $request->session()->put('needs_password_change', false);
 
         ActivityLogger::logAdminAction('Mengubah password default akun (' . $user->nama_lengkap . ')');
 
