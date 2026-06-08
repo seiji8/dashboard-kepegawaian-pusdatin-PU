@@ -234,6 +234,22 @@ class SuratPengajuanController extends Controller
         $finalPdfPath = $pdfService->generateSurat($request->all(), $trackers, $this->kategoriLabels);
         
         $filename = basename($finalPdfPath);
+
+        // Jika didownload (bukan preview), maka bersihkan semua lampiran fisik
+        if ($request->input('is_preview', 0) == 0) {
+            foreach ($trackers as $tracker) {
+                $lampirans = \App\Models\LampiranCetakSurat::where('dashboard_tracker_id', $tracker->id)
+                                ->whereNotNull('file_path')
+                                ->get();
+                foreach ($lampirans as $lamp) {
+                    if (\Storage::disk('public')->exists($lamp->file_path)) {
+                        \Storage::disk('public')->delete($lamp->file_path);
+                    }
+                    $lamp->delete();
+                }
+            }
+        }
+
         return response()->download($finalPdfPath, $filename)->deleteFileAfterSend(true);
     }
 }

@@ -23,4 +23,9 @@ class DashboardTracker extends Model
     {
         return $this->hasMany(KelengkapanDokumen::class, 'dashboard_tracker_id', 'id');
     }
+
+    public function lampiran_cetak_surat()
+    {
+        return $this->hasMany(LampiranCetakSurat::class, 'dashboard_tracker_id', 'id');
+    }
 }

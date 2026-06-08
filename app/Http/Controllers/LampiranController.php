@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\KelengkapanDokumen;
+use App\Models\LampiranCetakSurat;
 use App\Models\DashboardTracker;
 use Illuminate\Support\Facades\Storage;
 
@@ -16,7 +16,7 @@ class LampiranController extends Controller
     {
         $tracker = DashboardTracker::with('pegawai')->findOrFail($tracker_id);
 
-        $lampiran = KelengkapanDokumen::where('dashboard_tracker_id', $tracker_id)
+        $lampiran = LampiranCetakSurat::where('dashboard_tracker_id', $tracker_id)
             ->whereNotNull('file_path')
             ->orderBy('urutan')
             ->orderBy('id')
@@ -29,6 +29,7 @@ class LampiranController extends Controller
                     'file_path'      => $item->file_path,
                     'mime_type'      => $item->mime_type,
                     'urutan'         => $item->urutan,
+                    'halaman_cetak'  => $item->halaman_cetak,
                     'ukuran_bytes'   => $item->ukuran_bytes,
                     'url_preview'    => $item->file_path ? Storage::url($item->file_path) : null,
                 ];
@@ -52,7 +53,7 @@ class LampiranController extends Controller
     {
         $request->validate([
             'tracker_id'     => 'required|exists:dashboard_tracker,id',
-            'judul_lampiran' => 'required|string|max:255',
+            'judul_lampiran' => 'nullable|string|max:255',
             'file'           => 'required|file|mimes:jpg,jpeg,png,pdf|max:10240',
         ]);
 
@@ -63,7 +64,9 @@ class LampiranController extends Controller
         $mimeType = $file->getMimeType();
         $origName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
         $ext      = $file->getClientOriginalExtension();
-        $safeJudul = preg_replace('/[^A-Za-z0-9\-_]/', '_', $request->judul_lampiran);
+        
+        $judulLampiran = $request->judul_lampiran ?: 'Lampiran_' . time();
+        $safeJudul = preg_replace('/[^A-Za-z0-9\-_]/', '_', $judulLampiran);
         $filename  = $safeJudul . '_' . time() . '.' . $ext;
         $folder    = 'lampiran/' . $nip;
 
@@ -78,18 +81,21 @@ class LampiranController extends Controller
         }
 
         // Hitung urutan berikutnya
-        $maxUrutan = KelengkapanDokumen::where('dashboard_tracker_id', $request->tracker_id)
+        $maxUrutan = LampiranCetakSurat::where('dashboard_tracker_id', $request->tracker_id)
             ->whereNotNull('file_path')
             ->max('urutan') ?? 0;
 
-        $lampiran = KelengkapanDokumen::create([
+        $halamanCetak = $request->input('halaman_cetak', 1);
+
+        $lampiran = LampiranCetakSurat::create([
             'dashboard_tracker_id' => $request->tracker_id,
             'nip'                  => $nip,
-            'nama_dokumen'         => $request->judul_lampiran,
-            'judul_lampiran'       => $request->judul_lampiran,
+            'nama_dokumen'         => $request->judul_lampiran ?: $judulLampiran, // Fallback if null
+            'judul_lampiran'       => $judulLampiran,
             'file_path'            => $storedPath,
             'mime_type'            => $mimeType,
             'urutan'               => $maxUrutan + 1,
+            'halaman_cetak'        => $halamanCetak,
             'ukuran_bytes'         => Storage::disk('public')->size($storedPath),
             'is_uploaded'          => true,
             'status_verifikasi'    => 'Pending',
@@ -114,7 +120,7 @@ class LampiranController extends Controller
      */
     public function destroy(string $id)
     {
-        $lampiran = KelengkapanDokumen::findOrFail($id);
+        $lampiran = LampiranCetakSurat::findOrFail($id);
 
         if ($lampiran->file_path && Storage::disk('public')->exists($lampiran->file_path)) {
             Storage::disk('public')->delete($lampiran->file_path);
@@ -133,7 +139,7 @@ class LampiranController extends Controller
      */
     public function clearAll(string $tracker_id)
     {
-        $lampirans = KelengkapanDokumen::where('dashboard_tracker_id', $tracker_id)
+        $lampirans = LampiranCetakSurat::where('dashboard_tracker_id', $tracker_id)
             ->whereNotNull('file_path')
             ->get();
 
@@ -158,7 +164,7 @@ class LampiranController extends Controller
         $request->validate(['order' => 'required|array']);
 
         foreach ($request->order as $index => $id) {
-            KelengkapanDokumen::where('id', $id)->update(['urutan' => $index + 1]);
+            LampiranCetakSurat::where('id', $id)->update(['urutan' => $index + 1]);
         }
 
         return response()->json(['success' => true]);
@@ -227,7 +233,7 @@ class LampiranController extends Controller
             'judul_lampiran' => 'nullable|string|max:255',
         ]);
 
-        $lampiran = KelengkapanDokumen::findOrFail($id);
+        $lampiran = LampiranCetakSurat::findOrFail($id);
         $lampiran->update([
             'judul_lampiran' => $request->judul_lampiran ?? $lampiran->nama_dokumen,
         ]);

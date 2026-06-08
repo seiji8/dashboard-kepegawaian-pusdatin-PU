@@ -29,10 +29,39 @@ function fetchLampiran(trackerId) {
         currentLampiransData = data.lampiran || [];
         renderLampiranList(currentLampiransData);
         closeLampiranDetailPreview(); // Sembunyikan detail lama saat pegawai berganti
+        if (typeof checkHalamanTitle === 'function') checkHalamanTitle(); // Recheck UI 
     })
     .catch(() => {
         document.getElementById('lampiranList').innerHTML = '<p style="color:#dc2626; font-size:13px;">Gagal memuat lampiran.</p>';
     });
+}
+
+function checkHalamanTitle() {
+    const inputHalaman = document.getElementById('lampiranHalamanCetak');
+    const containerJudul = document.getElementById('judulHalamanContainer');
+    const infoJudul = document.getElementById('judulHalamanInfo');
+    const infoNum = document.getElementById('infoHalamanCetak');
+    
+    if (!inputHalaman || !containerJudul || !infoJudul) return;
+    
+    const targetPage = parseInt(inputHalaman.value) || 1;
+    
+    // Cek apakah halaman ini sudah ada di currentLampiransData
+    const existing = currentLampiransData.find(x => x.halaman_cetak == targetPage);
+    
+    if (existing) {
+        // Sudah ada: Sembunyikan form input judul, tampilkan notifikasi
+        containerJudul.style.display = 'none';
+        infoJudul.style.display = 'block';
+        infoNum.textContent = targetPage;
+        // Kita juga bisa mengosongkan input judul agar backend menggunakan default/fallback jika tidak sengaja terkirim
+        const inputJudul = document.getElementById('lampiranJudul');
+        if (inputJudul) inputJudul.value = '';
+    } else {
+        // Belum ada: Tampilkan form input judul
+        containerJudul.style.display = 'block';
+        infoJudul.style.display = 'none';
+    }
 }
 
 function renderLampiranList(items) {
@@ -51,27 +80,58 @@ function renderLampiranList(items) {
         return;
     }
 
-    list.innerHTML = items.map((item, idx) => {
-        const isImage = item.mime_type && item.mime_type.includes('image');
-        const icon = isImage ? 'ph-image' : 'ph-file-pdf';
-        const iconColor = isImage ? '#0ea5e9' : '#ef4444';
-        const sizeKb = item.ukuran_bytes ? (item.ukuran_bytes / 1024).toFixed(0) + ' KB' : '';
-        return `<div class="lampiran-item-card">
-            <div style="width:38px; height:38px; border-radius:10px; background:#f1f5f9; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
-                <i class="ph-bold ${icon}" style="font-size:18px; color:${iconColor};"></i>
+    // Group by halaman_cetak
+    const grouped = {};
+    items.forEach(item => {
+        const page = item.halaman_cetak || 1;
+        if (!grouped[page]) grouped[page] = [];
+        grouped[page].push(item);
+    });
+
+    const htmlParts = [];
+    const pages = Object.keys(grouped).sort((a,b) => parseInt(a) - parseInt(b));
+    
+    pages.forEach(page => {
+        const pageItems = grouped[page];
+        const firstItem = pageItems[0];
+        // Judul halaman dari nama_dokumen (yang merupakan judul form opsional)
+        let pageJudul = firstItem.nama_dokumen || '';
+        if (pageJudul.startsWith('Lampiran_')) pageJudul = ''; // Abaikan auto-generated fallback
+
+        htmlParts.push(`
+            <div style="margin-top: 16px; margin-bottom: 10px; border-bottom: 2px solid #e2e8f0; padding-bottom: 6px; display:flex; align-items:center;">
+                <span style="font-size:12px; font-weight:800; color:#3b82f6; text-transform:uppercase; letter-spacing:0.5px; background:#eff6ff; padding:4px 8px; border-radius:6px;">HALAMAN ${page}</span>
+                <span style="font-size:13px; font-weight:700; color:#0f172a; margin-left: 10px;">${pageJudul ? pageJudul : '<span style="color:#94a3b8;font-weight:500;">(Tanpa Judul)</span>'}</span>
             </div>
-            <div style="flex:1; min-width:0;">
-                <p style="margin:0; font-size:13px; font-weight:700; color:#0f172a; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; letter-spacing:-0.1px;">${item.judul_lampiran}</p>
-                <p style="margin:2.5px 0 0; font-size:11px; color:#64748b; font-weight:500;">Urutan ${item.urutan} &nbsp;•&nbsp; ${sizeKb}</p>
-            </div>
-            <button type="button" onclick="viewLampiranDetail(${item.id})" style="color:#2563eb; background:#eff6ff; border:none; width:32px; height:32px; border-radius:8px; display:flex; align-items:center; justify-content:center; cursor:pointer; transition:all 0.2s;" onmouseover="this.style.background='#dbeafe'" onmouseout="this.style.background='#eff6ff'" title="Preview">
-                <i class="ph-bold ph-eye" style="font-size:15px;"></i>
-            </button>
-            <button type="button" onclick="deleteLampiran(${item.id})" style="color:#ef4444; background:#fee2e2; border:none; width:32px; height:32px; border-radius:8px; display:flex; align-items:center; justify-content:center; cursor:pointer; transition:all 0.2s;" onmouseover="this.style.background='#fecaca'" onmouseout="this.style.background='#fee2e2'" title="Hapus">
-                <i class="ph-bold ph-trash" style="font-size:15px;"></i>
-            </button>
-        </div>`;
-    }).join('');
+        `);
+        
+        pageItems.forEach((item, idx) => {
+            const isImage = item.mime_type && item.mime_type.includes('image');
+            const icon = isImage ? 'ph-image' : 'ph-file-pdf';
+            const iconColor = isImage ? '#0ea5e9' : '#ef4444';
+            const sizeKb = item.ukuran_bytes ? (item.ukuran_bytes / 1024).toFixed(0) + ' KB' : '';
+            // Tampilkan nama file asli dari file_path
+            const filename = item.file_path ? item.file_path.split('/').pop() : 'File';
+            
+            htmlParts.push(`<div class="lampiran-item-card" style="margin-left: 6px; margin-bottom: 8px; padding: 10px;">
+                <div style="width:34px; height:34px; border-radius:8px; background:#f1f5f9; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+                    <i class="ph-bold ${icon}" style="font-size:16px; color:${iconColor};"></i>
+                </div>
+                <div style="flex:1; min-width:0;">
+                    <p style="margin:0; font-size:12px; font-weight:600; color:#1e293b; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; letter-spacing:-0.1px;" title="${filename}">${filename}</p>
+                    <p style="margin:3px 0 0; font-size:10.5px; color:#64748b; font-weight:500;">Ukuran: ${sizeKb}</p>
+                </div>
+                <button type="button" onclick="viewLampiranDetail(${item.id})" style="color:#2563eb; background:#eff6ff; border:none; width:30px; height:30px; border-radius:6px; display:flex; align-items:center; justify-content:center; cursor:pointer; transition:all 0.2s;" onmouseover="this.style.background='#dbeafe'" onmouseout="this.style.background='#eff6ff'" title="Preview">
+                    <i class="ph-bold ph-eye" style="font-size:14px;"></i>
+                </button>
+                <button type="button" onclick="deleteLampiran(${item.id})" style="color:#ef4444; background:#fee2e2; border:none; width:30px; height:30px; border-radius:6px; display:flex; align-items:center; justify-content:center; cursor:pointer; transition:all 0.2s;" onmouseover="this.style.background='#fecaca'" onmouseout="this.style.background='#fee2e2'" title="Hapus">
+                    <i class="ph-bold ph-trash" style="font-size:14px;"></i>
+                </button>
+            </div>`);
+        });
+    });
+
+    list.innerHTML = htmlParts.join('');
 }
 
 function viewLampiranDetail(id) {
@@ -213,6 +273,7 @@ function executeClearAllLampiran(isSilent = false) {
             currentLampiransData = [];
             renderLampiranList(currentLampiransData);
             closeLampiranDetailPreview();
+            if (typeof checkHalamanTitle === 'function') checkHalamanTitle(); // Recheck UI
             
             if (!isSilent) {
                 showCustomToast('Semua lampiran berhasil dibersihkan!', 'success');
@@ -238,14 +299,15 @@ function uploadLampiran() {
     const fileInput = document.getElementById('lampiranFile');
     const file = fileInput.files[0];
     
-    if (!judul || !file) {
-        showCustomToast('Judul dokumen dan file wajib diisi!', 'warning');
+    if (!file) {
+        showCustomToast('File wajib diisi!', 'warning');
         return;
     }
     
     const formData = new FormData();
     formData.append('_token', document.querySelector('meta[name="csrf-token"]').getAttribute('content'));
     formData.append('judul_lampiran', judul);
+    formData.append('halaman_cetak', document.getElementById('lampiranHalamanCetak') ? document.getElementById('lampiranHalamanCetak').value : 1);
     formData.append('file', file); // Controller expects 'file', not 'file_lampiran'
     formData.append('tracker_id', currentTrackerId);
     

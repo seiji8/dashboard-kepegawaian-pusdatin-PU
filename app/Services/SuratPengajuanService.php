@@ -176,8 +176,8 @@ class SuratPengajuanService
         string $tanggalSurat = '............................................',
         ?string $judulLampiranPertama = null
     ): string {
-        // Kelompokkan lampiran berdasarkan judul_lampiran
-        $groups = $lampirans->groupBy('judul_lampiran');
+        // Kelompokkan lampiran berdasarkan halaman_cetak
+        $groups = $lampirans->groupBy('halaman_cetak');
 
         // Buka PDF base (surat pengantar) menggunakan FPDI
         $fpdi = new \setasign\Fpdi\Fpdi('P', 'mm', 'A4');
@@ -196,8 +196,11 @@ class SuratPengajuanService
         // Variabel penanda halaman lampiran pertama
         $isFirstLampiranPage = true;
 
-        // Loop setiap grup lampiran
-        foreach ($groups as $judul => $items) {
+        // Loop setiap grup lampiran (berdasarkan halaman_cetak)
+        foreach ($groups as $halamanCetak => $items) {
+            // Ambil judul dari item pertama di grup halaman ini
+            $judul = $items->first()->judul_lampiran ?? 'Lampiran Dokumen';
+            
             $images = $items->filter(fn($i) => in_array($i->mime_type, ['image/jpeg', 'image/png', 'image/jpg']));
             $pdfs   = $items->filter(fn($i) => $i->mime_type === 'application/pdf');
 
@@ -293,14 +296,18 @@ class SuratPengajuanService
                 $halfW = ($totalW - $gap) / 2;
 
                 $imgList = $images->values();
+                $renderedImages = [];
+                $maxH = 0;
+
+                // Hitung dimensi
                 foreach ($imgList as $idx => $imgItem) {
                     $imgPath = storage_path('app/public/' . $imgItem->file_path);
                     if (!file_exists($imgPath)) continue;
 
                     $xPos = 25 + ($idx * ($halfW + $gap));
-
                     $imageInfo = getimagesize($imgPath);
                     if (!$imageInfo) continue;
+                    
                     $origW = $imageInfo[0];
                     $origH = $imageInfo[1];
                     $fpdfType = '';
@@ -318,10 +325,33 @@ class SuratPengajuanService
                     $newW  = $physicalW * $finalRatio;
                     $newH  = $physicalH * $finalRatio;
                     $imgX  = $xPos + ($halfW - $newW) / 2;
-                    $imgY  = $boxY; // Rata atas
+                    $imgY  = $boxY + 5; // Geser sedikit ke bawah untuk margin kotak besar
 
-                    $fpdi->Image($imgPath, $imgX, $imgY, $newW, $newH, $fpdfType);
-                    $fpdi->Rect($imgX, $imgY, $newW, $newH);
+                    if ($newH > $maxH) $maxH = $newH;
+
+                    $renderedImages[] = [
+                        'path' => $imgPath,
+                        'x' => $imgX,
+                        'y' => $imgY,
+                        'w' => $newW,
+                        'h' => $newH,
+                        'type' => $fpdfType
+                    ];
+                }
+
+                // Gambar kotak besar yang menampung
+                if (count($renderedImages) > 0) {
+                    $fpdi->SetDrawColor(0, 0, 0);
+                    $fpdi->SetLineWidth(0.4); // Lebih tebal sedikit untuk kotak luar
+                    $fpdi->Rect(25, $boxY, 166, $maxH + 10);
+                    
+                    // Gambar masing-masing gambar
+                    foreach ($renderedImages as $img) {
+                        $fpdi->Image($img['path'], $img['x'], $img['y'], $img['w'], $img['h'], $img['type']);
+                        // Garis tipis untuk tiap gambar
+                        $fpdi->SetLineWidth(0.1);
+                        $fpdi->Rect($img['x'], $img['y'], $img['w'], $img['h']);
+                    }
                 }
 
             } elseif ($images->count() >= 1) {
@@ -533,7 +563,10 @@ class SuratPengajuanService
             $scaledPlausible[2]['h'] = $newH;
         }
 
-        // 3. Gambar masing-masing media ke halaman PDF dengan rata atas (top alignment)
+        $maxOuterBottom = $yTop;
+
+        // Tentukan koordinat untuk menggambar
+        $renderData = [];
         foreach ($scaledPlausible as $idx => $item) {
             $page = $item['page'];
             $newW = $item['w'];
@@ -541,23 +574,48 @@ class SuratPengajuanService
 
             if ($idx === 0) {
                 $xPos = 25 + ($halfW - $newW) / 2;
-                $yPos = $yTop;
+                $yPos = $yTop + 5; // Geser ke bawah sedikit untuk margin kotak besar
             } elseif ($idx === 1) {
                 $xPos = (25 + $halfW + 5) + ($halfW - $newW) / 2;
-                $yPos = $yTop;
+                $yPos = $yTop + 5;
             } else {
                 $xPos = 25 + (166 - $newW) / 2;
-                $yPos = $yBottom;
+                $yPos = $yBottom + 5;
             }
+
+            $maxOuterBottom = max($maxOuterBottom, $yPos + $newH);
+            $renderData[] = [
+                'page' => $page,
+                'xPos' => $xPos,
+                'yPos' => $yPos,
+                'newW' => $newW,
+                'newH' => $newH,
+            ];
+        }
+
+        // Gambar kotak besar yang menampung
+        if (count($renderData) > 0) {
+            $fpdi->SetDrawColor(0, 0, 0);
+            $fpdi->SetLineWidth(0.4);
+            $fpdi->Rect(25, $yTop, 166, ($maxOuterBottom - $yTop) + 5);
+        }
+
+        // 3. Gambar masing-masing media ke halaman PDF dengan rata atas (top alignment)
+        foreach ($renderData as $data) {
+            $page = $data['page'];
+            $xPos = $data['xPos'];
+            $yPos = $data['yPos'];
+            $newW = $data['newW'];
+            $newH = $data['newH'];
 
             if ($page['type'] === 'pdf_page') {
                 $fpdi->setSourceFile($page['path']);
                 $tpl = $fpdi->importPage($page['page_no']);
                 $fpdi->useTemplate($tpl, $xPos, $yPos, $newW, $newH);
                 
-                // Gambar border hitam tipis di sekeliling media hasil skala
+                // Gambar border tipis individual
                 $fpdi->SetDrawColor(0, 0, 0);
-                $fpdi->SetLineWidth(0.2);
+                $fpdi->SetLineWidth(0.1);
                 $fpdi->Rect($xPos, $yPos, $newW, $newH);
 
             } elseif ($page['type'] === 'image') {
@@ -571,9 +629,9 @@ class SuratPengajuanService
                 
                 $fpdi->Image($page['path'], $xPos, $yPos, $newW, $newH, $fpdfType);
 
-                // Gambar border hitam tipis di sekeliling media hasil skala
+                // Gambar border tipis individual
                 $fpdi->SetDrawColor(0, 0, 0);
-                $fpdi->SetLineWidth(0.2);
+                $fpdi->SetLineWidth(0.1);
                 $fpdi->Rect($xPos, $yPos, $newW, $newH);
             }
         }

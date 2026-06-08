@@ -373,6 +373,7 @@ function generateSurat(isPreview = false, isAutoRefresh = false) {
     payload.append("_token", csrfToken);
     payload.append("kategori", suratKategori);
     payload.append("format", "pdf");
+    payload.append("is_preview", isPreview ? 1 : 0);
     selectedIds.forEach((id) => payload.append("tracker_ids[]", id));
 
     const fields = {

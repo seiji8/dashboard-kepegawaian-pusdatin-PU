@@ -150,9 +150,24 @@
                     <div class="lampiran-upload-card">
                         <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px; margin-bottom:20px;">
                             <div>
-                                <label class="surat-modal-label">JUDUL DOKUMEN *</label>
-                                <input type="text" id="lampiranJudul" placeholder="Contoh: Sertifikat Kompetensi BKN" class="surat-modal-input" style="background:#fff;">
-                                <p style="font-size:10.5px; color:#64748b; margin:6px 0 0; font-weight:500; line-height:1.4;">💡 Upload 2 gambar dengan judul SAMA &rarr; otomatis dijejerin 1 halaman</p>
+                                <label class="surat-modal-label">PILIH HALAMAN CETAK (PENGELOMPOKKAN)</label>
+                                <div style="display:flex; align-items:center; gap:10px;">
+                                    <span style="font-size:13px; color:#334155; font-weight:700;">Halaman Ke -</span>
+                                    <input type="number" id="lampiranHalamanCetak" value="1" min="1" class="surat-modal-input" style="background:#fff; width: 70px; padding: 8px; text-align: center; font-weight:700;" oninput="checkHalamanTitle()" onchange="checkHalamanTitle()">
+                                </div>
+                                <p style="font-size:10.5px; color:#64748b; margin:6px 0 0; font-weight:500; line-height:1.4;">💡 Set nomor yg sama utk gabung gambar dlm 1 hal (max 3).</p>
+
+                                <div id="judulHalamanContainer" style="margin-top:16px;">
+                                    <label class="surat-modal-label">JUDUL HALAMAN (OPSIONAL)</label>
+                                    <input type="text" id="lampiranJudul" placeholder="Boleh dikosongkan..." class="surat-modal-input" style="background:#fff;">
+                                </div>
+                                <div id="judulHalamanInfo" style="margin-top:16px; display:none; padding:10px; border-radius:8px; background:#f0fdf4; border:1px solid #bbf7d0;">
+                                    <p style="margin:0; font-size:11px; color:#166534; line-height:1.5;">
+                                        <i class="ph-fill ph-info" style="vertical-align:-1px; font-size:14px; margin-right:4px;"></i>
+                                        Halaman <span id="infoHalamanCetak" style="font-weight:700;">1</span> sudah terdaftar.<br>
+                                        <span style="opacity:0.85; margin-left:18px; display:block;">File ini akan tergabung ke halaman tsb.</span>
+                                    </p>
+                                </div>
                             </div>
                             <div>
                                 <label class="surat-modal-label">FILE *</label>

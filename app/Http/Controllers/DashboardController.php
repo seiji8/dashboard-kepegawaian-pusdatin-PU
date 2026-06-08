@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Pegawai;
 use App\Models\DashboardTracker;
-use App\Models\KelengkapanDokumen;
+use App\Models\LampiranCetakSurat;
 use App\Models\NotifikasiRules; // Added
 use App\Helpers\ActivityLogger;
 use Illuminate\Support\Facades\Auth;
@@ -406,7 +406,7 @@ public function syncProgress()
      */
     public function generateBundleKj(Request $request, string $id)
     {
-        $tracker = DashboardTracker::with(['pegawai', 'kelengkapan_dokumen'])->findOrFail($id);
+        $tracker = DashboardTracker::with(['pegawai', 'lampiran_cetak_surat'])->findOrFail($id);
         $pegawai = $tracker->pegawai;
 
         if (!$pegawai) {
@@ -414,7 +414,7 @@ public function syncProgress()
         }
 
         // Ambil lampiran yang punya file fisik, urutkan
-        $lampirans = $tracker->kelengkapan_dokumen
+        $lampirans = $tracker->lampiran_cetak_surat
             ->whereNotNull('file_path')
             ->sortBy('urutan');
 
@@ -471,6 +471,15 @@ public function syncProgress()
                 'Mencetak Bundle Surat Usul KJ untuk: ' . $pegawai->nama . ' (dengan ' . $lampirans->count() . ' lampiran)',
                 Auth::user()->name
             );
+
+            // Bersihkan fisik lampiran dari server setelah di-bundle jadi PDF
+            foreach ($lampirans as $lamp) {
+                if (\Storage::disk('public')->exists($lamp->file_path)) {
+                    \Storage::disk('public')->delete($lamp->file_path);
+                }
+                $lamp->delete();
+            }
+
             return response()->download($finalPath, $filename)->deleteFileAfterSend(true);
         }
 
