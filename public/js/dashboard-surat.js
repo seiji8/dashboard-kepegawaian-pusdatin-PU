@@ -144,11 +144,6 @@ function closeSuratModal() {
     const modal = document.getElementById("suratModal");
     if (modal) modal.style.display = "none";
     
-    // Hapus lampiran sementara jika modal ditutup atau PDF di-download
-    if (typeof executeClearAllLampiran === 'function' && currentTrackerId) {
-        executeClearAllLampiran(true);
-    }
-    
     suratKategori = null;
     suratGroupsData = [];
 }
