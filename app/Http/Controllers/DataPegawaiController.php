@@ -307,12 +307,25 @@ class DataPegawaiController extends Controller
              return response()->json(['success' => false, 'message' => 'Pesan tidak boleh kosong'], 400);
         }
 
+        // Ambil list riwayat diklat bermasalah untuk placeholder {detail_diklat}
+        $listNamaDiklat = "";
+        $riwayatDiklat = \App\Models\RiwayatDiklat::where('nip', $pegawai->nip)->get();
+        $anomaliDiklat = $riwayatDiklat->filter(function ($d) {
+            return $d->status_diklat == 1
+                && empty($d->file_sertifikat) && empty($d->arsip);
+        });
+        foreach ($anomaliDiklat as $d) {
+            $listNamaDiklat .= "- " . $d->nama_diklat . "\n";
+        }
+        $listNamaDiklat = trim($listNamaDiklat);
+
         // Replace Placeholders
         $placeholders = [
             '{nama}' => $pegawai->nama,
             '{nip}' => $pegawai->nip,
             '{jabatan}' => $pegawai->jabatan_saat_ini ?? '-',
             '{pangkat}' => $pegawai->pangkat_saat_ini ?? '-',
+            '{detail_diklat}' => $listNamaDiklat,
         ];
 
         foreach ($placeholders as $key => $value) {

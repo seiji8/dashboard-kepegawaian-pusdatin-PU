@@ -195,27 +195,40 @@ function closeReminderModal() {
 
 function toggleMessageMode() {
     const isCustom = document.getElementById('checkCustom').checked;
+    const selectTemplate = document.getElementById('reminderTemplate');
     const txtMessage = document.getElementById('reminderMessage');
 
+    let templateText = "";
+    if (selectTemplate && selectTemplate.selectedIndex >= 0) {
+        const opt = selectTemplate.options[selectTemplate.selectedIndex];
+        templateText = opt ? (opt.getAttribute("data-pesan") || "") : "";
+    }
+
     if (isCustom) {
-        // Disable Tom Select (or native select) dan clear value
+        // Disable Tom Select (or native select)
         if (reminderTomSelectDP) {
             reminderTomSelectDP.disable();
-            reminderTomSelectDP.clear();
         } else {
-            const selectTemplate = document.getElementById('reminderTemplate');
-            if (selectTemplate) { selectTemplate.disabled = true; selectTemplate.value = ''; }
+            if (selectTemplate) selectTemplate.disabled = true;
         }
-        if (txtMessage) { txtMessage.disabled = false; txtMessage.focus(); }
+        if (txtMessage) {
+            txtMessage.disabled = false;
+            if (!txtMessage.value || txtMessage.value.trim() === "") {
+                txtMessage.value = templateText;
+            }
+            txtMessage.focus();
+        }
     } else {
         // Enable Tom Select (or native select)
         if (reminderTomSelectDP) {
             reminderTomSelectDP.enable();
         } else {
-            const selectTemplate = document.getElementById('reminderTemplate');
             if (selectTemplate) selectTemplate.disabled = false;
         }
-        if (txtMessage) { txtMessage.disabled = true; txtMessage.value = ''; }
+        if (txtMessage) {
+            txtMessage.disabled = true;
+            txtMessage.value = templateText;
+        }
     }
 }
 

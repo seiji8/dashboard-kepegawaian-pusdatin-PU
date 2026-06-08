@@ -87,24 +87,35 @@ function toggleMessageMode() {
             : null;
     const txtMessage = document.getElementById("reminderMessage");
 
+    let templateText = "";
+    if (selectTemplate && selectTemplate.selectedIndex >= 0) {
+        const opt = selectTemplate.options[selectTemplate.selectedIndex];
+        templateText = opt ? (opt.getAttribute("data-pesan") || "") : "";
+    }
+
     if (isCustom) {
         if (tomSelect) {
             tomSelect.disable();
-            tomSelect.clear();
         } else if (selectTemplate) {
             selectTemplate.disabled = true;
-            selectTemplate.value = "";
         }
-        txtMessage.disabled = false;
-        txtMessage.focus();
+        if (txtMessage) {
+            txtMessage.disabled = false;
+            if (!txtMessage.value || txtMessage.value.trim() === "") {
+                txtMessage.value = templateText;
+            }
+            txtMessage.focus();
+        }
     } else {
         if (tomSelect) {
             tomSelect.enable();
         } else if (selectTemplate) {
             selectTemplate.disabled = false;
         }
-        txtMessage.disabled = true;
-        txtMessage.value = "";
+        if (txtMessage) {
+            txtMessage.disabled = true;
+            txtMessage.value = templateText;
+        }
     }
 }
 

@@ -76,17 +76,50 @@
                             $bullets   = [];
                             $outro     = [];
                             $inBullets = false;
+
+                            $blocks = [];
+                            $currentList = [];
+
                             foreach ($lines as $line) {
                                 $trimmed = trim($line);
-                                if ($trimmed === '') continue;
+                                if ($trimmed === '') {
+                                    if (!empty($currentList)) {
+                                        $blocks[] = ['type' => 'list', 'items' => $currentList];
+                                        $currentList = [];
+                                    }
+                                    continue;
+                                }
+
+                                // Deteksi bullet point tabel (•) untuk summary admin
                                 if (mb_substr($trimmed, 0, 1) === '•') {
                                     $inBullets = true;
                                     $bullets[] = ltrim(ltrim($trimmed, '•'), ' ');
-                                } elseif ($inBullets) {
+                                    continue;
+                                }
+
+                                // Deteksi bullet point reguler (- atau *)
+                                if (mb_substr($trimmed, 0, 2) === '- ' || mb_substr($trimmed, 0, 2) === '* ') {
+                                    // Tutup block paragraf sebelumnya jika ada yang menumpuk
+                                    $currentList[] = ltrim(mb_substr($trimmed, 2));
+                                    continue;
+                                }
+
+                                // Jika ada list yang sedang berjalan, flush ke blocks
+                                if (!empty($currentList)) {
+                                    $blocks[] = ['type' => 'list', 'items' => $currentList];
+                                    $currentList = [];
+                                }
+
+                                if ($inBullets) {
                                     $outro[] = $trimmed;
                                 } else {
                                     $intro[] = $trimmed;
+                                    $blocks[] = ['type' => 'p', 'content' => $trimmed];
                                 }
+                            }
+
+                            if (!empty($currentList)) {
+                                $blocks[] = ['type' => 'list', 'items' => $currentList];
                             }
                         @endphp
 
@@ -99,64 +132,77 @@
                             <tr>
                                 <td style="padding:24px 28px;">
 
-                                    {{-- Intro paragraphs --}}
-                                    @foreach($intro as $line)
-                                    <p style="margin:0 0 20px;font-size:14px;color:#111827;line-height:1.7;font-weight:500;">
-                                        {{ $line }}
-                                    </p>
-                                    @endforeach
-
-                                    {{-- Clean Data Table --}}
                                     @if(count($bullets) > 0)
-                                    <table cellpadding="0" cellspacing="0" border="0" width="100%"
-                                           style="border:1px solid #e5e7eb;border-radius:8px;overflow:hidden;margin-bottom:20px;">
-
-                                        {{-- Table Header --}}
-                                        <tr style="background:#142B6F;">
-                                            <td style="padding:10px 16px;font-size:11px;font-weight:700;color:#ffffff;text-transform:uppercase;letter-spacing:0.8px;width:60%;">
-                                                Jenis Usulan
-                                            </td>
-                                            <td style="padding:10px 16px;font-size:11px;font-weight:700;color:#ffffff;text-transform:uppercase;letter-spacing:0.8px;text-align:right;">
-                                                Jumlah
-                                            </td>
-                                        </tr>
-
-                                        @foreach($bullets as $i => $bullet)
-                                        @php
-                                            $parts    = explode(':', $bullet, 2);
-                                            $kategori = trim($parts[0]);
-                                            $detail   = isset($parts[1]) ? trim($parts[1]) : '';
-                                            preg_match('/(\d+)/', $detail, $numMatch);
-                                            $angka  = $numMatch[1] ?? '';
-                                            $satuan = trim(preg_replace('/\d+/', '', $detail));
-                                            $isOdd  = ($i % 2 === 0);
-                                        @endphp
-                                        <tr style="background:{{ $isOdd ? '#f9fafb' : '#ffffff' }};border-top:1px solid #e5e7eb;">
-                                            <td style="padding:12px 16px;font-size:14px;color:#111827;font-weight:600;">
-                                                {{ $kategori }}
-                                            </td>
-                                            <td style="padding:12px 16px;text-align:right;white-space:nowrap;vertical-align:middle;">
-                                                @if($angka)
-                                                <span style="display:inline-block;background:#142B6F;color:#ffffff;font-size:13px;font-weight:800;padding:3px 14px;border-radius:20px;">
-                                                    {{ $angka }}
-                                                </span>
-                                                <span style="font-size:12px;color:#374151;margin-left:6px;font-weight:500;">{{ $satuan }}</span>
-                                                @else
-                                                <span style="font-size:13px;color:#111827;font-weight:600;">{{ $detail }}</span>
-                                                @endif
-                                            </td>
-                                        </tr>
+                                        {{-- Legacy / Summary Alert Layout --}}
+                                        @foreach($intro as $line)
+                                        <p style="margin:0 0 20px;font-size:14px;color:#111827;line-height:1.7;font-weight:500;">
+                                            {{ $line }}
+                                        </p>
                                         @endforeach
 
-                                    </table>
-                                    @endif
+                                        <table cellpadding="0" cellspacing="0" border="0" width="100%"
+                                               style="border:1px solid #e5e7eb;border-radius:8px;overflow:hidden;margin-bottom:20px;">
 
-                                    {{-- Outro paragraphs --}}
-                                    @foreach($outro as $line)
-                                    <p style="margin:0 0 8px;font-size:13px;color:#111827;line-height:1.7;font-weight:500;">
-                                        {{ $line }}
-                                    </p>
-                                    @endforeach
+                                            {{-- Table Header --}}
+                                            <tr style="background:#142B6F;">
+                                                <td style="padding:10px 16px;font-size:11px;font-weight:700;color:#ffffff;text-transform:uppercase;letter-spacing:0.8px;width:60%;">
+                                                    Jenis Usulan
+                                                </td>
+                                                <td style="padding:10px 16px;font-size:11px;font-weight:700;color:#ffffff;text-transform:uppercase;letter-spacing:0.8px;text-align:right;">
+                                                    Jumlah
+                                                </td>
+                                            </tr>
+
+                                            @foreach($bullets as $i => $bullet)
+                                            @php
+                                                $parts    = explode(':', $bullet, 2);
+                                                $kategori = trim($parts[0]);
+                                                $detail   = isset($parts[1]) ? trim($parts[1]) : '';
+                                                preg_match('/(\d+)/', $detail, $numMatch);
+                                                $angka  = $numMatch[1] ?? '';
+                                                $satuan = trim(preg_replace('/\d+/', '', $detail));
+                                                $isOdd  = ($i % 2 === 0);
+                                            @endphp
+                                            <tr style="background:{{ $isOdd ? '#f9fafb' : '#ffffff' }};border-top:1px solid #e5e7eb;">
+                                                <td style="padding:12px 16px;font-size:14px;color:#111827;font-weight:600;">
+                                                    {{ $kategori }}
+                                                </td>
+                                                <td style="padding:12px 16px;text-align:right;white-space:nowrap;vertical-align:middle;">
+                                                    @if($angka)
+                                                    <span style="display:inline-block;background:#142B6F;color:#ffffff;font-size:13px;font-weight:800;padding:3px 14px;border-radius:20px;">
+                                                        {{ $angka }}
+                                                    </span>
+                                                    <span style="font-size:12px;color:#374151;margin-left:6px;font-weight:500;">{{ $satuan }}</span>
+                                                    @else
+                                                    <span style="font-size:13px;color:#111827;font-weight:600;">{{ $detail }}</span>
+                                                    @endif
+                                                </td>
+                                            </tr>
+                                            @endforeach
+
+                                        </table>
+
+                                        @foreach($outro as $line)
+                                        <p style="margin:0 0 8px;font-size:13px;color:#111827;line-height:1.7;font-weight:500;">
+                                            {{ $line }}
+                                        </p>
+                                        @endforeach
+                                    @else
+                                        {{-- Custom / Bullet List Layout (Untuk Diklat dsb) --}}
+                                        @foreach($blocks as $block)
+                                            @if($block['type'] === 'p')
+                                                <p style="margin:0 0 16px;font-size:14px;color:#111827;line-height:1.7;font-weight:500;">
+                                                    {{ $block['content'] }}
+                                                </p>
+                                            @elseif($block['type'] === 'list')
+                                                <ul style="margin:0 0 16px;padding-left:20px;font-size:14px;color:#111827;line-height:1.7;font-weight:500;list-style-type:disc;">
+                                                    @foreach($block['items'] as $item)
+                                                        <li style="margin-bottom:6px;">{{ $item }}</li>
+                                                    @endforeach
+                                                </ul>
+                                            @endif
+                                        @endforeach
+                                    @endif
 
                                     @if(isset($pdfData))
                                     <!-- PDF Attachment Notice -->
