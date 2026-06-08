@@ -599,10 +599,10 @@
                 </style>
 
                 <label style="display: block; font-size: 13px; font-weight: 700; color: #475569; margin-bottom: 8px; letter-spacing: 0.5px;">PILIH TEMPLATE PESAN</label>
-                <select id="reminderTemplate" style="width: 100%; padding: 12px 15px; border: 1px solid #cbd5e1; border-radius: 8px; margin-bottom: 20px; color: #1e293b; font-size: 14px; outline: none; transition: all 0.2s; box-shadow: 0 1px 2px rgba(0,0,0,0.05);">
+                <select id="reminderTemplate" onchange="toggleMessageMode()" style="width: 100%; padding: 12px 15px; border: 1px solid #cbd5e1; border-radius: 8px; margin-bottom: 20px; color: #1e293b; font-size: 14px; outline: none; transition: all 0.2s; box-shadow: 0 1px 2px rgba(0,0,0,0.05);">
                     <option value="" disabled selected>Pilih Template Pengingat</option>
                     @foreach($templates as $template)
-                        <option value="{{ $template->id }}">{{ $template->kategori }}</option>
+                        <option value="{{ $template->id }}" data-pesan="{{ $template->template_pesan }}">{{ $template->kategori }}</option>
                     @endforeach
                 </select>
 
@@ -641,7 +641,10 @@
                 reminderTomSelectDP = new TomSelect(el, {
                     allowEmptyOption: true,
                     maxOptions: null,
-                    placeholder: 'Pilih Template Pengingat'
+                    placeholder: 'Pilih Template Pengingat',
+                    onChange: function() {
+                        toggleMessageMode();
+                    }
                 });
             }
         });

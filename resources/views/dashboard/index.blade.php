@@ -1115,7 +1115,7 @@
                 <select id="reminderTemplate" style="width: 100%; padding: 12px 15px; border: 1.5px solid #cbd5e1; border-radius: 10px; margin-bottom: 20px; color: #1e293b; font-size: 14px; outline: none; transition: all 0.2s; background: #f8fafc;" onchange="toggleMessageMode()" onfocus="this.style.borderColor='#3b82f6'; this.style.boxShadow='0 0 0 3px rgba(59,130,246,0.1)'; this.style.background='#ffffff'" onblur="this.style.borderColor='#cbd5e1'; this.style.boxShadow='none'; this.style.background='#f8fafc'">
                     <option value="" disabled selected>Pilih Template Pengingat</option>
                     @foreach($templates as $template)
-                        <option value="{{ $template->id }}">{{ $template->kategori }}</option>
+                        <option value="{{ $template->id }}" data-pesan="{{ $template->template_pesan }}">{{ $template->kategori }}</option>
                     @endforeach
                 </select>
 
