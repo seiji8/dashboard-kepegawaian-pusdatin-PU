@@ -1115,7 +1115,7 @@
                 <select id="reminderTemplate" style="width: 100%; padding: 12px 15px; border: 1.5px solid #cbd5e1; border-radius: 10px; margin-bottom: 20px; color: #1e293b; font-size: 14px; outline: none; transition: all 0.2s; background: #f8fafc;" onchange="toggleMessageMode()" onfocus="this.style.borderColor='#3b82f6'; this.style.boxShadow='0 0 0 3px rgba(59,130,246,0.1)'; this.style.background='#ffffff'" onblur="this.style.borderColor='#cbd5e1'; this.style.boxShadow='none'; this.style.background='#f8fafc'">
                     <option value="" disabled selected>Pilih Template Pengingat</option>
                     @foreach($templates as $template)
-                        <option value="{{ $template->id }}">{{ $template->kategori }}</option>
+                        <option value="{{ $template->id }}" data-pesan="{{ $template->template_pesan }}">{{ $template->kategori }}</option>
                     @endforeach
                 </select>
 
@@ -1187,15 +1187,48 @@
         table.style.display = 'none';
         body.innerHTML = '';
 
-        const label = kategori === 'DIKLAT_HUTANG' ? 'Sertifikat Belum Diupload' : 'Dokumen Belum Lengkap';
-
         fetch(`/dashboard/diklat-detail/${nip}/${kategori}`)
             .then(res => res.json())
             .then(data => {
                 loading.style.display = 'none';
                 table.style.display = 'table';
                 document.getElementById('diklatModalTitle').textContent = data.pegawai;
-                document.getElementById('diklatModalSub').textContent = `NIP: ${data.nip} - ${data.total} diklat (${label})`;
+                document.getElementById('diklatModalSub').textContent = `NIP: ${data.nip}`;
+
+                // Set Avatar Initials
+                const initials = data.pegawai
+                    ? data.pegawai.split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase()
+                    : '??';
+                const avatar = document.getElementById('diklatModalAvatar');
+                if (avatar) {
+                    avatar.textContent = initials;
+                }
+
+                // Set Category Badge
+                const badge = document.getElementById('diklatModalBadge');
+                if (badge) {
+                    badge.textContent = 'PENDIDIKAN DAN KEAHLIAN';
+                    badge.style.color = '#1e3a8a';
+                    badge.style.background = '#e0e7ff';
+                }
+
+                // Set Info Banner
+                const infoWrapper = document.getElementById('diklatModalInfoWrapper');
+                const ketText = document.getElementById('diklatModalKeteranganText');
+                const ketBox = document.getElementById('diklatModalKeterangan');
+                const missingFileCount = data.data.filter(d => d.arsip_biasa === 'Tidak Ada' && d.arsip_bpsdm === 'Tidak Ada').length;
+
+                if (infoWrapper && ketText && ketBox) {
+                    if (missingFileCount > 0) {
+                        infoWrapper.style.display = 'block';
+                        ketText.textContent = `Terdapat ${missingFileCount} diklat yang tidak memiliki berkas arsip di BPSDM atau Lokal.`;
+                        ketBox.style.color = '#9a3412';
+                        ketBox.style.background = '#ffedd5';
+                        ketBox.style.borderColor = '#fed7aa';
+                    } else {
+                        infoWrapper.style.display = 'none';
+                    }
+                }
 
                 data.data.forEach((d, i) => {
                     let textBiasa = d.arsip_biasa;
@@ -1226,7 +1259,6 @@
                         <tr ${rowStyle}>
                             <td>${i + 1}</td>
                             <td style="max-width:200px; font-weight:500;">${d.nama_diklat}${missingBadge}</td>
-                            <td style="white-space:nowrap; font-size:12px;">${d.tanggal_mulai}<br>s/d ${d.tanggal_selesai}</td>
                             <td><span style="background:#e0e7ff; color:#3730a3; padding:2px 8px; border-radius:4px; font-size:11px; font-weight:600;">${d.jenis}</span></td>
                             <td ${arsipBiasaClass}>${textBiasa}</td>
                             <td ${arsipBpsdmClass}>${textBpsdm}</td>

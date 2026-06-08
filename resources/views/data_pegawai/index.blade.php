@@ -573,55 +573,120 @@
     </div>
 
     <!-- MODAL REMINDER -->
-    <div id="modalReminder" class="modal-overlay" style="display:none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2400; justify-content: center; align-items: center;">
-        <div style="background: white; width: 600px; max-width: 95vw; padding: 0; border-radius: 12px; box-shadow: 0 10px 40px rgba(0,0,0,0.2); position: relative; overflow: hidden; display: flex; flex-direction: column;">
+    <div id="modalReminder" class="modal-overlay" style="display:none; position: fixed; inset: 0; background: rgba(10, 18, 40, 0.55); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); z-index: 2400; justify-content: center; align-items: center;" onclick="if(event.target===this) closeReminderModal()">
+        <div class="tm-card" style="max-width: 600px; max-height: 90vh;">
 
             <!-- Header -->
-            <div style="padding: 20px 25px; border-bottom: 1px solid #e2e8f0; background: #f8fafc; display: flex; justify-content: space-between; align-items: center;">
-                <div style="display: flex; align-items: center; gap: 12px;">
-                    <div style="background: #fef3c7; color: #d97706; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
-                        <i class="ph-bold ph-bell-ringing" style="font-size: 20px;"></i>
+            <div class="tm-header">
+                <div class="tm-header-left">
+                    <div class="tm-icon-wrap" style="background: rgba(255,255,255,0.2); border-color: rgba(255,255,255,0.4);">
+                        <i class="ph-bold ph-bell-ringing"></i>
                     </div>
-                    <h2 style="margin: 0; color: #1e293b; font-size: 18px; font-weight: 700;">Kirim Pengingat Manual</h2>
+                    <div class="tm-title-wrap">
+                        <h2>Kirim Pengingat Manual</h2>
+                        <p>Kirimkan notifikasi langsung ke pegawai terkait</p>
+                    </div>
                 </div>
-                <button onclick="closeReminderModal()" style="background: none; border: none; cursor: pointer; color: #94a3b8; transition: color 0.2s;" onmouseover="this.style.color='#ef4444'" onmouseout="this.style.color='#94a3b8'">
-                    <i class="ph-bold ph-x" style="font-size: 20px;"></i>
+                <button type="button" class="tm-close-btn" onclick="closeReminderModal()">
+                    <i class="ph-bold ph-x"></i>
                 </button>
             </div>
 
             <!-- Body -->
-            <div style="padding: 25px;">
+            <div class="tm-body" style="overflow-y: auto;">
                 <style>
                     #modalReminder .ts-wrapper { margin-bottom: 20px; }
-                    #modalReminder .ts-control { border-radius: 8px !important; border-color: #cbd5e1 !important; padding: 10px 15px !important; font-size: 14px !important; }
-                    #modalReminder .ts-control:focus-within { border-color: #3b82f6 !important; box-shadow: 0 0 0 3px rgba(59,130,246,0.1) !important; }
-                    #modalReminder .ts-dropdown { border-radius: 8px !important; border-color: #cbd5e1 !important; box-shadow: 0 4px 12px rgba(0,0,0,0.1) !important; }
+                    #modalReminder .ts-control { border-radius: 10px !important; border-color: #cbd5e1 !important; padding: 12px 15px !important; font-size: 14px !important; background: #f8fafc !important; }
+                    #modalReminder .ts-control:focus-within { border-color: #3b82f6 !important; box-shadow: 0 0 0 3px rgba(59,130,246,0.1) !important; background: #ffffff !important; }
+                    #modalReminder .ts-dropdown { border-radius: 10px !important; border-color: #cbd5e1 !important; box-shadow: 0 10px 25px rgba(0,0,0,0.1) !important; }
+
+                    /* Premium TM-Card Styles duplicated for data-pegawai page */
+                    .tm-card {
+                        background: #ffffff; border-radius: 20px;
+                        box-shadow: 0 32px 64px -16px rgba(20,43,111,0.25), 0 0 0 1px rgba(20,43,111,0.06);
+                        width: 100%; max-width: 500px;
+                        display: flex; flex-direction: column; max-height: 92vh;
+                    }
+                    .tm-header {
+                        background: linear-gradient(135deg, #142B6F 0%, #1e3a8a 100%);
+                        padding: 24px 28px; position: relative; overflow: hidden;
+                        display: flex; justify-content: space-between; align-items: flex-start;
+                        flex-shrink: 0; border-radius: 20px 20px 0 0;
+                    }
+                    .tm-header::before {
+                        content: ''; position: absolute; top: -30px; right: -30px;
+                        width: 140px; height: 140px; background: rgba(255,201,40,0.08); border-radius: 50%;
+                    }
+                    .tm-header::after {
+                        content: ''; position: absolute; bottom: -50px; left: -20px;
+                        width: 160px; height: 160px; background: rgba(255,255,255,0.04); border-radius: 50%;
+                    }
+                    .tm-header-left { display: flex; align-items: center; gap: 14px; position: relative; z-index: 1; }
+                    .tm-icon-wrap {
+                        width: 48px; height: 48px; border-radius: 14px;
+                        display: flex; align-items: center; justify-content: center;
+                        background: rgba(255,255,255,0.1); border: 1.5px solid rgba(255,255,255,0.2);
+                        font-size: 24px; color: #ffffff;
+                    }
+                    .tm-title-wrap h2 { margin: 0 0 2px 0; color: #ffffff; font-size: 18px; font-weight: 700; }
+                    .tm-title-wrap p { margin: 0; color: rgba(255,255,255,0.7); font-size: 13px; }
+                    
+                    .tm-close-btn {
+                        background: rgba(255,255,255,0.1); border: none; border-radius: 50%;
+                        width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;
+                        color: #ffffff; cursor: pointer; transition: all 0.2s; position: relative; z-index: 1;
+                    }
+                    .tm-close-btn:hover { background: rgba(255,255,255,0.2); transform: rotate(90deg); }
+
+                    .tm-body { padding: 24px 28px; flex: 1; }
+                    
+                    .tm-footer {
+                        padding: 16px 28px 24px; display: flex; justify-content: flex-end; gap: 10px; flex-shrink: 0;
+                        background: #f8fafc; border-top: 1px solid #e2e8f0; border-radius: 0 0 20px 20px;
+                    }
+                    .tm-btn-cancel {
+                        padding: 12px 24px; border-radius: 10px; border: 1.5px solid #e2e8f0;
+                        background: #f8fafc; font-size: 14px; font-weight: 600; color: #64748b;
+                        cursor: pointer; transition: all 0.2s ease; font-family: inherit;
+                    }
+                    .tm-btn-cancel:hover { background: #f1f5f9; border-color: #cbd5e1; color: #374151; }
+                    
+                    .tm-btn-submit {
+                        padding: 12px 24px; border-radius: 10px; border: none;
+                        background: linear-gradient(135deg, #142B6F 0%, #1e3a8a 100%);
+                        font-size: 14px; font-weight: 700; color: #ffffff;
+                        cursor: pointer; transition: all 0.2s ease; display: flex; align-items: center; gap: 8px;
+                        box-shadow: 0 4px 12px rgba(20,43,111,0.25); font-family: inherit;
+                    }
+                    .tm-btn-submit:hover { transform: translateY(-1px); box-shadow: 0 6px 16px rgba(20,43,111,0.35); }
                 </style>
 
-                <label style="display: block; font-size: 13px; font-weight: 700; color: #475569; margin-bottom: 8px; letter-spacing: 0.5px;">PILIH TEMPLATE PESAN</label>
-                <select id="reminderTemplate" onchange="toggleMessageMode()" style="width: 100%; padding: 12px 15px; border: 1px solid #cbd5e1; border-radius: 8px; margin-bottom: 20px; color: #1e293b; font-size: 14px; outline: none; transition: all 0.2s; box-shadow: 0 1px 2px rgba(0,0,0,0.05);">
+                <label style="display: block; font-size: 12px; font-weight: 700; color: #64748b; margin-bottom: 8px; letter-spacing: 0.5px; text-transform: uppercase;">PILIH TEMPLATE PESAN</label>
+                <select id="reminderTemplate" onchange="toggleMessageMode()" style="width: 100%; padding: 12px 15px; border: 1.5px solid #cbd5e1; border-radius: 10px; margin-bottom: 20px; color: #1e293b; font-size: 14px; outline: none; transition: all 0.2s; background: #f8fafc;" onfocus="this.style.borderColor='#3b82f6'; this.style.boxShadow='0 0 0 3px rgba(59,130,246,0.1)'; this.style.background='#ffffff'" onblur="this.style.borderColor='#cbd5e1'; this.style.boxShadow='none'; this.style.background='#f8fafc'">
                     <option value="" disabled selected>Pilih Template Pengingat</option>
                     @foreach($templates as $template)
                         <option value="{{ $template->id }}" data-pesan="{{ $template->template_pesan }}">{{ $template->kategori }}</option>
                     @endforeach
                 </select>
 
-                <div style="display: flex; align-items: center; margin-bottom: 20px; background: #f1f5f9; padding: 12px 15px; border-radius: 8px; border: 1px solid #e2e8f0;">
+                <div style="display: flex; align-items: center; margin-bottom: 24px; background: #eff6ff; padding: 14px 16px; border-radius: 10px; border: 1px solid #dbeafe;">
                     <input type="checkbox" id="checkCustom" onchange="toggleMessageMode()" style="margin-right: 12px; width: 18px; height: 18px; cursor: pointer; accent-color: #3b82f6;">
-                    <label for="checkCustom" style="font-size: 14px; font-weight: 600; color: #334155; cursor: pointer; user-select: none;">Apakah anda ingin menambahkan/mengedit pesan bawaan?</label>
+                    <label for="checkCustom" style="font-size: 13.5px; font-weight: 600; color: #1e40af; cursor: pointer; user-select: none;">Gunakan pesan custom atau edit manual?</label>
                 </div>
 
-                <label style="display: block; font-size: 13px; font-weight: 700; color: #475569; margin-bottom: 8px; letter-spacing: 0.5px;">ISI PESAN</label>
-                <textarea id="reminderMessage" disabled style="width: 100%; height: 120px; padding: 15px; border: 1px solid #cbd5e1; border-radius: 8px; margin-bottom: 10px; resize: none; font-size: 14px; color: #1e293b; outline: none; transition: all 0.2s; background: #f8fafc; font-family: 'Inter', sans-serif; box-sizing: border-box;" onfocus="this.style.borderColor='#3b82f6'; this.style.boxShadow='0 0 0 3px rgba(59,130,246,0.1)'; this.style.background='#ffffff'" onblur="this.style.borderColor='#cbd5e1'; this.style.boxShadow='none'; if(this.disabled) this.style.background='#f8fafc'"></textarea>
+                <label style="display: block; font-size: 12px; font-weight: 700; color: #64748b; margin-bottom: 8px; letter-spacing: 0.5px; text-transform: uppercase;">ISI PESAN</label>
+                <textarea id="reminderMessage" disabled style="width: 100%; height: 140px; padding: 15px; border: 1.5px solid #cbd5e1; border-radius: 10px; margin-bottom: 10px; resize: none; font-size: 14px; color: #1e293b; outline: none; transition: all 0.2s; background: #f1f5f9; font-family: inherit; line-height: 1.5;" onfocus="this.style.borderColor='#3b82f6'; this.style.boxShadow='0 0 0 3px rgba(59,130,246,0.1)'; this.style.background='#ffffff'" onblur="this.style.borderColor='#cbd5e1'; this.style.boxShadow='none'; if(this.disabled) this.style.background='#f1f5f9'"></textarea>
             </div>
 
             <!-- Footer -->
-            <div style="padding: 20px 25px; border-top: 1px solid #e2e8f0; background: #f8fafc; display: flex; justify-content: flex-end; gap: 12px;">
-                <button onclick="closeReminderModal()" style="padding: 10px 24px; background: white; color: #64748b; border: 1px solid #cbd5e1; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 14px; transition: all 0.2s; font-family: 'Inter', sans-serif;" onmouseover="this.style.background='#f1f5f9'; this.style.color='#475569'" onmouseout="this.style.background='white'; this.style.color='#64748b'">Batal</button>
-                <button onclick="sendReminder()" id="btnSendManual" style="padding: 10px 24px; background: #f59e0b; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 14px; display: flex; align-items: center; gap: 8px; transition: all 0.2s; box-shadow: 0 4px 6px -1px rgba(245,158,11,0.2); font-family: 'Inter', sans-serif;" onmouseover="this.style.background='#d97706'; this.style.transform='translateY(-1px)'" onmouseout="this.style.background='#f59e0b'; this.style.transform='translateY(0)'">
-                    <i class="ph-bold ph-paper-plane-right"></i> Kirim
+            <div class="tm-footer">
+                <button onclick="closeReminderModal()" class="tm-btn-cancel">Batal</button>
+                <button onclick="sendReminder()" id="btnSendManual" class="tm-btn-submit">
+                    <i class="ph-bold ph-paper-plane-right"></i> Kirim Pesan
                 </button>
             </div>
+        </div>
+    </div>
         </div>
     </div>
 @endsection
