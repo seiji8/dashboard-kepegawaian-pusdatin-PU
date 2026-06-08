@@ -79,7 +79,7 @@
             @php
                 $systemCategories = [
                     'KGB', 'KGB Penjadwalan', 'KGB Upload Dokumen', 'KP_Reguler', 
-                    'KP_Struktural', 'DIKLAT_HUTANG', 'DIKLAT_ANOMALI', 'KJ_Jafung', 
+                    'KP_Struktural', 'DIKLAT_BELUM_UPLOAD', 'KJ_Jafung', 
                     'KP_Jafung', 'UKOM', 'Notifikasi Triwulan', 'Notifikasi Tahunan', 
                     'Info Kenaikan Pangkat'
                 ];

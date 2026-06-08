@@ -19,65 +19,37 @@ class DiklatService implements TrackerInterface
         $riwayatDiklat = \App\Models\RiwayatDiklat::where('nip', $pegawai->nip)->get();
 
         if ($riwayatDiklat->isNotEmpty()) {
-            // --- HUTANG LAPORAN: status_diklat=0 AND tanggal_selesai sudah lewat ---
-            $hutangDiklat = $riwayatDiklat->filter(function ($d) use ($today) {
-                return $d->status_diklat == 0
-                    && $d->tanggal_selesai
-                    && $today->greaterThan(Carbon::parse($d->tanggal_selesai));
+            // --- BELUM UPLOAD SERTIFIKAT: status_diklat=0 AND tanggal_selesai sudah lewat ATAU status_diklat=1 dan sertifikat null ---
+            $belumUploadDiklat = $riwayatDiklat->filter(function ($d) use ($today) {
+                return ($d->status_diklat == 0 && $d->tanggal_selesai && $today->greaterThan(Carbon::parse($d->tanggal_selesai)))
+                    || ($d->status_diklat == 1 && empty($d->file_sertifikat) && empty($d->arsip));
             });
 
-            if ($hutangDiklat->isNotEmpty()) {
-                $jumlahHutang = $hutangDiklat->count();
-                $keterangan = $jumlahHutang == 1
+            if ($belumUploadDiklat->isNotEmpty()) {
+                $jumlahBelumUpload = $belumUploadDiklat->count();
+                $keterangan = $jumlahBelumUpload == 1
                     ? 'Sertifikat diklat belum diupload ke E-HRM'
-                    : $jumlahHutang . ' sertifikat diklat belum diupload ke E-HRM';
+                    : $jumlahBelumUpload . ' sertifikat diklat belum diupload ke E-HRM';
 
-                $trackerHutang = DashboardTracker::updateOrCreate(
-                    ['pegawai_id' => $pegawai->id_pegawai_api, 'kategori' => 'DIKLAT_HUTANG'],
+                $trackerBelumUpload = DashboardTracker::updateOrCreate(
+                    ['pegawai_id' => $pegawai->id_pegawai_api, 'kategori' => 'DIKLAT_BELUM_UPLOAD'],
                     [
                         'status_saat_ini' => 'Upload E-HRM',
                         'keterangan' => $keterangan,
-                        'dokumen_total' => $jumlahHutang,
+                        'dokumen_total' => $jumlahBelumUpload,
                         'dokumen_terupload' => 0,
-                        'tanggal_target' => Carbon::parse($hutangDiklat->sortBy('tanggal_selesai')->first()->tanggal_selesai)->format('Y-m-d'),
+                        // Use earliest end date or today
+                        'tanggal_target' => $belumUploadDiklat->first()->tanggal_selesai ? Carbon::parse($belumUploadDiklat->sortBy('tanggal_selesai')->first()->tanggal_selesai)->format('Y-m-d') : Carbon::now()->format('Y-m-d'),
                     ]
                 );
             } else {
                 DashboardTracker::where('pegawai_id', $pegawai->id_pegawai_api)
-                    ->where('kategori', 'DIKLAT_HUTANG')->delete();
-            }
-
-            // --- ANOMALI DOKUMEN: status_diklat=1 tapi file_sertifikat dan arsip null ---
-            $anomaliDiklat = $riwayatDiklat->filter(function ($d) {
-                return $d->status_diklat == 1
-                    && empty($d->file_sertifikat) && empty($d->arsip);
-            });
-
-            if ($anomaliDiklat->isNotEmpty()) {
-                $jumlahAnomali = $anomaliDiklat->count();
-                $keterangan = $jumlahAnomali == 1
-                    ? 'Dokumen diklat belum lengkap di E-HRM'
-                    : $jumlahAnomali . ' dokumen diklat belum lengkap di E-HRM';
-
-                $trackerAnomali = DashboardTracker::updateOrCreate(
-                    ['pegawai_id' => $pegawai->id_pegawai_api, 'kategori' => 'DIKLAT_ANOMALI'],
-                    [
-                        'status_saat_ini' => 'Upload E-HRM',
-                        'keterangan' => $keterangan,
-                        'dokumen_total' => $jumlahAnomali,
-                        'dokumen_terupload' => 0,
-                        'tanggal_target' => Carbon::now()->format('Y-m-d'),
-                    ]
-                );
-
-            } else {
-                DashboardTracker::where('pegawai_id', $pegawai->id_pegawai_api)
-                    ->where('kategori', 'DIKLAT_ANOMALI')->delete();
+                    ->where('kategori', 'DIKLAT_BELUM_UPLOAD')->delete();
             }
         } else {
             // Tidak punya riwayat diklat → bersihkan tracker diklat
             DashboardTracker::where('pegawai_id', $pegawai->id_pegawai_api)
-                ->whereIn('kategori', ['DIKLAT_HUTANG', 'DIKLAT_ANOMALI'])->delete();
+                ->where('kategori', 'DIKLAT_BELUM_UPLOAD')->delete();
         }
     }
 }

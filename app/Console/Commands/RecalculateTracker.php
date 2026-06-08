@@ -215,8 +215,7 @@ class RecalculateTracker extends Command
                                 case 'KP_Struktural':
                                     $empMessage = "Masa pangkat Anda telah memenuhi syarat Kenaikan Pangkat (KP). Status KP Anda saat ini adalah 'Usulan'.\n\nMohon segera mempersiapkan berkas administrasi dan melengkapinya agar dapat diproses oleh Admin Kepegawaian.";
                                     break;
-                                case 'DIKLAT_HUTANG':
-                                case 'DIKLAT_ANOMALI':
+                                case 'DIKLAT_BELUM_UPLOAD':
                                     $empMessage = "Terdapat kewajiban Diklat yang perlu Anda selesaikan. Status Diklat Anda saat ini adalah 'Usulan'.\n\nMohon segera mempersiapkan berkas administrasi dan melengkapinya agar dapat diproses oleh Admin Kepegawaian.";
                                     break;
                                 default:

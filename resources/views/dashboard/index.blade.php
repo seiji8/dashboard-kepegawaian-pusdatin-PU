@@ -606,11 +606,7 @@
                                             <td>{{ $item->pegawai->nama }}</td>
                                             <td style="max-width: 280px;">{{ $item->keterangan }}</td>
                                             <td>
-                                                @if($item->kategori == 'DIKLAT_HUTANG')
                                                 <span style="font-weight: 600; color: #dc2626;">
-                                                @else
-                                                <span style="font-weight: 600; color: #d97706;">
-                                                @endif
                                                     {{ $item->dokumen_total }} Diklat
                                                 </span>
                                             </td>
