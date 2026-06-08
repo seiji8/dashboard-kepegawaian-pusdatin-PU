@@ -79,7 +79,7 @@
             @php
                 $systemCategories = [
                     'KGB', 'KGB Penjadwalan', 'KGB Upload Dokumen', 'KP_Reguler', 
-                    'KP_Struktural', 'DIKLAT_HUTANG', 'DIKLAT_ANOMALI', 'KJ_Jafung', 
+                    'KP_Struktural', 'Diklat Upload Dokumen', 'KJ_Jafung', 
                     'KP_Jafung', 'UKOM', 'Notifikasi Triwulan', 'Notifikasi Tahunan', 
                     'Info Kenaikan Pangkat'
                 ];
@@ -360,12 +360,13 @@
                         <i class="ph-fill ph-info"></i>
                         <span>Variabel Placeholder yang Tersedia</span>
                     </div>
-                    <div class="tm-grid">
-                        <div class="tm-grid-item"><code>{nama}</code><span>Nama lengkap pegawai</span></div>
-                        <div class="tm-grid-item"><code>{nip}</code><span>NIP pegawai bersangkutan</span></div>
-                        <div class="tm-grid-item"><code>{deadline}</code><span>Tanggal jatuh tempo</span></div>
-                        <div class="tm-grid-item"><code>{poin}</code><span>Angka kredit / poin</span></div>
-                        <div class="tm-grid-item" style="grid-column: 1 / -1;"><code>{next_pangkat}</code><span>Pangkat / golongan tujuan berikutnya</span></div>
+                    <div class="tm-grid" style="grid-template-columns: repeat(3, 1fr);">
+                        <div class="tm-grid-item"><code>{nama}</code><span>Nama lengkap</span></div>
+                        <div class="tm-grid-item"><code>{nip}</code><span>NIP pegawai</span></div>
+                        <div class="tm-grid-item"><code>{deadline}</code><span>Jatuh tempo</span></div>
+                        <div class="tm-grid-item"><code>{poin}</code><span>Angka kredit</span></div>
+                        <div class="tm-grid-item"><code>{next_pangkat}</code><span>Pangkat tujuan</span></div>
+                        <div class="tm-grid-item"><code>{detail_diklat}</code><span>Daftar diklat</span></div>
                     </div>
                 </div>
             </div>
@@ -446,7 +447,8 @@
                         <div class="tm-grid-item"><code>{nip}</code><span>NIP pegawai</span></div>
                         <div class="tm-grid-item"><code>{deadline}</code><span>Jatuh tempo</span></div>
                         <div class="tm-grid-item"><code>{poin}</code><span>Angka kredit</span></div>
-                        <div class="tm-grid-item" style="grid-column: span 2;"><code>{next_pangkat}</code><span>Pangkat tujuan berikutnya</span></div>
+                        <div class="tm-grid-item"><code>{next_pangkat}</code><span>Pangkat tujuan</span></div>
+                        <div class="tm-grid-item"><code>{detail_diklat}</code><span>Daftar diklat</span></div>
                     </div>
                 </div>
             </div>

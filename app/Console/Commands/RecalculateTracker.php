@@ -194,15 +194,34 @@ class RecalculateTracker extends Command
                         
                         $namaKategori = str_replace('_', ' ', $tracker->kategori);
                         if ($namaKategori === 'UKOM') $namaKategori = 'Uji Kompetensi';
+                        if ($tracker->kategori === 'DIKLAT_ANOMALI') $namaKategori = 'Diklat Upload Dokumen';
                         $empSubject = "Pemberitahuan Usulan " . $namaKategori;
                         
                         $empMessage = "";
-                        $rule = NotifikasiRules::where('kategori', $tracker->kategori)->first();
+                        $ruleKategori = $tracker->kategori;
+                        if ($ruleKategori === 'DIKLAT_ANOMALI') {
+                            $ruleKategori = 'Diklat Upload Dokumen';
+                        }
+                        
+                        $listNamaDiklat = "";
+                        if ($tracker->kategori === 'DIKLAT_ANOMALI') {
+                            $riwayatDiklat = \App\Models\RiwayatDiklat::where('nip', $pegawai->nip)->get();
+                            $anomaliDiklat = $riwayatDiklat->filter(function ($d) {
+                                return $d->status_diklat == 1
+                                    && empty($d->file_sertifikat) && empty($d->arsip);
+                            });
+                            foreach ($anomaliDiklat as $d) {
+                                $listNamaDiklat .= "- " . $d->nama_diklat . "\n";
+                            }
+                            $listNamaDiklat = trim($listNamaDiklat);
+                        }
+
+                        $rule = NotifikasiRules::where('kategori', $ruleKategori)->first();
 
                         if ($rule) {
                             $empMessage = str_replace(
-                                ['{nama}', '{nip}', '{kategori}'],
-                                [$pegawai->nama, $pegawai->nip, $namaKategori],
+                                ['{nama}', '{nip}', '{kategori}', '{detail_diklat}'],
+                                [$pegawai->nama, $pegawai->nip, $namaKategori, $listNamaDiklat],
                                 $rule->template_pesan
                             );
                         } else {
@@ -215,9 +234,8 @@ class RecalculateTracker extends Command
                                 case 'KP_Struktural':
                                     $empMessage = "Masa pangkat Anda telah memenuhi syarat Kenaikan Pangkat (KP). Status KP Anda saat ini adalah 'Usulan'.\n\nMohon segera mempersiapkan berkas administrasi dan melengkapinya agar dapat diproses oleh Admin Kepegawaian.";
                                     break;
-                                case 'DIKLAT_HUTANG':
                                 case 'DIKLAT_ANOMALI':
-                                    $empMessage = "Terdapat kewajiban Diklat yang perlu Anda selesaikan. Status Diklat Anda saat ini adalah 'Usulan'.\n\nMohon segera mempersiapkan berkas administrasi dan melengkapinya agar dapat diproses oleh Admin Kepegawaian.";
+                                    $empMessage = "Berdasarkan verifikasi berkas, terdapat dokumen/sertifikat Diklat Anda yang belum lengkap di E-HRM:\n" . $listNamaDiklat . "\n\nMohon segera mempersiapkan berkas administrasi dan melengkapinya agar dapat diproses oleh Admin Kepegawaian.";
                                     break;
                                 default:
                                     // Fallback for KJ or other categories like the user's example

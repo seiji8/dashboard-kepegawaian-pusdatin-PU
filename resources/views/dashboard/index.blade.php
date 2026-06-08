@@ -606,11 +606,7 @@
                                             <td>{{ $item->pegawai->nama }}</td>
                                             <td style="max-width: 280px;">{{ $item->keterangan }}</td>
                                             <td>
-                                                @if($item->kategori == 'DIKLAT_HUTANG')
-                                                <span style="font-weight: 600; color: #dc2626;">
-                                                @else
                                                 <span style="font-weight: 600; color: #d97706;">
-                                                @endif
                                                     {{ $item->dokumen_total }} Diklat
                                                 </span>
                                             </td>
@@ -1191,7 +1187,6 @@
         table.style.display = 'none';
         body.innerHTML = '';
 
-        const label = kategori === 'DIKLAT_HUTANG' ? 'Sertifikat Belum Diupload' : 'Dokumen Belum Lengkap';
 
         fetch(`/dashboard/diklat-detail/${nip}/${kategori}`)
             .then(res => res.json())
@@ -1199,7 +1194,33 @@
                 loading.style.display = 'none';
                 table.style.display = 'table';
                 document.getElementById('diklatModalTitle').textContent = data.pegawai;
-                document.getElementById('diklatModalSub').textContent = `NIP: ${data.nip} - ${data.total} diklat (${label})`;
+                document.getElementById('diklatModalSub').textContent = `NIP: ${data.nip}`;
+
+                // Set Avatar Initials
+                const initials = data.pegawai
+                    ? data.pegawai.split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase()
+                    : '??';
+                document.getElementById('diklatModalAvatar').textContent = initials;
+
+                // Set Category Badge
+                const badge = document.getElementById('diklatModalBadge');
+                if (badge) {
+                    badge.textContent = 'PENDIDIKAN DAN KEAHLIAN';
+                    badge.style.color = '#1e3a8a';
+                    badge.style.background = '#e0e7ff';
+                }
+
+                // Set Info Banner
+                const infoWrapper = document.getElementById('diklatModalInfoWrapper');
+                const ketText = document.getElementById('diklatModalKeteranganText');
+                const ketBox = document.getElementById('diklatModalKeterangan');
+                if (infoWrapper && ketText && ketBox) {
+                    infoWrapper.style.display = 'block';
+                    ketText.textContent = `Terdapat ${data.missing_file_count} diklat yang tidak memiliki berkas arsip di BPSDM atau Lokal.`;
+                    ketBox.style.color = '#9a3412';
+                    ketBox.style.background = '#ffedd5';
+                    ketBox.style.borderColor = '#fed7aa';
+                }
 
                 data.data.forEach((d, i) => {
                     let textBiasa = d.arsip_biasa;
@@ -1230,7 +1251,6 @@
                         <tr ${rowStyle}>
                             <td>${i + 1}</td>
                             <td style="max-width:200px; font-weight:500;">${d.nama_diklat}${missingBadge}</td>
-                            <td style="white-space:nowrap; font-size:12px;">${d.tanggal_mulai}<br>s/d ${d.tanggal_selesai}</td>
                             <td><span style="background:#e0e7ff; color:#3730a3; padding:2px 8px; border-radius:4px; font-size:11px; font-weight:600;">${d.jenis}</span></td>
                             <td ${arsipBiasaClass}>${textBiasa}</td>
                             <td ${arsipBpsdmClass}>${textBpsdm}</td>

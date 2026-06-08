@@ -108,9 +108,7 @@ class DashboardController extends Controller
         })->sortBy('tanggal_target');
 
         // Monitoring Kompetensi (Diklat)
-        $diklatHutang = $trackers->where('kategori', 'DIKLAT_HUTANG')->sortBy('tanggal_target');
-        $diklatAnomali = $trackers->where('kategori', 'DIKLAT_ANOMALI');
-        $listMonitoringDiklat = $trackers->whereIn('kategori', ['DIKLAT_HUTANG', 'DIKLAT_ANOMALI']);
+        $listMonitoringDiklat = $trackers->where('kategori', 'DIKLAT_ANOMALI')->sortBy('tanggal_target');
 
         // Ambil template manual untuk modal reminder di dashboard
         $templates = NotifikasiRules::where('interval_hari', 0)->get();
@@ -145,8 +143,6 @@ class DashboardController extends Controller
             'ukomMadya',
             'listKGB',
             'listTubel',
-            'diklatHutang',
-            'diklatAnomali',
             'listMonitoringDiklat',
             'templates',
             'lastSyncTime',
@@ -160,28 +156,22 @@ class DashboardController extends Controller
     public function diklatDetail(string $nip, string $kategori)
     {
         $pegawai = Pegawai::where('nip', $nip)->firstOrFail();
-        $today = \Carbon\Carbon::now();
         $diklat = \App\Models\RiwayatDiklat::where('nip', $nip)->get();
 
-        if ($kategori === 'DIKLAT_HUTANG') {
-            $filtered = $diklat->filter(function ($d) use ($today) {
-                return $d->status_diklat == 0
-                    && $d->tanggal_selesai
-                    && $today->greaterThan(\Carbon\Carbon::parse($d->tanggal_selesai));
-            });
-        } else {
-            $filtered = $diklat->filter(function ($d) {
-                return $d->status_diklat == 1
-                    && (empty($d->arsip) || empty($d->nomor_sertifikat) || $d->nomor_sertifikat === '-');
-            });
-        }
+        // Hitung jumlah diklat lulus yang tidak memiliki berkas sama sekali (lokal & BPSDM kosong)
+        $missingFileCount = $diklat->filter(function ($d) {
+            return $d->status_diklat == 1
+                && empty($d->file_sertifikat)
+                && empty($d->arsip);
+        })->count();
 
         return response()->json([
             'pegawai' => $pegawai->nama,
             'nip' => $nip,
             'kategori' => $kategori,
-            'total' => $filtered->count(),
-            'data' => $filtered->map(fn($d) => [
+            'total' => $diklat->count(),
+            'missing_file_count' => $missingFileCount,
+            'data' => $diklat->map(fn($d) => [
                 'nama_diklat' => $d->nama_diklat,
                 'tanggal_mulai' => $d->tanggal_mulai ? \Carbon\Carbon::parse($d->tanggal_mulai)->format('d M Y') : '-',
                 'tanggal_selesai' => $d->tanggal_selesai ? \Carbon\Carbon::parse($d->tanggal_selesai)->format('d M Y') : '-',

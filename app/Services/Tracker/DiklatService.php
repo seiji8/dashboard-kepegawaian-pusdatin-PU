@@ -19,33 +19,9 @@ class DiklatService implements TrackerInterface
         $riwayatDiklat = \App\Models\RiwayatDiklat::where('nip', $pegawai->nip)->get();
 
         if ($riwayatDiklat->isNotEmpty()) {
-            // --- HUTANG LAPORAN: status_diklat=0 AND tanggal_selesai sudah lewat ---
-            $hutangDiklat = $riwayatDiklat->filter(function ($d) use ($today) {
-                return $d->status_diklat == 0
-                    && $d->tanggal_selesai
-                    && $today->greaterThan(Carbon::parse($d->tanggal_selesai));
-            });
-
-            if ($hutangDiklat->isNotEmpty()) {
-                $jumlahHutang = $hutangDiklat->count();
-                $keterangan = $jumlahHutang == 1
-                    ? 'Sertifikat diklat belum diupload ke E-HRM'
-                    : $jumlahHutang . ' sertifikat diklat belum diupload ke E-HRM';
-
-                $trackerHutang = DashboardTracker::updateOrCreate(
-                    ['pegawai_id' => $pegawai->id_pegawai_api, 'kategori' => 'DIKLAT_HUTANG'],
-                    [
-                        'status_saat_ini' => 'Upload E-HRM',
-                        'keterangan' => $keterangan,
-                        'dokumen_total' => $jumlahHutang,
-                        'dokumen_terupload' => 0,
-                        'tanggal_target' => Carbon::parse($hutangDiklat->sortBy('tanggal_selesai')->first()->tanggal_selesai)->format('Y-m-d'),
-                    ]
-                );
-            } else {
-                DashboardTracker::where('pegawai_id', $pegawai->id_pegawai_api)
-                    ->where('kategori', 'DIKLAT_HUTANG')->delete();
-            }
+            // Nonaktifkan pelacakan DIKLAT_HUTANG dan hapus jika ada sisa data lama
+            DashboardTracker::where('pegawai_id', $pegawai->id_pegawai_api)
+                ->where('kategori', 'DIKLAT_HUTANG')->delete();
 
             // --- ANOMALI DOKUMEN: status_diklat=1 tapi file_sertifikat dan arsip null ---
             $anomaliDiklat = $riwayatDiklat->filter(function ($d) {
