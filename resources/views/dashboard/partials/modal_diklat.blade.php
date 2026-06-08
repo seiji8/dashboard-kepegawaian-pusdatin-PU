@@ -22,7 +22,7 @@
                             <th style="min-width:200px;">Nama Diklat</th>
                             <th style="min-width:120px;">Periode</th>
                             <th style="width:80px; text-align:center;">Jenis</th>
-                            <th style="min-width:150px; text-align:center;">Arsip Biasa</th>
+                            <th style="min-width:150px; text-align:center;">Arsip</th>
                             <th style="min-width:150px; text-align:center;">Arsip BPSDM</th>
                         </tr>
                     </thead>
