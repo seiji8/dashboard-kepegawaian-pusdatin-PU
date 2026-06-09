@@ -47,7 +47,7 @@ class SuratPengajuanService
             'kgb_gaji_lama_terbilang' => !empty($requestData['gaji_lama']) ? ucwords($this->terbilang($requestData['gaji_lama'])) . ' Rupiah' : '',
             'kgb_gaji_baru_angka'     => !empty($requestData['gaji_baru']) ? number_format($requestData['gaji_baru'], 0, ',', '.') : '',
             'kgb_gaji_baru_terbilang' => !empty($requestData['gaji_baru']) ? ucwords($this->terbilang($requestData['gaji_baru'])) . ' Rupiah' : '',
-            'pegawai_list'   => $trackers->map(function ($t) use ($masaKerjaInput, $kategori) {
+            'pegawai_list'   => $trackers->map(function ($t) use ($masaKerjaInput, $kategori, $requestData) {
                 // Hitung masa kerja: prioritas input manual > auto dari tmt_cpns
                 $masaKerja = $masaKerjaInput[$t->id] ?? '';
                 $kgbMasaKerjaLama = '';
@@ -82,11 +82,47 @@ class SuratPengajuanService
                     }
                 }
 
+                // Get education data if category is TUBEL
+                $tubelPendidikan = '';
+                if ($kategori === 'TUBEL') {
+                    $customPendidikan = $requestData['tubel_pendidikan'] ?? '';
+                    if (!empty($customPendidikan)) {
+                        $tubelPendidikan = $customPendidikan;
+                    } else {
+                        $lastTubel = \App\Models\RiwayatTubel::where('nip', $t->pegawai->nip)
+                                        ->orderBy('id', 'desc')
+                                        ->first();
+                        $dbPendidikan = $lastTubel ? $lastTubel->pendidikan : 'S2';
+                        $tubelPendidikan = 'tugas belajar ' . $dbPendidikan;
+                    }
+                }
+
+                // If user customized the Jabatan in request, use it! Otherwise fallback to database value.
+                $customJabatan = $requestData['tubel_jabatan'] ?? '';
+                if ($kategori === 'TUBEL' && !empty($customJabatan)) {
+                    $jabatan = $customJabatan;
+                } elseif ($kategori === 'TUBEL') {
+                    $prevJab = \App\Models\RiwayatJabatan::where('nip', $t->pegawai->nip)
+                        ->where('jabatan', '!=', '-')
+                        ->where('jabatan', 'not like', '%Karyasiswa%')
+                        ->where('jabatan', 'not like', '%Tugas Belajar%')
+                        ->orderBy('tmt_jabatan', 'desc')
+                        ->value('jabatan');
+                    if ($prevJab) {
+                        $parts = explode(',', $prevJab);
+                        $jabatan = trim($parts[0]);
+                    } else {
+                        $jabatan = $t->pegawai->jabatan_saat_ini ?? $t->pegawai->tipe_jabatan ?? '-';
+                    }
+                } else {
+                    $jabatan = $t->pegawai->jabatan_saat_ini ?? $t->pegawai->tipe_jabatan ?? '-';
+                }
+
                 return [
                     'nama'             => $t->pegawai->nama ?? '-',
                     'nip'              => $t->pegawai->nip ?? '-',
                     'pangkat_golongan' => $t->pegawai->pangkat_golongan ?? '-',
-                    'jabatan'          => $t->pegawai->jabatan_saat_ini ?? $t->pegawai->tipe_jabatan ?? '-',
+                    'jabatan'          => $jabatan,
                     'jenjang'          => $t->pegawai->jenjang ?? '-',
                     'tmt_target'       => $t->tanggal_target 
                         ? Carbon::parse($t->tanggal_target)->format('d-m-Y')
@@ -97,10 +133,22 @@ class SuratPengajuanService
                     'kgb_masa_kerja_lama' => $kgbMasaKerjaLama,
                     'kgb_masa_kerja_baru' => $kgbMasaKerjaBaru,
                     'tracker_id'       => $t->id,
+                    'tubel_pendidikan' => $tubelPendidikan,
                 ];
             })->toArray(),
             'total_pegawai' => $trackers->count(),
         ];
+
+        // Khusus TUBEL, tambahkan data referensi nota dinas & narahubung ke template data
+        if ($kategori === 'TUBEL') {
+            $data['ref_nota_dinas'] = $requestData['ref_nota_dinas'] ?? 'SM04/B/Sp/2026/474';
+            $data['tgl_nota_dinas'] = !empty($requestData['tgl_nota_dinas'])
+                ? Carbon::parse($requestData['tgl_nota_dinas'])->isoFormat('D MMMM Y')
+                : '26 Maret 2026';
+            $data['narahubung_nama'] = $requestData['narahubung_nama'] ?? 'Sdri. Julia';
+            $data['narahubung_hp']   = $requestData['narahubung_hp'] ?? '0822-9824-6907';
+            $data['narahubung_email']= $requestData['narahubung_email'] ?? 'julia.pujilestari@pu.go.id';
+        }
 
         // Pastikan folder temp ada
         $tempDir = storage_path('app/temp');
@@ -151,10 +199,34 @@ class SuratPengajuanService
             // KGB (Single Portrait)
             $pdf = Pdf::loadView('surat.surat_pengajuan_kgb_pdf', ['data' => $data])->setPaper('A4', 'portrait');
             file_put_contents($finalPath, $pdf->output());
+        } elseif ($data['kategori'] === 'TUBEL') {
+            // TUBEL (Single Portrait)
+            $pdf = Pdf::loadView('surat.surat_pengajuan_tubel_pdf', ['data' => $data])->setPaper('A4', 'portrait');
+            file_put_contents($finalPath, $pdf->output());
         } else {
             // General (Single Portrait)
             $pdf = Pdf::loadView('surat.surat_pengajuan_pdf', ['data' => $data])->setPaper('A4', 'portrait');
             file_put_contents($finalPath, $pdf->output());
+        }
+
+        
+        // Jika ada lampiran fisik ter-upload untuk tracker ini, gabungkan ke PDF utama
+        $trackerIds = $trackers->pluck('id')->toArray();
+        $lampirans = \App\Models\LampiranCetakSurat::whereIn('dashboard_tracker_id', $trackerIds)
+            ->whereNotNull('file_path')
+            ->orderBy('urutan')
+            ->orderBy('id')
+            ->get();
+
+        if ($lampirans->count() > 0) {
+            $bundlePath = $this->appendLampiran(
+                $finalPath, 
+                $lampirans,
+                $data['nomor_surat'],
+                $data['tanggal_surat']
+            );
+            @unlink($finalPath); // Hapus cover/pengantar yang belum digabung
+            $finalPath = $bundlePath;
         }
 
         return $finalPath;

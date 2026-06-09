@@ -77,12 +77,33 @@ class SuratPengajuanController extends Controller
                 ];
             }
 
+            $jabatan = $tracker->pegawai->jabatan_saat_ini ?? $tracker->pegawai->tipe_jabatan ?? '-';
+            $tubelPendidikan = '';
+            if ($tracker->kategori === 'TUBEL') {
+                $prevJab = \App\Models\RiwayatJabatan::where('nip', $tracker->pegawai->nip)
+                    ->where('jabatan', '!=', '-')
+                    ->where('jabatan', 'not like', '%Karyasiswa%')
+                    ->where('jabatan', 'not like', '%Tugas Belajar%')
+                    ->orderBy('tmt_jabatan', 'desc')
+                    ->value('jabatan');
+                if ($prevJab) {
+                    $parts = explode(',', $prevJab);
+                    $jabatan = trim($parts[0]);
+                }
+
+                $lastTubel = \App\Models\RiwayatTubel::where('nip', $tracker->pegawai->nip)
+                                ->orderBy('id', 'desc')
+                                ->first();
+                $dbPendidikan = $lastTubel ? $lastTubel->pendidikan : 'S2';
+                $tubelPendidikan = 'tugas belajar ' . $dbPendidikan;
+            }
+
             $grouped[$periode]['pegawai'][] = [
                 'tracker_id'       => $tracker->id,
                 'nama'             => $tracker->pegawai->nama,
                 'nip'              => $tracker->pegawai->nip,
                 'pangkat_golongan' => $tracker->pegawai->pangkat_golongan ?? '-',
-                'jabatan'          => $tracker->pegawai->jabatan_saat_ini ?? $tracker->pegawai->tipe_jabatan ?? '-',
+                'jabatan'          => $jabatan,
                 'jenjang'          => $tracker->pegawai->jenjang ?? '-',
                 'tmt_target'       => $tracker->tanggal_target 
                     ? Carbon::parse($tracker->tanggal_target)->format('d-m-Y') 
@@ -90,6 +111,7 @@ class SuratPengajuanController extends Controller
                 'kategori'         => $tracker->kategori,
                 'status'           => $tracker->status_saat_ini,
                 'keterangan'       => $tracker->keterangan ?? '-',
+                'tubel_pendidikan' => $tubelPendidikan,
             ];
         }
 
@@ -165,6 +187,7 @@ class SuratPengajuanController extends Controller
      */
     public function generate(Request $request)
     {
+         \Illuminate\Support\Facades\Log::info('Generate request payload: ' . json_encode($request->all()));
          $request->validate([
             'kategori'      => 'required|string',
             'tracker_ids'   => 'required|array|min:1',
@@ -175,6 +198,13 @@ class SuratPengajuanController extends Controller
             'nama_ttd'      => 'nullable|string|max:150',
             'nip_ttd'       => 'nullable|string|max:30',
             'jabatan_ttd'   => 'nullable|string|max:150',
+            'ref_nota_dinas'   => 'nullable|string|max:100',
+            'tgl_nota_dinas'   => 'nullable|string|max:100',
+            'tubel_jabatan'    => 'nullable|string|max:150',
+            'tubel_pendidikan' => 'nullable|string|max:255',
+            'narahubung_nama'  => 'nullable|string|max:150',
+            'narahubung_hp'    => 'nullable|string|max:30',
+            'narahubung_email' => 'nullable|string|max:150',
             'kppn'          => 'nullable|string|max:100',
             'masa_kerja'    => 'nullable|array',
             'sk_lama_pejabat' => 'nullable|string',

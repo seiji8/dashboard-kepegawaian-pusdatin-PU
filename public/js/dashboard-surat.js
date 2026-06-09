@@ -24,7 +24,7 @@ function openSuratModal(kategori) {
         .toISOString()
         .split("T")[0];
     document.getElementById("suratTujuan").value =
-        "Kepala Biro Kepegawaian, Organisasi, dan Tata Laksana, Sekretariat Jenderal, Kementerian Pekerjaan Umum";
+        "Kepala Biro Kepegawaian, Organisasi dan Tata Laksana";
     document.getElementById("suratNamaTTD").value = "Komang Sri Hartini";
     document.getElementById("suratNipTTD").value = "196811201994032001";
     document.getElementById("suratJabatanTTD").value =
@@ -49,15 +49,26 @@ function openSuratModal(kategori) {
     const isKGB = kategori === "KGB";
     kgbFields.style.display = isKGB ? "block" : "none";
 
-    // Show/hide Narahubung fields (Only for KJ_Jafung)
+    // Show/hide Narahubung fields (Only for KJ_Jafung & TUBEL)
     const narahubungFields = document.getElementById("suratNarahubungFields");
     if (narahubungFields) {
-        const isKJ = kategori === "KJ_Jafung";
-        narahubungFields.style.display = isKJ ? "block" : "none";
-        if (isKJ) {
+        const showNarahubung = (kategori === "KJ_Jafung" || kategori === "TUBEL");
+        narahubungFields.style.display = showNarahubung ? "block" : "none";
+        if (showNarahubung) {
             document.getElementById("suratNarahubungNama").value = "Sdri. Julia";
             document.getElementById("suratNarahubungHp").value = "0822-9824-6907";
             document.getElementById("suratNarahubungEmail").value = "julia.pujilestari@pu.go.id";
+        }
+    }
+
+    // Show/hide TUBEL-only fields
+    const tubelFields = document.getElementById("suratTubelFields");
+    const isTubel = kategori === "TUBEL";
+    if (tubelFields) {
+        tubelFields.style.display = isTubel ? "block" : "none";
+        if (isTubel) {
+            document.getElementById("suratRefNotaDinas").value = "SM04/B/Sp/2026/474";
+            document.getElementById("suratTglNotaDinas").value = "2026-03-26";
         }
     }
 
@@ -78,11 +89,11 @@ function openSuratModal(kategori) {
 
 
 
-    const isKJ = kategori === "KJ_Jafung";
+    const hasLampiran = (kategori === "KJ_Jafung" || kategori === "TUBEL");
     const previewStepEl = document.getElementById("suratPreviewStepNumber");
     const lampiranStepEl = document.getElementById("suratLampiranStepNumber");
     if (previewStepEl) {
-        previewStepEl.textContent = isKJ ? "Langkah 04 / Live Preview" : "Langkah 03 / Live Preview";
+        previewStepEl.textContent = hasLampiran ? "Langkah 04 / Live Preview" : "Langkah 03 / Live Preview";
     }
     if (lampiranStepEl) {
         lampiranStepEl.textContent = "Langkah 03";
@@ -249,7 +260,7 @@ function renderPegawaiRow(p, statusLabel, statusColor, statusBg) {
     return `
         <label class="pegawai-row-card">
             <div class="surat-radio-indicator"></div>
-            <input type="radio" name="surat_pegawai_radio" class="surat-pegawai-cb" data-tracker-id="${p.tracker_id}" data-jabatan="${p.jabatan || ''}" data-jenjang="${p.jenjang || ''}" onchange="handleSuratCbChange(this)" style="display:none;">
+            <input type="radio" name="surat_pegawai_radio" class="surat-pegawai-cb" data-tracker-id="${p.tracker_id}" data-jabatan="${p.jabatan || ''}" data-jenjang="${p.jenjang || ''}" data-pendidikan="${p.tubel_pendidikan || ''}" onchange="handleSuratCbChange(this)" style="display:none;">
             <div style="flex:1; min-width:0;">
                 <div style="font-weight:700; font-size:14px; color:#0f172a; letter-spacing:-0.2px;">${p.nama}</div>
                 <div style="font-size:12px; color:#475569; margin-top:4px; font-weight:500;">
@@ -283,6 +294,28 @@ function handleSuratCbChange(cb) {
         });
         const card = cb.closest(".pegawai-row-card");
         if (card) card.classList.add("selected");
+
+        // Pre-populate TUBEL Jabatan & Pendidikan
+        if (suratKategori === "TUBEL") {
+            const tubelJabatanInput = document.getElementById("suratTubelJabatan");
+            if (tubelJabatanInput) {
+                const dbJabatan = cb.dataset.jabatan || "";
+                if (dbJabatan.toLowerCase().startsWith("karyasiswa")) {
+                    const jenjang = cb.dataset.jenjang || "";
+                    if (jenjang && jenjang.toLowerCase() !== "karyasiswa" && jenjang !== "-") {
+                        tubelJabatanInput.value = "Surveyor Pemetaan " + jenjang;
+                    } else {
+                        tubelJabatanInput.value = "Surveyor Pemetaan Ahli Pertama";
+                    }
+                } else {
+                    tubelJabatanInput.value = dbJabatan;
+                }
+            }
+            const tubelPendidikanInput = document.getElementById("suratTubelPendidikan");
+            if (tubelPendidikanInput) {
+                tubelPendidikanInput.value = cb.dataset.pendidikan || "";
+            }
+        }
     }
     updateSuratCount();
 }
@@ -299,8 +332,8 @@ function updateSuratCount() {
     if (countEl) countEl.textContent = checked.length + " pegawai terpilih";
     if (btn) btn.disabled = checked.length === 0;
 
-    // Manage Lampiran UI for KJ
-    if (suratKategori === "KJ_Jafung") {
+    // Manage Lampiran UI for KJ & TUBEL
+    if (suratKategori === "KJ_Jafung" || suratKategori === "TUBEL") {
         const lampiranContainer = document.getElementById("suratLampiranContainer");
         if (lampiranContainer) {
             if (checked.length === 1) {
@@ -411,11 +444,19 @@ function generateSurat(isPreview = false, isAutoRefresh = false) {
         fields["gaji_baru"] = document.getElementById("kgbGajiBaru").value;
     }
 
-    // KJ-only: Narahubung fields
-    if (suratKategori === "KJ_Jafung") {
+    // KJ & TUBEL: Narahubung fields
+    if (suratKategori === "KJ_Jafung" || suratKategori === "TUBEL") {
         fields["narahubung_nama"] = document.getElementById("suratNarahubungNama").value;
         fields["narahubung_hp"] = document.getElementById("suratNarahubungHp").value;
         fields["narahubung_email"] = document.getElementById("suratNarahubungEmail").value;
+    }
+
+    // TUBEL-only: Reference Letter Fields & Custom Jabatan & Custom Pendidikan
+    if (suratKategori === "TUBEL") {
+        fields["ref_nota_dinas"] = document.getElementById("suratRefNotaDinas").value;
+        fields["tgl_nota_dinas"] = document.getElementById("suratTglNotaDinas").value;
+        fields["tubel_jabatan"] = document.getElementById("suratTubelJabatan").value;
+        fields["tubel_pendidikan"] = document.getElementById("suratTubelPendidikan").value;
     }
 
     Object.keys(fields).forEach((key) => {
@@ -506,9 +547,18 @@ function generateSurat(isPreview = false, isAutoRefresh = false) {
             const url = window.URL.createObjectURL(blob);
             
             if (isPreview) {
-                // Tampilkan di iframe
-                document.getElementById("suratPreviewFrame").src = url;
-                document.getElementById("suratPreviewContainer").style.display = "block";
+                // Tampilkan di iframe (clone node untuk memaksa reload PDF viewer browser tanpa cache)
+                const iframe = document.getElementById("suratPreviewFrame");
+                if (iframe) {
+                    const newIframe = iframe.cloneNode(true);
+                    newIframe.src = url;
+                    iframe.parentNode.replaceChild(newIframe, iframe);
+                } else {
+                    const frame = document.getElementById("suratPreviewFrame");
+                    if (frame) frame.src = url;
+                }
+                const container = document.getElementById("suratPreviewContainer");
+                if (container) container.style.display = "block";
                 
                 if (!isAutoRefresh) {
                     setTimeout(() => {
@@ -896,7 +946,11 @@ function initAutoRefreshListeners() {
         "kgbGajiBaru",
         "suratNarahubungNama",
         "suratNarahubungHp",
-        "suratNarahubungEmail"
+        "suratNarahubungEmail",
+        "suratRefNotaDinas",
+        "suratTglNotaDinas",
+        "suratTubelJabatan",
+        "suratTubelPendidikan"
     ];
 
     inputsToWatch.forEach((id) => {

@@ -183,12 +183,25 @@ Memantau pejabat fungsional yang sudah layak untuk naik tingkat jabatan ke jenja
 1.  Buka accordion **Kenaikan Jenjang (KJ)**.
 2.  Klik ikon **Mata** (Detail) di sebelah kanan nama pegawai untuk memastikan seluruh Angka Kreditnya sudah mencukupi.
 3.  Jika berkas sudah lengkap, klik tombol **"Daftarkan UKOM"** untuk mengirim data pegawai tersebut ke modul Uji Kompetensi.
-4.  **Cetak Surat Usulan KJ & Upload Lampiran:** 
-    *   Klik tombol **"Cetak Surat"** (warna biru) pada nama pegawai untuk membuka modal pembuatan Nota Dinas.
-    *   **Langkah 1 & 2 (Pilih Pengirim/Penerima):** Tentukan pejabat penandatangan dan nomor surat.
-    *   **Langkah 3 (Kelola Dokumen Lampiran):** Ketik judul lampiran (misal: *Sertifikat Ukom BKN*), klik tombol **Pilih File** (pilih file PDF/Gambar dari komputer Anda), lalu klik **Upload**.
-    *   **Mengatur Lampiran:** Anda bisa menyeret (*drag-and-drop*) daftar file untuk mengurutkannya, mengedit judul lampiran dengan mengklik nama file, atau menghapusnya jika salah upload.
-    *   **Unduh Dokumen:** Klik tombol **"Generate Bundle"** untuk mencetak draf surat usulan beserta seluruh berkas lampiran yang telah diunggah dalam satu file PDF ringkas.
+4.  **Cetak Surat Usulan KJ & Pengaturan Lampiran (Penting & Detail):**
+    *   **Buka Modal Cetak:** Klik tombol **"Cetak Surat"** (warna biru) pada baris nama pegawai.
+    *   **Isi Data Nota Dinas (Langkah 1 & 2):** Lengkapi nomor surat, tanggal, tujuan, serta nama/NIP pejabat penandatangan.
+    *   **Kelola Lampiran Dokumen (Langkah 3):**
+        *   **Pilih & Unggah File:** Klik **Pilih File** (PDF atau Gambar) dan tentukan **Halaman Cetak** (misal: halaman `1`).
+        *   **Judul Halaman:** Ketik judul halaman (misal: *Sertifikat Ukom*). *Catatan: Input Judul Halaman hanya muncul sekali untuk nomor halaman yang sama karena satu halaman cetak hanya memiliki satu judul.*
+        *   **Klik Upload:** Klik tombol **Upload** untuk memasukkan berkas ke daftar antrean. Ulangi langkah ini untuk file lainnya.
+    *   **Memahami Aturan Layout Otomatis (Penting):**
+        Sistem di latar belakang akan otomatis mengatur tata letak (layout) dokumen berdasarkan jumlah file yang Anda kelompokkan dalam nomor halaman cetak yang sama:
+        *   **Layout 1-in-1 (1 File per Halaman):** Jika hanya ada 1 file di halaman tersebut, dokumen dicetak satu halaman penuh.
+        *   **Layout 2-in-1 (2 Gambar Bersisian):** Jika Anda mengunggah **2 Gambar** pada nomor halaman yang sama, sistem otomatis mencetaknya bersebelahan (kiri-kanan) dalam satu halaman.
+        *   **Layout 3-in-1 (Grid 3 File dalam 1 Halaman):** Jika Anda mengunggah **3 File** (bisa PDF 1-halaman atau Gambar) pada nomor halaman yang sama, sistem otomatis menatanya dengan format grid:
+            *   File urutan 1 & 2 diatur berdampingan di bagian atas.
+            *   File urutan 3 diatur lebar di bagian bawah (sangat cocok jika file ketiga ini berorientasi Landscape/Horizontal).
+    *   **Mengatur & Merapikan Berkas (Mengatasi Kerumitan):**
+        *   **Mengubah Urutan (Drag & Drop):** Jika posisi file salah (misalnya berkas landscape berada di atas, bukan di bawah), silakan **seret (drag-and-drop)** baris file di tabel lampiran untuk mengurutkannya kembali.
+        *   **Mengubah Judul & Halaman secara Instan:** Anda bisa langsung mengklik teks judul atau nomor halaman pada tabel lampiran untuk mengeditnya secara cepat.
+        *   **Hapus Berkas:** Klik tombol tempat sampah merah jika ada berkas yang salah unggah.
+    *   **Unduh PDF Bundle:** Jika semua lampiran sudah rapi, klik tombol **"Generate Bundle"** di pojok kanan bawah. Sistem akan menyatukan Nota Dinas beserta seluruh lampirannya menjadi satu berkas PDF ringkas yang siap Anda unduh.
 
 ---
 

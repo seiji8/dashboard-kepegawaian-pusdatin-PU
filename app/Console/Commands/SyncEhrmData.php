@@ -255,7 +255,7 @@ class SyncEhrmData extends Command
                             [
                                 'nip'     => $pegawai->nip,
                                 'nosk'    => $jab['nosk'] ?? '-',
-                                'jabatan' => $jab['jabatan'] ?? '-',
+                                'jabatan' => $jab['uraian'] ?? $jab['jabatan'] ?? '-',
                             ],
                             [
                                 'tgl_sk'       => $this->parseDate($jab['tgl_sk'] ?? null),

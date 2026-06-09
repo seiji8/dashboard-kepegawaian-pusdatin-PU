@@ -66,7 +66,7 @@
                         </div>
                         <div style="grid-column: 1 / -1;">
                             <label class="surat-modal-label">TUJUAN SURAT (KEPADA YTH.)</label>
-                            <input type="text" id="suratTujuan" placeholder="Contoh: Kepala Biro Kepegawaian" value="Kepala Biro Kepegawaian, Organisasi, dan Tata Laksana, Sekretariat Jenderal, Kementerian Pekerjaan Umum" class="surat-modal-input">
+                            <input type="text" id="suratTujuan" placeholder="Contoh: Kepala Biro Kepegawaian" value="Kepala Biro Kepegawaian, Organisasi dan Tata Laksana" class="surat-modal-input">
                         </div>
                         <div id="suratKPFields" style="display:none; grid-column: 1 / -1;">
                             <div style="display:grid; grid-template-columns:1fr 1fr; gap:15px;">
@@ -103,6 +103,26 @@
                                     <label class="surat-modal-label">GAJI POKOK BARU (ANGKA)</label>
                                     <input type="number" id="kgbGajiBaru" placeholder="Contoh: 3287000" class="surat-modal-input">
                                     <span style="font-size:10px; color:#94a3b8; margin-top:5px; display:block;">Hanya angka, tanpa titik/koma. Teks terbilang otomatis di-generate.</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="suratTubelFields" style="display:none; grid-column: 1 / -1;">
+                            <div style="display:grid; grid-template-columns:1fr 1fr; gap:15px;">
+                                <div>
+                                    <label class="surat-modal-label">NOMOR SURAT REFF PENGEMBALIAN</label>
+                                    <input type="text" id="suratRefNotaDinas" placeholder="Contoh: SM04/B/Sp/2026/474" value="SM04/B/Sp/2026/474" class="surat-modal-input">
+                                </div>
+                                <div>
+                                    <label class="surat-modal-label">TANGGAL SURAT REFF PENGEMBALIAN</label>
+                                    <input type="date" id="suratTglNotaDinas" class="surat-modal-input">
+                                </div>
+                                <div style="grid-column: 1 / -1; margin-top: 5px;">
+                                    <label class="surat-modal-label">JABATAN FUNGSIONAL (PENGANGKATAN KEMBALI)</label>
+                                    <input type="text" id="suratTubelJabatan" placeholder="Contoh: Surveyor Pemetaan Ahli Pertama" class="surat-modal-input">
+                                </div>
+                                <div style="grid-column: 1 / -1; margin-top: 5px;">
+                                    <label class="surat-modal-label">PENDIDIKAN TERAKHIR / TUGAS BELAJAR (KETERANGAN SELESAI)</label>
+                                    <input type="text" id="suratTubelPendidikan" placeholder="Contoh: Pendidikan Magister Super Spesialis Teknik Informatika Keamanan Siber, Universitas Bina Nusantara" class="surat-modal-input">
                                 </div>
                             </div>
                         </div>

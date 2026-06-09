@@ -130,7 +130,8 @@
             width: 130px;
             height: 130px;
             border: none;
-            margin: 8px auto 8px auto;
+            background: none;
+            margin: 12px auto;
         }
         .ttd-qr-label {
             font-size: 7.5pt;
