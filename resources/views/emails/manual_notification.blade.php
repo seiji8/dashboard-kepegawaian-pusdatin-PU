@@ -204,6 +204,19 @@
                                         @endforeach
                                     @endif
 
+                                    @if(preg_match('/(upload|unggah|dokumen|berkas|sertifikat)/i', $content))
+                                    <!-- E-HRM Upload Button -->
+                                    <table cellpadding="0" cellspacing="0" border="0" width="100%" style="margin-top:20px;">
+                                        <tr>
+                                            <td align="center">
+                                                <a href="https://ehrm.pu.go.id/data-saya" target="_blank" style="display:inline-block;background-color:#1e3a8a;color:#ffffff;text-decoration:none;padding:12px 24px;border-radius:6px;font-weight:bold;font-size:14px;">
+                                                    Upload Dokumen di E-HRM
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                    @endif
+
                                     @if(isset($pdfData))
                                     <!-- PDF Attachment Notice -->
                                     <table cellpadding="0" cellspacing="0" border="0" width="100%"

@@ -33,9 +33,20 @@
 
             <!-- Content Box -->
             <div style="background-color: #f8f9fa; border-radius: 8px; padding: 25px; margin: 25px 0; border-left: 5px solid #fbbf24;">
-                <p style="margin: 0; font-size: 16px; font-weight: 600; color: #1f2937; line-height: 1.6;">
-                    Surat Keterangan KGB {{ $bulanTahun }} Anda sudah terbit.<br>
-                    Mohon segera unggah dokumen tersebut ke E-HRM terima kasih.
+                <p style="margin: 0 0 15px 0; font-size: 16px; font-weight: 600; color: #1f2937; line-height: 1.6;">
+                    Surat Keterangan Kenaikan Gaji Berkala (KGB) periode {{ $bulanTahun }} Anda telah terbit.
+                </p>
+                <p style="margin: 0 0 15px 0; font-size: 15px; color: #4b5563; line-height: 1.6;">
+                    Mohon agar Saudara segera mengunggah dokumen persyaratan KGB ke dalam sistem E-HRM. Dokumen yang perlu diunggah meliputi:
+                </p>
+                <ul style="margin: 0 0 20px 0; padding-left: 20px; font-size: 15px; color: #4b5563; line-height: 1.6;">
+                    <li>SK KGB Terakhir</li>
+                    <li>Dokumen Penilaian Kinerja (SKP)</li>
+                </ul>
+                <p style="margin: 0; text-align: center;">
+                    <a href="https://ehrm.pu.go.id/data-saya" target="_blank" style="display: inline-block; background-color: #1e3a8a; color: #ffffff; text-decoration: none; padding: 12px 24px; border-radius: 6px; font-weight: bold; font-size: 15px;">
+                        Upload Dokumen di E-HRM
+                    </a>
                 </p>
             </div>
 

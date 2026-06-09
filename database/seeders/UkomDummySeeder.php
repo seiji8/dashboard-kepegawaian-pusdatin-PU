@@ -20,7 +20,7 @@ class UkomDummySeeder extends Seeder
             [
                 'nip'             => '199001010001001001',
                 'nama'            => '[TEST] Budi Santoso (UKOM Biasa)',
-                'email'           => 'dummy.ukom1@test.local',
+                'email'           => 'sanfaedloni@students.unnes.ac.id',
                 'jabatan_saat_ini' => 'Analis Kebijakan Ahli Pertama',
                 'tipe_jabatan'    => 'fungsional',
                 'jenjang'         => 'Ahli Pertama',
@@ -55,7 +55,7 @@ class UkomDummySeeder extends Seeder
             [
                 'nip'             => '199002020002002002',
                 'nama'            => '[TEST] Siti Rahayu (UKOM Madya)',
-                'email'           => 'dummy.ukom2@test.local',
+                'email'           => 'sanfaedloni@students.unnes.ac.id',
                 'jabatan_saat_ini' => 'Analis Kebijakan Ahli Muda',
                 'tipe_jabatan'    => 'fungsional',
                 'jenjang'         => 'Ahli Muda',

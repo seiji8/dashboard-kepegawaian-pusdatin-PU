@@ -54,5 +54,12 @@ class DatabaseSeeder extends Seeder
 
         // 3. Seeder Notifikasi (Professional Wording)
         $this->call(NotifikasiSeeder::class);
+
+        // 4. DATA DUMMY PEGAWAI UNTUK TESTING
+        if (app()->environment('local')) {
+            $this->call(\Database\Seeders\DummyKJSeeder::class);
+            $this->call(\Database\Seeders\DummyStructuralSeeder::class);
+            $this->call(\Database\Seeders\UkomDummySeeder::class);
+        }
     }
 }
