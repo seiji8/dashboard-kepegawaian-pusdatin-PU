@@ -642,11 +642,6 @@
                                         <span style="flex:1;">UKOM</span>
                                     </div>
                                     <div id="sub-ukom-biasa" class="sub-table-container">
-                                        <div class="surat-btn-row">
-                                            <button class="btn-cetak-surat" onclick="openSuratModal('UKOM')">
-                                                <i class="ph-bold ph-file-text"></i> Cetak Surat Pengajuan
-                                            </button>
-                                        </div>
                                         <table class="custom-table">
                                             <thead>
                                                 <tr>
@@ -698,11 +693,6 @@
                                         <span style="flex:1;">UKOM Madya</span>
                                     </div>
                                     <div id="sub-ukom-madya" class="sub-table-container">
-                                        <div class="surat-btn-row">
-                                            <button class="btn-cetak-surat" onclick="openSuratModal('UKOM')">
-                                                <i class="ph-bold ph-file-text"></i> Cetak Surat Pengajuan
-                                            </button>
-                                        </div>
                                         <table class="custom-table">
                                             <thead>
                                                 <tr>

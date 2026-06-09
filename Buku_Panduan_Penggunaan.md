@@ -92,34 +92,59 @@ Saat pertama kali Anda masuk (login) ke dalam aplikasi, Anda akan melihat halama
 
 ---
 
-### 2.2 Siklus Alur Status & Panduan Tombol Centang (Usulan -> Proses TTE -> Upload e-HRM)
-Untuk kategori usulan seperti **KGB** dan **Kenaikan Pangkat**, proses administrasinya mengikuti alur berkas di dunia nyata yang dibagi menjadi 3 tahap status di dashboard.
+### 2.2 Siklus Alur Status & Panduan Tombol Centang (Penjelasan Perbedaan Siklus Tiap Modul)
+Setiap modul di aplikasi ini memiliki alur proses (siklus) administrasi yang berbeda-beda disesuaikan dengan prosedur nyata di kantor. Admin perlu memahami kapan waktu yang tepat untuk menekan **tombol centang biru** di kolom aksi paling kanan tabel agar data status pelacakan di dashboard tetap akurat.
 
-Admin dapat mengubah status ini secara berurutan menggunakan **tombol centang biru** di kolom aksi (paling kanan tabel).
+Berikut adalah penjelasan rinci dari 3 tipe siklus alur status yang ada di sistem:
+
+---
+
+#### **TIPE 1: Siklus Linear Sederhana (KGB & Kenaikan Pangkat)**
+Siklus ini digunakan untuk modul **Kenaikan Gaji Berkala (KGB)** dan **Kenaikan Pangkat (KP) Reguler / Struktural / Fungsional**. Alurnya berjalan lurus sebanyak 3 tahap utama:
 
 ```mermaid
 graph LR
-    A[Usulan / Mendekati] -->|Klik Centang 1| B[Proses TTE]
-    B -->|Klik Centang 2| C[Upload E-HRM]
+    A[1. Usulan Pengajuan] -->|Klik Centang| B[2. Proses TTE]
+    B -->|Klik Centang| C[3. Upload E-HRM]
 ```
 
-#### **Detail Kapan Harus Mengklik Tombol Centang:**
+*   **1. Usulan Pengajuan / Mendekati (Merah/Kuning):** Pegawai jatuh tempo. Admin menyiapkan berkas draf usulan di e-HRM pusat (tidak ada tombol cetak surat di aplikasi ini untuk KGB & KP). Klik tombol **Centang Biru** ("Konfirmasi Usulan ke Proses TTE") untuk mengubah status ke Proses TTE.
+*   **2. Proses TTE (Kuning):** Surat menunggu tanda tangan digital (TTE) pimpinan. Begitu surat selesai ditandatangani, klik **Centang Biru** ("Konfirmasi TTE Selesai") untuk lanjut ke `Upload E-HRM`.
+*   **3. Upload E-HRM (Hijau):** Dokumen resmi siap diunggah ke e-HRM pusat. Tombol centang hilang karena tugas selesai. Pegawai akan hilang dari dashboard setelah sinkronisasi data berikutnya.
 
-1.  **Tahap 1: Status `Usulan` atau `Mendekati`**
-    *   **Arti Status**: Pegawai telah memenuhi syarat untuk KGB atau naik pangkat, berkas sedang mulai disiapkan oleh Admin di kantor.
-    *   **Kapan Harus Klik Centang?** Ketika Admin **telah selesai membuat draf surat usulan** dan mengirimkannya ke pimpinan/kepala untuk ditandatangani.
-    *   **Tindakan**: Klik tombol **Centang Biru** pada baris pegawai tersebut.
-    *   **Hasil**: Status pegawai akan berubah menjadi **Proses TTE** (Warna Kuning).
+---
 
-2.  **Tahap 2: Status `Proses TTE`**
-    *   **Arti Status**: Surat usulan saat ini sedang menunggu tanda tangan elektronik (TTE) resmi dari pimpinan/kepala dinas.
-    *   **Kapan Harus Klik Centang?** Ketika Admin **menerima kabar/notifikasi bahwa surat usulan telah selesai ditandatangani secara digital (TTE selesai)** oleh pimpinan.
-    *   **Tindakan**: Klik tombol **Centang Biru** sekali lagi pada baris nama pegawai tersebut. Sistem akan memunculkan kotak konfirmasi kecil, klik **"Ya, Konfirmasi"**.
-    *   **Hasil**: Status pegawai akan berubah menjadi **Upload E-HRM** (Warna Hijau).
+#### **TIPE 2: Siklus Kompleks Terintegrasi (Kenaikan Jenjang & Uji Kompetensi / UKOM)**
+Khusus untuk Pegawai Fungsional, pengusulan **Kenaikan Jenjang (KJ)** tidak bisa langsung dilakukan sebelum pegawai yang bersangkutan dinyatakan lulus **Uji Kompetensi (UKOM)**. Oleh karena itu, siklusnya lebih panjang dan melibatkan perpindahan modul:
 
-3.  **Tahap 3: Status `Upload E-HRM`**
-    *   **Arti Status**: Surat resmi yang sudah bertanda tangan lengkap siap diunggah ke sistem e-HRM pusat agar tercatat di database kementerian.
-    *   **Kapan Harus Klik Centang?** Di tahap ini, tombol centang sudah hilang karena ini merupakan status akhir pelacakan. Admin tinggal mengunggah dokumen tersebut ke web e-HRM pusat. Nama pegawai akan hilang otomatis dari dashboard pada jadwal sinkronisasi berikutnya setelah data e-HRM pusat terbarui.
+```mermaid
+graph TD
+    A[1. KJ: Pengajuan UKOM] -->|Klik Centang: Daftarkan UKOM| B[2. UKOM: Usulan]
+    B -->|Ujian Selesai: Klik Centang Lulus| C[3. KJ: Usulan Pengajuan]
+    C -->|Cetak & Generate Bundle Surat| D[4. KJ: Proses TTE]
+    D -->|Klik Centang TTE Selesai| E[5. KJ: Upload E-HRM]
+```
+
+*   **1. KJ: Pengajuan UKOM (Kuning):** Angka Kredit (AK) cukup tapi belum lulus UKOM. Klik **Centang Biru** ("Kirim ke Modul UKOM") untuk mendaftarkan pegawai ujian.
+*   **2. UKOM: Usulan (Merah):** Pegawai sedang proses ujian. Setelah hasil resmi keluar, klik **Centang Biru** ("Set Lulus UKOM") agar pegawai dikembalikan ke modul KJ dengan status `Usulan Pengajuan`.
+*   **3. KJ: Usulan Pengajuan (Merah):** Pegawai kembali ke KJ. Admin klik **Cetak Surat**, upload lampiran wajib, lalu klik **Generate Bundle** (cetak bundle ini otomatis mengubah status ke `Proses TTE`).
+*   **4. KJ: Proses TTE (Kuning):** Menunggu tanda tangan digital pimpinan. Setelah di-TTE, klik **Centang Biru** ("Konfirmasi TTE Selesai") untuk lanjut ke `Upload E-HRM`.
+*   **5. KJ: Upload E-HRM (Hijau):** Unggah PDF bundle resmi yang sudah di-TTE ke e-HRM pusat. Pelacakan selesai.
+
+---
+
+#### **TIPE 3: Siklus Tugas Belajar (TUBEL - Kelulusan & Pengaktifan Kembali)**
+Siklus ini digunakan khusus pada modul **Tugas Belajar (TUBEL)** untuk mengawal pegawai yang sedang bersekolah hingga aktif kembali bertugas di kantor.
+
+```mermaid
+graph LR
+    A[1. Sedang Tubel] -->|Masa Berlaku Tersisa 60 Hari / Cetak Surat| B[2. Proses Pengaktifan / Pengaktifan Kembali]
+    B -->|Melengkapi 3 Dokumen Wajib + Terbit SK| C[3. Selesai / Terkonfirmasi]
+```
+
+*   **1. Sedang Tubel (Biru Muda):** Pegawai sedang menjalani sekolah/perkuliahan. Tidak ada tombol aksi.
+*   **2. Proses Pengaktifan / Pengaktifan Kembali (Merah):** Status otomatis berubah ke merah ketika masa studi sisa $\le 60$ hari. Admin klik **Cetak Surat** pengaktifan kembali (mengubah status ke `Proses Pengaktifan Kembali`). Admin memantau kelengkapan **3 dokumen wajib** di detail profil Tubel (*Surat Pengantar, SK Tubel, Ijazah*).
+*   **3. Selesai / Terkonfirmasi (Keluar dari Dashboard):** Klik **Centang Biru** ("Konfirmasi Pengaktifan Kembali Selesai") setelah SK Pengaktifan Terbit Resmi dan berkas di atas lengkap. Pegawai akan dikeluarkan dari bilah pantauan.
 
 ---
 
@@ -303,11 +328,32 @@ Aplikasi kita tidak menyimpan data kepegawaian secara mandiri dari nol, melainka
 *   **Proses Sinkronisasi Otomatis:** Setiap tengah malam pukul 00:00, ketika kantor sedang sepi, komputer server kita akan "berbicara" dengan server pusat untuk menyalin data perubahan pangkat, jabatan, atau riwayat pelatihan pegawai terbaru ke dalam database lokal kita.
 *   **Proses Sinkronisasi Manual:** Jika ada pegawai yang baru saja mengupload dokumen di e-HRM pusat dan ingin datanya langsung muncul di aplikasi saat itu juga, Admin cukup menekan tombol **"Sinkronisasi"** di pojok kiri bawah layar.
 
-### 4.2 Bagaimana Sistem Menentukan Kelayakan Pegawai secara Otomatis?
-Setelah data berhasil disinkronkan, sistem pintar kita akan menjalankan rumus matematika berikut secara otomatis:
-*   **Logika KGB:** Tanggal TMT KGB terakhir pegawai ditambah 2 tahun. Jika hasilnya menunjukkan sisa waktu 60 hari lagi, pegawai dimasukkan status `Mendekati`. Jika hari ini sudah melewati tanggal tersebut, status otomatis diubah menjadi `Usulan`.
-*   **Logika KP Reguler:** Menghitung selisih tahun dari TMT Golongan terakhir pegawai. Jika selisihnya $\ge 4$ tahun, nama pegawai akan otomatis dimunculkan di tab `Usulan KP Reguler`.
-*   **Logika Diklat:** Menyaring seluruh riwayat diklat pegawai yang status kelulusannya bernilai `Lulus`, namun kolom unggahan sertifikat fisiknya kosong di server pusat. Jika ditemukan, sistem langsung menaikkan nama pegawai tersebut ke daftar kepatuhan bermasalah di dashboard.
+#### 4.2 Bagaimana Sistem Menentukan Kelayakan Pegawai secara Otomatis?
+Setelah data disinkronkan, sistem di latar belakang langsung menghitung kelayakan pegawai secara otomatis menggunakan rumus-rumus berikut:
+
+*   **1. Modul KGB:**
+    *   **Rumus:** `TMT KGB Terakhir + 2 Tahun`.
+    *   **Kondisi:** Status berubah jadi `Mendekati` (H-60 sebelum jatuh tempo) dan mengirim email ke pegawai. Berubah jadi `Usulan` saat tanggal target terlewati. Kembali `Aman` setelah SK baru diunggah ke e-HRM pusat.
+*   **2. Modul KP Reguler (Pelaksana/Staf & Tubel):**
+    *   **Rumus:** `TMT Golongan Terakhir + 4 Tahun` (48 bulan).
+    *   **Kondisi:** Muncul di antrean `Usulan` jika masa pangkat terakhir sudah berjalan $\ge 4$ tahun.
+*   **3. Modul KP Struktural (Pejabat Eselon):**
+    *   **Kondisi:**
+        1.  **Reguler Struktural:** Pangkat terakhir $\ge 4$ tahun.
+        2.  **Pelantikan Baru:** Menunggu 1 tahun sejak pelantikan (TMT Struktural). Pemicu notifikasi dimulai H-60 dari target.
+        *(Catatan: Pegawai tidak diusulkan jika pangkatnya sudah mentok batas atas eselonnya).*
+*   **4. Modul KP Fungsional (Jafung):**
+    *   **Kondisi:**
+        1.  **Angka Kredit (AK):** Akumulasi AK dari PAK terakhir (yang lebih baru dari TMT pangkat) wajib memenuhi target minimal di Matriks BKN.
+        2.  **SKP 2 Tahun:** Nilai SKP 2 tahun terakhir wajib bernilai minimal **BAIK**.
+        3.  **Prediksi Triwulan (Mendekati):** Jika target AK kurang sedikit, sistem memberi status `Mendekati` jika bisa dikejar dalam 1 triwulan dengan predikat Baik/Sangat Baik.
+*   **5. Modul Kenaikan Jenjang (KJ):**
+    *   **Kondisi:** Syarat AK dan SKP terpenuhi (sama seperti KP Jafung).
+    *   **Alur:** Berstatus `Menunggu UKOM` jika belum ujian. Berstatus `Usulan Pengajuan` setelah ditandai **Lulus UKOM** oleh Admin.
+*   **6. Modul Uji Kompetensi (UKOM):**
+    *   **Kondisi:** Pegawai KJ yang didaftarkan Admin akan berstatus `Usulan`. Jika ditandai **Lulus**, otomatis balik ke modul KJ status `Usulan Pengajuan`. Jika **Tidak Lulus**, ditahan di antrean UKOM.
+*   **7. Modul Kepatuhan Diklat:**
+    *   **Kondisi:** Terdata lulus Diklat di data pusat, tetapi berkas sertifikat fisiknya belum diunggah (atau nomor sertifikat kosong). Pegawai masuk daftar monitoring agar Admin bisa mengirim email pengingat.
 
 ---
 

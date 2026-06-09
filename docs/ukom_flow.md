@@ -13,7 +13,7 @@
 
 ## 3. Proses UKOM dan Penentuan Kelulusan
 - Di halaman Dashboard, admin kini melihat pegawai tersebut di bawah antrean UKOM (bukan lagi KJ biasa).
-- Admin dapat mengklik "Cetak Surat Pengajuan" untuk men-generate dokumen pendaftaran UKOM.
+- Proses cetak surat usul pendaftaran UKOM dikerjakan langsung secara eksternal (di luar dashboard).
 - Setelah proses UKOM di dunia nyata selesai, admin memperbarui status kelulusan melalui dashboard yang memanggil `setKelulusanUkom`.
 - Jika dipilih **Lulus**:
   - Kategori tracker diubah kembali menjadi `KJ_Jafung` dengan status `Usulan`.
