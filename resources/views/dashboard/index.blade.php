@@ -205,7 +205,7 @@
                                                             <i class="ph-bold ph-check" style="font-size: 16px;"></i>
                                                         </button>
                                                         @elseif($item->status_saat_ini == 'Proses')
-                                                        <button class="btn-action-confirm" data-id="{{ $item->id }}" data-nama="{{ $item->pegawai->nama }}" onclick="openConfirmModal(this, this.dataset.id, this.dataset.nama)" title="Konfirmasi TTE Selesai">
+                                                        <button class="btn-action-confirm" data-id="{{ $item->id }}" data-nama="{{ $item->pegawai->nama }}" onclick="openConfirmModal(this.dataset.id, this.dataset.nama)" title="Konfirmasi TTE Selesai">
                                                             <i class="ph-bold ph-check" style="font-size: 16px;"></i>
                                                         </button>
                                                         @endif
@@ -274,7 +274,7 @@
                                                             <i class="ph-bold ph-check" style="font-size: 16px;"></i>
                                                         </button>
                                                         @elseif($item->status_saat_ini == 'Proses')
-                                                        <button class="btn-action-confirm" data-id="{{ $item->id }}" data-nama="{{ $item->pegawai->nama }}" onclick="openConfirmModal(this, this.dataset.id, this.dataset.nama)" title="Konfirmasi TTE Selesai">
+                                                        <button class="btn-action-confirm" data-id="{{ $item->id }}" data-nama="{{ $item->pegawai->nama }}" onclick="openConfirmModal(this.dataset.id, this.dataset.nama)" title="Konfirmasi TTE Selesai">
                                                             <i class="ph-bold ph-check" style="font-size: 16px;"></i>
                                                         </button>
                                                         @endif
@@ -343,7 +343,7 @@
                                                             <i class="ph-bold ph-check" style="font-size: 16px;"></i>
                                                         </button>
                                                         @elseif($item->status_saat_ini == 'Proses')
-                                                        <button class="btn-action-confirm" data-id="{{ $item->id }}" data-nama="{{ $item->pegawai->nama }}" onclick="openConfirmModal(this, this.dataset.id, this.dataset.nama)" title="Konfirmasi TTE Selesai">
+                                                        <button class="btn-action-confirm" data-id="{{ $item->id }}" data-nama="{{ $item->pegawai->nama }}" onclick="openConfirmModal(this.dataset.id, this.dataset.nama)" title="Konfirmasi TTE Selesai">
                                                             <i class="ph-bold ph-check" style="font-size: 16px;"></i>
                                                         </button>
                                                         @endif
@@ -425,7 +425,7 @@
                                                     </button>
                                                     @endif
                                                     @if($item->status_saat_ini == 'Proses')
-                                                    <button class="btn-action-confirm" data-id="{{ $item->id }}" data-nama="{{ $item->pegawai->nama }}" onclick="openUkomModal(this, this.dataset.id, this.dataset.nama)" title="Konfirmasi TTE Selesai">
+                                                    <button class="btn-action-confirm" data-id="{{ $item->id }}" data-nama="{{ $item->pegawai->nama }}" onclick="openUkomModal(this.dataset.id, this.dataset.nama)" title="Konfirmasi TTE Selesai">
                                                         <i class="ph-bold ph-check" style="font-size: 16px;"></i>
                                                     </button>
                                                     @endif
@@ -498,7 +498,7 @@
                                                             <i class="ph-bold ph-check" style="font-size: 16px;"></i>
                                                         </button>
                                                         @elseif($kgb->status_saat_ini == 'Proses')
-                                                        <button class="btn-action-confirm" data-id="{{ $kgb->id }}" data-nama="{{ $kgb->pegawai->nama }}" onclick="openConfirmModal(this, this.dataset.id, this.dataset.nama)" title="Konfirmasi TTE Selesai">
+                                                        <button class="btn-action-confirm" data-id="{{ $kgb->id }}" data-nama="{{ $kgb->pegawai->nama }}" onclick="openConfirmModal(this.dataset.id, this.dataset.nama)" title="Konfirmasi TTE Selesai">
                                                             <i class="ph-bold ph-check" style="font-size: 16px;"></i>
                                                         </button>
                                                         @endif
