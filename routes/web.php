@@ -95,6 +95,7 @@ Route::middleware(['auth', \App\Http\Middleware\ForcePasswordChange::class])->gr
     Route::delete('/lampiran/clear/{tracker_id}', [LampiranController::class, 'clearAll'])->name('lampiran.clear-all');
     Route::post('/lampiran/reorder', [LampiranController::class, 'reorder'])->name('lampiran.reorder');
     Route::put('/lampiran/{id}/update-judul', [LampiranController::class, 'updateJudul'])->name('lampiran.update-judul');
+    Route::get('/surat-kj/datatable', [SuratPengajuanController::class, 'getKjDatatable'])->name('surat-kj.datatable');
     Route::get('/surat-kj/{id}/generate-bundle', [DashboardController::class, 'generateBundleKj'])->name('surat-kj.generate-bundle');
 
 });

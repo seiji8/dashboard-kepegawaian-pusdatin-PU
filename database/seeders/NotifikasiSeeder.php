@@ -12,12 +12,22 @@ class NotifikasiSeeder extends Seeder
         // Bersihkan data lama
         NotifikasiRules::truncate();
 
-        // 1. Notifikasi Triwulan
+        // 1. Notifikasi Triwulan (Umum)
         NotifikasiRules::updateOrCreate(
             ['kategori' => 'Notifikasi Triwulan'],
             [
                 'template_pesan' => "Berdasarkan data pada sistem E-HRM, Anda diharapkan untuk segera memperbarui dokumen SKP triwulan periode ini.\n\n- NIP: {nip}\n- Batas Waktu: {deadline}\n\nSilakan unggah dokumen melalui tautan berikut: [Link E-HRM]\n\nPesan ini dikirimkan secara otomatis oleh Sistem Notifikasi Pusdatin.",
                 'interval_hari' => 90, // 3 Bulan
+                'is_active' => true,
+            ]
+        );
+
+        // 1.5. Notifikasi Mendekati Jafung (Berdasarkan AK)
+        NotifikasiRules::updateOrCreate(
+            ['kategori' => 'Notifikasi Mendekati Jafung'],
+            [
+                'template_pesan' => "Halo {nama}, berdasarkan pantauan sistem, Anda sebentar lagi dapat mengajukan Kenaikan Pangkat/Jenjang ke {pangkat_selanjutnya}!\n\nSaat ini Angka Kredit (AK) Anda adalah {ak_sekarang}, dan Anda hanya membutuhkan sisa {sisa_ak} AK lagi.\nSisa AK ini dapat Anda capai dalam 1 triwulan ke depan.\n\nOleh karena itu, kami mengingatkan Anda untuk segera menyelesaikan dan mengunggah SKP Triwulan berikutnya agar proses kenaikan pangkat/jenjang Anda bisa diproses lebih cepat.\n\nSilakan unggah dokumen SKP Anda melalui E-HRM.\n\nPesan ini dikirimkan secara otomatis oleh Sistem Notifikasi Pusdatin.",
+                'interval_hari' => 90,
                 'is_active' => true,
             ]
         );

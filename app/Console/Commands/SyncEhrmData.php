@@ -107,6 +107,7 @@ class SyncEhrmData extends Command
                 'pangkat_golongan' => $item['golongan'] ?? null,
                 'jenjang'          => $item['jenjang'] ?? null,
                 'kd_eselon'        => $item['kd_eselon'] ?? null,
+                'nmstatus_pegawai' => $item['nmstatus_pegawai'] ?? $item['nmstatus'] ?? null,
             ] + array_filter([
                 'tmt_cpns'            => $this->parseDate($item['tmt_cpns'] ?? null),
                 'tmt_pangkat_terakhir'=> $this->parseDate($item['tmt_pangkat'] ?? null),

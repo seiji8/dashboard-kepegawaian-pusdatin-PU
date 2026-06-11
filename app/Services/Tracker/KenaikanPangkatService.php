@@ -17,6 +17,14 @@ class KenaikanPangkatService implements TrackerInterface
     {
         $matriksKamus = $context['matriksKamus'] ?? collect();
 
+        $statusPegawai = strtoupper(trim($pegawai->nmstatus_pegawai ?? ''));
+        if ($statusPegawai !== '' && !in_array($statusPegawai, ['PNS', 'CPNS'])) {
+            \App\Models\DashboardTracker::where('pegawai_id', $pegawai->id_pegawai_api)
+                ->whereIn('kategori', ['KP_Reguler', 'KP_Jafung', 'KP_Struktural'])
+                ->delete();
+            return;
+        }
+
         $this->processJafung($pegawai, $today, $daftarUsulanBaru, $matriksKamus);
         $this->processStruktural($pegawai, $today, $daftarUsulanBaru);
         $this->processReguler($pegawai, $today, $daftarUsulanBaru);
@@ -113,12 +121,8 @@ class KenaikanPangkatService implements TrackerInterface
                     }
 
                     if ($statusAK === 'Mendekati') {
-                        $this->sendMendekatiNotification($pegawai, $kategoriSekarang, $keteranganAK);
-                        $this->sendSkpTriwulanReminder($pegawai);
+                        $this->sendMendekatiNotification($pegawai, $kategoriSekarang, $keteranganAK, $currentAK, $kekuranganAK, $tujuanProses);
                         // JANGAN return di sini agar tracker tetap terupdate dengan status Mendekati
-                    }
-                    if ($statusAK === 'Aman') {
-                        $this->sendSkpTriwulanReminder($pegawai);
                     }
 
                     $targetDate = null;
@@ -203,7 +207,7 @@ class KenaikanPangkatService implements TrackerInterface
         ];
     }
 
-    private function sendMendekatiNotification(Pegawai $pegawai, string $kategoriSekarang, string $keteranganAK): void
+    private function sendMendekatiNotification(Pegawai $pegawai, string $kategoriSekarang, string $keteranganAK, $currentAK, $kekuranganAK, $tujuanProses): void
     {
         $kategoriLawan = 'KJ_Jafung';
         $namaProses = 'Kenaikan Pangkat';
@@ -221,11 +225,24 @@ class KenaikanPangkatService implements TrackerInterface
             }
             if ($notifiable) {
                 $subjekMendekati = "🔔 Informasi Angka Kredit: Mendekati Target {$namaProses}";
-                $pesanMendekati = "Yth. {$pegawai->nama} (NIP: {$pegawai->nip}),\n\n"
-                    . "Angka Kredit (AK) Anda saat ini telah mendekati target untuk {$namaProses}.\n"
-                    . "{$keteranganAK}\n\n"
-                    . "Harap terus tingkatkan kinerja Anda agar target AK dapat segera tercapai.\n\n"
-                    . "Terima kasih.";
+                $rule = \App\Models\NotifikasiRules::where('kategori', 'Notifikasi Mendekati Jafung')->first();
+                
+                if ($rule && $rule->is_active) {
+                    $pesanMendekati = str_replace(
+                        ['{nama}', '{nip}', '{ak_sekarang}', '{sisa_ak}', '{pangkat_selanjutnya}'],
+                        [$pegawai->nama, $pegawai->nip, number_format($currentAK, 3, ',', '.'), number_format($kekuranganAK, 3, ',', '.'), $tujuanProses],
+                        $rule->template_pesan
+                    );
+                } else {
+                    $pesanMendekati = "Yth. {$pegawai->nama} (NIP: {$pegawai->nip}),\n\n"
+                        . "Angka Kredit (AK) Anda saat ini telah mendekati target untuk {$namaProses} ke {$tujuanProses}.\n"
+                        . "AK Anda saat ini: " . number_format($currentAK, 3, ',', '.') . "\n"
+                        . "Kekurangan: " . number_format($kekuranganAK, 3, ',', '.') . "\n\n"
+                        . "{$keteranganAK}\n\n"
+                        . "Harap unggah SKP triwulan berikutnya agar target AK dapat segera tercapai.\n\n"
+                        . "Terima kasih.";
+                }
+
                 try {
                     $notifiable->notify(new SystemAlertNotification($pegawai, $subjekMendekati, $pesanMendekati));
                     Cache::put($notifCacheKey, true, now()->addDays(30));
@@ -543,7 +560,6 @@ class KenaikanPangkatService implements TrackerInterface
             }
 
             if ($statusReguler == 'Aman') {
-                $this->sendSkpTriwulanReminder($pegawai);
                 DashboardTracker::updateOrCreate(
                     [
                         'pegawai_id' => $pegawai->id_pegawai_api,
@@ -593,32 +609,6 @@ class KenaikanPangkatService implements TrackerInterface
             DashboardTracker::where('pegawai_id', $pegawai->id_pegawai_api)
                 ->where('kategori', 'KP_Reguler')
                 ->delete();
-        }
-    }
-
-    private function sendSkpTriwulanReminder(Pegawai $pegawai): void
-    {
-        $notifCacheKey = 'skp_triwulan_notif_' . $pegawai->id_pegawai_api;
-        if (!Cache::has($notifCacheKey)) {
-            $rule = \App\Models\NotifikasiRules::where('kategori', 'Notifikasi Triwulan')->first();
-            if ($rule) {
-                $notifiable = User::where('email', $pegawai->email)->first();
-                if (!$notifiable && $pegawai->email) {
-                    $notifiable = Notification::route('mail', $pegawai->email);
-                }
-                if ($notifiable) {
-                    $pesan = str_replace(
-                        ['{nip}', '{deadline}'],
-                        [$pegawai->nip, Carbon::now()->addDays(7)->format('d-m-Y')],
-                        $rule->template_pesan
-                    );
-                    try {
-                        $notifiable->notify(new SystemAlertNotification($pegawai, "🔔 Pengingat Update SKP", $pesan));
-                        Cache::put($notifCacheKey, true, now()->addDays(90));
-                        ActivityLogger::logSystem("Mengirim notifikasi pengingat SKP ke pegawai {$pegawai->nama}", $pegawai->nip);
-                    } catch (\Exception $e) {}
-                }
-            }
         }
     }
 
