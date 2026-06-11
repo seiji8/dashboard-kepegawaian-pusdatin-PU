@@ -299,18 +299,6 @@ class KenaikanPangkatService implements TrackerInterface
             $tracker->update(['notified_at' => now()]);
         }
 
-        if ($statusAK == 'Upload E-HRM') {
-            $docs = [];
-            if ($kategoriSekarang === 'KP_Struktural') {
-                $docs = ['SK Pangkat Terakhir', 'SK Jabatan Terakhir'];
-            } elseif ($kategoriSekarang === 'KP_Reguler' || $kategoriSekarang === 'KP_Jafung') {
-                $docs = ['SK Pangkat Terakhir'];
-            }
-            if (!empty($docs)) {
-                $this->sendUploadEhrmNotification($pegawai, $kategoriSekarang, $tracker, $docs);
-            }
-        }
-
         DashboardTracker::where('pegawai_id', $pegawai->id_pegawai_api)
             ->where('kategori', $kategoriLawan)
             ->delete();
@@ -524,6 +512,27 @@ class KenaikanPangkatService implements TrackerInterface
         }
 
         if ($isPelaksana && $pegawai->tmt_pangkat_terakhir) {
+            $golruOrder = [
+                'I/a', 'I/b', 'I/c', 'I/d',
+                'II/a', 'II/b', 'II/c', 'II/d',
+                'III/a', 'III/b', 'III/c', 'III/d',
+                'IV/a', 'IV/b', 'IV/c', 'IV/d', 'IV/e',
+            ];
+
+            $currentGolru = trim($pegawai->pangkat_golongan);
+            $maxGolru = $this->getMaxGolonganReguler($pegawai->jenjang_pendidikan);
+
+            $currentIdx = array_search($currentGolru, $golruOrder);
+            $maxIdx = array_search($maxGolru, $golruOrder);
+
+            // Jika pangkat saat ini sudah mencapai atau melebihi batas pendidikan, lewati usulan KP Reguler
+            if ($currentIdx !== false && $maxIdx !== false && $currentIdx >= $maxIdx) {
+                DashboardTracker::where('pegawai_id', $pegawai->id_pegawai_api)
+                    ->where('kategori', 'KP_Reguler')
+                    ->delete();
+                return;
+            }
+
             $tmtPangkat = Carbon::parse($pegawai->tmt_pangkat_terakhir);
             $masaPangkatReguler = (int) $tmtPangkat->diffInMonths($today);
             $tahun = intdiv($masaPangkatReguler, 12);
@@ -612,52 +621,42 @@ class KenaikanPangkatService implements TrackerInterface
         }
     }
 
-    private function sendUploadEhrmNotification(Pegawai $pegawai, string $kategori, DashboardTracker $tracker, array $dokumenWajib): void
+    /**
+     * Mendapatkan golongan ruang tertinggi yang diperbolehkan untuk KP Reguler berdasarkan pendidikan.
+     */
+    private function getMaxGolonganReguler(?string $education): string
     {
-        $notifCacheKey = 'upload_ehrm_notif_' . $pegawai->id_pegawai_api . '_' . $kategori;
-        if (!Cache::has($notifCacheKey)) {
-            $rule = \App\Models\NotifikasiRules::where('kategori', $kategori . ' Upload Dokumen')->first();
-            if ($rule) {
-                $notifiable = User::where('email', $pegawai->email)->first();
-                if (!$notifiable && $pegawai->email) {
-                    $notifiable = Notification::route('mail', $pegawai->email);
-                }
-                if ($notifiable) {
-                    $uploadedNames = $tracker->kelengkapan_dokumen->where('is_uploaded', true)->pluck('nama_dokumen')->toArray();
-                    $missingDocs = [];
-                    $targetPangkat = $pegawai->pangkat_golongan ? (
-                        ['I/a'=>'I/b','I/b'=>'I/c','I/c'=>'I/d','I/d'=>'II/a',
-                         'II/a'=>'II/b','II/b'=>'II/c','II/c'=>'II/d','II/d'=>'III/a',
-                         'III/a'=>'III/b','III/b'=>'III/c','III/c'=>'III/d','III/d'=>'IV/a',
-                         'IV/a'=>'IV/b','IV/b'=>'IV/c','IV/c'=>'IV/d','IV/d'=>'IV/e'][$pegawai->pangkat_golongan] ?? 'Baru'
-                    ) : 'Baru';
-
-                    foreach ($dokumenWajib as $doc) {
-                        if (!in_array($doc, $uploadedNames)) {
-                            if ($doc == 'SK Pangkat Terakhir') {
-                                $missingDocs[] = "- SK Pangkat Baru (Tujuan: {$targetPangkat})";
-                            } elseif ($doc == 'SK Jabatan Terakhir' || $doc == 'SK Jabatan Fungsional Terakhir') {
-                                $missingDocs[] = "- SK Jabatan Baru";
-                            } else {
-                                $missingDocs[] = "- " . $doc;
-                            }
-                        }
-                    }
-
-                    if (empty($missingDocs)) {
-                        return; 
-                    }
-
-                    $missingStr = implode("\n", $missingDocs);
-                    $pesan = str_replace('{missing_documents}', $missingStr, $rule->template_pesan);
-
-                    try {
-                        $notifiable->notify(new SystemAlertNotification($pegawai, "📋 Permintaan Upload Dokumen " . str_replace('_', ' ', $kategori), $pesan));
-                        Cache::put($notifCacheKey, true, now()->addDays(1)); 
-                        ActivityLogger::logSystem("Mengirim notifikasi Upload E-HRM ke pegawai {$pegawai->nama} ({$kategori})", $pegawai->nip);
-                    } catch (\Exception $e) {}
-                }
-            }
+        if (!$education) {
+            return 'IV/e'; // Default fallback jika data tidak ada
         }
+        
+        $education = strtoupper(trim($education));
+        
+        if (str_contains($education, 'S3') || str_contains($education, 'DOKTOR')) {
+            return 'IV/b';
+        }
+        if (str_contains($education, 'S2') || str_contains($education, 'MAGISTER')) {
+            return 'IV/a';
+        }
+        if (str_contains($education, 'S1') || str_contains($education, 'D4') || str_contains($education, 'D-IV') || str_contains($education, 'SARJANA')) {
+            return 'III/d';
+        }
+        if (str_contains($education, 'D3') || str_contains($education, 'D-III') || str_contains($education, 'SM/') || str_contains($education, 'SARJANA MUDA')) {
+            return 'III/c';
+        }
+        if (str_contains($education, 'D2') || str_contains($education, 'D-II') || str_contains($education, 'DIPLOMA II')) {
+            return 'III/b';
+        }
+        if (str_contains($education, 'SLTA') || str_contains($education, 'SMA') || str_contains($education, 'SMK') || str_contains($education, 'SLTA/')) {
+            return 'III/b';
+        }
+        if (str_contains($education, 'SLTP') || str_contains($education, 'SMP')) {
+            return 'II/c';
+        }
+        if (str_contains($education, 'SD')) {
+            return 'II/a';
+        }
+        
+        return 'IV/e';
     }
 }

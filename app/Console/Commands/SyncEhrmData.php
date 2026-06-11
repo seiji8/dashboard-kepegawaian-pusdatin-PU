@@ -107,7 +107,11 @@ class SyncEhrmData extends Command
                 'pangkat_golongan' => $item['golongan'] ?? null,
                 'jenjang'          => $item['jenjang'] ?? null,
                 'kd_eselon'        => $item['kd_eselon'] ?? null,
+<<<<<<< HEAD
                 'nmstatus_pegawai' => $item['nmstatus_pegawai'] ?? $item['nmstatus'] ?? null,
+=======
+                'jenjang_pendidikan' => $item['pendidikan'] ?? null,
+>>>>>>> fb16eedd9bf1103a97ab6493b12ff4d2e578f785
             ] + array_filter([
                 'tmt_cpns'            => $this->parseDate($item['tmt_cpns'] ?? null),
                 'tmt_pangkat_terakhir'=> $this->parseDate($item['tmt_pangkat'] ?? null),
@@ -623,24 +627,29 @@ class SyncEhrmData extends Command
                                 'tgl_selesai' => $this->parseDate($j['tanggal_selesai'] ?? null),
                                 'jabatan' => $j['jabatan_utama'] ?? $j['jabatan_nama'] ?? null,
                                 'file_sk' => $j['arsip'] ?? null,
+                                'kd_eselon' => $peg->kd_eselon, // Isi kd_eselon untuk pencocokan eselon aktif
                             ]
                         );
 
-                        // Tempatkan arsip jabatan di modul KJ
-                        // Gunakan id_pegawai_api (bisa berisi numeric ID setelah Tahap 1)
-                        $kjTracker = \App\Models\DashboardTracker::where('pegawai_id', $peg->id_pegawai_api)->where('kategori', 'KJ_Jafung')->first();
-                        if ($kjTracker && !empty($j['arsip'])) {
-                            \App\Models\KelengkapanDokumen::updateOrCreate(
-                                [
-                                    'dashboard_tracker_id' => $kjTracker->id,
-                                    'nama_dokumen' => 'SK Jabatan Terakhir',
-                                    'nip' => $nip
-                                ],
-                                [
-                                    'is_uploaded' => true,
-                                    'link_file' => $j['arsip']
-                                ]
-                            );
+                        // Tempatkan arsip jabatan di modul KJ dan KP_Struktural jika tracker ada
+                        $trackers = \App\Models\DashboardTracker::where('pegawai_id', $peg->id_pegawai_api)
+                            ->whereIn('kategori', ['KJ_Jafung', 'KP_Struktural'])
+                            ->get();
+
+                        foreach ($trackers as $tracker) {
+                            if (!empty($j['arsip'])) {
+                                \App\Models\KelengkapanDokumen::updateOrCreate(
+                                    [
+                                        'dashboard_tracker_id' => $tracker->id,
+                                        'nama_dokumen' => 'SK Jabatan Terakhir',
+                                        'nip' => $nip
+                                    ],
+                                    [
+                                        'is_uploaded' => true,
+                                        'link_file' => $j['arsip']
+                                    ]
+                                );
+                            }
                         }
                     }
                 }
@@ -667,6 +676,25 @@ class SyncEhrmData extends Command
                                 'arsip_pengembalian' => $t['arsip_pengembalian'] ?? null,
                                 'status_tubel' => $t['status_tubel'] ?? null,
                             ]);
+                        }
+
+                        // Tempatkan arsip tubel di modul TUBEL jika tracker ada
+                        $tubelTracker = \App\Models\DashboardTracker::where('pegawai_id', $peg->id_pegawai_api)->where('kategori', 'TUBEL')->first();
+                        if ($tubelTracker) {
+                            $latestTubel = collect($dataTubel)->whereNotNull('arsip_izin_belajar')->where('arsip_izin_belajar', '!=', '')->first();
+                            if ($latestTubel) {
+                                \App\Models\KelengkapanDokumen::updateOrCreate(
+                                    [
+                                        'dashboard_tracker_id' => $tubelTracker->id,
+                                        'nama_dokumen' => 'SK Tugas Belajar',
+                                        'nip' => $nip
+                                    ],
+                                    [
+                                        'is_uploaded' => true,
+                                        'link_file' => $latestTubel['arsip_izin_belajar']
+                                    ]
+                                );
+                            }
                         }
                     }
                 }

@@ -76,7 +76,11 @@ class DiklatService implements TrackerInterface
                     if (empty($missingDocs)) return;
 
                     $missingStr = implode("\n", $missingDocs);
-                    $pesan = str_replace('{missing_documents}', $missingStr, $rule->template_pesan);
+                    $pesan = str_replace(
+                        ['{nama}', '{missing_documents}'],
+                        [$pegawai->nama, $missingStr],
+                        $rule->template_pesan
+                    );
 
                     try {
                         $notifiable->notify(new SystemAlertNotification($pegawai, "📋 Permintaan Upload Sertifikat Diklat", $pesan));

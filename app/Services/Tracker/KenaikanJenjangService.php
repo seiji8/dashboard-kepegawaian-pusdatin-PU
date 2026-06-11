@@ -203,9 +203,40 @@ class KenaikanJenjangService implements TrackerInterface
                                 if (!empty($pegawai->arsip_skp_2_tahun) && count($pegawai->arsip_skp_2_tahun) >= 2) {
                                     $dokumenTerupload++;
                                 }
+                                
+                                $riwJabatanMatch = $pegawai->riwayat_jabatan
+                                    ? $pegawai->riwayat_jabatan
+                                        ->whereNotNull('file_sk')
+                                        ->where('file_sk', '!=', '')
+                                        ->sortByDesc('tmt_jabatan')
+                                        ->first()
+                                    : null;
+
+                                $hasSkJabatan = false;
                                 if ($existingAK) {
                                     $uploadedNames = $existingAK->kelengkapan_dokumen->where('is_uploaded', true)->pluck('nama_dokumen')->toArray();
-                                    if (in_array("SK Jabatan Terakhir", $uploadedNames) || in_array("SK Jabatan Fungsional Terakhir", $uploadedNames)) $dokumenTerupload++;
+                                    if (in_array("SK Jabatan Terakhir", $uploadedNames) || in_array("SK Jabatan Fungsional Terakhir", $uploadedNames)) {
+                                        $hasSkJabatan = true;
+                                    }
+                                }
+                                if ($riwJabatanMatch) {
+                                    $hasSkJabatan = true;
+                                }
+                                if ($hasSkJabatan) {
+                                    $dokumenTerupload++;
+                                    
+                                    // Fallback: update the KelengkapanDokumen record if it exists but is not uploaded
+                                    if ($existingAK) {
+                                        $docRecord = $existingAK->kelengkapan_dokumen->first(function ($d) {
+                                            return $d->nama_dokumen === 'SK Jabatan Terakhir' || $d->nama_dokumen === 'SK Jabatan Fungsional Terakhir';
+                                        });
+                                        if ($docRecord && !$docRecord->is_uploaded) {
+                                            $docRecord->update([
+                                                'is_uploaded' => true,
+                                                'link_file' => $riwJabatanMatch->file_sk ?? $docRecord->link_file
+                                            ]);
+                                        }
+                                    }
                                 }
                             }
 
@@ -232,9 +263,7 @@ class KenaikanJenjangService implements TrackerInterface
                                 $tracker->update(['notified_at' => now()]);
                             }
 
-                            if ($statusAK == 'Upload E-HRM') {
-                                $this->sendUploadEhrmNotification($pegawai, $kategoriSekarang, $tracker, ['SK Jabatan Fungsional Terakhir']);
-                            }
+
 
                             DashboardTracker::where('pegawai_id', $pegawai->id_pegawai_api)
                                 ->where('kategori', $kategoriLawan)
@@ -264,43 +293,4 @@ class KenaikanJenjangService implements TrackerInterface
             }
         }
     }
-
-    private function sendUploadEhrmNotification(Pegawai $pegawai, string $kategori, DashboardTracker $tracker, array $dokumenWajib): void
-    {
-        $notifCacheKey = 'upload_ehrm_notif_' . $pegawai->id_pegawai_api . '_' . $kategori;
-        if (!Cache::has($notifCacheKey)) {
-            $rule = \App\Models\NotifikasiRules::where('kategori', $kategori . ' Upload Dokumen')->first();
-            if ($rule) {
-                $notifiable = User::where('email', $pegawai->email)->first();
-                if (!$notifiable && $pegawai->email) {
-                    $notifiable = Notification::route('mail', $pegawai->email);
-                }
-                if ($notifiable) {
-                    $uploadedNames = $tracker->kelengkapan_dokumen->where('is_uploaded', true)->pluck('nama_dokumen')->toArray();
-                    $missingDocs = [];
-                    foreach ($dokumenWajib as $doc) {
-                        if (!in_array($doc, $uploadedNames)) {
-                            if ($doc == 'SK Jabatan Terakhir' || $doc == 'SK Jabatan Fungsional Terakhir') {
-                                $missingDocs[] = "- SK Jabatan Baru";
-                            } else {
-                                $missingDocs[] = "- " . $doc;
-                            }
-                        }
-                    }
-
-                    if (empty($missingDocs)) return;
-
-                    $missingStr = implode("\n", $missingDocs);
-                    $pesan = str_replace('{missing_documents}', $missingStr, $rule->template_pesan);
-
-                    try {
-                        $notifiable->notify(new SystemAlertNotification($pegawai, "📋 Permintaan Upload Dokumen " . str_replace('_', ' ', $kategori), $pesan));
-                        Cache::put($notifCacheKey, true, now()->addDays(1));
-                        ActivityLogger::logSystem("Mengirim notifikasi Upload E-HRM ke pegawai {$pegawai->nama} ({$kategori})", $pegawai->nip);
-                    } catch (\Exception $e) {}
-                }
-            }
-        }
-    }
 }
-
