@@ -59,31 +59,56 @@ class TubelService implements TrackerInterface
             $existingTubel = DashboardTracker::where('pegawai_id', $pegawai->id_pegawai_api)
                 ->where('kategori', 'TUBEL')->first();
 
+            // Jika tracker sudah dikonfirmasi "Selesai" oleh Admin, pertahankan statusnya agar tidak muncul kembali di dashboard
+            if ($existingTubel && ($existingTubel->status_saat_ini === 'Selesai' || $existingTubel->dikonfirmasi_at !== null)) {
+                $statusTubel = 'Selesai';
+                $keteranganTubel = $existingTubel->keterangan;
+            }
+
+            $dokumenTerupload = 0;
+            if ($existingTubel) {
+                $uploadedNames = $existingTubel->kelengkapan_dokumen->where('is_uploaded', true)->pluck('nama_dokumen')->toArray();
+                if (in_array("SK Tugas Belajar", $uploadedNames)) {
+                    $dokumenTerupload++;
+                }
+            }
+            
+            // Fallback: Check if SK Tugas Belajar exists in RiwayatTubel (if not already counted from KelengkapanDokumen)
+            $hasSkTubelInRiw = $riwayatTubel->whereNotNull('arsip_izin_belajar')->where('arsip_izin_belajar', '!=', '')->count() > 0;
+            if ($hasSkTubelInRiw && ($existingTubel ? !in_array("SK Tugas Belajar", $uploadedNames) : true)) {
+                $dokumenTerupload++;
+            }
+
             $trackerTubel = DashboardTracker::updateOrCreate(
                 ['pegawai_id' => $pegawai->id_pegawai_api, 'kategori' => 'TUBEL'],
                 [
                     'status_saat_ini' => $statusTubel,
                     'keterangan'      => $keteranganTubel,
                     'dokumen_total'   => 1,
+                    'dokumen_terupload' => $dokumenTerupload,
                     'tanggal_target'  => $selesaiEfektif ? $selesaiEfektif->format('Y-m-d') : null,
                 ]
             );
 
-            // Bersihkan jika ada kelengkapan dokumen yang lebih dari 1 (krn update)
-            if ($trackerTubel->kelengkapan_dokumen->count() > 1) {
-                \App\Models\KelengkapanDokumen::where('dashboard_tracker_id', $trackerTubel->id)
-                    ->where('nama_dokumen', '!=', 'SK Tugas Belajar')->delete();
-                $trackerTubel->update(['dokumen_total' => 1]);
-            }
+            // Bersihkan jika ada kelengkapan dokumen yang lain (karena update ke total 1 dokumen)
+            \App\Models\KelengkapanDokumen::where('dashboard_tracker_id', $trackerTubel->id)
+                ->where('nama_dokumen', '!=', 'SK Tugas Belajar')->delete();
 
-            if ($trackerTubel->wasRecentlyCreated || \App\Models\KelengkapanDokumen::where('dashboard_tracker_id', $trackerTubel->id)->count() === 0) {
-                $dokumenTubel = ['SK Tugas Belajar'];
-                foreach ($dokumenTubel as $dok) {
-                    \App\Models\KelengkapanDokumen::firstOrCreate([
-                        'dashboard_tracker_id' => $trackerTubel->id,
-                        'nama_dokumen'         => $dok,
-                        'nip'                  => $pegawai->nip
-                    ]);
+            $docRecord = \App\Models\KelengkapanDokumen::firstOrCreate([
+                'dashboard_tracker_id' => $trackerTubel->id,
+                'nama_dokumen'         => 'SK Tugas Belajar',
+                'nip'                  => $pegawai->nip
+            ]);
+
+            if ($hasSkTubelInRiw && !$docRecord->is_uploaded) {
+                $latestTubelFile = $riwayatTubel->whereNotNull('arsip_izin_belajar')->where('arsip_izin_belajar', '!=', '')->first()->arsip_izin_belajar;
+                $docRecord->update([
+                    'is_uploaded' => true,
+                    'link_file' => $latestTubelFile
+                ]);
+                if ($dokumenTerupload == 0) {
+                    $dokumenTerupload = 1;
+                    $trackerTubel->update(['dokumen_terupload' => 1]);
                 }
             }
 

@@ -203,9 +203,40 @@ class KenaikanJenjangService implements TrackerInterface
                                 if (!empty($pegawai->arsip_skp_2_tahun) && count($pegawai->arsip_skp_2_tahun) >= 2) {
                                     $dokumenTerupload++;
                                 }
+                                
+                                $riwJabatanMatch = $pegawai->riwayat_jabatan
+                                    ? $pegawai->riwayat_jabatan
+                                        ->whereNotNull('file_sk')
+                                        ->where('file_sk', '!=', '')
+                                        ->sortByDesc('tmt_jabatan')
+                                        ->first()
+                                    : null;
+
+                                $hasSkJabatan = false;
                                 if ($existingAK) {
                                     $uploadedNames = $existingAK->kelengkapan_dokumen->where('is_uploaded', true)->pluck('nama_dokumen')->toArray();
-                                    if (in_array("SK Jabatan Terakhir", $uploadedNames) || in_array("SK Jabatan Fungsional Terakhir", $uploadedNames)) $dokumenTerupload++;
+                                    if (in_array("SK Jabatan Terakhir", $uploadedNames) || in_array("SK Jabatan Fungsional Terakhir", $uploadedNames)) {
+                                        $hasSkJabatan = true;
+                                    }
+                                }
+                                if ($riwJabatanMatch) {
+                                    $hasSkJabatan = true;
+                                }
+                                if ($hasSkJabatan) {
+                                    $dokumenTerupload++;
+                                    
+                                    // Fallback: update the KelengkapanDokumen record if it exists but is not uploaded
+                                    if ($existingAK) {
+                                        $docRecord = $existingAK->kelengkapan_dokumen->first(function ($d) {
+                                            return $d->nama_dokumen === 'SK Jabatan Terakhir' || $d->nama_dokumen === 'SK Jabatan Fungsional Terakhir';
+                                        });
+                                        if ($docRecord && !$docRecord->is_uploaded) {
+                                            $docRecord->update([
+                                                'is_uploaded' => true,
+                                                'link_file' => $riwJabatanMatch->file_sk ?? $docRecord->link_file
+                                            ]);
+                                        }
+                                    }
                                 }
                             }
 

@@ -137,7 +137,14 @@ class DataPegawaiController extends Controller
                 $allDocs[] = ['kategori' => 'KJ_Jafung', 'nama_dokumen' => "SKP 2 Tahun Terakhir", 'is_uploaded' => $skp];
                 if (!$skp) $missingDocs[] = ['kategori' => 'KJ_Jafung', 'nama_dokumen' => "SKP 2 Tahun Terakhir"];
                 
-                $skjabatan = $isUploadEhrm ? false : true; // Always false for Upload E-HRM because they haven't synced the new one
+                $docsUploaded = $tracker->kelengkapan_dokumen->where('is_uploaded', true)->pluck('nama_dokumen')->toArray();
+                $riwJabatanMatch = $pegawai->riwayat_jabatan
+                    ->whereNotNull('file_sk')
+                    ->where('file_sk', '!=', '')
+                    ->sortByDesc('tmt_jabatan')
+                    ->first();
+                
+                $skjabatan = $isUploadEhrm ? false : (($riwJabatanMatch != null) || in_array("SK Jabatan Terakhir", $docsUploaded));
                 $allDocs[] = ['kategori' => 'KJ_Jafung', 'nama_dokumen' => $namaSkJabatan, 'is_uploaded' => $skjabatan];
                 if (!$skjabatan) $missingDocs[] = ['kategori' => 'KJ_Jafung', 'nama_dokumen' => $namaSkJabatan];
             } elseif ($tracker->kategori == 'KP_Jafung') {
@@ -160,7 +167,8 @@ class DataPegawaiController extends Controller
                     ->sortByDesc('tmt_jabatan')
                     ->first();
                 
-                $skjabatan = $isUploadEhrm ? false : ($riwJabatanMatch != null);
+                $docsUploaded = $tracker->kelengkapan_dokumen->where('is_uploaded', true)->pluck('nama_dokumen')->toArray();
+                $skjabatan = $isUploadEhrm ? false : (($riwJabatanMatch != null) || in_array("SK Jabatan Terakhir", $docsUploaded));
                 $allDocs[] = ['kategori' => 'KP_Struktural', 'nama_dokumen' => $namaSkJabatan, 'is_uploaded' => $skjabatan];
                 if (!$skjabatan) $missingDocs[] = ['kategori' => 'KP_Struktural', 'nama_dokumen' => $namaSkJabatan];
             } elseif ($tracker->kategori == 'KP_Reguler') {
@@ -173,6 +181,9 @@ class DataPegawaiController extends Controller
                 foreach ($docs as $doc) {
                     $isUploaded = (bool)$doc->is_uploaded;
                     if ($doc->nama_dokumen == "SK Pangkat Terakhir" && !empty($pegawai->sk_pangkat_terakhir)) {
+                        $isUploaded = true;
+                    }
+                    if ($doc->nama_dokumen == "SK Tugas Belajar" && $pegawai->riwayat_tubel->whereNotNull('arsip_izin_belajar')->where('arsip_izin_belajar', '!=', '')->count() > 0) {
                         $isUploaded = true;
                     }
 

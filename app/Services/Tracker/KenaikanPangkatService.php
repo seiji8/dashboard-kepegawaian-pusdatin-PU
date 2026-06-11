@@ -507,6 +507,27 @@ class KenaikanPangkatService implements TrackerInterface
         }
 
         if ($isPelaksana && $pegawai->tmt_pangkat_terakhir) {
+            $golruOrder = [
+                'I/a', 'I/b', 'I/c', 'I/d',
+                'II/a', 'II/b', 'II/c', 'II/d',
+                'III/a', 'III/b', 'III/c', 'III/d',
+                'IV/a', 'IV/b', 'IV/c', 'IV/d', 'IV/e',
+            ];
+
+            $currentGolru = trim($pegawai->pangkat_golongan);
+            $maxGolru = $this->getMaxGolonganReguler($pegawai->jenjang_pendidikan);
+
+            $currentIdx = array_search($currentGolru, $golruOrder);
+            $maxIdx = array_search($maxGolru, $golruOrder);
+
+            // Jika pangkat saat ini sudah mencapai atau melebihi batas pendidikan, lewati usulan KP Reguler
+            if ($currentIdx !== false && $maxIdx !== false && $currentIdx >= $maxIdx) {
+                DashboardTracker::where('pegawai_id', $pegawai->id_pegawai_api)
+                    ->where('kategori', 'KP_Reguler')
+                    ->delete();
+                return;
+            }
+
             $tmtPangkat = Carbon::parse($pegawai->tmt_pangkat_terakhir);
             $masaPangkatReguler = (int) $tmtPangkat->diffInMonths($today);
             $tahun = intdiv($masaPangkatReguler, 12);
@@ -669,5 +690,44 @@ class KenaikanPangkatService implements TrackerInterface
                 }
             }
         }
+    }
+
+    /**
+     * Mendapatkan golongan ruang tertinggi yang diperbolehkan untuk KP Reguler berdasarkan pendidikan.
+     */
+    private function getMaxGolonganReguler(?string $education): string
+    {
+        if (!$education) {
+            return 'IV/e'; // Default fallback jika data tidak ada
+        }
+        
+        $education = strtoupper(trim($education));
+        
+        if (str_contains($education, 'S3') || str_contains($education, 'DOKTOR')) {
+            return 'IV/b';
+        }
+        if (str_contains($education, 'S2') || str_contains($education, 'MAGISTER')) {
+            return 'IV/a';
+        }
+        if (str_contains($education, 'S1') || str_contains($education, 'D4') || str_contains($education, 'D-IV') || str_contains($education, 'SARJANA')) {
+            return 'III/d';
+        }
+        if (str_contains($education, 'D3') || str_contains($education, 'D-III') || str_contains($education, 'SM/') || str_contains($education, 'SARJANA MUDA')) {
+            return 'III/c';
+        }
+        if (str_contains($education, 'D2') || str_contains($education, 'D-II') || str_contains($education, 'DIPLOMA II')) {
+            return 'III/b';
+        }
+        if (str_contains($education, 'SLTA') || str_contains($education, 'SMA') || str_contains($education, 'SMK') || str_contains($education, 'SLTA/')) {
+            return 'III/b';
+        }
+        if (str_contains($education, 'SLTP') || str_contains($education, 'SMP')) {
+            return 'II/c';
+        }
+        if (str_contains($education, 'SD')) {
+            return 'II/a';
+        }
+        
+        return 'IV/e';
     }
 }
