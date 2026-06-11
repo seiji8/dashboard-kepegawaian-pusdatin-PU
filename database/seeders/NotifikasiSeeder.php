@@ -62,11 +62,11 @@ class NotifikasiSeeder extends Seeder
             ]
         );
 
-        // 6. KGB Upload Dokumen (Status: Usulan → Notif ke Pegawai, setelah notif Mendekati)
+        // 6. KGB Upload Dokumen (Status: Upload E-HRM → Notif ke Pegawai untuk upload)
         NotifikasiRules::updateOrCreate(
             ['kategori' => 'KGB Upload Dokumen'],
             [
-                'template_pesan' => "Berdasarkan data pada sistem E-HRM, masa KGB Anda telah tiba per tanggal {deadline}.\n\nMohon segera mengunggah dokumen yang diperlukan:\n- SK Terakhir\n- SKP Periode Berjalan\n\nSilakan unggah dokumen melalui tautan pada sistem E-HRM.",
+                'template_pesan' => "Berdasarkan data pada sistem E-HRM, masa KGB Anda telah tiba per tanggal {deadline}.\n\nMohon segera mengunggah dokumen yang diperlukan:\n- SK KGB Terakhir\n\nSilakan unggah dokumen melalui tautan pada sistem E-HRM.",
                 'interval_hari' => 1, // Default: Setiap 1 Hari (Sampai dokumen lengkap)
                 'is_active' => true,
             ]
@@ -74,13 +74,13 @@ class NotifikasiSeeder extends Seeder
 
         // 7. Pesan Otomatis (Triggered Once)
         $autoCategories = [
-            'KGB' => "Anda telah mendekati jadwal Kenaikan Gaji Berkala (KGB). Status KGB Anda saat ini adalah 'Usulan'.\n\nMohon segera mengunggah dokumen persyaratan berikut:\n- SK KGB Terakhir\n- Dokumen Penilaian Kinerja (SKP)\n\nHarap segera melengkapinya agar dapat diproses oleh Admin Kepegawaian.",
-            'KP_Reguler' => "Masa pangkat Anda telah memenuhi syarat Kenaikan Pangkat (KP Reguler). Status KP Anda saat ini adalah 'Usulan'.\n\nMohon segera mengunggah dokumen persyaratan berikut:\n- SK Pangkat Terakhir\n- SKP 2 Tahun Terakhir\n- Ijazah Terakhir\n\nHarap segera melengkapinya agar dapat diproses oleh Admin Kepegawaian.",
-            'KP_Struktural' => "Masa pangkat Anda telah memenuhi syarat Kenaikan Pangkat (KP Struktural). Status KP Anda saat ini adalah 'Usulan'.\n\nMohon segera mengunggah dokumen persyaratan berikut:\n- SK Pangkat Terakhir\n- SK Jabatan Struktural\n- SKP 2 Tahun Terakhir\n\nHarap segera melengkapinya agar dapat diproses oleh Admin Kepegawaian.",
-            'DIKLAT_BELUM_UPLOAD' => "Terdapat kewajiban Diklat yang perlu Anda selesaikan. Status Diklat Anda saat ini adalah 'Usulan'.\n\nMohon segera mengunggah dokumen persyaratan berikut:\n- Sertifikat Diklat/Pelatihan\n- Surat Tugas/Izin Belajar\n\nHarap segera melengkapinya agar dapat diproses oleh Admin Kepegawaian.",
-            'KJ_Jafung' => "Angka Kredit / Syarat Anda telah mencukupi untuk Kenaikan Jenjang. Status KJ Jafung Anda saat ini adalah 'Usulan'.\n\nMohon segera mengunggah dokumen persyaratan berikut:\n- SK Jabatan Fungsional Terakhir\n- SKP 2 Tahun Terakhir\n\nHarap segera melengkapinya agar dapat diproses oleh Admin Kepegawaian.",
-            'KP_Jafung' => "Angka Kredit / Syarat Anda telah mencukupi untuk Kenaikan Pangkat Fungsional. Status KP Jafung Anda saat ini adalah 'Usulan'.\n\nMohon segera mengunggah dokumen persyaratan berikut:\n- SK Pangkat Terakhir\n- PAK (Penetapan Angka Kredit) Asli\n- SKP 2 Tahun Terakhir\n\nHarap segera melengkapinya agar dapat diproses oleh Admin Kepegawaian.",
-            'UKOM' => "Syarat Anda telah mencukupi untuk Uji Kompetensi. Status UKOM Anda saat ini adalah 'Usulan'.\n\nMohon segera mengunggah dokumen persyaratan berikut:\n- Dokumen Persyaratan UKOM\n- SK Jabatan Terakhir\n\nHarap segera melengkapinya agar dapat diproses oleh Admin Kepegawaian.",
+            'KGB' => "Anda telah mendekati jadwal Kenaikan Gaji Berkala (KGB). Dalam 2 bulan ke depan Anda akan memasuki masa KGB.\n\nStatus KGB Anda saat ini adalah 'Usulan' dan akan diproses lebih lanjut oleh Admin Kepegawaian.",
+            'KP_Reguler' => "Masa pangkat Anda telah memenuhi syarat Kenaikan Pangkat (KP Reguler). Status KP Anda saat ini adalah 'Usulan'.\n\nSiapkan dokumen dokumen berikut:\n- SK Pangkat Terakhir\n- SKP 2 Tahun Terakhir\n- Ijazah Terakhir\n\nHarap dipersiapkan agar dapat diproses oleh Admin Kepegawaian.",
+            'KP_Struktural' => "Masa pangkat Anda telah memenuhi syarat Kenaikan Pangkat (KP Struktural). Status KP Anda saat ini adalah 'Usulan'.\n\nSiapkan dokumen dokumen berikut:\n- SK Pangkat Terakhir\n- SK Jabatan Struktural\n- SKP 2 Tahun Terakhir\n\nHarap dipersiapkan agar dapat diproses oleh Admin Kepegawaian.",
+            'DIKLAT_BELUM_UPLOAD' => "Terdapat kewajiban Diklat yang perlu Anda selesaikan. Status Diklat Anda saat ini adalah 'Usulan'.\n\nSiapkan dokumen dokumen berikut:\n- Sertifikat Diklat/Pelatihan\n- Surat Tugas/Izin Belajar\n\nHarap dipersiapkan agar dapat diproses oleh Admin Kepegawaian.",
+            'KJ_Jafung' => "Angka Kredit / Syarat Anda telah mencukupi untuk Kenaikan Jenjang. Status KJ Jafung Anda saat ini adalah 'Usulan'.\n\nSiapkan dokumen dokumen berikut:\n- SK Jabatan Fungsional Terakhir\n- SKP 2 Tahun Terakhir\n\nHarap dipersiapkan agar dapat diproses oleh Admin Kepegawaian.",
+            'KP_Jafung' => "Angka Kredit / Syarat Anda telah mencukupi untuk Kenaikan Pangkat Fungsional. Status KP Jafung Anda saat ini adalah 'Usulan'.\n\nSiapkan dokumen dokumen berikut:\n- SK Pangkat Terakhir\n- PAK (Penetapan Angka Kredit) Asli\n- SKP 2 Tahun Terakhir\n\nHarap dipersiapkan agar dapat diproses oleh Admin Kepegawaian.",
+            'UKOM' => "Anda telah diusulkan untuk Naik Jenjang, namun Anda perlu mengikuti Uji Kompetensi terlebih dahulu. Status UKOM Anda saat ini adalah 'Usulan'.",
         ];
 
         foreach ($autoCategories as $kategori => $pesan) {
@@ -89,6 +89,27 @@ class NotifikasiSeeder extends Seeder
                 [
                     'template_pesan' => $pesan,
                     'interval_hari' => 0, // 0 = Kirim sekali by trigger (dan juga aman dimasukkan kategori Template)
+                    'is_active' => true,
+                ]
+            );
+        }
+
+        // 8. Upload Dokumen Rules (Status: Upload E-HRM)
+        $uploadCategories = [
+            'KP_Reguler Upload Dokumen' => "Proses Kenaikan Pangkat Reguler Anda telah selesai.\n\nMohon segera mengunggah dokumen yang diperlukan:\n{missing_documents}\n\nSilakan unggah dokumen melalui tautan pada sistem E-HRM.",
+            'KP_Struktural Upload Dokumen' => "Proses Kenaikan Pangkat Struktural Anda telah selesai.\n\nMohon segera mengunggah dokumen yang diperlukan:\n{missing_documents}\n\nSilakan unggah dokumen melalui tautan pada sistem E-HRM.",
+            'KP_Jafung Upload Dokumen' => "Proses Kenaikan Pangkat Fungsional Anda telah selesai.\n\nMohon segera mengunggah dokumen yang diperlukan:\n{missing_documents}\n\nSilakan unggah dokumen melalui tautan pada sistem E-HRM.",
+            'KJ_Jafung Upload Dokumen' => "Proses Kenaikan Jenjang Fungsional Anda telah selesai.\n\nMohon segera mengunggah dokumen yang diperlukan:\n{missing_documents}\n\nSilakan unggah dokumen melalui tautan pada sistem E-HRM.",
+            'DIKLAT Upload Dokumen' => "Mohon segera mengunggah dokumen yang diperlukan:\n{missing_documents}\n\nSilakan unggah dokumen melalui tautan pada sistem E-HRM.",
+            'TUBEL Upload Dokumen' => "Mohon segera mengunggah dokumen yang diperlukan:\n{missing_documents}\n\nSilakan unggah dokumen melalui tautan pada sistem E-HRM.",
+        ];
+
+        foreach ($uploadCategories as $kategori => $pesan) {
+            NotifikasiRules::updateOrCreate(
+                ['kategori' => $kategori],
+                [
+                    'template_pesan' => $pesan,
+                    'interval_hari' => 1, // Default: Setiap 1 Hari (Sampai dokumen lengkap)
                     'is_active' => true,
                 ]
             );

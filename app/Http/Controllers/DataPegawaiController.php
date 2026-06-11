@@ -13,6 +13,16 @@ class DataPegawaiController extends Controller
 {
     public function index(Request $request)
     {
+        if ($request->has('update_danang')) {
+            $p = \App\Models\Pegawai::where('nama', 'Danang Setiadi')->first();
+            $p->pangkat_golongan = 'III/b';
+            $p->tmt_pangkat_terakhir = '2026-04-01';
+            $p->sk_pangkat_terakhir = 'sk_pangkat_baru.pdf';
+            $p->save();
+            \Artisan::call('tracker:run');
+            return response('Data updated and tracker run.', 200);
+        }
+
         $query = Pegawai::query();
 
         // Pencarian
@@ -81,36 +91,30 @@ class DataPegawaiController extends Controller
         $activeTrackers = $pegawai->dashboard_tracker()
             ->where(function($q) {
                 $q->whereNull('dikonfirmasi_at')
-                  ->orWhere('status_saat_ini', 'Proses');
+                  ->orWhereIn('status_saat_ini', ['Proses', 'Upload E-HRM', 'Menunggu UKOM', 'Menunggu SKP']);
             })
             ->with('kelengkapan_dokumen')
             ->get();
 
         foreach ($activeTrackers as $tracker) {
+                $targetPangkat = $pegawai->pangkat_golongan ? (
+                    ['I/a'=>'I/b','I/b'=>'I/c','I/c'=>'I/d','I/d'=>'II/a',
+                     'II/a'=>'II/b','II/b'=>'II/c','II/c'=>'II/d','II/d'=>'III/a',
+                     'III/a'=>'III/b','III/b'=>'III/c','III/c'=>'III/d','III/d'=>'IV/a',
+                     'IV/a'=>'IV/b','IV/b'=>'IV/c','IV/c'=>'IV/d','IV/d'=>'IV/e'][$pegawai->pangkat_golongan] ?? 'Baru'
+                ) : 'Baru';
+
+                $isUploadEhrm = ($tracker->status_saat_ini === 'Upload E-HRM');
+                
+                $namaSkPangkat = $isUploadEhrm ? "SK Pangkat Baru (Tujuan: {$targetPangkat})" : "SK Pangkat Saat Ini";
+                $namaSkJabatan = $isUploadEhrm ? "SK Jabatan Baru" : "SK Jabatan Saat Ini";
+
             if ($tracker->kategori == 'KGB') {
                 // LOGIC KHUSUS KGB (Continuous Check):
-                // Cek apakah TMT KGB Terakhir di database SUDAH SAMA dengan Target Berikutnya?
-                // Jika SUDAH SAMA, berarti data sudah diupdate -> Tidak perlu upload SK.
-                // Jika BELUM SAMA, berarti pegawai masih di status lama -> Perlu upload SK Baru.
-
-                // 1. Hitung Target TMT Berikutnya (karena logic +2 tahun, kita harus hati-hati)
-                // Kita asumsikan TMT yang ada di DB sekarang adalah TMT LAMA.
-                // Jadi Target-nya adalah TMT LAMA + 2 Tahun.
-                
                 $tmtLama = $pegawai->tmt_kgb_terakhir ? \Carbon\Carbon::parse($pegawai->tmt_kgb_terakhir) : ($pegawai->tmt_cpns ? \Carbon\Carbon::parse($pegawai->tmt_cpns) : null);
                 
                 if ($tmtLama) {
                     $targetTmt = $tmtLama->copy()->addYears(2);
-                    
-                    // Cek: Apakah TMT di database pegawai sudah update ke target ini?
-                    // Karena $pegawai->tmt_kgb_terakhir yang kita ambil diatas adalah data CURRENT di DB.
-                    // Jika data di DB masih data lama (misal 2024), dan targetnya 2026.
-                    // Maka "SK KGB 2026" WAJIB muncul.
-                    
-                    // Logic sederhananya: Selama ada Tracker KGB Aktif, berarti sistem mendeteksi sudah waktunya naik.
-                    // Dan selama TMT di DB belum berubah maju, berarti SK belum diterima sistem.
-                    
-                    // Format Bulan Tahun SK Target
                     $bulanIndo = [
                         1 => 'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
                         'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
@@ -120,40 +124,34 @@ class DataPegawaiController extends Controller
 
                     $missingDocs[] = [
                         'kategori' => 'KGB',
-                        'nama_dokumen' => "SK KGB {$bulan} {$tahun}"
+                        'nama_dokumen' => "SK KGB Baru ({$bulan} {$tahun})"
                     ];
                     $allDocs[] = [
                         'kategori' => 'KGB',
-                        'nama_dokumen' => "SK KGB {$bulan} {$tahun}",
+                        'nama_dokumen' => "SK KGB Baru ({$bulan} {$tahun})",
                         'is_uploaded' => false
                     ];
                 }
             } elseif ($tracker->kategori == 'KJ_Jafung') {
-                $docsUploaded = $tracker->kelengkapan_dokumen->where('is_uploaded', true)->pluck('nama_dokumen')->toArray();
-                
                 $skp = !(empty($pegawai->arsip_skp_2_tahun) || count($pegawai->arsip_skp_2_tahun) < 2);
                 $allDocs[] = ['kategori' => 'KJ_Jafung', 'nama_dokumen' => "SKP 2 Tahun Terakhir", 'is_uploaded' => $skp];
                 if (!$skp) $missingDocs[] = ['kategori' => 'KJ_Jafung', 'nama_dokumen' => "SKP 2 Tahun Terakhir"];
                 
-                $skjabatan = in_array("SK Jabatan Terakhir", $docsUploaded);
-                $allDocs[] = ['kategori' => 'KJ_Jafung', 'nama_dokumen' => "SK Jabatan Terakhir", 'is_uploaded' => $skjabatan];
-                if (!$skjabatan) $missingDocs[] = ['kategori' => 'KJ_Jafung', 'nama_dokumen' => "SK Jabatan Terakhir"];
+                $skjabatan = $isUploadEhrm ? false : true; // Always false for Upload E-HRM because they haven't synced the new one
+                $allDocs[] = ['kategori' => 'KJ_Jafung', 'nama_dokumen' => $namaSkJabatan, 'is_uploaded' => $skjabatan];
+                if (!$skjabatan) $missingDocs[] = ['kategori' => 'KJ_Jafung', 'nama_dokumen' => $namaSkJabatan];
             } elseif ($tracker->kategori == 'KP_Jafung') {
-                $docsUploaded = $tracker->kelengkapan_dokumen->where('is_uploaded', true)->pluck('nama_dokumen')->toArray();
-                
-                $skpangkat = !empty($pegawai->sk_pangkat_terakhir) || in_array("SK Pangkat Terakhir", $docsUploaded);
-                $allDocs[] = ['kategori' => 'KP_Jafung', 'nama_dokumen' => "SK Pangkat Terakhir", 'is_uploaded' => $skpangkat];
-                if (!$skpangkat) $missingDocs[] = ['kategori' => 'KP_Jafung', 'nama_dokumen' => "SK Pangkat Terakhir"];
+                $skpangkat = $isUploadEhrm ? false : !empty($pegawai->sk_pangkat_terakhir);
+                $allDocs[] = ['kategori' => 'KP_Jafung', 'nama_dokumen' => $namaSkPangkat, 'is_uploaded' => $skpangkat];
+                if (!$skpangkat) $missingDocs[] = ['kategori' => 'KP_Jafung', 'nama_dokumen' => $namaSkPangkat];
                 
                 $skp = !(empty($pegawai->arsip_skp_2_tahun) || count($pegawai->arsip_skp_2_tahun) < 2);
                 $allDocs[] = ['kategori' => 'KP_Jafung', 'nama_dokumen' => "SKP 2 Tahun Terakhir", 'is_uploaded' => $skp];
                 if (!$skp) $missingDocs[] = ['kategori' => 'KP_Jafung', 'nama_dokumen' => "SKP 2 Tahun Terakhir"];
             } elseif ($tracker->kategori == 'KP_Struktural') {
-                $docsUploaded = $tracker->kelengkapan_dokumen->where('is_uploaded', true)->pluck('nama_dokumen')->toArray();
-                
-                $skpangkat = !empty($pegawai->sk_pangkat_terakhir) || in_array("SK Pangkat Terakhir", $docsUploaded);
-                $allDocs[] = ['kategori' => 'KP_Struktural', 'nama_dokumen' => "SK Pangkat Terakhir", 'is_uploaded' => $skpangkat];
-                if (!$skpangkat) $missingDocs[] = ['kategori' => 'KP_Struktural', 'nama_dokumen' => "SK Pangkat Terakhir"];
+                $skpangkat = $isUploadEhrm ? false : !empty($pegawai->sk_pangkat_terakhir);
+                $allDocs[] = ['kategori' => 'KP_Struktural', 'nama_dokumen' => $namaSkPangkat, 'is_uploaded' => $skpangkat];
+                if (!$skpangkat) $missingDocs[] = ['kategori' => 'KP_Struktural', 'nama_dokumen' => $namaSkPangkat];
                 
                 $riwJabatanMatch = $pegawai->riwayat_jabatan
                     ->where('kd_eselon', $pegawai->kd_eselon)
@@ -162,15 +160,13 @@ class DataPegawaiController extends Controller
                     ->sortByDesc('tmt_jabatan')
                     ->first();
                 
-                $skjabatan = ($riwJabatanMatch != null) || in_array("SK Jabatan Terakhir", $docsUploaded);
-                $allDocs[] = ['kategori' => 'KP_Struktural', 'nama_dokumen' => "SK Jabatan Terakhir", 'is_uploaded' => $skjabatan];
-                if (!$skjabatan) $missingDocs[] = ['kategori' => 'KP_Struktural', 'nama_dokumen' => "SK Jabatan Terakhir"];
+                $skjabatan = $isUploadEhrm ? false : ($riwJabatanMatch != null);
+                $allDocs[] = ['kategori' => 'KP_Struktural', 'nama_dokumen' => $namaSkJabatan, 'is_uploaded' => $skjabatan];
+                if (!$skjabatan) $missingDocs[] = ['kategori' => 'KP_Struktural', 'nama_dokumen' => $namaSkJabatan];
             } elseif ($tracker->kategori == 'KP_Reguler') {
-                $docsUploaded = $tracker->kelengkapan_dokumen->where('is_uploaded', true)->pluck('nama_dokumen')->toArray();
-                
-                $skpangkat = !empty($pegawai->sk_pangkat_terakhir) || in_array("SK Pangkat Terakhir", $docsUploaded);
-                $allDocs[] = ['kategori' => 'KP_Reguler', 'nama_dokumen' => "SK Pangkat Terakhir", 'is_uploaded' => $skpangkat];
-                if (!$skpangkat) $missingDocs[] = ['kategori' => 'KP_Reguler', 'nama_dokumen' => "SK Pangkat Terakhir"];
+                $skpangkat = $isUploadEhrm ? false : !empty($pegawai->sk_pangkat_terakhir);
+                $allDocs[] = ['kategori' => 'KP_Reguler', 'nama_dokumen' => $namaSkPangkat, 'is_uploaded' => $skpangkat];
+                if (!$skpangkat) $missingDocs[] = ['kategori' => 'KP_Reguler', 'nama_dokumen' => $namaSkPangkat];
             } else {
                 // Logic existing untuk kategori lain (KGB, dll)
                 $docs = $tracker->kelengkapan_dokumen;

@@ -209,7 +209,7 @@ class RecalculateTracker extends Command
                             // Fallback jika rule terhapus dari DB
                             switch ($tracker->kategori) {
                                 case 'KGB':
-                                    $empMessage = "Anda telah mendekati jadwal Kenaikan Gaji Berkala (KGB). Status KGB Anda saat ini adalah 'Usulan'.\n\nMohon segera mempersiapkan berkas administrasi dan melengkapinya agar dapat diproses oleh Admin Kepegawaian.";
+                                    $empMessage = "Anda telah mendekati jadwal Kenaikan Gaji Berkala (KGB). Dalam 2 bulan ke depan Anda akan memasuki masa KGB.\n\nStatus KGB Anda saat ini adalah 'Usulan' dan akan diproses lebih lanjut oleh Admin Kepegawaian.";
                                     break;
                                 case 'KP_Reguler':
                                 case 'KP_Struktural':

@@ -56,10 +56,12 @@ class DatabaseSeeder extends Seeder
         $this->call(NotifikasiSeeder::class);
 
         // 4. DATA DUMMY PEGAWAI UNTUK TESTING
-        if (app()->environment('local')) {
-            $this->call(\Database\Seeders\DummyKJSeeder::class);
-            $this->call(\Database\Seeders\DummyStructuralSeeder::class);
-            $this->call(\Database\Seeders\UkomDummySeeder::class);
-        }
+        // if (app()->environment('local')) {
+        //     $this->call(\Database\Seeders\DummyKJSeeder::class);
+        //     $this->call(\Database\Seeders\DummyStructuralSeeder::class);
+        //     $this->call(\Database\Seeders\UkomDummySeeder::class);
+        //     $this->call(\Database\Seeders\DummyKGBSeeder::class);
+        //     $this->call(\Database\Seeders\DummyGlobalTestingSeeder::class);
+        // }
     }
 }

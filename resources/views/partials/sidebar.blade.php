@@ -68,7 +68,7 @@
                 {{-- Label Tim --}}
                 <div style="display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 4px;">
                     <div style="width: 8px; height: 8px; border-radius: 50%; background-color: #fbbf24; flex-shrink: 0;"></div>
-                    <span style="font-size: 0.65rem; font-weight: 700; letter-spacing: 0.1em; color: rgba(255,255,255,0.85); text-transform: uppercase;">Tim IT</span>
+                    <span style="font-size: 0.65rem; font-weight: 700; letter-spacing: 0.1em; color: rgba(255,255,255,0.85); text-transform: uppercase;">Tim IT H2ER Devs</span>
                 </div>
                 {{-- Nama Universitas --}}
                 <p style="margin: 0 0 12px; font-size: 0.6rem; font-weight: 500; color: rgba(255,255,255,0.55); letter-spacing: 0.04em; text-transform: uppercase;">Universitas Negeri Semarang</p>

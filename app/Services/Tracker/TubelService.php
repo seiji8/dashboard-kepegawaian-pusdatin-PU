@@ -9,12 +9,13 @@ use App\Notifications\SystemAlertNotification;
 use Carbon\Carbon;
 use App\Helpers\ActivityLogger;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Notification;
 
 class TubelService implements TrackerInterface
 {
     public function process(Pegawai $pegawai, Carbon $today, array &$daftarUsulanBaru, array $context = []): void
     {
-        // Skip dummy/test data as they don't need Tubel calculation
         if (str_contains(strtolower($pegawai->id_pegawai_api ?? ''), 'dummy') || 
             str_contains(strtolower($pegawai->nip ?? ''), 'dummy')) {
             return;
@@ -22,15 +23,12 @@ class TubelService implements TrackerInterface
 
         $riwayatTubel = \App\Models\RiwayatTubel::where('nip', $pegawai->nip)->get();
 
-        // Cari tubel yang masih aktif: tanggal_mulai ada dan belum selesai
         $tubelAktif = $riwayatTubel->first(function ($t) use ($today) {
             if (!$t->tanggal_mulai) return false;
             
-            /** @var Carbon $tanggalMulai */
             $tanggalMulai = $t->tanggal_mulai;
             if ($today->lt($tanggalMulai)) return false;
             
-            /** @var Carbon|null $selesai */
             $selesai = $t->perpanjangan2_tanggal_mulai
                 ?? $t->perpanjangan1_tanggal_mulai
                 ?? $t->tanggal_selesai;
@@ -40,7 +38,6 @@ class TubelService implements TrackerInterface
         });
 
         if ($tubelAktif) {
-            /** @var Carbon|null $selesaiEfektif */
             $selesaiEfektif = $tubelAktif->perpanjangan2_tanggal_mulai
                 ?? $tubelAktif->perpanjangan1_tanggal_mulai
                 ?? $tubelAktif->tanggal_selesai;
@@ -67,18 +64,20 @@ class TubelService implements TrackerInterface
                 [
                     'status_saat_ini' => $statusTubel,
                     'keterangan'      => $keteranganTubel,
-                    'dokumen_total'   => 3,
+                    'dokumen_total'   => 1,
                     'tanggal_target'  => $selesaiEfektif ? $selesaiEfektif->format('Y-m-d') : null,
                 ]
             );
 
-            // Tambahkan kelengkapan dokumen untuk TUBEL jika belum ada
+            // Bersihkan jika ada kelengkapan dokumen yang lebih dari 1 (krn update)
+            if ($trackerTubel->kelengkapan_dokumen->count() > 1) {
+                \App\Models\KelengkapanDokumen::where('dashboard_tracker_id', $trackerTubel->id)
+                    ->where('nama_dokumen', '!=', 'SK Tugas Belajar')->delete();
+                $trackerTubel->update(['dokumen_total' => 1]);
+            }
+
             if ($trackerTubel->wasRecentlyCreated || \App\Models\KelengkapanDokumen::where('dashboard_tracker_id', $trackerTubel->id)->count() === 0) {
-                $dokumenTubel = [
-                    'Surat Pengantar Unit Kerja',
-                    'SK Tugas Belajar',
-                    'Ijazah / Transkrip Nilai'
-                ];
+                $dokumenTubel = ['SK Tugas Belajar'];
                 foreach ($dokumenTubel as $dok) {
                     \App\Models\KelengkapanDokumen::firstOrCreate([
                         'dashboard_tracker_id' => $trackerTubel->id,
@@ -87,6 +86,8 @@ class TubelService implements TrackerInterface
                     ]);
                 }
             }
+
+            $this->sendTubelReminder($pegawai, $trackerTubel);
 
             if ($statusTubel === 'Proses Pengaktifan' && $trackerTubel->wasChanged('status_saat_ini')) {
                 $admins = User::whereIn('role', ['super_admin', 'admin_pegawai'])->get();
@@ -112,6 +113,36 @@ class TubelService implements TrackerInterface
         } else {
             DashboardTracker::where('pegawai_id', $pegawai->id_pegawai_api)
                 ->where('kategori', 'TUBEL')->delete();
+        }
+    }
+
+    private function sendTubelReminder(Pegawai $pegawai, DashboardTracker $tracker): void
+    {
+        $notifCacheKey = 'tubel_reminder_' . $pegawai->id_pegawai_api;
+        
+        // Cek apakah dokumen sudah diupload
+        $uploadedNames = $tracker->kelengkapan_dokumen->where('is_uploaded', true)->pluck('nama_dokumen')->toArray();
+        if (in_array("SK Tugas Belajar", $uploadedNames)) {
+            return; // Udah upload, ga usah diingetin lagi
+        }
+
+        if (!Cache::has($notifCacheKey)) {
+            $notifiable = User::where('email', $pegawai->email)->first();
+            if (!$notifiable && $pegawai->email) {
+                $notifiable = Notification::route('mail', $pegawai->email);
+            }
+            if ($notifiable) {
+                $pesan = "Anda saat ini berada dalam masa Tugas Belajar (Tubel).\n\n"
+                    . "Mengingatkan kembali untuk mengunggah dokumen persyaratan utama, yaitu:\n"
+                    . "- SK Tugas Belajar\n\n"
+                    . "Silakan unggah dokumen melalui tautan pada sistem E-HRM.";
+                
+                try {
+                    $notifiable->notify(new SystemAlertNotification($pegawai, "📋 Pengingat Upload SK Tugas Belajar", $pesan));
+                    Cache::put($notifCacheKey, true, now()->addDays(7)); // Ingatkan 7 hari sekali
+                    ActivityLogger::logSystem("Mengirim notifikasi pengingat SK Tubel ke pegawai {$pegawai->nama}", $pegawai->nip);
+                } catch (\Exception $e) {}
+            }
         }
     }
 }

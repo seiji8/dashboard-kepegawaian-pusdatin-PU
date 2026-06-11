@@ -114,7 +114,11 @@ class KenaikanPangkatService implements TrackerInterface
 
                     if ($statusAK === 'Mendekati') {
                         $this->sendMendekatiNotification($pegawai, $kategoriSekarang, $keteranganAK);
-                        return;
+                        $this->sendSkpTriwulanReminder($pegawai);
+                        // JANGAN return di sini agar tracker tetap terupdate dengan status Mendekati
+                    }
+                    if ($statusAK === 'Aman') {
+                        $this->sendSkpTriwulanReminder($pegawai);
                     }
 
                     $targetDate = null;
@@ -278,6 +282,18 @@ class KenaikanPangkatService implements TrackerInterface
             $tracker->update(['notified_at' => now()]);
         }
 
+        if ($statusAK == 'Upload E-HRM') {
+            $docs = [];
+            if ($kategoriSekarang === 'KP_Struktural') {
+                $docs = ['SK Pangkat Terakhir', 'SK Jabatan Terakhir'];
+            } elseif ($kategoriSekarang === 'KP_Reguler' || $kategoriSekarang === 'KP_Jafung') {
+                $docs = ['SK Pangkat Terakhir'];
+            }
+            if (!empty($docs)) {
+                $this->sendUploadEhrmNotification($pegawai, $kategoriSekarang, $tracker, $docs);
+            }
+        }
+
         DashboardTracker::where('pegawai_id', $pegawai->id_pegawai_api)
             ->where('kategori', $kategoriLawan)
             ->delete();
@@ -402,21 +418,24 @@ class KenaikanPangkatService implements TrackerInterface
 
                 if ($statusStruktural != 'Aman') {
                     $dokumenTeruploadStruktural = 0;
-                    $uploadedNamesStruct = $existingKPStruct ? $existingKPStruct->kelengkapan_dokumen->where('is_uploaded', true)->pluck('nama_dokumen')->toArray() : [];
-                    
-                    if (!empty($pegawai->sk_pangkat_terakhir) || in_array("SK Pangkat Terakhir", $uploadedNamesStruct)) {
-                        $dokumenTeruploadStruktural++;
-                    }
-                    $riwJabatanMatch = $pegawai->riwayat_jabatan
-                        ? $pegawai->riwayat_jabatan
-                            ->where('kd_eselon', $pegawai->kd_eselon)
-                            ->whereNotNull('file_sk')
-                            ->where('file_sk', '!=', '')
-                            ->first()
-                        : null;
+                    if ($statusStruktural !== 'Upload E-HRM') {
+                        $uploadedNamesStruct = $existingKPStruct ? $existingKPStruct->kelengkapan_dokumen->where('is_uploaded', true)->pluck('nama_dokumen')->toArray() : [];
                         
-                    if ($riwJabatanMatch || in_array("SK Jabatan Terakhir", $uploadedNamesStruct)) {
-                        $dokumenTeruploadStruktural++;
+                        if (!empty($pegawai->sk_pangkat_terakhir) || in_array("SK Pangkat Terakhir", $uploadedNamesStruct)) {
+                            $dokumenTeruploadStruktural++;
+                        }
+
+                        $riwJabatanMatch = $pegawai->riwayat_jabatan
+                            ? $pegawai->riwayat_jabatan
+                                ->where('kd_eselon', $pegawai->kd_eselon)
+                                ->whereNotNull('file_sk')
+                                ->where('file_sk', '!=', '')
+                                ->first()
+                            : null;
+                        
+                        if ($riwJabatanMatch || in_array("SK Jabatan Terakhir", $uploadedNamesStruct)) {
+                            $dokumenTeruploadStruktural++;
+                        }
                     }
 
                     $trackerStruct = DashboardTracker::updateOrCreate(
@@ -513,20 +532,38 @@ class KenaikanPangkatService implements TrackerInterface
                 $statusReguler    = 'Proses';
                 $keteranganReguler = "Sedang diproses admin ({$masaKerjaLabel})";
             } elseif ($masaPangkatReguler >= 48) {
-                $statusReguler    = 'Usulan';
-                $keteranganReguler = $masaKerjaLabel;
+                $skpResult = $this->checkSkpCompliance($pegawai);
+                if ($skpResult['meet']) {
+                    $statusReguler    = 'Usulan';
+                    $keteranganReguler = $masaKerjaLabel;
+                } else {
+                    $statusReguler    = 'Aman';
+                    $keteranganReguler = 'Kurang SKP: ' . $skpResult['reason'];
+                }
             }
 
             if ($statusReguler == 'Aman') {
-                DashboardTracker::where('pegawai_id', $pegawai->id_pegawai_api)
-                    ->where('kategori', 'KP_Reguler')
-                    ->delete();
+                $this->sendSkpTriwulanReminder($pegawai);
+                DashboardTracker::updateOrCreate(
+                    [
+                        'pegawai_id' => $pegawai->id_pegawai_api,
+                        'kategori'   => 'KP_Reguler',
+                    ],
+                    [
+                        'status_saat_ini'   => 'Aman',
+                        'keterangan'        => $keteranganReguler,
+                        'dokumen_total'     => 1,
+                        'dokumen_terupload' => 0,
+                    ]
+                );
             } else {
                 $dokumenTeruploadReguler = 0;
-                $uploadedNamesReguler = $existingKPReguler ? $existingKPReguler->kelengkapan_dokumen->where('is_uploaded', true)->pluck('nama_dokumen')->toArray() : [];
-                
-                if (!empty($pegawai->sk_pangkat_terakhir) || in_array("SK Pangkat Terakhir", $uploadedNamesReguler)) {
-                    $dokumenTeruploadReguler++;
+                if ($statusReguler !== 'Upload E-HRM') {
+                    $uploadedNamesReguler = $existingKPReguler ? $existingKPReguler->kelengkapan_dokumen->where('is_uploaded', true)->pluck('nama_dokumen')->toArray() : [];
+                    
+                    if (!empty($pegawai->sk_pangkat_terakhir) || in_array("SK Pangkat Terakhir", $uploadedNamesReguler)) {
+                        $dokumenTeruploadReguler++;
+                    }
                 }
 
                 $trackerReg = DashboardTracker::updateOrCreate(
@@ -556,6 +593,81 @@ class KenaikanPangkatService implements TrackerInterface
             DashboardTracker::where('pegawai_id', $pegawai->id_pegawai_api)
                 ->where('kategori', 'KP_Reguler')
                 ->delete();
+        }
+    }
+
+    private function sendSkpTriwulanReminder(Pegawai $pegawai): void
+    {
+        $notifCacheKey = 'skp_triwulan_notif_' . $pegawai->id_pegawai_api;
+        if (!Cache::has($notifCacheKey)) {
+            $rule = \App\Models\NotifikasiRules::where('kategori', 'Notifikasi Triwulan')->first();
+            if ($rule) {
+                $notifiable = User::where('email', $pegawai->email)->first();
+                if (!$notifiable && $pegawai->email) {
+                    $notifiable = Notification::route('mail', $pegawai->email);
+                }
+                if ($notifiable) {
+                    $pesan = str_replace(
+                        ['{nip}', '{deadline}'],
+                        [$pegawai->nip, Carbon::now()->addDays(7)->format('d-m-Y')],
+                        $rule->template_pesan
+                    );
+                    try {
+                        $notifiable->notify(new SystemAlertNotification($pegawai, "🔔 Pengingat Update SKP", $pesan));
+                        Cache::put($notifCacheKey, true, now()->addDays(90));
+                        ActivityLogger::logSystem("Mengirim notifikasi pengingat SKP ke pegawai {$pegawai->nama}", $pegawai->nip);
+                    } catch (\Exception $e) {}
+                }
+            }
+        }
+    }
+
+    private function sendUploadEhrmNotification(Pegawai $pegawai, string $kategori, DashboardTracker $tracker, array $dokumenWajib): void
+    {
+        $notifCacheKey = 'upload_ehrm_notif_' . $pegawai->id_pegawai_api . '_' . $kategori;
+        if (!Cache::has($notifCacheKey)) {
+            $rule = \App\Models\NotifikasiRules::where('kategori', $kategori . ' Upload Dokumen')->first();
+            if ($rule) {
+                $notifiable = User::where('email', $pegawai->email)->first();
+                if (!$notifiable && $pegawai->email) {
+                    $notifiable = Notification::route('mail', $pegawai->email);
+                }
+                if ($notifiable) {
+                    $uploadedNames = $tracker->kelengkapan_dokumen->where('is_uploaded', true)->pluck('nama_dokumen')->toArray();
+                    $missingDocs = [];
+                    $targetPangkat = $pegawai->pangkat_golongan ? (
+                        ['I/a'=>'I/b','I/b'=>'I/c','I/c'=>'I/d','I/d'=>'II/a',
+                         'II/a'=>'II/b','II/b'=>'II/c','II/c'=>'II/d','II/d'=>'III/a',
+                         'III/a'=>'III/b','III/b'=>'III/c','III/c'=>'III/d','III/d'=>'IV/a',
+                         'IV/a'=>'IV/b','IV/b'=>'IV/c','IV/c'=>'IV/d','IV/d'=>'IV/e'][$pegawai->pangkat_golongan] ?? 'Baru'
+                    ) : 'Baru';
+
+                    foreach ($dokumenWajib as $doc) {
+                        if (!in_array($doc, $uploadedNames)) {
+                            if ($doc == 'SK Pangkat Terakhir') {
+                                $missingDocs[] = "- SK Pangkat Baru (Tujuan: {$targetPangkat})";
+                            } elseif ($doc == 'SK Jabatan Terakhir' || $doc == 'SK Jabatan Fungsional Terakhir') {
+                                $missingDocs[] = "- SK Jabatan Baru";
+                            } else {
+                                $missingDocs[] = "- " . $doc;
+                            }
+                        }
+                    }
+
+                    if (empty($missingDocs)) {
+                        return; 
+                    }
+
+                    $missingStr = implode("\n", $missingDocs);
+                    $pesan = str_replace('{missing_documents}', $missingStr, $rule->template_pesan);
+
+                    try {
+                        $notifiable->notify(new SystemAlertNotification($pegawai, "📋 Permintaan Upload Dokumen " . str_replace('_', ' ', $kategori), $pesan));
+                        Cache::put($notifCacheKey, true, now()->addDays(1)); 
+                        ActivityLogger::logSystem("Mengirim notifikasi Upload E-HRM ke pegawai {$pegawai->nama} ({$kategori})", $pegawai->nip);
+                    } catch (\Exception $e) {}
+                }
+            }
         }
     }
 }

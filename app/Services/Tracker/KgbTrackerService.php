@@ -112,7 +112,7 @@ class KgbTrackerService implements TrackerInterface
                                     $ruleUpload->template_pesan
                                 );
                             } else {
-                                $content = "Waktunya proses KGB untuk periode {$bulanTahun}.\n\nSegera lengkapi berkas dan upload SK Terakhir & SKP Anda ke sistem sekarang agar dapat diproses lebih lanjut oleh admin.";
+                                $content = "Waktunya proses KGB untuk periode {$bulanTahun}.\n\nSegera lengkapi berkas dan upload SK KGB Terakhir Anda ke sistem sekarang agar dapat diproses lebih lanjut oleh admin.";
                             }
                             
                             $notifiable->notify(new SystemAlertNotification($pegawai, $subject, $content));

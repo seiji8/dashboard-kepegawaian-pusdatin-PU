@@ -413,6 +413,12 @@ public function syncProgress()
             return response()->json(['success' => false, 'message' => 'Data pegawai tidak ditemukan.'], 404);
         }
 
+        // Update status dari Usulan -> Proses SEBELUM generate PDF 
+        // agar tidak terkena race condition dengan window.location.reload() di frontend
+        if (!$request->has('preview') && $tracker->status_saat_ini === 'Usulan') {
+            $tracker->update(['status_saat_ini' => 'Proses']);
+        }
+
         // Ambil lampiran yang punya file fisik, urutkan
         $lampirans = $tracker->lampiran_cetak_surat
             ->whereNotNull('file_path')
