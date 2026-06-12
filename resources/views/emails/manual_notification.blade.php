@@ -261,13 +261,25 @@
 
                         <!-- Zona Integritas Banner -->
                         <table cellpadding="0" cellspacing="0" border="0" width="100%"
-                               style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:10px;margin-bottom:28px;">
+                               style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:10px;margin-bottom:12px;">
                             <tr>
                                 <td style="padding:14px 18px;">
                                     <p style="margin:0;font-size:11px;line-height:1.7;color:#1d4ed8;font-style:italic;text-align:justify;">
                                         &#8220;Dalam menunjang pembangunan zona integritas menuju wilayah birokrasi bersih dan melayani,
                                         <strong>PUSDATIN</strong> berkomitmen meningkatkan kualitas pelayanan publik yang bebas dari
                                         korupsi dan memberikan pelayanan prima serta <strong>tidak dipungut biaya apapun</strong>.&#8221;
+                                    </p>
+                                </td>
+                            </tr>
+                        </table>
+
+                        <!-- Hubungi Tim Kepegawaian Banner -->
+                        <table cellpadding="0" cellspacing="0" border="0" width="100%"
+                               style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:10px;margin-bottom:28px;">
+                            <tr>
+                                <td style="padding:14px 18px;">
+                                    <p style="margin:0;font-size:11px;line-height:1.7;color:#1d4ed8;text-align:center;">
+                                        Apabila terdapat pertanyaan atau membutuhkan informasi lebih lanjut terkait notifikasi ini, silakan menghubungi <strong>Tim Kepegawaian PUSDATIN</strong>.
                                     </p>
                                 </td>
                             </tr>
