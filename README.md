@@ -1,11 +1,11 @@
+<div align="center">
+
 # 🏢 Dashboard Kepegawaian & Notifikasi Pusdatin
 ### Sistem Manajemen & Pemantauan Karier Digital — Pusat Data dan Teknologi Informasi, Sekretariat Jenderal, Kementerian Pekerjaan Umum
 
-[![Laravel Version](https://img.shields.io/badge/Laravel-v11.x-red.svg?style=flat-square&logo=laravel)](https://laravel.com)
-[![PHP Version](https://img.shields.io/badge/PHP-v8.2%20%2B-blue.svg?style=flat-square&logo=php)](https://php.net)
-[![Tailwind CSS](https://img.shields.io/badge/TailwindCSS-v4.0-38bdf8.svg?style=flat-square&logo=tailwindcss)](https://tailwindcss.com)
-[![Docker Ready](https://img.shields.io/badge/Docker-Ready-blue?style=flat-square&logo=docker)](https://www.docker.com)
-[![SPBE Compliant](https://img.shields.io/badge/SPBE-Compliant-success?style=flat-square)](https://spbe.go.id)
+<a href="https://laravel.com"><img src="https://img.shields.io/badge/Laravel-v11.x-red.svg?style=flat-square&logo=laravel" alt="Laravel Version"></a> <a href="https://php.net"><img src="https://img.shields.io/badge/PHP-v8.2%20%2B-blue.svg?style=flat-square&logo=php" alt="PHP Version"></a> <a href="https://tailwindcss.com"><img src="https://img.shields.io/badge/TailwindCSS-v4.0-38bdf8.svg?style=flat-square&logo=tailwindcss" alt="Tailwind CSS"></a> <a href="https://www.docker.com"><img src="https://img.shields.io/badge/Docker-Ready-blue?style=flat-square&logo=docker" alt="Docker Ready"></a> <a href="https://spbe.go.id"><img src="https://img.shields.io/badge/SPBE-Compliant-success?style=flat-square" alt="SPBE Compliant"></a>
+
+</div>
 
 ---
 
@@ -458,9 +458,9 @@ Untuk deploy di server Pusdatin, silakan gunakan konfigurasi Docker compose teri
 
 ## 📸 Screenshot
 
-*(Tambahkan tangkapan layar antarmuka dashboard kepegawaian dan detail popup modal di bawah ini)*
+*(Tangkapan layar antarmuka dashboard kepegawaian dan detail popup modal)*
 
-![Dashboard Utama](public/img/email_header_optimized.jpg)
+![Dashboard Utama](public/img/dashboard_screenshot.png)
 
 ---
 
