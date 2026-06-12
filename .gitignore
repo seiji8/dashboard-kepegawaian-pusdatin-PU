@@ -24,3 +24,9 @@ Homestead.json
 Homestead.yaml
 Thumbs.db
 /.composer
+
+# Test & Scratch files
+test.php
+test_db.php
+scratch_api_result.json
+routes_list.txt
