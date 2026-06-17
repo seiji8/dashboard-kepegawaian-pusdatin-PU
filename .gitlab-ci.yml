@@ -11,12 +11,7 @@ before_script:
   - git config --global core.longpaths true
   - git config core.longpaths true
 
-# Cache dependencies antar pipeline agar tidak download ulang
-cache:
-  key: ${CI_COMMIT_REF_SLUG}
-  paths:
-    - vendor/
-    - node_modules/
+# Caching dinonaktifkan untuk Windows Shell Executor untuk menghindari stuck/hang saat unzip node_modules & vendor
 
 build-job:
   stage: build
