@@ -40,7 +40,8 @@ build-job:
 
 unit-test-job:
   stage: test
-  dependencies: []
+  dependencies:
+    - build-job
   script:
     - echo "=== Menjalankan PHPUnit Test ==="
     - composer install --prefer-dist --no-ansi --no-interaction --no-progress --no-scripts
