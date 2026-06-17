@@ -14,6 +14,10 @@ class ForcePasswordChange
         if (Auth::check()) {
             $user = Auth::user();
 
+            if (! $request->session()->has('needs_password_change')) {
+                $request->session()->put('needs_password_change', \Illuminate\Support\Facades\Hash::check($user->username, $user->password));
+            }
+
             // Cek dari session (Sangat cepat, tidak membebani CPU)
             if ($request->session()->get('needs_password_change', false)) {
                 // Jangan redirect jika sedang berada di halaman change password

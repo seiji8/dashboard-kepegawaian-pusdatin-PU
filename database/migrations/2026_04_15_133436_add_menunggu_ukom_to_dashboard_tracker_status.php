@@ -10,6 +10,9 @@ return new class extends Migration
      */
     public function up(): void
     {
+        if (DB::getDriverName() !== 'mysql') {
+            return;
+        }
         DB::statement("ALTER TABLE dashboard_tracker MODIFY COLUMN status_saat_ini ENUM('Aman','Mendekati','Usulan','Proses','Upload E-HRM','Menunggu SKP','Menunggu UKOM','Selesai') DEFAULT 'Aman'");
     }
 
@@ -18,6 +21,9 @@ return new class extends Migration
      */
     public function down(): void
     {
+        if (DB::getDriverName() !== 'mysql') {
+            return;
+        }
         DB::statement("ALTER TABLE dashboard_tracker MODIFY COLUMN status_saat_ini ENUM('Aman','Mendekati','Usulan','Proses','Upload E-HRM','Menunggu SKP','Selesai') DEFAULT 'Aman'");
     }
 };

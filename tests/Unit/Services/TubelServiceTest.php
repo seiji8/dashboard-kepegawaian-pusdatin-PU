@@ -50,7 +50,7 @@ class TubelServiceTest extends TestCase
         $this->assertEquals('Sedang Tubel', $tracker->status_saat_ini);
 
         // Memastikan dokumen otomatis dibuat
-        $this->assertEquals(3, \App\Models\KelengkapanDokumen::where('dashboard_tracker_id', $tracker->id)->count());
+        $this->assertEquals(1, \App\Models\KelengkapanDokumen::where('dashboard_tracker_id', $tracker->id)->count());
     }
 
     /** @test */

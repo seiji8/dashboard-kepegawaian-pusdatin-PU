@@ -7,6 +7,10 @@ return new class extends Migration
 {
     public function up(): void
     {
+        if (DB::getDriverName() !== 'mysql') {
+            return;
+        }
+
         // 1. Tambah TUBEL ke kategori enum
         DB::statement("ALTER TABLE dashboard_tracker MODIFY COLUMN kategori ENUM(
             'KGB','KP_Jafung','KP_Struktural','KP_Reguler',
@@ -23,6 +27,10 @@ return new class extends Migration
 
     public function down(): void
     {
+        if (DB::getDriverName() !== 'mysql') {
+            return;
+        }
+
         DB::statement("ALTER TABLE dashboard_tracker MODIFY COLUMN kategori ENUM(
             'KGB','KP_Jafung','KP_Struktural','KP_Reguler',
             'KJ_Jafung','UKOM','DIKLAT_HUTANG','DIKLAT_ANOMALI'

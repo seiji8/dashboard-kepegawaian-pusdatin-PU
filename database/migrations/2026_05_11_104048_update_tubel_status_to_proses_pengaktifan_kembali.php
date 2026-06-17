@@ -10,11 +10,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        DB::statement("ALTER TABLE dashboard_tracker MODIFY COLUMN status_saat_ini ENUM(
-            'Aman','Mendekati','Menunggu UKOM','Usulan','Proses',
-            'Upload E-HRM','Menunggu SKP','Selesai',
-            'Sedang Tubel','Proses Pengaktifan','Proses Pengembalian','Proses Pengaktifan Kembali'
-        ) DEFAULT 'Aman'");
+        if (DB::getDriverName() === 'mysql') {
+            DB::statement("ALTER TABLE dashboard_tracker MODIFY COLUMN status_saat_ini ENUM(
+                'Aman','Mendekati','Menunggu UKOM','Usulan','Proses',
+                'Upload E-HRM','Menunggu SKP','Selesai',
+                'Sedang Tubel','Proses Pengaktifan','Proses Pengembalian','Proses Pengaktifan Kembali'
+            ) DEFAULT 'Aman'");
+        }
 
         DB::table('dashboard_tracker')
             ->where('status_saat_ini', 'Proses Pengembalian')
@@ -27,10 +29,12 @@ return new class extends Migration
             ->where('status_saat_ini', 'Proses Pengaktifan Kembali')
             ->update(['status_saat_ini' => 'Proses Pengembalian']);
 
-        DB::statement("ALTER TABLE dashboard_tracker MODIFY COLUMN status_saat_ini ENUM(
-            'Aman','Mendekati','Menunggu UKOM','Usulan','Proses',
-            'Upload E-HRM','Menunggu SKP','Selesai',
-            'Sedang Tubel','Proses Pengaktifan','Proses Pengembalian'
-        ) DEFAULT 'Aman'");
+        if (DB::getDriverName() === 'mysql') {
+            DB::statement("ALTER TABLE dashboard_tracker MODIFY COLUMN status_saat_ini ENUM(
+                'Aman','Mendekati','Menunggu UKOM','Usulan','Proses',
+                'Upload E-HRM','Menunggu SKP','Selesai',
+                'Sedang Tubel','Proses Pengaktifan','Proses Pengembalian'
+            ) DEFAULT 'Aman'");
+        }
     }
 };

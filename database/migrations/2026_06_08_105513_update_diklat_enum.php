@@ -5,11 +5,13 @@ use Illuminate\Support\Facades\DB;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
+        // MODIFY COLUMN hanya didukung MySQL, skip untuk SQLite (testing)
+        if (DB::getDriverName() !== 'mysql') {
+            return;
+        }
+
         // 1. Ubah enum untuk memasukkan DIKLAT_BELUM_UPLOAD
         DB::statement("ALTER TABLE dashboard_tracker MODIFY COLUMN kategori ENUM('KGB', 'KP_Jafung', 'KP_Struktural', 'KP_Reguler', 'KJ_Jafung', 'UKOM', 'TUBEL', 'DIKLAT_HUTANG', 'DIKLAT_ANOMALI', 'DIKLAT_BELUM_UPLOAD') NOT NULL");
 
@@ -19,18 +21,19 @@ return new class extends Migration
         ]);
         DB::table('notifikasi_rules')->where('kategori', 'DIKLAT_ANOMALI')->delete();
 
-        // 3. (Opsional tapi aman) hapus data dashboard_tracker untuk diklat lama, biarkan RecalculateTracker mengisi yang baru
+        // 3. Hapus data dashboard_tracker untuk diklat lama
         DB::table('dashboard_tracker')->whereIn('kategori', ['DIKLAT_HUTANG', 'DIKLAT_ANOMALI'])->delete();
 
         // 4. Ubah enum final (menghapus DIKLAT_HUTANG dan DIKLAT_ANOMALI)
         DB::statement("ALTER TABLE dashboard_tracker MODIFY COLUMN kategori ENUM('KGB', 'KP_Jafung', 'KP_Struktural', 'KP_Reguler', 'KJ_Jafung', 'UKOM', 'TUBEL', 'DIKLAT_BELUM_UPLOAD') NOT NULL");
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
+        if (DB::getDriverName() !== 'mysql') {
+            return;
+        }
+
         DB::statement("ALTER TABLE dashboard_tracker MODIFY COLUMN kategori ENUM('KGB', 'KP_Jafung', 'KP_Struktural', 'KP_Reguler', 'KJ_Jafung', 'UKOM', 'TUBEL', 'DIKLAT_HUTANG', 'DIKLAT_ANOMALI', 'DIKLAT_BELUM_UPLOAD') NOT NULL");
 
         DB::table('notifikasi_rules')->where('kategori', 'DIKLAT_BELUM_UPLOAD')->update([
