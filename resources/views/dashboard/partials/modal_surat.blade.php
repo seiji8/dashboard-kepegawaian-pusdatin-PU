@@ -191,7 +191,7 @@
                             </div>
                             <div>
                                 <label class="surat-modal-label">FILE *</label>
-                                <input type="file" id="lampiranFile" accept=".jpg,.jpeg,.png,.pdf" style="display:none;" onchange="handleFileSelected(this)">
+                                <input type="file" id="lampiranFile" accept=".jpg,.jpeg,.png" style="display:none;" onchange="handleFileSelected(this)">
                                 <div onclick="document.getElementById('lampiranFile').click()" id="dropZone" style="border:1.5px dashed #cbd5e1; border-radius:10px; padding:11px; text-align:center; cursor:pointer; background:#fff; transition:all 0.2s;" onmouseover="this.style.borderColor='#3b82f6'" onmouseout="this.style.borderColor='#cbd5e1'">
                                     <p id="dropZoneText" style="margin:0; font-size:12.5px; color:#64748b; font-weight:600;"><i class="ph-bold ph-upload-simple" style="vertical-align:-1px; margin-right:4px;"></i> Klik untuk pilih file</p>
                                 </div>

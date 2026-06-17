@@ -54,7 +54,7 @@ class LampiranController extends Controller
         $request->validate([
             'tracker_id'     => 'required|exists:dashboard_tracker,id',
             'judul_lampiran' => 'nullable|string|max:255',
-            'file'           => 'required|file|mimes:jpg,jpeg,png,pdf|max:10240',
+            'file'           => 'required|file|mimes:jpg,jpeg,png|max:10240',
         ]);
 
         $tracker = DashboardTracker::with('pegawai')->findOrFail($request->tracker_id);
