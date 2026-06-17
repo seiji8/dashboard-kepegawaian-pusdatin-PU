@@ -5,7 +5,8 @@ stages:
   - test
   - deploy
 
-# Menyimpan folder cache agar build selanjutnya lebih cepat
+# Cache dependencies antar pipeline agar tidak download ulang
+# vendor & node_modules disimpan di cache, BUKAN artifacts
 cache:
   key: ${CI_COMMIT_REF_SLUG}
   paths:
@@ -21,31 +22,31 @@ build-job:
     - npm run build
     - cp .env.example .env
     - php artisan key:generate
+  # Artifacts hanya menyimpan hasil compile (ringan), BUKAN vendor/node_modules
   artifacts:
     expire_in: 1 hour
     paths:
-      - vendor/
-      - node_modules/
       - public/build/
       - .env
 
 unit-test-job:
   stage: test
-  dependencies:
-    - build-job
+  # Tidak pakai dependencies dari build-job, install sendiri dari cache
+  dependencies: []
   script:
     - echo "Menjalankan PHPUnit Test..."
-    # Membuat database sqlite in-memory / file untuk testing jika diperlukan
+    - composer install --prefer-dist --no-ansi --no-interaction --no-progress --no-scripts
     - touch database/database.sqlite
     - php artisan migrate --force
     - php artisan test
 
 lint-test-job:
   stage: test
-  dependencies:
-    - build-job
+  # Tidak pakai dependencies dari build-job, install sendiri dari cache
+  dependencies: []
   script:
     - echo "Menjalankan Laravel Pint untuk mengecek kerapian kode..."
+    - composer install --prefer-dist --no-ansi --no-interaction --no-progress --no-scripts
     - ./vendor/bin/pint --test
 
 deploy-job:
