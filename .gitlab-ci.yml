@@ -1,4 +1,5 @@
-image: lorisleiva/laravel-docker:8.2
+# Runner: shell executor di Windows (image: diabaikan untuk shell executor)
+# PHP 8.5, Composer 2.x, Node 24.x, NPM 11.x tersedia di runner
 
 stages:
   - build
@@ -6,7 +7,6 @@ stages:
   - deploy
 
 # Cache dependencies antar pipeline agar tidak download ulang
-# vendor & node_modules disimpan di cache, BUKAN artifacts
 cache:
   key: ${CI_COMMIT_REF_SLUG}
   paths:
@@ -16,13 +16,22 @@ cache:
 build-job:
   stage: build
   script:
-    - echo "Memulai proses Build untuk Laravel..."
+    - echo "=== Memulai proses Build untuk Laravel ==="
+    - echo "PHP version:" && php --version
+    - echo "Composer version:" && composer --version
+    - echo "Node version:" && node --version
+    - echo "NPM version:" && npm --version
+    - echo "--- Install PHP dependencies ---"
     - composer install --prefer-dist --no-ansi --no-interaction --no-progress --no-scripts
+    - echo "--- Install Node dependencies ---"
     - npm install
+    - echo "--- Build assets (Vite) ---"
     - npm run build
-    - cp .env.example .env
+    - echo "--- Setup .env ---"
+    - Copy-Item .env.example .env
     - php artisan key:generate
-  # Artifacts hanya menyimpan hasil compile (ringan), BUKAN vendor/node_modules
+    - echo "=== Build selesai! ==="
+  # Artifacts hanya menyimpan hasil compile (ringan)
   artifacts:
     expire_in: 1 hour
     paths:
@@ -31,21 +40,21 @@ build-job:
 
 unit-test-job:
   stage: test
-  # Tidak pakai dependencies dari build-job, install sendiri dari cache
   dependencies: []
   script:
-    - echo "Menjalankan PHPUnit Test..."
+    - echo "=== Menjalankan PHPUnit Test ==="
     - composer install --prefer-dist --no-ansi --no-interaction --no-progress --no-scripts
-    - touch database/database.sqlite
+    - Copy-Item .env.example .env
+    - php artisan key:generate
+    - New-Item -ItemType File -Force -Path database/database.sqlite
     - php artisan migrate --force
     - php artisan test
 
 lint-test-job:
   stage: test
-  # Tidak pakai dependencies dari build-job, install sendiri dari cache
   dependencies: []
   script:
-    - echo "Menjalankan Laravel Pint untuk mengecek kerapian kode..."
+    - echo "=== Menjalankan Laravel Pint ==="
     - composer install --prefer-dist --no-ansi --no-interaction --no-progress --no-scripts
     - ./vendor/bin/pint --test
 
@@ -53,8 +62,8 @@ deploy-job:
   stage: deploy
   environment: production
   only:
-    - main # Hanya akan berjalan jika ada push/merge ke branch main
+    - main
   script:
+    - echo "=== Deployment ==="
     - echo "Aplikasi siap untuk di-deploy ke server."
-    - echo "(Disini kamu bisa menambahkan script SSH, rsync, atau Git Pull ke server production/Pusdatin)"
     - echo "Deployment selesai."
