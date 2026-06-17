@@ -6,6 +6,11 @@ stages:
   - test
   - deploy
 
+# Fix Windows MAX_PATH (260 char) limit - wajib untuk vendor/phpunit path panjang
+before_script:
+  - git config --global core.longpaths true
+  - git config core.longpaths true
+
 # Cache dependencies antar pipeline agar tidak download ulang
 cache:
   key: ${CI_COMMIT_REF_SLUG}
