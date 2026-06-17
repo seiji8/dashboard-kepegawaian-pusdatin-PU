@@ -11,6 +11,7 @@ class KonfigurasiPesanController extends Controller
     {
         // Tampilkan semua notifikasi termasuk sistem bawaan (Set ke 50 agar filter JS berfungsi dengan baik tanpa memotong halaman)
         $rules = NotifikasiRules::paginate(50);
+
         return view('konfigurasi_pesan.index', compact('rules'));
     }
 
@@ -41,7 +42,7 @@ class KonfigurasiPesanController extends Controller
         ]);
 
         $rule = NotifikasiRules::find($id);
-        if (!$rule) {
+        if (! $rule) {
             return response()->json(['success' => false, 'message' => 'Data tidak ditemukan!'], 404);
         }
 
@@ -59,8 +60,10 @@ class KonfigurasiPesanController extends Controller
         $rule = NotifikasiRules::find($id);
         if ($rule) {
             $rule->delete();
+
             return response()->json(['success' => true, 'message' => 'Aturan notifikasi berhasil dihapus!']);
         }
+
         return response()->json(['success' => false, 'message' => 'Data tidak ditemukan!'], 404);
     }
 }

@@ -10,8 +10,9 @@ class NotifikasiRules extends Model
     use HasFactory;
 
     protected $table = 'notifikasi_rules';
+
     protected $guarded = [];
-    
+
     // Relasi: Siapa admin yang terakhir update rule ini?
     public function updater()
     {

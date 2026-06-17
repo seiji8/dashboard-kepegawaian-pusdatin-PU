@@ -2,36 +2,36 @@
 
 namespace App\Services\Tracker;
 
-use App\Models\Pegawai;
+use App\Helpers\ActivityLogger;
 use App\Models\DashboardTracker;
+use App\Models\Pegawai;
 use App\Models\User;
 use App\Notifications\SystemAlertNotification;
 use Carbon\Carbon;
-use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Cache;
-use App\Helpers\ActivityLogger;
+use Illuminate\Support\Facades\Notification;
 
 class KenaikanJenjangService implements TrackerInterface
 {
     public function process(Pegawai $pegawai, Carbon $today, array &$daftarUsulanBaru, array $context = []): void
     {
         // Skip dummy/test data as they are manually seeded and don't have real Angka Kredit history
-        if (str_contains(strtolower($pegawai->id_pegawai_api ?? ''), 'dummy') || 
+        if (str_contains(strtolower($pegawai->id_pegawai_api ?? ''), 'dummy') ||
             str_contains(strtolower($pegawai->nip ?? ''), 'dummy')) {
             return;
         }
 
         $matriksKamus = $context['matriksKamus'] ?? collect();
-        
-        $tipeJabatan = strtolower(trim($pegawai->tipe_jabatan ?? ''));
-        $isFungsional = in_array($tipeJabatan, ['fungsional', 'jafung', 'jabatan fungsional']) || 
-                        (!empty($pegawai->jenjang) && empty($tipeJabatan));
 
-        if ($isFungsional && !empty($pegawai->pangkat_golongan) && !empty($pegawai->jabatan_saat_ini)) {
+        $tipeJabatan = strtolower(trim($pegawai->tipe_jabatan ?? ''));
+        $isFungsional = in_array($tipeJabatan, ['fungsional', 'jafung', 'jabatan fungsional']) ||
+                        (! empty($pegawai->jenjang) && empty($tipeJabatan));
+
+        if ($isFungsional && ! empty($pegawai->pangkat_golongan) && ! empty($pegawai->jabatan_saat_ini)) {
             $normalizedJenjang = ucwords(strtolower(trim($pegawai->jenjang)));
-            
+
             $matriks = $matriksKamus->first(function ($item) use ($normalizedJenjang, $pegawai) {
-                return strtolower($item->jabatan_asal) === strtolower($normalizedJenjang) && 
+                return strtolower($item->jabatan_asal) === strtolower($normalizedJenjang) &&
                        strtolower($item->pangkat_asal) === strtolower(trim($pegawai->pangkat_golongan));
             });
 
@@ -39,16 +39,16 @@ class KenaikanJenjangService implements TrackerInterface
                 $targetAK = 0;
                 if ($matriks->target_ak > 0) {
                     $targetAK = $matriksKamus->where('jabatan_asal', $matriks->jabatan_asal)
-                                             ->where('id', '<=', $matriks->id)
-                                             ->sum('target_ak');
+                        ->where('id', '<=', $matriks->id)
+                        ->sum('target_ak');
                 }
-                                         
+
                 $koefisienTahunan = $matriks->koefisien_tahunan ?? 0;
-                
+
                 $kategoriSekarang = 'KJ_Jafung';
                 $kategoriLawan = 'KP_Jafung';
                 $dokumenTotal = 2;
-                
+
                 $namaProses = 'Kenaikan Jenjang';
                 $tujuanProses = $matriks->next_jenjang ?? 'Jenjang Berikutnya';
 
@@ -58,7 +58,7 @@ class KenaikanJenjangService implements TrackerInterface
                 if ($latestAK && $pegawai->tmt_pangkat_terakhir) {
                     $tmtAK = Carbon::parse($latestAK->tmt_angka_kredit);
                     $tmtPangkat = Carbon::parse($pegawai->tmt_pangkat_terakhir);
-                    
+
                     if ($tmtAK->greaterThan($tmtPangkat)) {
                         $currentAK = $latestAK->total_kredit;
                     }
@@ -73,7 +73,7 @@ class KenaikanJenjangService implements TrackerInterface
 
                     $statusAK = '';
                     $keteranganAK = '';
-                    $kurangFormat = number_format($kekuranganAK, 3, ',', '.'); 
+                    $kurangFormat = number_format($kekuranganAK, 3, ',', '.');
 
                     $existingAK = DashboardTracker::where('pegawai_id', $pegawai->id_pegawai_api)
                         ->whereIn('kategori', [$kategoriSekarang, 'UKOM'])
@@ -87,7 +87,9 @@ class KenaikanJenjangService implements TrackerInterface
                     if ($currentAKStatus === 'Upload E-HRM' || $isConfirmedAK) {
                         $statusAK = 'Upload E-HRM';
                         $keteranganAK = 'TTE Selesai. Menunggu upload E-HRM.';
-                        if ($existingAK->kategori === 'UKOM') $skipTrackerUpdate = true;
+                        if ($existingAK->kategori === 'UKOM') {
+                            $skipTrackerUpdate = true;
+                        }
                     } elseif ($currentAKStatus === 'Proses') {
                         $statusAK = 'Proses';
                         $keteranganAK = 'Sedang diproses admin';
@@ -95,7 +97,7 @@ class KenaikanJenjangService implements TrackerInterface
                             $skipTrackerUpdate = true;
                         }
                     } elseif (is_null($latestAK) || $currentAK == 0) {
-                        $statusAK = 'Data Tidak Lengkap'; 
+                        $statusAK = 'Data Tidak Lengkap';
                         $keteranganAK = 'Peringatan: Data Riwayat AK tidak ditemukan di e-HRM atau bernilai 0. Segera upload/update SK PAK Anda.';
                     } else {
                         if ($kekuranganAK <= 0) {
@@ -104,25 +106,25 @@ class KenaikanJenjangService implements TrackerInterface
                                 ->orderBy('tahun', 'desc')
                                 ->limit(2)
                                 ->get();
-                            
+
                             $skpMemenuhi = true;
                             $badSkpYear = null;
-                            $alasanSkp = "";
+                            $alasanSkp = '';
 
                             if ($annualSkps->count() < 2) {
                                 $skpMemenuhi = false;
-                                $alasanSkp = "Data SKP Tahunan 2 tahun terakhir tidak lengkap di E-HRM";
+                                $alasanSkp = 'Data SKP Tahunan 2 tahun terakhir tidak lengkap di E-HRM';
                             } else {
                                 foreach ($annualSkps as $skp) {
                                     $nilai = strtoupper(trim($skp->nilai_skp));
-                                    if (!in_array($nilai, ['BAIK', 'SANGAT BAIK'])) {
+                                    if (! in_array($nilai, ['BAIK', 'SANGAT BAIK'])) {
                                         $skpMemenuhi = false;
                                         if (is_null($badSkpYear) || $skp->tahun > $badSkpYear) {
                                             $badSkpYear = $skp->tahun;
                                         }
                                     }
                                 }
-                                if (!$skpMemenuhi) {
+                                if (! $skpMemenuhi) {
                                     $targetYear = $badSkpYear + 2;
                                     $alasanSkp = "Nilai SKP Tahunan ({$badSkpYear}) bukan BAIK/SANGAT BAIK. Harus menunggu 2 tahun (Target Usulan: Tahun {$targetYear})";
                                 }
@@ -135,15 +137,15 @@ class KenaikanJenjangService implements TrackerInterface
                                     $keteranganAK = "Lulus UKOM dan SKP 2 Tahun Baik. Segera usulkan {$namaProses} ke {$tujuanProses}";
                                 } else {
                                     $statusAK = 'Aman';
-                                    $keteranganAK = "Lulus UKOM, namun " . $alasanSkp;
+                                    $keteranganAK = 'Lulus UKOM, namun '.$alasanSkp;
                                 }
                             } else {
                                 if ($skpMemenuhi) {
                                     $statusAK = 'Menunggu UKOM';
-                                    $keteranganAK = "AK & SKP memenuhi target. Segera daftarkan Uji Kompetensi";
+                                    $keteranganAK = 'AK & SKP memenuhi target. Segera daftarkan Uji Kompetensi';
                                 } else {
                                     $statusAK = 'Aman';
-                                    $keteranganAK = "AK memenuhi target, namun " . $alasanSkp;
+                                    $keteranganAK = 'AK memenuhi target, namun '.$alasanSkp;
                                 }
                             }
                         } elseif ($kekuranganAK <= $akTriwulanBaik) {
@@ -164,26 +166,28 @@ class KenaikanJenjangService implements TrackerInterface
                             ->where('status_saat_ini', 'Mendekati')
                             ->delete();
 
-                        $notifCacheKey = 'mendekati_notif_' . $pegawai->id_pegawai_api . '_' . $kategoriSekarang;
-                        if (!Cache::has($notifCacheKey)) {
+                        $notifCacheKey = 'mendekati_notif_'.$pegawai->id_pegawai_api.'_'.$kategoriSekarang;
+                        if (! Cache::has($notifCacheKey)) {
                             $notifiable = User::where('email', $pegawai->email)->first();
-                            if (!$notifiable && $pegawai->email) {
+                            if (! $notifiable && $pegawai->email) {
                                 $notifiable = Notification::route('mail', $pegawai->email);
                             }
                             if ($notifiable) {
                                 $subjekMendekati = "🔔 Informasi Angka Kredit: Mendekati Target {$namaProses}";
                                 $pesanMendekati = "Yth. {$pegawai->nama} (NIP: {$pegawai->nip}),\n\n"
-                                    . "Angka Kredit (AK) Anda saat ini telah mendekati target untuk {$namaProses}.\n"
-                                    . "{$keteranganAK}\n\n"
-                                    . "Harap terus tingkatkan kinerja Anda agar target AK dapat segera tercapai.\n\n"
-                                    . "Terima kasih.";
+                                    ."Angka Kredit (AK) Anda saat ini telah mendekati target untuk {$namaProses}.\n"
+                                    ."{$keteranganAK}\n\n"
+                                    ."Harap terus tingkatkan kinerja Anda agar target AK dapat segera tercapai.\n\n"
+                                    .'Terima kasih.';
                                 try {
                                     $notifiable->notify(new SystemAlertNotification($pegawai, $subjekMendekati, $pesanMendekati));
                                     Cache::put($notifCacheKey, true, now()->addDays(30));
                                     ActivityLogger::logSystem("Mengirim notifikasi 'Mendekati' AK ke pegawai {$pegawai->nama} ({$kategoriSekarang})", $pegawai->nip);
-                                } catch (\Exception $e) {}
+                                } catch (\Exception $e) {
+                                }
                             }
                         }
+
                         return;
                     }
 
@@ -196,14 +200,14 @@ class KenaikanJenjangService implements TrackerInterface
                         }
                     }
 
-                    if (!$skipTrackerUpdate) {
+                    if (! $skipTrackerUpdate) {
                         if (in_array($statusAK, ['Usulan', 'Proses', 'Menunggu UKOM', 'Upload E-HRM', 'Usulan Pengajuan', 'Proses TTE'])) {
                             $dokumenTerupload = 0;
                             if ($statusAK !== 'Upload E-HRM') {
-                                if (!empty($pegawai->arsip_skp_2_tahun) && count($pegawai->arsip_skp_2_tahun) >= 2) {
+                                if (! empty($pegawai->arsip_skp_2_tahun) && count($pegawai->arsip_skp_2_tahun) >= 2) {
                                     $dokumenTerupload++;
                                 }
-                                
+
                                 $riwJabatanMatch = $pegawai->riwayat_jabatan
                                     ? $pegawai->riwayat_jabatan
                                         ->whereNotNull('file_sk')
@@ -215,7 +219,7 @@ class KenaikanJenjangService implements TrackerInterface
                                 $hasSkJabatan = false;
                                 if ($existingAK) {
                                     $uploadedNames = $existingAK->kelengkapan_dokumen->where('is_uploaded', true)->pluck('nama_dokumen')->toArray();
-                                    if (in_array("SK Jabatan Terakhir", $uploadedNames) || in_array("SK Jabatan Fungsional Terakhir", $uploadedNames)) {
+                                    if (in_array('SK Jabatan Terakhir', $uploadedNames) || in_array('SK Jabatan Fungsional Terakhir', $uploadedNames)) {
                                         $hasSkJabatan = true;
                                     }
                                 }
@@ -224,16 +228,16 @@ class KenaikanJenjangService implements TrackerInterface
                                 }
                                 if ($hasSkJabatan) {
                                     $dokumenTerupload++;
-                                    
+
                                     // Fallback: update the KelengkapanDokumen record if it exists but is not uploaded
                                     if ($existingAK) {
                                         $docRecord = $existingAK->kelengkapan_dokumen->first(function ($d) {
                                             return $d->nama_dokumen === 'SK Jabatan Terakhir' || $d->nama_dokumen === 'SK Jabatan Fungsional Terakhir';
                                         });
-                                        if ($docRecord && !$docRecord->is_uploaded) {
+                                        if ($docRecord && ! $docRecord->is_uploaded) {
                                             $docRecord->update([
                                                 'is_uploaded' => true,
-                                                'link_file' => $riwJabatanMatch->file_sk ?? $docRecord->link_file
+                                                'link_file' => $riwJabatanMatch->file_sk ?? $docRecord->link_file,
                                             ]);
                                         }
                                     }
@@ -243,27 +247,25 @@ class KenaikanJenjangService implements TrackerInterface
                             $tracker = DashboardTracker::updateOrCreate(
                                 [
                                     'pegawai_id' => $pegawai->id_pegawai_api,
-                                    'kategori'   => $kategoriSekarang,
+                                    'kategori' => $kategoriSekarang,
                                 ],
                                 [
-                                    'status_saat_ini'   => $statusAK,
-                                    'keterangan'        => $keteranganAK,
-                                    'dokumen_total'     => $dokumenTotal,
+                                    'status_saat_ini' => $statusAK,
+                                    'keterangan' => $keteranganAK,
+                                    'dokumen_total' => $dokumenTotal,
                                     'dokumen_terupload' => $dokumenTerupload,
-                                    'tanggal_target'    => $targetDate,
+                                    'tanggal_target' => $targetDate,
                                 ]
                             );
 
-                            if (in_array($statusAK, ['Usulan', 'Menunggu UKOM']) && !$tracker->notified_at) {
+                            if (in_array($statusAK, ['Usulan', 'Menunggu UKOM']) && ! $tracker->notified_at) {
                                 $daftarUsulanBaru[] = [
                                     'nama' => $pegawai->nama,
                                     'nip' => $pegawai->nip,
-                                    'kategori' => $kategoriSekarang
+                                    'kategori' => $kategoriSekarang,
                                 ];
                                 $tracker->update(['notified_at' => now()]);
                             }
-
-
 
                             DashboardTracker::where('pegawai_id', $pegawai->id_pegawai_api)
                                 ->where('kategori', $kategoriLawan)
@@ -273,12 +275,12 @@ class KenaikanJenjangService implements TrackerInterface
                                 DashboardTracker::updateOrCreate(
                                     [
                                         'pegawai_id' => $pegawai->id_pegawai_api,
-                                        'kategori'   => $kategoriSekarang,
+                                        'kategori' => $kategoriSekarang,
                                     ],
                                     [
-                                        'status_saat_ini'   => 'Aman',
-                                        'keterangan'        => $keteranganAK,
-                                        'dokumen_total'     => 1,
+                                        'status_saat_ini' => 'Aman',
+                                        'keterangan' => $keteranganAK,
+                                        'dokumen_total' => 1,
                                         'dokumen_terupload' => 0,
                                     ]
                                 );

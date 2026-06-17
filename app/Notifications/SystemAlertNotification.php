@@ -3,18 +3,23 @@
 namespace App\Notifications;
 
 use Illuminate\Bus\Queueable;
-use Illuminate\Notifications\Notification;
 use Illuminate\Notifications\Messages\MailMessage;
+use Illuminate\Notifications\Notification;
 
 class SystemAlertNotification extends Notification
 {
     use Queueable;
 
     public $pegawai;
+
     public $subjectLine;
+
     public $content;
+
     public $pdfUrl;
+
     public $pdfData;
+
     public $dbContent;
 
     /**
@@ -46,15 +51,15 @@ class SystemAlertNotification extends Notification
     public function toMail($notifiable)
     {
         $mail = (new MailMessage)
-                    ->from(config('mail.from.address'), config('mail.from.name'))
-                    ->subject($this->subjectLine)
-                    ->view('emails.manual_notification', [
-                         'subjectLine' => $this->subjectLine,
-                         'pegawai'     => $this->pegawai,
-                         'content'     => $this->content,
-                         'pdfUrl'      => $this->pdfUrl,
-                         'pdfData'     => $this->pdfData
-                    ]);
+            ->from(config('mail.from.address'), config('mail.from.name'))
+            ->subject($this->subjectLine)
+            ->view('emails.manual_notification', [
+                'subjectLine' => $this->subjectLine,
+                'pegawai' => $this->pegawai,
+                'content' => $this->content,
+                'pdfUrl' => $this->pdfUrl,
+                'pdfData' => $this->pdfData,
+            ]);
 
         if ($this->pdfData) {
             $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('emails.rekap_usulan_pdf', ['data' => $this->pdfData]);
@@ -69,9 +74,9 @@ class SystemAlertNotification extends Notification
     public function toDatabase($notifiable)
     {
         return [
-            'title'      => '📄 ' . $this->subjectLine,
-            'message'    => $this->dbContent,
-            'type'       => 'info'
+            'title' => '📄 '.$this->subjectLine,
+            'message' => $this->dbContent,
+            'type' => 'info',
         ];
     }
 }

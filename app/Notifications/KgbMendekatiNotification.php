@@ -2,9 +2,9 @@
 
 namespace App\Notifications;
 
+use App\Models\NotifikasiRules;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Notification;
-use App\Models\NotifikasiRules;
 
 class KgbMendekatiNotification extends Notification
 {
@@ -29,8 +29,8 @@ class KgbMendekatiNotification extends Notification
     public function toDatabase($notifiable)
     {
         $rule = NotifikasiRules::where('kategori', 'KGB Penjadwalan')
-                               ->where('is_active', true)
-                               ->first();
+            ->where('is_active', true)
+            ->first();
 
         $deadline = $this->pegawai->tmt_kgb_terakhir->addYears(2)->format('d-m-Y');
 
@@ -48,12 +48,12 @@ class KgbMendekatiNotification extends Notification
         // Ambil baris pertama sebagai title, sisanya sebagai message
         $lines = explode("\n", $message);
         $title = trim($lines[0]);
-        $body  = trim(implode("\n", array_slice($lines, 1)));
+        $body = trim(implode("\n", array_slice($lines, 1)));
 
         return [
-            'title'   => $title,
+            'title' => $title,
             'message' => $body,
-            'type'    => 'warning',
+            'type' => 'warning',
         ];
     }
 }

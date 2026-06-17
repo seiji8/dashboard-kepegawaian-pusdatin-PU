@@ -18,7 +18,7 @@ return new class extends Migration
             $table->string('target_nip', 20)->nullable();
             $table->unsignedBigInteger('user_id')->nullable();
             $table->timestamp('waktu')->useCurrent();
-            
+
             $table->foreign('target_nip')->references('nip')->on('pegawai')->onDelete('set null');
         });
     }

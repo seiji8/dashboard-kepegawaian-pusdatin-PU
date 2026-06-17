@@ -2,12 +2,12 @@
 
 namespace Tests\Feature;
 
-use Illuminate\Foundation\Testing\DatabaseTransactions;
-use Tests\TestCase;
-use App\Models\User;
 use App\Models\DashboardTracker;
 use App\Models\Pegawai;
+use App\Models\User;
+use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Support\Facades\Hash;
+use Tests\TestCase;
 
 class DashboardControllerTest extends TestCase
 {
@@ -20,13 +20,13 @@ class DashboardControllerTest extends TestCase
         $this->admin = User::factory()->create([
             'username' => 'admin_test',
             'role' => 'admin_pegawai',
-            'password' => Hash::make('password_aman')
+            'password' => Hash::make('password_aman'),
         ]);
-        
+
         $this->pegawai = Pegawai::create([
             'nip' => '123123123',
             'nama' => 'Pekerja Test',
-            'id_pegawai_api' => '123'
+            'id_pegawai_api' => '123',
         ]);
     }
 
@@ -49,7 +49,7 @@ class DashboardControllerTest extends TestCase
         $response = $this->actingAs($this->admin)->postJson(route('tracker.move-to-ukom', $tracker->id));
 
         $response->assertStatus(200)
-                 ->assertJson(['success' => true]);
+            ->assertJson(['success' => true]);
 
         // Verifikasi database update
         $tracker->refresh();
@@ -68,22 +68,22 @@ class DashboardControllerTest extends TestCase
 
         // Uji Lulus
         $response = $this->actingAs($this->admin)->postJson(route('tracker.set-kelulusan-ukom', $tracker->id), [
-            'lulus' => true
+            'lulus' => true,
         ]);
 
         $response->assertStatus(200);
-        
+
         $tracker->refresh();
         $this->assertEquals('KJ_Jafung', $tracker->kategori);
         $this->assertEquals('Usulan', $tracker->status_saat_ini);
 
         // Uji Tidak Lulus
         $response2 = $this->actingAs($this->admin)->postJson(route('tracker.set-kelulusan-ukom', $tracker->id), [
-            'lulus' => false
+            'lulus' => false,
         ]);
 
         $response2->assertStatus(200);
-        
+
         $tracker->refresh();
         $this->assertEquals('Tidak Lulus UKOM', $tracker->keterangan);
     }

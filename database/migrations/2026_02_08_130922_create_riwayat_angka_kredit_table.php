@@ -21,10 +21,10 @@ return new class extends Migration
             $table->decimal('kredit_penunjang', 8, 3)->nullable(); // tkutama2
             $table->decimal('total_kredit', 8, 3)->nullable(); // tkutama3 (asumsi)
             $table->text('jabatan_saat_penilaian')->nullable(); // Changed to text
-            
+
             // Relasi
             $table->foreign('nip')->references('nip')->on('pegawai')->onDelete('cascade');
-            
+
             $table->timestamps();
         });
     }

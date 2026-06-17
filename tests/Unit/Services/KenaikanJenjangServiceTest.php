@@ -2,12 +2,12 @@
 
 namespace Tests\Unit\Services;
 
-use Tests\TestCase;
-use Illuminate\Foundation\Testing\DatabaseTransactions;
-use App\Models\Pegawai;
 use App\Models\DashboardTracker;
+use App\Models\Pegawai;
 use App\Services\Tracker\KenaikanJenjangService;
 use Carbon\Carbon;
+use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Tests\TestCase;
 
 class KenaikanJenjangServiceTest extends TestCase
 {
@@ -23,10 +23,10 @@ class KenaikanJenjangServiceTest extends TestCase
             'tipe_jabatan' => 'fungsional',
             'pangkat_golongan' => 'III/a',
             'jabatan_saat_ini' => 'Ahli Pertama',
-            'jenjang' => 'Ahli Pertama'
+            'jenjang' => 'Ahli Pertama',
         ]);
 
-        $service = new KenaikanJenjangService();
+        $service = new KenaikanJenjangService;
         $usulan = [];
         $service->process($pegawai, Carbon::now(), $usulan);
 

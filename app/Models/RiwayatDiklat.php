@@ -10,6 +10,7 @@ class RiwayatDiklat extends Model
     use HasFactory;
 
     protected $table = 'riwayat_diklat'; // Nama tabel di database
+
     protected $guarded = []; // Izinkan isi semua kolom
 
     // Relasi Balik: Diklat ini punya siapa?

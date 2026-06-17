@@ -2,11 +2,11 @@
 
 namespace Tests\Feature;
 
-use Illuminate\Foundation\Testing\DatabaseTransactions;
-use Tests\TestCase;
-use App\Models\User;
 use App\Models\Pegawai;
+use App\Models\User;
+use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Support\Facades\Hash;
+use Tests\TestCase;
 
 class AdminControllerTest extends TestCase
 {
@@ -18,7 +18,7 @@ class AdminControllerTest extends TestCase
         // Admin Pegawai tidak boleh
         $admin = User::factory()->create([
             'role' => 'admin_pegawai',
-            'password' => Hash::make('password_aman')
+            'password' => Hash::make('password_aman'),
         ]);
 
         $response = $this->actingAs($admin)->get(route('daftar-admin'));
@@ -27,7 +27,7 @@ class AdminControllerTest extends TestCase
         // Super Admin boleh
         $superAdmin = User::factory()->create([
             'role' => 'super_admin',
-            'password' => Hash::make('password_aman')
+            'password' => Hash::make('password_aman'),
         ]);
 
         $response2 = $this->actingAs($superAdmin)->get(route('daftar-admin'));
@@ -40,7 +40,7 @@ class AdminControllerTest extends TestCase
     {
         $superAdmin = User::factory()->create([
             'role' => 'super_admin',
-            'password' => Hash::make('password_aman')
+            'password' => Hash::make('password_aman'),
         ]);
 
         // Buat dummy pegawai
@@ -48,21 +48,21 @@ class AdminControllerTest extends TestCase
             'nip' => '999888777',
             'nama' => 'Dummy Pegawai',
             'email' => 'dummy@pu.go.id',
-            'id_pegawai_api' => '999888'
+            'id_pegawai_api' => '999888',
         ]);
 
         $response = $this->actingAs($superAdmin)->postJson(route('daftar-admin.store'), [
-            'nip_pegawai' => '999888777'
+            'nip_pegawai' => '999888777',
         ]);
 
         $response->assertStatus(200)
-                 ->assertJson(['success' => true]);
+            ->assertJson(['success' => true]);
 
         // Verifikasi admin masuk ke tabel users
         $newUser = User::where('username', '999888777')->first();
         $this->assertNotNull($newUser);
         $this->assertEquals('admin_pegawai', $newUser->role);
-        
+
         // Verifikasi password default = username
         $this->assertTrue(Hash::check('999888777', $newUser->password));
     }

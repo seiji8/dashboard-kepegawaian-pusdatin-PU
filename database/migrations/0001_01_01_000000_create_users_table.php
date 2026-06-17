@@ -17,14 +17,14 @@ return new class extends Migration
             $table->string('nama_lengkap');
             $table->string('email')->unique()->nullable();
             $table->string('password');
-            
+
             // Role: Super Admin (Full Akses) vs Admin Pegawai (Operator)
             $table->enum('role', ['super_admin', 'admin_pegawai'])->default('admin_pegawai');
-            
+
             $table->rememberToken();
             $table->timestamps();
         });
-        
+
         // Tabel reset password & sessions bawaan Laravel (biarkan saja)
         Schema::create('password_reset_tokens', function (Blueprint $table) {
             $table->string('email')->primary();

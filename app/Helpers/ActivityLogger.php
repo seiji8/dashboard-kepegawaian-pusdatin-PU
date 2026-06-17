@@ -11,9 +11,9 @@ class ActivityLogger
     /**
      * Log aktivitas ke database
      *
-     * @param string $tipe - Jenis log (API_SYNC, NOTIF_SENT, ADMIN_ACTION, SYSTEM_LOG)
-     * @param string $deskripsi - Deskripsi detail aktivitas
-     * @param string|null $targetNip - NIP pegawai target (opsional)
+     * @param  string  $tipe  - Jenis log (API_SYNC, NOTIF_SENT, ADMIN_ACTION, SYSTEM_LOG)
+     * @param  string  $deskripsi  - Deskripsi detail aktivitas
+     * @param  string|null  $targetNip  - NIP pegawai target (opsional)
      * @return void
      */
     public static function log($tipe, $deskripsi, $targetNip = null)

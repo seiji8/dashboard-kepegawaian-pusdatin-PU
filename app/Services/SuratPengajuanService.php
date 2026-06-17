@@ -2,8 +2,8 @@
 
 namespace App\Services;
 
-use Carbon\Carbon;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Carbon\Carbon;
 use Illuminate\Support\Collection;
 
 class SuratPengajuanService
@@ -11,9 +11,9 @@ class SuratPengajuanService
     /**
      * Generate PDF Surat Pengajuan
      *
-     * @param array $requestData Input dari user
-     * @param Collection $trackers Data tracker dari database
-     * @param array $kategoriLabels Mapping label kategori
+     * @param  array  $requestData  Input dari user
+     * @param  Collection  $trackers  Data tracker dari database
+     * @param  array  $kategoriLabels  Mapping label kategori
      * @return string Path absolut ke file PDF hasil generate (sudah di merge/single)
      */
     public function generateSurat(array $requestData, Collection $trackers, array $kategoriLabels): string
@@ -29,25 +29,25 @@ class SuratPengajuanService
 
         // Siapkan data untuk template
         $data = [
-            'kategori'       => $kategori,
+            'kategori' => $kategori,
             'kategori_label' => $kategoriLabels[$kategori] ?? str_replace('_', ' ', $kategori),
-            'nomor_surat'    => $requestData['nomor_surat'] ?? '......../........./........',
-            'tanggal_surat'  => !empty($requestData['tanggal_surat']) 
+            'nomor_surat' => $requestData['nomor_surat'] ?? '......../........./........',
+            'tanggal_surat' => ! empty($requestData['tanggal_surat'])
                 ? Carbon::parse($requestData['tanggal_surat'])->isoFormat('D MMMM Y')
                 : Carbon::now()->isoFormat('D MMMM Y'),
-            'tujuan_surat'   => $requestData['tujuan_surat'] ?? "Kepala Biro Kepegawaian, Organisasi, dan Tata\nLaksana, Sekretariat Jenderal, Kementerian\nPekerjaan Umum",
-            'nama_ttd'       => $requestData['nama_ttd'] ?? 'Komang Sri Hartini',
-            'nip_ttd'        => $requestData['nip_ttd'] ?? '........................',
-            'jabatan_ttd'    => $requestData['jabatan_ttd'] ?? 'Kepala Pusat Data dan Teknologi Informasi',
-            'kppn'           => $requestData['kppn'] ?? '',
+            'tujuan_surat' => $requestData['tujuan_surat'] ?? "Kepala Biro Kepegawaian, Organisasi, dan Tata\nLaksana, Sekretariat Jenderal, Kementerian\nPekerjaan Umum",
+            'nama_ttd' => $requestData['nama_ttd'] ?? 'Komang Sri Hartini',
+            'nip_ttd' => $requestData['nip_ttd'] ?? '........................',
+            'jabatan_ttd' => $requestData['jabatan_ttd'] ?? 'Kepala Pusat Data dan Teknologi Informasi',
+            'kppn' => $requestData['kppn'] ?? '',
             'kgb_sk_pejabat' => $requestData['sk_lama_pejabat'] ?? 'Kepala Biro Kepegawaian, Organisasi dan Tata Laksana',
-            'kgb_sk_nomor'   => $requestData['sk_lama_nomor'] ?? '318/KPTS/M/2026',
+            'kgb_sk_nomor' => $requestData['sk_lama_nomor'] ?? '318/KPTS/M/2026',
             'kgb_sk_tanggal' => $requestData['sk_lama_tanggal'] ?? '20 Februari 2026',
-            'kgb_gaji_lama_angka'     => !empty($requestData['gaji_lama']) ? number_format($requestData['gaji_lama'], 0, ',', '.') : '',
-            'kgb_gaji_lama_terbilang' => !empty($requestData['gaji_lama']) ? ucwords($this->terbilang($requestData['gaji_lama'])) . ' Rupiah' : '',
-            'kgb_gaji_baru_angka'     => !empty($requestData['gaji_baru']) ? number_format($requestData['gaji_baru'], 0, ',', '.') : '',
-            'kgb_gaji_baru_terbilang' => !empty($requestData['gaji_baru']) ? ucwords($this->terbilang($requestData['gaji_baru'])) . ' Rupiah' : '',
-            'pegawai_list'   => $trackers->map(function ($t) use ($masaKerjaInput, $kategori, $requestData) {
+            'kgb_gaji_lama_angka' => ! empty($requestData['gaji_lama']) ? number_format($requestData['gaji_lama'], 0, ',', '.') : '',
+            'kgb_gaji_lama_terbilang' => ! empty($requestData['gaji_lama']) ? ucwords($this->terbilang($requestData['gaji_lama'])).' Rupiah' : '',
+            'kgb_gaji_baru_angka' => ! empty($requestData['gaji_baru']) ? number_format($requestData['gaji_baru'], 0, ',', '.') : '',
+            'kgb_gaji_baru_terbilang' => ! empty($requestData['gaji_baru']) ? ucwords($this->terbilang($requestData['gaji_baru'])).' Rupiah' : '',
+            'pegawai_list' => $trackers->map(function ($t) use ($masaKerjaInput, $kategori, $requestData) {
                 // Hitung masa kerja: prioritas input manual > auto dari tmt_cpns
                 $masaKerja = $masaKerjaInput[$t->id] ?? '';
                 $kgbMasaKerjaLama = '';
@@ -56,7 +56,7 @@ class SuratPengajuanService
                 if ($t->pegawai && $t->pegawai->tmt_cpns) {
                     $tmtCpns = Carbon::parse($t->pegawai->tmt_cpns);
                     $now = Carbon::now();
-                    
+
                     // Masa Kerja standard (sampai hari ini)
                     if (empty($masaKerja)) {
                         $years = $tmtCpns->diffInYears($now);
@@ -73,7 +73,7 @@ class SuratPengajuanService
                             $monthsLama = $tmtCpns->copy()->addYears($yearsLama)->diffInMonths($tmtKgbLama);
                             $kgbMasaKerjaLama = sprintf('%02d tahun %02d bulan', $yearsLama, $monthsLama);
                         }
-                        
+
                         // Baru: dari CPNS sampai tanggal target KGB (atau tanggal surat jika kosong)
                         $tmtKgbBaru = $t->tanggal_target ? Carbon::parse($t->tanggal_target) : $now;
                         $yearsBaru = $tmtCpns->diffInYears($tmtKgbBaru);
@@ -86,20 +86,20 @@ class SuratPengajuanService
                 $tubelPendidikan = '';
                 if ($kategori === 'TUBEL') {
                     $customPendidikan = $requestData['tubel_pendidikan'] ?? '';
-                    if (!empty($customPendidikan)) {
+                    if (! empty($customPendidikan)) {
                         $tubelPendidikan = $customPendidikan;
                     } else {
                         $lastTubel = \App\Models\RiwayatTubel::where('nip', $t->pegawai->nip)
-                                        ->orderBy('id', 'desc')
-                                        ->first();
+                            ->orderBy('id', 'desc')
+                            ->first();
                         $dbPendidikan = $lastTubel ? $lastTubel->pendidikan : 'S2';
-                        $tubelPendidikan = 'tugas belajar ' . $dbPendidikan;
+                        $tubelPendidikan = 'tugas belajar '.$dbPendidikan;
                     }
                 }
 
                 // If user customized the Jabatan in request, use it! Otherwise fallback to database value.
                 $customJabatan = $requestData['tubel_jabatan'] ?? '';
-                if ($kategori === 'TUBEL' && !empty($customJabatan)) {
+                if ($kategori === 'TUBEL' && ! empty($customJabatan)) {
                     $jabatan = $customJabatan;
                 } elseif ($kategori === 'TUBEL') {
                     $prevJab = \App\Models\RiwayatJabatan::where('nip', $t->pegawai->nip)
@@ -119,20 +119,20 @@ class SuratPengajuanService
                 }
 
                 return [
-                    'nama'             => $t->pegawai->nama ?? '-',
-                    'nip'              => $t->pegawai->nip ?? '-',
+                    'nama' => $t->pegawai->nama ?? '-',
+                    'nip' => $t->pegawai->nip ?? '-',
                     'pangkat_golongan' => $t->pegawai->pangkat_golongan ?? '-',
-                    'jabatan'          => $jabatan,
-                    'jenjang'          => $t->pegawai->jenjang ?? '-',
-                    'tmt_target'       => $t->tanggal_target 
+                    'jabatan' => $jabatan,
+                    'jenjang' => $t->pegawai->jenjang ?? '-',
+                    'tmt_target' => $t->tanggal_target
                         ? Carbon::parse($t->tanggal_target)->format('d-m-Y')
                         : '-',
-                    'keterangan'       => $t->keterangan ?? '-',
-                    'kategori'         => $t->kategori,
-                    'masa_kerja'       => $masaKerja,
+                    'keterangan' => $t->keterangan ?? '-',
+                    'kategori' => $t->kategori,
+                    'masa_kerja' => $masaKerja,
                     'kgb_masa_kerja_lama' => $kgbMasaKerjaLama,
                     'kgb_masa_kerja_baru' => $kgbMasaKerjaBaru,
-                    'tracker_id'       => $t->id,
+                    'tracker_id' => $t->id,
                     'tubel_pendidikan' => $tubelPendidikan,
                 ];
             })->toArray(),
@@ -142,59 +142,59 @@ class SuratPengajuanService
         // Khusus TUBEL, tambahkan data referensi nota dinas & narahubung ke template data
         if ($kategori === 'TUBEL') {
             $data['ref_nota_dinas'] = $requestData['ref_nota_dinas'] ?? 'SM04/B/Sp/2026/474';
-            $data['tgl_nota_dinas'] = !empty($requestData['tgl_nota_dinas'])
+            $data['tgl_nota_dinas'] = ! empty($requestData['tgl_nota_dinas'])
                 ? Carbon::parse($requestData['tgl_nota_dinas'])->isoFormat('D MMMM Y')
                 : '26 Maret 2026';
             $data['narahubung_nama'] = $requestData['narahubung_nama'] ?? 'Sdri. Julia';
-            $data['narahubung_hp']   = $requestData['narahubung_hp'] ?? '0822-9824-6907';
-            $data['narahubung_email']= $requestData['narahubung_email'] ?? 'julia.pujilestari@pu.go.id';
+            $data['narahubung_hp'] = $requestData['narahubung_hp'] ?? '0822-9824-6907';
+            $data['narahubung_email'] = $requestData['narahubung_email'] ?? 'julia.pujilestari@pu.go.id';
         }
 
         // Pastikan folder temp ada
         $tempDir = storage_path('app/temp');
-        if (!file_exists($tempDir)) {
+        if (! file_exists($tempDir)) {
             mkdir($tempDir, 0755, true);
         }
 
-        $filename = 'Surat_Pengajuan_' . str_replace(' ', '_', $data['kategori_label']) . '_' . date('Ymd_His') . '.pdf';
-        $finalPath = $tempDir . '/' . $filename;
+        $filename = 'Surat_Pengajuan_'.str_replace(' ', '_', $data['kategori_label']).'_'.date('Ymd_His').'.pdf';
+        $finalPath = $tempDir.'/'.$filename;
 
         // Generate PDF based on Category
         if (in_array($data['kategori'], ['KP', 'KP_Jafung', 'KP_Struktural', 'KP_Reguler'])) {
             // KP menggunakan FPDI Merge (Hal 1 Portrait, Hal 2 Landscape)
             $pdf1 = Pdf::loadView('surat.surat_pengajuan_kp_hal1', ['data' => $data])->setPaper('A4', 'portrait');
             $pdf2 = Pdf::loadView('surat.surat_pengajuan_kp_hal2', ['data' => $data])->setPaper('A4', 'landscape');
-            
-            $file1 = $tempDir . '/hal1_' . time() . '_' . uniqid() . '.pdf';
-            $file2 = $tempDir . '/hal2_' . time() . '_' . uniqid() . '.pdf';
-            
+
+            $file1 = $tempDir.'/hal1_'.time().'_'.uniqid().'.pdf';
+            $file2 = $tempDir.'/hal2_'.time().'_'.uniqid().'.pdf';
+
             file_put_contents($file1, $pdf1->output());
             file_put_contents($file2, $pdf2->output());
-            
+
             // Merge menggunakan FPDI
-            $fpdi = new \setasign\Fpdi\Fpdi();
+            $fpdi = new \setasign\Fpdi\Fpdi;
             $filesToMerge = [$file1, $file2];
-            
+
             foreach ($filesToMerge as $file) {
                 $pageCount = $fpdi->setSourceFile($file);
                 for ($pageNo = 1; $pageNo <= $pageCount; $pageNo++) {
                     $templateId = $fpdi->importPage($pageNo);
                     $size = $fpdi->getTemplateSize($templateId);
-                    
+
                     // Deteksi orientasi otomatis
                     $orientation = $size['width'] > $size['height'] ? 'L' : 'P';
-                    
+
                     $fpdi->AddPage($orientation, [$size['width'], $size['height']]);
                     $fpdi->useTemplate($templateId);
                 }
             }
-            
+
             $fpdi->Output('F', $finalPath);
-            
+
             // Clean up split files
             @unlink($file1);
             @unlink($file2);
-            
+
         } elseif ($data['kategori'] === 'KGB') {
             // KGB (Single Portrait)
             $pdf = Pdf::loadView('surat.surat_pengajuan_kgb_pdf', ['data' => $data])->setPaper('A4', 'portrait');
@@ -209,7 +209,6 @@ class SuratPengajuanService
             file_put_contents($finalPath, $pdf->output());
         }
 
-        
         // Jika ada lampiran fisik ter-upload untuk tracker ini, gabungkan ke PDF utama
         $trackerIds = $trackers->pluck('id')->toArray();
         $lampirans = \App\Models\LampiranCetakSurat::whereIn('dashboard_tracker_id', $trackerIds)
@@ -220,7 +219,7 @@ class SuratPengajuanService
 
         if ($lampirans->count() > 0) {
             $bundlePath = $this->appendLampiran(
-                $finalPath, 
+                $finalPath,
                 $lampirans,
                 $data['nomor_surat'],
                 $data['tanggal_surat']
@@ -232,19 +231,18 @@ class SuratPengajuanService
         return $finalPath;
     }
 
-
     /**
      * Append halaman lampiran ke PDF yang sudah ada.
      * Logika pintar: 2 gambar dengan judul SAMA → jejeran 1 halaman.
      *
-     * @param string $basePdfPath Path PDF surat pengantar yang sudah di-generate
-     * @param \Illuminate\Support\Collection $lampirans Collection KelengkapanDokumen
+     * @param  string  $basePdfPath  Path PDF surat pengantar yang sudah di-generate
+     * @param  \Illuminate\Support\Collection  $lampirans  Collection KelengkapanDokumen
      * @return string Path PDF bundle final
      */
     public function appendLampiran(
-        string $basePdfPath, 
-        $lampirans, 
-        string $nomorSurat = '............................................', 
+        string $basePdfPath,
+        $lampirans,
+        string $nomorSurat = '............................................',
         string $tanggalSurat = '............................................',
         ?string $judulLampiranPertama = null
     ): string {
@@ -272,29 +270,33 @@ class SuratPengajuanService
         foreach ($groups as $halamanCetak => $items) {
             // Ambil judul dari item pertama di grup halaman ini
             $judul = $items->first()->judul_lampiran ?? 'Lampiran Dokumen';
-            
-            $images = $items->filter(fn($i) => in_array($i->mime_type, ['image/jpeg', 'image/png', 'image/jpg']));
-            $pdfs   = $items->filter(fn($i) => $i->mime_type === 'application/pdf');
+
+            $images = $items->filter(fn ($i) => in_array($i->mime_type, ['image/jpeg', 'image/png', 'image/jpg']));
+            $pdfs = $items->filter(fn ($i) => $i->mime_type === 'application/pdf');
 
             // Kumpulkan semua halaman/media secara berurutan
             $pages = [];
             foreach ($pdfs as $pdfItem) {
-                $pdfPath = storage_path('app/public/' . $pdfItem->file_path);
-                if (!file_exists($pdfPath)) continue;
+                $pdfPath = storage_path('app/public/'.$pdfItem->file_path);
+                if (! file_exists($pdfPath)) {
+                    continue;
+                }
 
                 $pdfPageCount = $fpdi->setSourceFile($pdfPath);
                 for ($p = 1; $p <= $pdfPageCount; $p++) {
                     $pages[] = [
-                        'type'    => 'pdf_page',
-                        'path'    => $pdfPath,
+                        'type' => 'pdf_page',
+                        'path' => $pdfPath,
                         'page_no' => $p,
                     ];
                 }
             }
 
             foreach ($images as $imgItem) {
-                $imgPath = storage_path('app/public/' . $imgItem->file_path);
-                if (!file_exists($imgPath)) continue;
+                $imgPath = storage_path('app/public/'.$imgItem->file_path);
+                if (! file_exists($imgPath)) {
+                    continue;
+                }
 
                 $pages[] = [
                     'type' => 'image',
@@ -306,20 +308,23 @@ class SuratPengajuanService
             if (count($pages) === 3) {
                 $this->drawGrid3In1($fpdi, $pages, $judul, $nomorSurat, $tanggalSurat, $isFirstLampiranPage, $judulLampiranPertama);
                 $isFirstLampiranPage = false;
+
                 continue;
             }
 
             // Proses file PDF: tiap halaman jadi halaman baru
             foreach ($pdfs as $pdfItem) {
-                $pdfPath = storage_path('app/public/' . $pdfItem->file_path);
-                if (!file_exists($pdfPath)) continue;
+                $pdfPath = storage_path('app/public/'.$pdfItem->file_path);
+                if (! file_exists($pdfPath)) {
+                    continue;
+                }
 
                 $pdfPageCount = $fpdi->setSourceFile($pdfPath);
                 for ($p = 1; $p <= $pdfPageCount; $p++) {
                     $fpdi->AddPage('P', 'A4');
-                    
+
                     if ($isFirstLampiranPage) {
-                        $actualJudul = !empty($judulLampiranPertama) ? $judulLampiranPertama : $judul;
+                        $actualJudul = ! empty($judulLampiranPertama) ? $judulLampiranPertama : $judul;
                         $this->drawLampiranReference($fpdi, $nomorSurat, $tanggalSurat);
                         $boxY = $this->drawLampiranHeader($fpdi, $actualJudul, 45);
                         $isFirstLampiranPage = false;
@@ -328,17 +333,18 @@ class SuratPengajuanService
                     }
                     $boxH = 285 - $boxY;
 
-                    $tpl  = $fpdi->importPage($p);
+                    $tpl = $fpdi->importPage($p);
                     $size = $fpdi->getTemplateSize($tpl);
 
                     // Hitung skala agar muat di dalam kotak dengan ruang napas 85% khusus PDF
-                    $boxX = 25; $boxW = 166;
+                    $boxX = 25;
+                    $boxW = 166;
                     $marginRatio = 1.0;
                     $ratio = min(($boxW * $marginRatio) / $size['width'], ($boxH * $marginRatio) / $size['height']);
-                    $newW  = $size['width'] * $ratio;
-                    $newH  = $size['height'] * $ratio;
-                    $xPos  = $boxX + ($boxW - $newW) / 2;
-                    $yPos  = $boxY + 5; // Beri sela 5mm dari judul di atasnya agar lebih lega
+                    $newW = $size['width'] * $ratio;
+                    $newH = $size['height'] * $ratio;
+                    $xPos = $boxX + ($boxW - $newW) / 2;
+                    $yPos = $boxY + 5; // Beri sela 5mm dari judul di atasnya agar lebih lega
 
                     $fpdi->useTemplate($tpl, $xPos, $yPos, $newW, $newH);
 
@@ -353,9 +359,9 @@ class SuratPengajuanService
             if ($images->count() === 2) {
                 // MODE JEJERAN: 2 gambar dengan judul sama → 1 halaman sebelahan
                 $fpdi->AddPage('P', 'A4');
-                
+
                 if ($isFirstLampiranPage) {
-                    $actualJudul = !empty($judulLampiranPertama) ? $judulLampiranPertama : $judul;
+                    $actualJudul = ! empty($judulLampiranPertama) ? $judulLampiranPertama : $judul;
                     $this->drawLampiranReference($fpdi, $nomorSurat, $tanggalSurat);
                     $boxY = $this->drawLampiranHeader($fpdi, $actualJudul, 45);
                     $isFirstLampiranPage = false;
@@ -364,7 +370,8 @@ class SuratPengajuanService
                 }
                 $boxH = 285 - $boxY;
 
-                $totalW = 166; $gap = 5;
+                $totalW = 166;
+                $gap = 5;
                 $halfW = ($totalW - $gap) / 2;
 
                 $imgList = $images->values();
@@ -373,33 +380,43 @@ class SuratPengajuanService
 
                 // Hitung dimensi
                 foreach ($imgList as $idx => $imgItem) {
-                    $imgPath = storage_path('app/public/' . $imgItem->file_path);
-                    if (!file_exists($imgPath)) continue;
+                    $imgPath = storage_path('app/public/'.$imgItem->file_path);
+                    if (! file_exists($imgPath)) {
+                        continue;
+                    }
 
                     $xPos = 25 + ($idx * ($halfW + $gap));
                     $imageInfo = getimagesize($imgPath);
-                    if (!$imageInfo) continue;
-                    
+                    if (! $imageInfo) {
+                        continue;
+                    }
+
                     $origW = $imageInfo[0];
                     $origH = $imageInfo[1];
                     $fpdfType = '';
-                    if ($imageInfo[2] === IMAGETYPE_JPEG) $fpdfType = 'JPEG';
-                    elseif ($imageInfo[2] === IMAGETYPE_PNG) $fpdfType = 'PNG';
-                    elseif ($imageInfo[2] === IMAGETYPE_GIF) $fpdfType = 'GIF';
+                    if ($imageInfo[2] === IMAGETYPE_JPEG) {
+                        $fpdfType = 'JPEG';
+                    } elseif ($imageInfo[2] === IMAGETYPE_PNG) {
+                        $fpdfType = 'PNG';
+                    } elseif ($imageInfo[2] === IMAGETYPE_GIF) {
+                        $fpdfType = 'GIF';
+                    }
 
                     $pxToMm = 25.4 / 96;
                     $physicalW = $origW * $pxToMm;
                     $physicalH = $origH * $pxToMm;
-                    
+
                     $fitRatio = min($halfW / $physicalW, $boxH / $physicalH);
                     $finalRatio = $fitRatio < 1 ? $fitRatio : 1;
-                    
-                    $newW  = $physicalW * $finalRatio;
-                    $newH  = $physicalH * $finalRatio;
-                    $imgX  = $xPos + ($halfW - $newW) / 2;
-                    $imgY  = $boxY + 5; // Geser sedikit ke bawah untuk margin kotak besar
 
-                    if ($newH > $maxH) $maxH = $newH;
+                    $newW = $physicalW * $finalRatio;
+                    $newH = $physicalH * $finalRatio;
+                    $imgX = $xPos + ($halfW - $newW) / 2;
+                    $imgY = $boxY + 5; // Geser sedikit ke bawah untuk margin kotak besar
+
+                    if ($newH > $maxH) {
+                        $maxH = $newH;
+                    }
 
                     $renderedImages[] = [
                         'path' => $imgPath,
@@ -407,7 +424,7 @@ class SuratPengajuanService
                         'y' => $imgY,
                         'w' => $newW,
                         'h' => $newH,
-                        'type' => $fpdfType
+                        'type' => $fpdfType,
                     ];
                 }
 
@@ -416,7 +433,7 @@ class SuratPengajuanService
                     $fpdi->SetDrawColor(0, 0, 0);
                     $fpdi->SetLineWidth(0.4); // Lebih tebal sedikit untuk kotak luar
                     $fpdi->Rect(25, $boxY, 166, $maxH + 10);
-                    
+
                     // Gambar masing-masing gambar
                     foreach ($renderedImages as $img) {
                         $fpdi->Image($img['path'], $img['x'], $img['y'], $img['w'], $img['h'], $img['type']);
@@ -429,13 +446,15 @@ class SuratPengajuanService
             } elseif ($images->count() >= 1) {
                 // MODE NORMAL: 1 gambar = 1 halaman penuh
                 foreach ($images as $imgItem) {
-                    $imgPath = storage_path('app/public/' . $imgItem->file_path);
-                    if (!file_exists($imgPath)) continue;
+                    $imgPath = storage_path('app/public/'.$imgItem->file_path);
+                    if (! file_exists($imgPath)) {
+                        continue;
+                    }
 
                     $fpdi->AddPage('P', 'A4');
-                    
+
                     if ($isFirstLampiranPage) {
-                        $actualJudul = !empty($judulLampiranPertama) ? $judulLampiranPertama : $judul;
+                        $actualJudul = ! empty($judulLampiranPertama) ? $judulLampiranPertama : $judul;
                         $this->drawLampiranReference($fpdi, $nomorSurat, $tanggalSurat);
                         $boxY = $this->drawLampiranHeader($fpdi, $actualJudul, 45);
                         $isFirstLampiranPage = false;
@@ -444,28 +463,35 @@ class SuratPengajuanService
                     }
                     $boxH = 285 - $boxY;
 
-                    $boxX = 25; $boxW = 166;
+                    $boxX = 25;
+                    $boxW = 166;
 
                     $imageInfo = getimagesize($imgPath);
-                    if (!$imageInfo) continue;
+                    if (! $imageInfo) {
+                        continue;
+                    }
                     $origW = $imageInfo[0];
                     $origH = $imageInfo[1];
                     $fpdfType = '';
-                    if ($imageInfo[2] === IMAGETYPE_JPEG) $fpdfType = 'JPEG';
-                    elseif ($imageInfo[2] === IMAGETYPE_PNG) $fpdfType = 'PNG';
-                    elseif ($imageInfo[2] === IMAGETYPE_GIF) $fpdfType = 'GIF';
+                    if ($imageInfo[2] === IMAGETYPE_JPEG) {
+                        $fpdfType = 'JPEG';
+                    } elseif ($imageInfo[2] === IMAGETYPE_PNG) {
+                        $fpdfType = 'PNG';
+                    } elseif ($imageInfo[2] === IMAGETYPE_GIF) {
+                        $fpdfType = 'GIF';
+                    }
 
                     $pxToMm = 25.4 / 96;
                     $physicalW = $origW * $pxToMm;
                     $physicalH = $origH * $pxToMm;
-                    
+
                     $fitRatio = min($boxW / $physicalW, $boxH / $physicalH);
                     $finalRatio = $fitRatio < 1 ? $fitRatio : 1;
-                    
-                    $newW  = $physicalW * $finalRatio;
-                    $newH  = $physicalH * $finalRatio;
-                    $imgX  = $boxX + ($boxW - $newW) / 2;
-                    $imgY  = $boxY; // Rata atas
+
+                    $newW = $physicalW * $finalRatio;
+                    $newH = $physicalH * $finalRatio;
+                    $imgX = $boxX + ($boxW - $newW) / 2;
+                    $imgY = $boxY; // Rata atas
 
                     $fpdi->Image($imgPath, $imgX, $imgY, $newW, $newH, $fpdfType);
                     $fpdi->Rect($imgX, $imgY, $newW, $newH);
@@ -475,9 +501,11 @@ class SuratPengajuanService
 
         // Simpan PDF bundle final
         $tempDir = storage_path('app/temp');
-        if (!file_exists($tempDir)) mkdir($tempDir, 0755, true);
+        if (! file_exists($tempDir)) {
+            mkdir($tempDir, 0755, true);
+        }
 
-        $bundlePath = $tempDir . '/bundle_' . time() . '_' . uniqid() . '.pdf';
+        $bundlePath = $tempDir.'/bundle_'.time().'_'.uniqid().'.pdf';
         $fpdi->Output('F', $bundlePath);
 
         return $bundlePath;
@@ -509,12 +537,12 @@ class SuratPengajuanService
         $afterTitleY = $fpdi->GetY();
         $fpdi->SetXY(111, $afterTitleY + 1);
         $fpdi->Cell(20, 5, 'Nomor', 0, 0, 'L');
-        $fpdi->Cell(5,  5, ':', 0, 0, 'L');
+        $fpdi->Cell(5, 5, ':', 0, 0, 'L');
         $fpdi->Cell(55, 5, $nomorSurat, 0, 1, 'L');
 
         $fpdi->SetX(111);
         $fpdi->Cell(20, 5, 'Tanggal', 0, 0, 'L');
-        $fpdi->Cell(5,  5, ':', 0, 0, 'L');
+        $fpdi->Cell(5, 5, ':', 0, 0, 'L');
         $fpdi->Cell(55, 5, $tanggalSurat, 0, 1, 'L');
     }
 
@@ -522,18 +550,18 @@ class SuratPengajuanService
      * Menggambar 3 halaman/media dalam 1 kertas A4 Portrait (Mode Grid 3-dalam-1)
      */
     private function drawGrid3In1(
-        \setasign\Fpdi\Fpdi $fpdi, 
-        array $pages, 
-        string $judul, 
-        string $nomorSurat, 
-        string $tanggalSurat, 
+        \setasign\Fpdi\Fpdi $fpdi,
+        array $pages,
+        string $judul,
+        string $nomorSurat,
+        string $tanggalSurat,
         bool $isFirstPage,
         ?string $judulLampiranPertama = null
     ): void {
         $fpdi->AddPage('P', 'A4');
 
         if ($isFirstPage) {
-            $actualJudul = !empty($judulLampiranPertama) ? $judulLampiranPertama : $judul;
+            $actualJudul = ! empty($judulLampiranPertama) ? $judulLampiranPertama : $judul;
             $this->drawLampiranReference($fpdi, $nomorSurat, $tanggalSurat);
             $boxY = $this->drawLampiranHeader($fpdi, $actualJudul, 45);
         } else {
@@ -548,8 +576,10 @@ class SuratPengajuanService
         // 1. Kalkulasikan dimensi hasil skala terlebih dahulu untuk 3 media agar posisi Y baris kedua bisa diatur dinamis
         $scaledPlausible = [];
         foreach ($pages as $idx => $page) {
-            if ($idx >= 3) break;
-            
+            if ($idx >= 3) {
+                break;
+            }
+
             $wTarget = ($idx < 2) ? $halfW : 166;
             $hTarget = $halfH;
 
@@ -585,7 +615,7 @@ class SuratPengajuanService
             $scaledPlausible[$idx] = [
                 'w' => $newW,
                 'h' => $newH,
-                'page' => $page
+                'page' => $page,
             ];
         }
 
@@ -684,7 +714,7 @@ class SuratPengajuanService
                 $fpdi->setSourceFile($page['path']);
                 $tpl = $fpdi->importPage($page['page_no']);
                 $fpdi->useTemplate($tpl, $xPos, $yPos, $newW, $newH);
-                
+
                 // Gambar border tipis individual
                 $fpdi->SetDrawColor(0, 0, 0);
                 $fpdi->SetLineWidth(0.1);
@@ -694,11 +724,15 @@ class SuratPengajuanService
                 $fpdfType = '';
                 $imageInfo = @getimagesize($page['path']);
                 if ($imageInfo) {
-                    if ($imageInfo[2] === IMAGETYPE_JPEG) $fpdfType = 'JPEG';
-                    elseif ($imageInfo[2] === IMAGETYPE_PNG) $fpdfType = 'PNG';
-                    elseif ($imageInfo[2] === IMAGETYPE_GIF) $fpdfType = 'GIF';
+                    if ($imageInfo[2] === IMAGETYPE_JPEG) {
+                        $fpdfType = 'JPEG';
+                    } elseif ($imageInfo[2] === IMAGETYPE_PNG) {
+                        $fpdfType = 'PNG';
+                    } elseif ($imageInfo[2] === IMAGETYPE_GIF) {
+                        $fpdfType = 'GIF';
+                    }
                 }
-                
+
                 $fpdi->Image($page['path'], $xPos, $yPos, $newW, $newH, $fpdfType);
 
                 // Gambar border tipis individual
@@ -712,32 +746,33 @@ class SuratPengajuanService
     /**
      * Helper Fungsi Terbilang
      */
-
-    public function terbilang($x) {
+    public function terbilang($x)
+    {
         return trim($this->_terbilang($x));
     }
 
-    private function _terbilang($x) {
+    private function _terbilang($x)
+    {
         $x = abs($x);
-        $angka = ["", "satu", "dua", "tiga", "empat", "lima", "enam", "tujuh", "delapan", "sembilan", "sepuluh", "sebelas"];
-        $temp = "";
+        $angka = ['', 'satu', 'dua', 'tiga', 'empat', 'lima', 'enam', 'tujuh', 'delapan', 'sembilan', 'sepuluh', 'sebelas'];
+        $temp = '';
 
         if ($x < 12) {
-            $temp = " " . $angka[$x];
-        } else if ($x < 20) {
-            $temp = $this->_terbilang($x - 10) . " belas";
-        } else if ($x < 100) {
-            $temp = $this->_terbilang(floor($x / 10)) . " puluh" . $this->_terbilang($x % 10);
-        } else if ($x < 200) {
-            $temp = " seratus" . $this->_terbilang($x - 100);
-        } else if ($x < 1000) {
-            $temp = $this->_terbilang(floor($x / 100)) . " ratus" . $this->_terbilang($x % 100);
-        } else if ($x < 2000) {
-            $temp = " seribu" . $this->_terbilang($x - 1000);
-        } else if ($x < 1000000) {
-            $temp = $this->_terbilang(floor($x / 1000)) . " ribu" . $this->_terbilang($x % 1000);
-        } else if ($x < 1000000000) {
-            $temp = $this->_terbilang(floor($x / 1000000)) . " juta" . $this->_terbilang($x % 1000000);
+            $temp = ' '.$angka[$x];
+        } elseif ($x < 20) {
+            $temp = $this->_terbilang($x - 10).' belas';
+        } elseif ($x < 100) {
+            $temp = $this->_terbilang(floor($x / 10)).' puluh'.$this->_terbilang($x % 10);
+        } elseif ($x < 200) {
+            $temp = ' seratus'.$this->_terbilang($x - 100);
+        } elseif ($x < 1000) {
+            $temp = $this->_terbilang(floor($x / 100)).' ratus'.$this->_terbilang($x % 100);
+        } elseif ($x < 2000) {
+            $temp = ' seribu'.$this->_terbilang($x - 1000);
+        } elseif ($x < 1000000) {
+            $temp = $this->_terbilang(floor($x / 1000)).' ribu'.$this->_terbilang($x % 1000);
+        } elseif ($x < 1000000000) {
+            $temp = $this->_terbilang(floor($x / 1000000)).' juta'.$this->_terbilang($x % 1000000);
         }
 
         return $temp;

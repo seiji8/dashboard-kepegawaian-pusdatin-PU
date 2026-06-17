@@ -2,20 +2,20 @@
 
 namespace App\Services\Tracker;
 
-use App\Models\Pegawai;
+use App\Helpers\ActivityLogger;
 use App\Models\DashboardTracker;
+use App\Models\Pegawai;
 use App\Models\User;
 use App\Notifications\SystemAlertNotification;
-use Illuminate\Support\Facades\Notification;
-use Illuminate\Support\Facades\Cache;
-use App\Helpers\ActivityLogger;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Notification;
 
 class DiklatService implements TrackerInterface
 {
     public function process(Pegawai $pegawai, Carbon $today, array &$daftarUsulanBaru, array $context = []): void
     {
-        if (str_contains(strtolower($pegawai->id_pegawai_api ?? ''), 'dummy') || 
+        if (str_contains(strtolower($pegawai->id_pegawai_api ?? ''), 'dummy') ||
             str_contains(strtolower($pegawai->nip ?? ''), 'dummy')) {
             return;
         }
@@ -33,7 +33,7 @@ class DiklatService implements TrackerInterface
                 $namaDiklatList = $belumUploadDiklat->pluck('nama_diklat')->toArray();
                 $keterangan = $jumlahBelumUpload == 1
                     ? 'Sertifikat diklat belum diupload ke E-HRM'
-                    : $jumlahBelumUpload . ' sertifikat diklat belum diupload ke E-HRM';
+                    : $jumlahBelumUpload.' sertifikat diklat belum diupload ke E-HRM';
 
                 $trackerBelumUpload = DashboardTracker::updateOrCreate(
                     ['pegawai_id' => $pegawai->id_pegawai_api, 'kategori' => 'DIKLAT_BELUM_UPLOAD'],
@@ -59,21 +59,23 @@ class DiklatService implements TrackerInterface
 
     private function sendUploadEhrmNotification(Pegawai $pegawai, string $kategori, DashboardTracker $tracker, array $namaDiklatList): void
     {
-        $notifCacheKey = 'upload_ehrm_notif_' . $pegawai->id_pegawai_api . '_' . $kategori;
-        if (!Cache::has($notifCacheKey)) {
+        $notifCacheKey = 'upload_ehrm_notif_'.$pegawai->id_pegawai_api.'_'.$kategori;
+        if (! Cache::has($notifCacheKey)) {
             $rule = \App\Models\NotifikasiRules::where('kategori', 'DIKLAT Upload Dokumen')->first();
             if ($rule) {
                 $notifiable = User::where('email', $pegawai->email)->first();
-                if (!$notifiable && $pegawai->email) {
+                if (! $notifiable && $pegawai->email) {
                     $notifiable = Notification::route('mail', $pegawai->email);
                 }
                 if ($notifiable) {
                     $missingDocs = [];
                     foreach ($namaDiklatList as $diklat) {
-                        $missingDocs[] = "- Sertifikat Diklat: " . $diklat;
+                        $missingDocs[] = '- Sertifikat Diklat: '.$diklat;
                     }
 
-                    if (empty($missingDocs)) return;
+                    if (empty($missingDocs)) {
+                        return;
+                    }
 
                     $missingStr = implode("\n", $missingDocs);
                     $pesan = str_replace(
@@ -83,10 +85,11 @@ class DiklatService implements TrackerInterface
                     );
 
                     try {
-                        $notifiable->notify(new SystemAlertNotification($pegawai, "📋 Permintaan Upload Sertifikat Diklat", $pesan));
+                        $notifiable->notify(new SystemAlertNotification($pegawai, '📋 Permintaan Upload Sertifikat Diklat', $pesan));
                         Cache::put($notifCacheKey, true, now()->addDays(1));
                         ActivityLogger::logSystem("Mengirim notifikasi Upload Sertifikat Diklat ke pegawai {$pegawai->nama}", $pegawai->nip);
-                    } catch (\Exception $e) {}
+                    } catch (\Exception $e) {
+                    }
                 }
             }
         }

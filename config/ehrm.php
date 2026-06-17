@@ -13,10 +13,10 @@ return [
     */
 
     // API Lama (DreamFactory Gateway)
-    'base_url'  => env('EHRM_BASE_URL'),
-    'api_key'   => env('EHRM_API_KEY'),
-    'email'     => env('EHRM_USER_EMAIL'),
-    'password'  => env('EHRM_USER_PASS'),
+    'base_url' => env('EHRM_BASE_URL'),
+    'api_key' => env('EHRM_API_KEY'),
+    'email' => env('EHRM_USER_EMAIL'),
+    'password' => env('EHRM_USER_PASS'),
 
     // API Baru (modules-api)
     'new_token' => env('EHRM_NEW_TOKEN'),

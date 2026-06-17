@@ -2,16 +2,16 @@
 
 namespace Tests\Unit\Services;
 
-use Tests\TestCase;
-use Illuminate\Foundation\Testing\DatabaseTransactions;
+use App\Models\DashboardTracker;
 use App\Models\Pegawai;
 use App\Models\RiwayatTubel;
 use App\Models\User;
-use App\Models\DashboardTracker;
+use App\Notifications\SystemAlertNotification;
 use App\Services\Tracker\TubelService;
 use Carbon\Carbon;
+use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Support\Facades\Notification;
-use App\Notifications\SystemAlertNotification;
+use Tests\TestCase;
 
 class TubelServiceTest extends TestCase
 {
@@ -29,16 +29,16 @@ class TubelServiceTest extends TestCase
         $pegawai = Pegawai::create([
             'nip' => '900111222',
             'nama' => 'Pegawai Tubel',
-            'id_pegawai_api' => '900'
+            'id_pegawai_api' => '900',
         ]);
 
         RiwayatTubel::create([
             'nip' => $pegawai->nip,
             'tanggal_mulai' => Carbon::now()->subMonths(6)->toDateString(),
-            'tanggal_selesai' => Carbon::now()->addDays(90)->toDateString() // Masih > 60 hari
+            'tanggal_selesai' => Carbon::now()->addDays(90)->toDateString(), // Masih > 60 hari
         ]);
 
-        $service = new TubelService();
+        $service = new TubelService;
         $usulan = [];
         $service->process($pegawai, Carbon::now(), $usulan);
 
@@ -48,7 +48,7 @@ class TubelServiceTest extends TestCase
 
         $this->assertNotNull($tracker);
         $this->assertEquals('Sedang Tubel', $tracker->status_saat_ini);
-        
+
         // Memastikan dokumen otomatis dibuat
         $this->assertEquals(3, \App\Models\KelengkapanDokumen::where('dashboard_tracker_id', $tracker->id)->count());
     }
@@ -58,29 +58,29 @@ class TubelServiceTest extends TestCase
     {
         $admin = User::factory()->create([
             'role' => 'admin_pegawai',
-            'email' => 'admin_tubel@pu.go.id'
+            'email' => 'admin_tubel@pu.go.id',
         ]);
 
         $pegawai = Pegawai::create([
             'nip' => '900111333',
             'nama' => 'Pegawai Hampir Lulus Tubel',
-            'id_pegawai_api' => '901'
+            'id_pegawai_api' => '901',
         ]);
 
         // Sisa waktu <= 60 hari
         RiwayatTubel::create([
             'nip' => $pegawai->nip,
             'tanggal_mulai' => Carbon::now()->subYears(2)->toDateString(),
-            'tanggal_selesai' => Carbon::now()->addDays(30)->toDateString()
+            'tanggal_selesai' => Carbon::now()->addDays(30)->toDateString(),
         ]);
 
         DashboardTracker::create([
             'pegawai_id' => $pegawai->id_pegawai_api,
             'kategori' => 'TUBEL',
-            'status_saat_ini' => 'Sedang Tubel'
+            'status_saat_ini' => 'Sedang Tubel',
         ]);
 
-        $service = new TubelService();
+        $service = new TubelService;
         $usulan = [];
         $service->process($pegawai, Carbon::now(), $usulan);
 
@@ -107,24 +107,24 @@ class TubelServiceTest extends TestCase
         $pegawai = Pegawai::create([
             'nip' => '900111444',
             'nama' => 'Pegawai Lulus Tubel',
-            'id_pegawai_api' => '902'
+            'id_pegawai_api' => '902',
         ]);
 
         // Buat tracker usang
         DashboardTracker::create([
             'pegawai_id' => $pegawai->id_pegawai_api,
             'kategori' => 'TUBEL',
-            'status_saat_ini' => 'Sedang Tubel'
+            'status_saat_ini' => 'Sedang Tubel',
         ]);
 
         // Riwayat tubel sudah lama selesai
         RiwayatTubel::create([
             'nip' => $pegawai->nip,
             'tanggal_mulai' => Carbon::now()->subYears(3)->toDateString(),
-            'tanggal_selesai' => Carbon::now()->subMonths(1)->toDateString()
+            'tanggal_selesai' => Carbon::now()->subMonths(1)->toDateString(),
         ]);
 
-        $service = new TubelService();
+        $service = new TubelService;
         $usulan = [];
         $service->process($pegawai, Carbon::now(), $usulan);
 

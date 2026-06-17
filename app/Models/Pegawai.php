@@ -11,8 +11,11 @@ class Pegawai extends Model
 
     // 1. Konfigurasi Primary Key (Menggunakan ID dari API)
     protected $table = 'pegawai';
+
     protected $primaryKey = 'id_pegawai_api'; // Primary Key baru
+
     public $incrementing = false; // Bukan Auto Increment
+
     protected $keyType = 'string'; // Tipe data String/UUID
 
     // 2. Mass Assignment (Biar bisa langsung simpan data banyak dari API)
@@ -98,6 +101,7 @@ class Pegawai extends Model
     public function getNamaEselonAttribute(): string
     {
         $kd = (string) ($this->kd_eselon ?? '');
+
         return self::ESELON_MAP[$kd] ?? '-';
     }
 
@@ -129,8 +133,10 @@ class Pegawai extends Model
     public function getNamaPangkatAttribute(): string
     {
         $gol = $this->pangkat_golongan;
-        if (!$gol || $gol == '-') return '-';
-        
+        if (! $gol || $gol == '-') {
+            return '-';
+        }
+
         return self::PANGKAT_MAP[$gol] ?? '-';
     }
 }

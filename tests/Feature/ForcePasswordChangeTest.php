@@ -84,7 +84,7 @@ class ForcePasswordChangeTest extends TestCase
 
         // Harus mengembalikan error
         $response->assertSessionHasErrors('current_password');
-        
+
         // Verifikasi password TIDAK berubah
         $this->assertTrue(Hash::check('1234567890', $user->fresh()->password));
     }

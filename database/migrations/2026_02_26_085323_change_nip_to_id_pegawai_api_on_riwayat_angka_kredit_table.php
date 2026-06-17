@@ -15,7 +15,7 @@ return new class extends Migration
             $table->string('id_pegawai_api')->nullable()->after('id');
             // Menghapus nip apabila sudah di-migrate dan terisi, jika perlu diisi data baru
         });
-        
+
         // Kita eksekusi query lanjutan karena SQLite / MySQL mungkin rewel dengan drop column ber-foreign-key
         // Namun kita asumsikan NIP sebelumnya bukan strict foreign key constraint, jadi:
         Schema::table('riwayat_angka_kredit', function (Blueprint $table) {

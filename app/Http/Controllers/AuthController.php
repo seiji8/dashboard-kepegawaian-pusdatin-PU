@@ -2,17 +2,16 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\ActivityLogger;
+use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
-use App\Helpers\ActivityLogger;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Mail;
-use Carbon\Carbon;
-use App\Models\User;
 
 class AuthController extends Controller
 {
@@ -31,11 +30,11 @@ class AuthController extends Controller
 
         // 2. SECURITY: Cek Rate Limiter (Anti Brute Force)
         // Kunci throttle berdasarkan email + IP address
-        $throttleKey = Str::lower($request->input('email')) . '|' . $request->ip();
+        $throttleKey = Str::lower($request->input('email')).'|'.$request->ip();
 
         if (RateLimiter::tooManyAttempts($throttleKey, 5)) {
             $seconds = RateLimiter::availableIn($throttleKey);
-            
+
             throw ValidationException::withMessages([
                 'email' => trans('auth.throttle', [ // Error dikirim ke field email
                     'seconds' => $seconds,
@@ -55,12 +54,12 @@ class AuthController extends Controller
 
             // LOG: Login berhasil
             $user = Auth::user();
-            
+
             // Cek sekali saja saat login dan simpan ke session
             $request->session()->put('needs_password_change', Hash::check($user->username, $user->password));
 
             ActivityLogger::logAdminAction(
-                'Login berhasil oleh ' . $user->nama_lengkap . ' (' . $user->email . ')'
+                'Login berhasil oleh '.$user->nama_lengkap.' ('.$user->email.')'
             );
 
             return redirect()->intended('dashboard');
@@ -80,18 +79,19 @@ class AuthController extends Controller
         $user = Auth::user();
         if ($user) {
             ActivityLogger::logAdminAction(
-                'Logout oleh ' . $user->nama_lengkap . ' (' . $user->email . ')'
+                'Logout oleh '.$user->nama_lengkap.' ('.$user->email.')'
             );
         }
 
         Auth::logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
+
         return redirect('/login');
     }
 
     // FORGOT PASSWORD METHODS
-    
+
     public function showForgotPasswordForm()
     {
         return view('auth.forgot_password');
@@ -104,7 +104,7 @@ class AuthController extends Controller
         // Check if user exists
         $user = User::where('email', $request->email)->first();
 
-        if (!$user) {
+        if (! $user) {
             // Kembalikan pesan yang SAMA agar attacker tidak bisa menebak email mana yang terdaftar
             return back()->with('status', 'Jika email terdaftar, link reset password akan dikirim. Silakan cek inbox Anda.');
         }
@@ -119,17 +119,17 @@ class AuthController extends Controller
         DB::table('password_resets')->insert([
             'email' => $request->email,
             'token' => Hash::make($token),
-            'created_at' => Carbon::now()
+            'created_at' => Carbon::now(),
         ]);
 
         // Send email
-        \Illuminate\Support\Facades\Mail::send('emails.password_reset', ['token' => $token], function($message) use($request){
+        \Illuminate\Support\Facades\Mail::send('emails.password_reset', ['token' => $token], function ($message) use ($request) {
             $message->to($request->email);
             $message->subject('Permintaan Reset Password - Dashboard Kepegawaian');
         });
 
         // Log activity
-        ActivityLogger::logSystem('Reset password diminta untuk email: ' . $request->email);
+        ActivityLogger::logSystem('Reset password diminta untuk email: '.$request->email);
 
         return back()->with('status', 'Link reset password telah dikirim. Silakan cek inbox Anda.');
     }
@@ -152,7 +152,7 @@ class AuthController extends Controller
         // Ambil token dari session (bukan dari URL)
         $token = session('reset_token');
 
-        if (!$token) {
+        if (! $token) {
             return redirect()->route('password.request')
                 ->withErrors(['email' => 'Link reset password tidak valid atau sudah kadaluarsa. Silakan minta ulang.']);
         }
@@ -170,7 +170,7 @@ class AuthController extends Controller
         // Ambil token dari session (bukan dari form/URL)
         $token = session('reset_token');
 
-        if (!$token) {
+        if (! $token) {
             return redirect()->route('password.request')
                 ->withErrors(['email' => 'Sesi reset password sudah habis. Silakan minta ulang.']);
         }
@@ -180,12 +180,12 @@ class AuthController extends Controller
             ->where('email', $request->email)
             ->first();
 
-        if (!$passwordReset) {
+        if (! $passwordReset) {
             return back()->withErrors(['email' => 'Token reset password tidak valid atau sudah kadaluarsa.']);
         }
 
         // Check if token matches
-        if (!Hash::check($token, $passwordReset->token)) {
+        if (! Hash::check($token, $passwordReset->token)) {
             return back()->withErrors(['email' => 'Token reset password tidak valid.']);
         }
 
@@ -204,10 +204,11 @@ class AuthController extends Controller
         session()->forget('reset_token');
 
         // Log activity
-        ActivityLogger::logAdminAction('Reset password berhasil untuk: ' . $user->nama_lengkap);
+        ActivityLogger::logAdminAction('Reset password berhasil untuk: '.$user->nama_lengkap);
 
         return redirect()->route('password.success');
     }
+
     // CHANGE PASSWORD (AUTHENTICATED USER)
     public function changePassword(Request $request)
     {
@@ -219,7 +220,7 @@ class AuthController extends Controller
         $user = Auth::user();
 
         // 1. Verifikasi Password Lama
-        if (!Hash::check($request->current_password, $user->password)) {
+        if (! Hash::check($request->current_password, $user->password)) {
             throw ValidationException::withMessages([
                 'current_password' => ['Password lama yang Anda masukkan salah.'],
             ]);
@@ -235,12 +236,12 @@ class AuthController extends Controller
 
         // 3. Log Aktivitas
         ActivityLogger::logAdminAction(
-            'Mengubah password akun sendiri (' . $user->nama_lengkap . ')'
+            'Mengubah password akun sendiri ('.$user->nama_lengkap.')'
         );
 
         return response()->json([
             'success' => true,
-            'message' => 'Password berhasil diubah!'
+            'message' => 'Password berhasil diubah!',
         ]);
     }
 
@@ -253,7 +254,7 @@ class AuthController extends Controller
 
         $user = Auth::user();
 
-        if (!Hash::check($request->current_password, $user->password)) {
+        if (! Hash::check($request->current_password, $user->password)) {
             return back()->withErrors(['current_password' => 'Password saat ini salah.']);
         }
 
@@ -264,7 +265,7 @@ class AuthController extends Controller
         // Update status session menjadi false karena password sudah diubah
         $request->session()->put('needs_password_change', false);
 
-        ActivityLogger::logAdminAction('Mengubah password default akun (' . $user->nama_lengkap . ')');
+        ActivityLogger::logAdminAction('Mengubah password default akun ('.$user->nama_lengkap.')');
 
         return redirect()->route('dashboard')->with('success', 'Password berhasil diubah.');
     }

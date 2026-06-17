@@ -2,10 +2,10 @@
 
 namespace Tests\Feature;
 
-use Illuminate\Foundation\Testing\DatabaseTransactions;
-use Tests\TestCase;
 use App\Models\User;
+use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Support\Facades\Hash;
+use Tests\TestCase;
 
 class AuthTest extends TestCase
 {
@@ -23,9 +23,9 @@ class AuthTest extends TestCase
     public function authenticated_user_is_redirected_away_from_login()
     {
         $user = User::factory()->create([
-            'password' => Hash::make('password_aman')
+            'password' => Hash::make('password_aman'),
         ]);
-        
+
         $response = $this->actingAs($user)->get('/login');
         $response->assertRedirect('/dashboard');
     }
@@ -68,13 +68,13 @@ class AuthTest extends TestCase
     public function user_can_logout()
     {
         $user = User::factory()->create([
-            'password' => Hash::make('password_aman')
+            'password' => Hash::make('password_aman'),
         ]);
 
         $this->actingAs($user);
-        
+
         $response = $this->post('/logout');
-        
+
         $response->assertRedirect('/login');
         $this->assertGuest();
     }

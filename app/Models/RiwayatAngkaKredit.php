@@ -10,6 +10,7 @@ class RiwayatAngkaKredit extends Model
     use HasFactory;
 
     protected $table = 'riwayat_angka_kredit';
+
     protected $guarded = [];
 
     // Relasi Balik: Nilai ini punya siapa?

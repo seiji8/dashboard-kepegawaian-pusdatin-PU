@@ -1,16 +1,16 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\LogAktivitasController;
-use App\Http\Controllers\AdminController;
+use App\Http\Controllers\DatabaseBackupController;
 use App\Http\Controllers\DataPegawaiController;
 use App\Http\Controllers\KonfigurasiPesanController;
+use App\Http\Controllers\LampiranController;
+use App\Http\Controllers\LogAktivitasController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\SuratPengajuanController;
-use App\Http\Controllers\LampiranController;
-use App\Http\Controllers\DatabaseBackupController;
+use Illuminate\Support\Facades\Route;
 
 // 1. Halaman Depan (Redirect ke Login aja)
 Route::get('/', function () {
@@ -38,7 +38,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/backup-database', [DatabaseBackupController::class, 'download'])->name('database.backup');
 
     // Force Change Password Routes
-    Route::get('/force-change-password', function() {
+    Route::get('/force-change-password', function () {
         return view('auth.force_change_password');
     })->name('password.force-change');
     Route::post('/force-change-password', [AuthController::class, 'forceChangePasswordUpdate'])->name('password.force-change.update');
@@ -46,7 +46,7 @@ Route::middleware(['auth'])->group(function () {
 
 // 3. Rute Halaman Admin (Harus Login Dulu)
 Route::middleware(['auth', \App\Http\Middleware\ForcePasswordChange::class])->group(function () {
-    
+
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::post('/tracker/{id}/confirm', [DashboardController::class, 'confirmTracker'])->name('tracker.confirm');
     Route::post('/tracker/{id}/move-to-ukom', [DashboardController::class, 'moveToUkom'])->name('tracker.move-to-ukom');
@@ -55,7 +55,7 @@ Route::middleware(['auth', \App\Http\Middleware\ForcePasswordChange::class])->gr
     Route::get('/sync-progress', [DashboardController::class, 'syncProgress'])->name('sync.progress');
     Route::get('/dashboard/diklat-detail/{nip}/{kategori}', [DashboardController::class, 'diklatDetail'])->name('dashboard.diklat-detail');
     Route::get('/dashboard/cetak-surat-kj/{id}', [DashboardController::class, 'cetakSuratKj'])->name('dashboard.cetak-surat-kj');
-    
+
     // Log Aktivitas
     Route::get('/log-aktivitas', [LogAktivitasController::class, 'index'])->name('log-aktivitas');
     Route::get('/log-aktivitas/export-pdf', [LogAktivitasController::class, 'exportPdf'])->name('log-aktivitas.export-pdf');

@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Models\DashboardTracker;
-use Carbon\Carbon;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Carbon\Carbon;
+use Illuminate\Http\Request;
 
 class SuratPengajuanController extends Controller
 {
@@ -13,14 +13,14 @@ class SuratPengajuanController extends Controller
      * Mapping kategori ke label yang human-readable
      */
     private $kategoriLabels = [
-        'KGB'           => 'Kenaikan Gaji Berkala',
-        'KP'            => 'Kenaikan Pangkat',
-        'KP_Jafung'     => 'Kenaikan Pangkat Fungsional',
+        'KGB' => 'Kenaikan Gaji Berkala',
+        'KP' => 'Kenaikan Pangkat',
+        'KP_Jafung' => 'Kenaikan Pangkat Fungsional',
         'KP_Struktural' => 'Kenaikan Pangkat Struktural',
-        'KP_Reguler'    => 'Kenaikan Pangkat Reguler',
-        'KJ_Jafung'     => 'Kenaikan Jenjang Fungsional',
-        'UKOM'          => 'Uji Kompetensi',
-        'TUBEL'         => 'Pengaktifan Kembali Tubel',
+        'KP_Reguler' => 'Kenaikan Pangkat Reguler',
+        'KJ_Jafung' => 'Kenaikan Jenjang Fungsional',
+        'UKOM' => 'Uji Kompetensi',
+        'TUBEL' => 'Pengaktifan Kembali Tubel',
     ];
 
     /**
@@ -31,7 +31,7 @@ class SuratPengajuanController extends Controller
     {
         // Validasi kategori
         $validKategori = array_keys($this->kategoriLabels);
-        
+
         // KP (Kenaikan Pangkat) bisa berisi gabungan sub-kategori
         if ($kategori === 'KP') {
             $trackers = DashboardTracker::with('pegawai')
@@ -59,21 +59,23 @@ class SuratPengajuanController extends Controller
         // Grouping by periode (bulan-tahun dari tanggal_target)
         $grouped = [];
         foreach ($trackers as $tracker) {
-            if (!$tracker->pegawai) continue;
+            if (! $tracker->pegawai) {
+                continue;
+            }
 
-            $periode = $tracker->tanggal_target 
+            $periode = $tracker->tanggal_target
                 ? Carbon::parse($tracker->tanggal_target)->format('Y-m')
                 : 'tanpa-periode';
 
-            $periodeLabel = $tracker->tanggal_target 
+            $periodeLabel = $tracker->tanggal_target
                 ? Carbon::parse($tracker->tanggal_target)->isoFormat('MMMM Y')
                 : 'Tanpa Periode';
 
-            if (!isset($grouped[$periode])) {
+            if (! isset($grouped[$periode])) {
                 $grouped[$periode] = [
-                    'periode_key'   => $periode,
+                    'periode_key' => $periode,
                     'periode_label' => $periodeLabel,
-                    'pegawai'       => [],
+                    'pegawai' => [],
                 ];
             }
 
@@ -92,35 +94,35 @@ class SuratPengajuanController extends Controller
                 }
 
                 $lastTubel = \App\Models\RiwayatTubel::where('nip', $tracker->pegawai->nip)
-                                ->orderBy('id', 'desc')
-                                ->first();
+                    ->orderBy('id', 'desc')
+                    ->first();
                 $dbPendidikan = $lastTubel ? $lastTubel->pendidikan : 'S2';
-                $tubelPendidikan = 'tugas belajar ' . $dbPendidikan;
+                $tubelPendidikan = 'tugas belajar '.$dbPendidikan;
             }
 
             $grouped[$periode]['pegawai'][] = [
-                'tracker_id'       => $tracker->id,
-                'nama'             => $tracker->pegawai->nama,
-                'nip'              => $tracker->pegawai->nip,
+                'tracker_id' => $tracker->id,
+                'nama' => $tracker->pegawai->nama,
+                'nip' => $tracker->pegawai->nip,
                 'pangkat_golongan' => $tracker->pegawai->pangkat_golongan ?? '-',
-                'jabatan'          => $jabatan,
-                'jenjang'          => $tracker->pegawai->jenjang ?? '-',
-                'tmt_target'       => $tracker->tanggal_target 
-                    ? Carbon::parse($tracker->tanggal_target)->format('d-m-Y') 
+                'jabatan' => $jabatan,
+                'jenjang' => $tracker->pegawai->jenjang ?? '-',
+                'tmt_target' => $tracker->tanggal_target
+                    ? Carbon::parse($tracker->tanggal_target)->format('d-m-Y')
                     : '-',
-                'kategori'         => $tracker->kategori,
-                'status'           => $tracker->status_saat_ini,
-                'keterangan'       => $tracker->keterangan ?? '-',
+                'kategori' => $tracker->kategori,
+                'status' => $tracker->status_saat_ini,
+                'keterangan' => $tracker->keterangan ?? '-',
                 'tubel_pendidikan' => $tubelPendidikan,
             ];
         }
 
         return response()->json([
-            'success'        => true,
-            'kategori'       => $kategori,
+            'success' => true,
+            'kategori' => $kategori,
             'kategori_label' => $this->kategoriLabels[$kategori] ?? str_replace('_', ' ', $kategori),
-            'total'          => $trackers->count(),
-            'groups'         => array_values($grouped),
+            'total' => $trackers->count(),
+            'groups' => array_values($grouped),
         ]);
     }
 
@@ -131,15 +133,15 @@ class SuratPengajuanController extends Controller
     public function konfirmasiUsulan(Request $request)
     {
         $request->validate([
-            'kategori'    => 'required|string',
+            'kategori' => 'required|string',
             'tracker_ids' => 'required|array|min:1',
             'tracker_ids.*' => 'integer|exists:dashboard_tracker,id',
-            'catatan'     => 'nullable|string|max:500',
+            'catatan' => 'nullable|string|max:500',
         ]);
 
         // Hanya izinkan KP, KGB & TUBEL
         $allowedKategori = ['KGB', 'KP', 'KP_Jafung', 'KP_Struktural', 'KP_Reguler', 'TUBEL'];
-        if (!in_array($request->kategori, $allowedKategori)) {
+        if (! in_array($request->kategori, $allowedKategori)) {
             return response()->json(['success' => false, 'message' => 'Kategori tidak valid untuk konfirmasi usulan.'], 400);
         }
 
@@ -156,7 +158,7 @@ class SuratPengajuanController extends Controller
             if (in_array($tracker->status_saat_ini, ['Usulan', 'Mendekati', 'Proses Pengaktifan'])) {
                 $tracker->update([
                     'status_saat_ini' => 'Proses',
-                    'keterangan'      => $request->catatan ?? $tracker->keterangan,
+                    'keterangan' => $request->catatan ?? $tracker->keterangan,
                     // Untuk Tubel, jangan set dikonfirmasi_at dulu sampai tahap "Selesai"
                     'dikonfirmasi_at' => $tracker->kategori === 'TUBEL' ? null : now(),
                 ]);
@@ -187,34 +189,34 @@ class SuratPengajuanController extends Controller
      */
     public function generate(Request $request)
     {
-         \Illuminate\Support\Facades\Log::info('Generate request payload: ' . json_encode($request->all()));
-         $request->validate([
-            'kategori'      => 'required|string',
-            'tracker_ids'   => 'required|array|min:1',
+        \Illuminate\Support\Facades\Log::info('Generate request payload: '.json_encode($request->all()));
+        $request->validate([
+            'kategori' => 'required|string',
+            'tracker_ids' => 'required|array|min:1',
             'tracker_ids.*' => 'integer|exists:dashboard_tracker,id',
-            'nomor_surat'   => 'nullable|string|max:100',
+            'nomor_surat' => 'nullable|string|max:100',
             'tanggal_surat' => 'nullable|date',
-            'tujuan_surat'  => 'nullable|string|max:255',
-            'nama_ttd'      => 'nullable|string|max:150',
-            'nip_ttd'       => 'nullable|string|max:30',
-            'jabatan_ttd'   => 'nullable|string|max:150',
-            'ref_nota_dinas'   => 'nullable|string|max:100',
-            'tgl_nota_dinas'   => 'nullable|string|max:100',
-            'tubel_jabatan'    => 'nullable|string|max:150',
+            'tujuan_surat' => 'nullable|string|max:255',
+            'nama_ttd' => 'nullable|string|max:150',
+            'nip_ttd' => 'nullable|string|max:30',
+            'jabatan_ttd' => 'nullable|string|max:150',
+            'ref_nota_dinas' => 'nullable|string|max:100',
+            'tgl_nota_dinas' => 'nullable|string|max:100',
+            'tubel_jabatan' => 'nullable|string|max:150',
             'tubel_pendidikan' => 'nullable|string|max:255',
-            'narahubung_nama'  => 'nullable|string|max:150',
-            'narahubung_hp'    => 'nullable|string|max:30',
+            'narahubung_nama' => 'nullable|string|max:150',
+            'narahubung_hp' => 'nullable|string|max:30',
             'narahubung_email' => 'nullable|string|max:150',
-            'kppn'          => 'nullable|string|max:100',
-            'masa_kerja'    => 'nullable|array',
+            'kppn' => 'nullable|string|max:100',
+            'masa_kerja' => 'nullable|array',
             'sk_lama_pejabat' => 'nullable|string',
-            'sk_lama_nomor'   => 'nullable|string',
+            'sk_lama_nomor' => 'nullable|string',
             'sk_lama_tanggal' => 'nullable|string',
-            'gaji_lama'       => 'nullable|numeric',
-            'gaji_baru'       => 'nullable|numeric',
+            'gaji_lama' => 'nullable|numeric',
+            'gaji_baru' => 'nullable|numeric',
         ]);
 
-        $kategori   = $request->kategori;
+        $kategori = $request->kategori;
         $trackerIds = $request->tracker_ids;
 
         // Ambil data tracker yang dipilih
@@ -262,15 +264,15 @@ class SuratPengajuanController extends Controller
         // Gunakan SuratPengajuanService untuk logic PDF yang rumit
         $pdfService = app(\App\Services\SuratPengajuanService::class);
         $finalPdfPath = $pdfService->generateSurat($request->all(), $trackers, $this->kategoriLabels);
-        
+
         $filename = basename($finalPdfPath);
 
         // Jika didownload (bukan preview), maka bersihkan semua lampiran fisik
         if ($request->input('is_preview', 0) == 0) {
             foreach ($trackers as $tracker) {
                 $lampirans = \App\Models\LampiranCetakSurat::where('dashboard_tracker_id', $tracker->id)
-                                ->whereNotNull('file_path')
-                                ->get();
+                    ->whereNotNull('file_path')
+                    ->get();
                 foreach ($lampirans as $lamp) {
                     if (\Storage::disk('public')->exists($lamp->file_path)) {
                         \Storage::disk('public')->delete($lamp->file_path);

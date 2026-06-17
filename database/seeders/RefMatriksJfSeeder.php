@@ -2,8 +2,8 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
 use App\Models\RefMatriksJf;
+use Illuminate\Database\Seeder;
 
 class RefMatriksJfSeeder extends Seeder
 {

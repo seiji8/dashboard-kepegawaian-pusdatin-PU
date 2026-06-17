@@ -20,11 +20,11 @@ return new class extends Migration
             $table->date('tmt_jabatan')->nullable();
             $table->date('tgl_selesai')->nullable();
             $table->string('tipe_jabatan')->nullable();
-            $table->string('file_sk')->nullable(); 
-            
+            $table->string('file_sk')->nullable();
+
             // Relasi
             $table->foreign('nip')->references('nip')->on('pegawai')->onDelete('cascade');
-            
+
             $table->timestamps();
         });
     }

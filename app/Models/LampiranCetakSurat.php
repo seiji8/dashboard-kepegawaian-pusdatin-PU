@@ -10,7 +10,7 @@ class LampiranCetakSurat extends Model
     use HasFactory;
 
     protected $table = 'lampiran_cetak_surat';
-    
+
     protected $fillable = [
         'dashboard_tracker_id',
         'nip',
@@ -20,6 +20,6 @@ class LampiranCetakSurat extends Model
         'mime_type',
         'urutan',
         'halaman_cetak',
-        'ukuran_bytes'
+        'ukuran_bytes',
     ];
 }

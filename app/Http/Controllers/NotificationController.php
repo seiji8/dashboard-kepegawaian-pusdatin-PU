@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class NotificationController extends Controller
@@ -16,14 +15,14 @@ class NotificationController extends Controller
 
         $notifications = $user->notifications()->latest()->take(10)->get()->map(function ($notif) {
             return [
-                'id'         => $notif->id,
-                'title'      => $notif->data['title'] ?? 'Notifikasi',
-                'message'    => $notif->data['message'] ?? '',
-                'icon'       => $notif->data['icon'] ?? 'bi-bell-fill',
-                'type'       => $notif->data['type'] ?? 'info',
-                'url'        => $notif->data['url'] ?? '#',
-                'read'       => !is_null($notif->read_at),
-                'time'       => $notif->created_at->diffForHumans(),
+                'id' => $notif->id,
+                'title' => $notif->data['title'] ?? 'Notifikasi',
+                'message' => $notif->data['message'] ?? '',
+                'icon' => $notif->data['icon'] ?? 'bi-bell-fill',
+                'type' => $notif->data['type'] ?? 'info',
+                'url' => $notif->data['url'] ?? '#',
+                'read' => ! is_null($notif->read_at),
+                'time' => $notif->created_at->diffForHumans(),
             ];
         });
 
@@ -31,7 +30,7 @@ class NotificationController extends Controller
 
         return response()->json([
             'notifications' => $notifications,
-            'unread_count'  => $unreadCount,
+            'unread_count' => $unreadCount,
         ]);
     }
 

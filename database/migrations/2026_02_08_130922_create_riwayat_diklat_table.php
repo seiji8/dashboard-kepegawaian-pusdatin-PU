@@ -22,7 +22,7 @@ return new class extends Migration
             $table->string('nomor_sertifikat')->nullable();
             $table->date('tanggal_sertifikat')->nullable();
             $table->string('file_sertifikat')->nullable();
-            
+
             // Relasi
             $table->foreign('nip')->references('nip')->on('pegawai')->onDelete('cascade');
 

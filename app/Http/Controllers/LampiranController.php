@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use App\Models\LampiranCetakSurat;
 use App\Models\DashboardTracker;
+use App\Models\LampiranCetakSurat;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
 class LampiranController extends Controller
@@ -23,24 +23,24 @@ class LampiranController extends Controller
             ->get()
             ->map(function ($item) {
                 return [
-                    'id'             => $item->id,
+                    'id' => $item->id,
                     'judul_lampiran' => $item->judul_lampiran ?? $item->nama_dokumen,
-                    'nama_dokumen'   => $item->nama_dokumen,
-                    'file_path'      => $item->file_path,
-                    'mime_type'      => $item->mime_type,
-                    'urutan'         => $item->urutan,
-                    'halaman_cetak'  => $item->halaman_cetak,
-                    'ukuran_bytes'   => $item->ukuran_bytes,
-                    'url_preview'    => $item->file_path ? Storage::url($item->file_path) : null,
+                    'nama_dokumen' => $item->nama_dokumen,
+                    'file_path' => $item->file_path,
+                    'mime_type' => $item->mime_type,
+                    'urutan' => $item->urutan,
+                    'halaman_cetak' => $item->halaman_cetak,
+                    'ukuran_bytes' => $item->ukuran_bytes,
+                    'url_preview' => $item->file_path ? Storage::url($item->file_path) : null,
                 ];
             });
 
         return response()->json([
-            'success'  => true,
+            'success' => true,
             'lampiran' => $lampiran,
-            'pegawai'  => [
-                'nama'     => $tracker->pegawai->nama ?? '-',
-                'nip'      => $tracker->pegawai->nip ?? '-',
+            'pegawai' => [
+                'nama' => $tracker->pegawai->nama ?? '-',
+                'nip' => $tracker->pegawai->nip ?? '-',
                 'kategori' => $tracker->kategori,
             ],
         ]);
@@ -52,29 +52,29 @@ class LampiranController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'tracker_id'     => 'required|exists:dashboard_tracker,id',
+            'tracker_id' => 'required|exists:dashboard_tracker,id',
             'judul_lampiran' => 'nullable|string|max:255',
-            'file'           => 'required|file|mimes:jpg,jpeg,png|max:10240',
+            'file' => 'required|file|mimes:jpg,jpeg,png|max:10240',
         ]);
 
         $tracker = DashboardTracker::with('pegawai')->findOrFail($request->tracker_id);
-        $nip     = $tracker->pegawai->nip ?? 'unknown';
+        $nip = $tracker->pegawai->nip ?? 'unknown';
 
-        $file     = $request->file('file');
+        $file = $request->file('file');
         $mimeType = $file->getMimeType();
         $origName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
-        $ext      = $file->getClientOriginalExtension();
-        
-        $judulLampiran = $request->judul_lampiran ?: 'Lampiran_' . time();
+        $ext = $file->getClientOriginalExtension();
+
+        $judulLampiran = $request->judul_lampiran ?: 'Lampiran_'.time();
         $safeJudul = preg_replace('/[^A-Za-z0-9\-_]/', '_', $judulLampiran);
-        $filename  = $safeJudul . '_' . time() . '.' . $ext;
-        $folder    = 'lampiran/' . $nip;
+        $filename = $safeJudul.'_'.time().'.'.$ext;
+        $folder = 'lampiran/'.$nip;
 
         // Jika gambar dan fungsi kompresi (GD) tersedia: kompres pakai GD bawaan PHP
         if (in_array($mimeType, ['image/jpeg', 'image/png']) && function_exists('imagecreatefromjpeg') && function_exists('imagecreatefrompng')) {
             $compressedPath = $this->compressImage($file->getRealPath(), $mimeType, $folder, $filename);
-            $storedPath     = $compressedPath;
-            $mimeType       = 'image/jpeg'; // Paksa set ke jpeg karena output compressImage selalu jpg
+            $storedPath = $compressedPath;
+            $mimeType = 'image/jpeg'; // Paksa set ke jpeg karena output compressImage selalu jpg
         } else {
             // File PDF atau fungsi kompresi tidak tersedia: simpan file aslinya langsung
             $storedPath = $file->storeAs($folder, $filename, 'public');
@@ -89,28 +89,28 @@ class LampiranController extends Controller
 
         $lampiran = LampiranCetakSurat::create([
             'dashboard_tracker_id' => $request->tracker_id,
-            'nip'                  => $nip,
-            'nama_dokumen'         => $request->judul_lampiran ?: $judulLampiran, // Fallback if null
-            'judul_lampiran'       => $judulLampiran,
-            'file_path'            => $storedPath,
-            'mime_type'            => $mimeType,
-            'urutan'               => $maxUrutan + 1,
-            'halaman_cetak'        => $halamanCetak,
-            'ukuran_bytes'         => Storage::disk('public')->size($storedPath),
-            'is_uploaded'          => true,
-            'status_verifikasi'    => 'Pending',
+            'nip' => $nip,
+            'nama_dokumen' => $request->judul_lampiran ?: $judulLampiran, // Fallback if null
+            'judul_lampiran' => $judulLampiran,
+            'file_path' => $storedPath,
+            'mime_type' => $mimeType,
+            'urutan' => $maxUrutan + 1,
+            'halaman_cetak' => $halamanCetak,
+            'ukuran_bytes' => Storage::disk('public')->size($storedPath),
+            'is_uploaded' => true,
+            'status_verifikasi' => 'Pending',
         ]);
 
         return response()->json([
             'success' => true,
             'message' => 'Lampiran berhasil diupload!',
-            'data'    => [
-                'id'             => $lampiran->id,
+            'data' => [
+                'id' => $lampiran->id,
                 'judul_lampiran' => $lampiran->judul_lampiran,
-                'mime_type'      => $lampiran->mime_type,
-                'urutan'         => $lampiran->urutan,
-                'ukuran_bytes'   => $lampiran->ukuran_bytes,
-                'url_preview'    => Storage::url($storedPath),
+                'mime_type' => $lampiran->mime_type,
+                'urutan' => $lampiran->urutan,
+                'ukuran_bytes' => $lampiran->ukuran_bytes,
+                'url_preview' => Storage::url($storedPath),
             ],
         ]);
     }
@@ -176,7 +176,7 @@ class LampiranController extends Controller
     private function compressImage(string $sourcePath, string $mimeType, string $folder, string $filename): string
     {
         $maxWidth = 1400;
-        $quality  = 85;
+        $quality = 85;
 
         // Load gambar dari file
         if ($mimeType === 'image/png') {
@@ -190,9 +190,9 @@ class LampiranController extends Controller
 
         // Hitung dimensi baru
         if ($origW > $maxWidth) {
-            $ratio  = $maxWidth / $origW;
-            $newW   = $maxWidth;
-            $newH   = (int) ($origH * $ratio);
+            $ratio = $maxWidth / $origW;
+            $newW = $maxWidth;
+            $newH = (int) ($origH * $ratio);
         } else {
             $newW = $origW;
             $newH = $origH;
@@ -210,14 +210,14 @@ class LampiranController extends Controller
         imagecopyresampled($dst, $src, 0, 0, 0, 0, $newW, $newH, $origW, $origH);
 
         // Simpan ke temporary file
-        $tmpPath = sys_get_temp_dir() . '/' . uniqid('img_') . '.jpg';
+        $tmpPath = sys_get_temp_dir().'/'.uniqid('img_').'.jpg';
         imagejpeg($dst, $tmpPath, $quality);
 
         imagedestroy($src);
         imagedestroy($dst);
 
         // Store ke Laravel Storage
-        $storedPath = $folder . '/' . pathinfo($filename, PATHINFO_FILENAME) . '.jpg';
+        $storedPath = $folder.'/'.pathinfo($filename, PATHINFO_FILENAME).'.jpg';
         Storage::disk('public')->put($storedPath, file_get_contents($tmpPath));
         unlink($tmpPath);
 
@@ -241,7 +241,7 @@ class LampiranController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Judul lampiran berhasil diperbarui!',
-            'judul'   => $lampiran->judul_lampiran,
+            'judul' => $lampiran->judul_lampiran,
         ]);
     }
 }

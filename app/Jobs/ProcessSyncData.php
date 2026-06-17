@@ -2,11 +2,11 @@
 
 namespace App\Jobs;
 
+use App\Helpers\ActivityLogger;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Cache;
-use App\Helpers\ActivityLogger;
 
 class ProcessSyncData implements ShouldQueue
 {
@@ -33,7 +33,7 @@ class ProcessSyncData implements ShouldQueue
         try {
             // 1. Sync E-HRM (API)
             Artisan::call('ehrm:sync');
-            
+
             // UPDATE CACHE (96%) - Memproses Seeder
             $currentCache = Cache::get('sync_status', []);
             $currentCache['progress'] = 96;
@@ -43,7 +43,7 @@ class ProcessSyncData implements ShouldQueue
 
             // 2. Seeder Manual (UpdateTmtManualSeeder)
             Artisan::call('db:seed', [
-                '--class' => 'UpdateTmtManualSeeder'
+                '--class' => 'UpdateTmtManualSeeder',
             ]);
 
             // UPDATE CACHE (98%) - Recalculate Tracker
@@ -54,7 +54,7 @@ class ProcessSyncData implements ShouldQueue
 
             // 3. Recalculate Tracker (Force Notification)
             Artisan::call('tracker:run', [
-                '--force' => true
+                '--force' => true,
             ]);
 
             // UPDATE CACHE TO 100% DONE
@@ -64,13 +64,13 @@ class ProcessSyncData implements ShouldQueue
             $currentCache['detail_text'] = 'Menyelesaikan sinkronisasi... Selesai!';
             Cache::put('sync_status', $currentCache, now()->addMinutes(15));
 
-            ActivityLogger::logSystem("Background Sync Selesai (E-HRM -> Seeder -> Tracker)");
+            ActivityLogger::logSystem('Background Sync Selesai (E-HRM -> Seeder -> Tracker)');
 
         } catch (\Throwable $e) {
             $currentCache = Cache::get('sync_status', []);
             $currentCache['detail_text'] = 'Terjadi kesalahan sistem saat sinkronisasi (Gagal).';
             Cache::put('sync_status', $currentCache, now()->addMinutes(15));
-            ActivityLogger::logSystem("Background Sync GAGAL: " . $e->getMessage());
+            ActivityLogger::logSystem('Background Sync GAGAL: '.$e->getMessage());
         }
     }
 
@@ -85,7 +85,7 @@ class ProcessSyncData implements ShouldQueue
         // Reset progress stat ke error
         $currentCache['step_4_status'] = 'error';
         Cache::put('sync_status', $currentCache, now()->addMinutes(15));
-        
-        ActivityLogger::logSystem("Background Sync Kritis/TIMEOUT: " . $exception->getMessage());
+
+        ActivityLogger::logSystem('Background Sync Kritis/TIMEOUT: '.$exception->getMessage());
     }
 }

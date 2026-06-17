@@ -10,6 +10,7 @@ class RiwayatJabatan extends Model
     use HasFactory;
 
     protected $table = 'riwayat_jabatan';
+
     protected $guarded = [];
 
     public function pegawai()

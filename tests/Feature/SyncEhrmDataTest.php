@@ -2,10 +2,10 @@
 
 namespace Tests\Feature;
 
-use Tests\TestCase;
+use App\Models\Pegawai;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Support\Facades\Http;
-use App\Models\Pegawai;
+use Tests\TestCase;
 
 class SyncEhrmDataTest extends TestCase
 {
@@ -24,15 +24,15 @@ class SyncEhrmDataTest extends TestCase
                         'nip' => '111122223333',
                         'nama_lengkap' => 'Pegawai Tersinkronisasi',
                         'email' => 'sync@pu.go.id',
-                        'jabatan_nama' => 'Ahli Madya'
-                    ]
-                ]
-            ], 200)
+                        'jabatan_nama' => 'Ahli Madya',
+                    ],
+                ],
+            ], 200),
         ]);
 
         // Jika ada logic sinkronisasi di console
         // $this->artisan('ehrm:sync')->assertSuccessful();
-        
+
         // Kita simulasikan insert manual untuk memastikan model support insert
         Pegawai::updateOrCreate(
             ['id_pegawai_api' => 'P001'],
@@ -40,13 +40,13 @@ class SyncEhrmDataTest extends TestCase
                 'nip' => '111122223333',
                 'nama' => 'Pegawai Tersinkronisasi',
                 'email' => 'sync@pu.go.id',
-                'jabatan_saat_ini' => 'Ahli Madya'
+                'jabatan_saat_ini' => 'Ahli Madya',
             ]
         );
 
         $this->assertDatabaseHas('pegawai', [
             'nip' => '111122223333',
-            'nama' => 'Pegawai Tersinkronisasi'
+            'nama' => 'Pegawai Tersinkronisasi',
         ]);
     }
 }

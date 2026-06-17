@@ -1,7 +1,9 @@
 <?php
+
 namespace Database\Seeders;
-use Illuminate\Database\Seeder;
+
 use App\Models\Pegawai;
+use Illuminate\Database\Seeder;
 
 class UpdateTmtManualSeeder extends Seeder
 {
@@ -11,7 +13,7 @@ class UpdateTmtManualSeeder extends Seeder
         $dataManual = [
             // Kosongkan agar data asli dari API (2026) tidak di-overwrite menjadi 2024
         ];
-        
+
         foreach ($dataManual as $nip => $tmt) {
             Pegawai::where('nip', $nip)->update(['tmt_kgb_terakhir' => $tmt]);
         }

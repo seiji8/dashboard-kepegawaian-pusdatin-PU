@@ -2,20 +2,23 @@
 
 namespace App\Mail;
 
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
-use Barryvdh\DomPDF\Facade\Pdf;
 
 class ManualNotification extends Mailable
 {
     use Queueable, SerializesModels;
 
     public $pegawai;
+
     public $subjectLine;
+
     public $content;
+
     public $pdfUrl;
+
     public $pdfData;
 
     /**
@@ -40,13 +43,13 @@ class ManualNotification extends Mailable
     public function build()
     {
         $mail = $this->subject($this->subjectLine)
-                     ->view('emails.manual_notification')
-                     ->with([
-                         'subjectLine' => $this->subjectLine,
-                         'pegawai' => $this->pegawai,
-                         'content' => $this->content,
-                         'pdfUrl' => $this->pdfUrl,
-                     ]);
+            ->view('emails.manual_notification')
+            ->with([
+                'subjectLine' => $this->subjectLine,
+                'pegawai' => $this->pegawai,
+                'content' => $this->content,
+                'pdfUrl' => $this->pdfUrl,
+            ]);
 
         if ($this->pdfData) {
             $pdf = Pdf::loadView('emails.rekap_usulan_pdf', ['data' => $this->pdfData]);

@@ -21,7 +21,7 @@ return new class extends Migration
             $table->enum('status_verifikasi', ['Pending', 'Valid', 'Ditolak'])->default('Pending');
             $table->text('keterangan_tolak')->nullable();
             $table->timestamps();
-            
+
             $table->foreign('nip')->references('nip')->on('pegawai')->onDelete('cascade');
             $table->foreign('dashboard_tracker_id')->references('id')->on('dashboard_tracker')->onDelete('cascade');
         });

@@ -10,6 +10,7 @@ class DashboardTracker extends Model
     use HasFactory;
 
     protected $table = 'dashboard_tracker';
+
     protected $guarded = [];
 
     // Relasi 1: Status ini milik pegawai siapa?

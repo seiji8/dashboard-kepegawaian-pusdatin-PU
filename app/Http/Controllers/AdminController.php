@@ -2,12 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\ActivityLogger;
+use App\Models\Pegawai;
 use App\Models\User;
 use Illuminate\Http\Request;
-use App\Helpers\ActivityLogger;
-use Illuminate\Support\Facades\Hash;
-
-use App\Models\Pegawai; // Tambah Model Pegawai
+use Illuminate\Support\Facades\Hash; // Tambah Model Pegawai
 
 class AdminController extends Controller
 {
@@ -17,7 +16,7 @@ class AdminController extends Controller
     public function index(Request $request)
     {
         // 1. Authorize: Hanya Super Admin yang boleh lihat halaman ini
-        if (!auth()->user()->isSuperAdmin()) {
+        if (! auth()->user()->isSuperAdmin()) {
             abort(403, 'Anda tidak memiliki hak akses (Super Admin only).');
         }
 
@@ -26,10 +25,10 @@ class AdminController extends Controller
         // Search functionality
         if ($request->filled('search')) {
             $search = $request->search;
-            $query->where(function($q) use ($search) {
+            $query->where(function ($q) use ($search) {
                 $q->where('nama_lengkap', 'LIKE', "%{$search}%")
-                  ->orWhere('username', 'LIKE', "%{$search}%") // Ganti nip jadi username
-                  ->orWhere('email', 'LIKE', "%{$search}%");
+                    ->orWhere('username', 'LIKE', "%{$search}%") // Ganti nip jadi username
+                    ->orWhere('email', 'LIKE', "%{$search}%");
             });
         }
 
@@ -43,8 +42,8 @@ class AdminController extends Controller
         // Logic: Ambil Pegawai yang NIP-nya TIDAK ADA di tabel users kolom username
         $existingUsernames = User::pluck('username')->toArray();
         $candidates = Pegawai::whereNotIn('nip', $existingUsernames)
-                             ->orderBy('nama', 'asc')
-                             ->get(['nip', 'nama', 'email']);
+            ->orderBy('nama', 'asc')
+            ->get(['nip', 'nama', 'email']);
 
         return view('daftar_admin.index', compact('admins', 'candidates'));
     }
@@ -55,10 +54,10 @@ class AdminController extends Controller
     public function store(Request $request)
     {
         // 1. Authorize: Hanya Super Admin
-        if (!auth()->user()->isSuperAdmin()) {
+        if (! auth()->user()->isSuperAdmin()) {
             return response()->json([
                 'success' => false,
-                'message' => 'Anda tidak memiliki hak akses (Super Admin only).'
+                'message' => 'Anda tidak memiliki hak akses (Super Admin only).',
             ], 403);
         }
 
@@ -74,11 +73,11 @@ class AdminController extends Controller
             // 4. Create User
             // Password Default = NIP Pegawai
             $user = User::create([
-                'username'      => $pegawai->nip,
-                'nama_lengkap'  => $pegawai->nama,
-                'email'         => $pegawai->email, // Bisa null jika pegawai gak punya email
-                'password'      => Hash::make($pegawai->nip), 
-                'role'          => 'admin_pegawai', // Default role
+                'username' => $pegawai->nip,
+                'nama_lengkap' => $pegawai->nama,
+                'email' => $pegawai->email, // Bisa null jika pegawai gak punya email
+                'password' => Hash::make($pegawai->nip),
+                'role' => 'admin_pegawai', // Default role
             ]);
 
             // 5. Log Activity
@@ -88,13 +87,13 @@ class AdminController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'Admin berhasil ditambahkan! Password default adalah NIP.'
+                'message' => 'Admin berhasil ditambahkan! Password default adalah NIP.',
             ]);
 
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Gagal menambahkan admin: ' . $e->getMessage()
+                'message' => 'Gagal menambahkan admin: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -104,7 +103,7 @@ class AdminController extends Controller
      */
     public function updateRole(Request $request, $id)
     {
-        if (!auth()->user()->isSuperAdmin()) {
+        if (! auth()->user()->isSuperAdmin()) {
             return response()->json(['success' => false, 'message' => 'Unauthorized'], 403);
         }
 
@@ -114,7 +113,7 @@ class AdminController extends Controller
 
         $admin = User::findOrFail($id);
         $oldRole = $admin->isSuperAdmin() ? 'Admin Super' : 'Admin Kepegawaian';
-        
+
         $admin->role = $request->is_super_admin ? 'super_admin' : 'admin_pegawai';
         $admin->save();
 
@@ -127,7 +126,7 @@ class AdminController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Role admin berhasil diubah!'
+            'message' => 'Role admin berhasil diubah!',
         ]);
     }
 
@@ -136,18 +135,18 @@ class AdminController extends Controller
      */
     public function destroy($id)
     {
-        if (!auth()->user()->isSuperAdmin()) {
+        if (! auth()->user()->isSuperAdmin()) {
             return response()->json(['success' => false, 'message' => 'Unauthorized'], 403);
         }
 
         try {
             $admin = User::findOrFail($id);
-            
+
             // Prevent self-deletion
             if ($admin->id == auth()->id()) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Tidak dapat menghapus akun sendiri!'
+                    'message' => 'Tidak dapat menghapus akun sendiri!',
                 ], 403);
             }
 
@@ -161,12 +160,12 @@ class AdminController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'Admin berhasil dihapus!'
+                'message' => 'Admin berhasil dihapus!',
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Gagal menghapus admin!'
+                'message' => 'Gagal menghapus admin!',
             ], 500);
         }
     }

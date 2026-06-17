@@ -2,12 +2,12 @@
 
 namespace Tests\Unit\Services;
 
-use Tests\TestCase;
-use Illuminate\Foundation\Testing\DatabaseTransactions;
-use App\Models\Pegawai;
 use App\Models\DashboardTracker;
+use App\Models\Pegawai;
 use App\Services\Tracker\KgbTrackerService;
 use Carbon\Carbon;
+use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Tests\TestCase;
 
 class KgbTrackerServiceTest extends TestCase
 {
@@ -20,10 +20,10 @@ class KgbTrackerServiceTest extends TestCase
             'nip' => '900333111',
             'nama' => 'Pegawai KGB',
             'id_pegawai_api' => '700',
-            'tmt_kgb_terakhir' => Carbon::now()->subYears(2)->toDateString()
+            'tmt_kgb_terakhir' => Carbon::now()->subYears(2)->toDateString(),
         ]);
 
-        $service = new KgbTrackerService();
+        $service = new KgbTrackerService;
         $usulan = [];
         $service->process($pegawai, Carbon::now(), $usulan);
 

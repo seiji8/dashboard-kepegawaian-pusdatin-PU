@@ -2,16 +2,16 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Model;
 
 class RiwayatTubel extends Model
 {
     protected $guarded = [];
 
     protected $casts = [
-        'tanggal_mulai'               => 'date',
-        'tanggal_selesai'             => 'date',
+        'tanggal_mulai' => 'date',
+        'tanggal_selesai' => 'date',
         'perpanjangan1_tanggal_mulai' => 'date',
         'perpanjangan2_tanggal_mulai' => 'date',
     ];

@@ -2,8 +2,8 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
 use App\Models\NotifikasiRules;
+use Illuminate\Database\Seeder;
 
 class NotifikasiSeeder extends Seeder
 {
@@ -46,17 +46,17 @@ class NotifikasiSeeder extends Seeder
         NotifikasiRules::updateOrCreate(
             ['kategori' => 'Template SKP'],
             [
-                'template_pesan' => "Ini adalah pengingat manual untuk melengkapi berkas SKP Anda yang masih kurang lengkap. Mohon segera dicek kembali.",
+                'template_pesan' => 'Ini adalah pengingat manual untuk melengkapi berkas SKP Anda yang masih kurang lengkap. Mohon segera dicek kembali.',
                 'interval_hari' => 0, // Manual
                 'is_active' => true,
             ]
         );
-        
+
         // 4. Kenaikan Pangkat (Update existing or create new)
         NotifikasiRules::updateOrCreate(
             ['kategori' => 'Info Kenaikan Pangkat'],
             [
-                'template_pesan' => "Angka Kredit Anda ({poin}) sudah mencukupi untuk proses Kenaikan Pangkat ke {next_pangkat}. Mohon persiapkan berkas fisik dan serahkan ke bagian Tata Usaha paling lambat tanggal {deadline}.",
+                'template_pesan' => 'Angka Kredit Anda ({poin}) sudah mencukupi untuk proses Kenaikan Pangkat ke {next_pangkat}. Mohon persiapkan berkas fisik dan serahkan ke bagian Tata Usaha paling lambat tanggal {deadline}.',
                 'interval_hari' => 1, // Harian Check
                 'is_active' => true,
             ]

@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\Logs;
 use Illuminate\Http\Request;
-use Carbon\Carbon;
 
 class LogAktivitasController extends Controller
 {
@@ -23,12 +22,12 @@ class LogAktivitasController extends Controller
     {
         $query = Logs::with(['admin', 'pegawai'])->orderBy('waktu', 'desc');
         $query = $this->applyFilters($query, $request);
-        
+
         $logs = $query->get(); // Ambil semua data sesuai filter, tanpa paginasi
 
         $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('log_aktivitas.pdf', compact('logs', 'request'));
-        
-        return $pdf->download('Log_Aktivitas_' . date('Y-m-d_H-i') . '.pdf');
+
+        return $pdf->download('Log_Aktivitas_'.date('Y-m-d_H-i').'.pdf');
     }
 
     private function applyFilters($query, Request $request)
@@ -39,7 +38,7 @@ class LogAktivitasController extends Controller
             if ($jenis === 'sistem') {
                 $query->whereNull('user_id');
             } else {
-                $query->whereHas('admin', function($q) use ($jenis) {
+                $query->whereHas('admin', function ($q) use ($jenis) {
                     $q->where('role', $jenis);
                 });
             }
@@ -47,7 +46,7 @@ class LogAktivitasController extends Controller
 
         // Filter: Aksi (Cari di deskripsi)
         if ($request->filled('aksi')) {
-            $query->where('deskripsi', 'LIKE', '%' . $request->aksi . '%');
+            $query->where('deskripsi', 'LIKE', '%'.$request->aksi.'%');
         }
 
         // Filter: Dari Tanggal
@@ -62,5 +61,4 @@ class LogAktivitasController extends Controller
 
         return $query;
     }
-
 }

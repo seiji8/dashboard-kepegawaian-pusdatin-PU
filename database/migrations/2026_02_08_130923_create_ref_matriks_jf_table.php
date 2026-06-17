@@ -13,9 +13,9 @@ return new class extends Migration
     {
         Schema::create('ref_matriks_jf', function (Blueprint $table) {
             $table->id();
-            $table->string('jabatan_asal'); 
-            $table->string('pangkat_asal'); 
-            $table->float('target_ak'); 
+            $table->string('jabatan_asal');
+            $table->string('pangkat_asal');
+            $table->float('target_ak');
             $table->integer('syarat_tahun_min')->default(2);
             $table->string('next_pangkat');
             $table->string('next_jenjang')->nullable();

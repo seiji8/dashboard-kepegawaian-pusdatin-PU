@@ -2,15 +2,13 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Console\Command;
-use Carbon\Carbon;
+use App\Helpers\ActivityLogger;
+use App\Models\NotifikasiRules;
 use App\Models\Pegawai;
 use App\Models\User;
-use App\Models\NotifikasiRules;
 use App\Notifications\SystemAlertNotification;
-use App\Helpers\ActivityLogger;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Mail;
+use Carbon\Carbon;
+use Illuminate\Console\Command;
 use Illuminate\Notifications\AnonymousNotifiable;
 
 class SendPeriodicNotifications extends Command
@@ -37,14 +35,14 @@ class SendPeriodicNotifications extends Command
         $forceDate = $this->option('force-date');
         $now = $forceDate ? Carbon::parse($forceDate) : Carbon::now();
 
-        $this->info("Memulai pengecekan Notifikasi Periodik pada " . $now->format('d-m-Y H:i:s'));
+        $this->info('Memulai pengecekan Notifikasi Periodik pada '.$now->format('d-m-Y H:i:s'));
 
         // Cek Rule Notifikasi Tahunan
         // Syarat: Tanggal 1 Januari
         if ($now->month == 1 && $now->day == 1) {
             $this->processTahunan($now);
         } else {
-            $this->info("Hari ini bukan 1 Januari. Lewati notifikasi tahunan.");
+            $this->info('Hari ini bukan 1 Januari. Lewati notifikasi tahunan.');
         }
 
         // Cek Rule Notifikasi Triwulan
@@ -52,10 +50,11 @@ class SendPeriodicNotifications extends Command
         if (in_array($now->month, [1, 4, 7, 10]) && $now->day == 1) {
             $this->processTriwulan($now);
         } else {
-            $this->info("Hari ini bukan awal triwulan (1 Jan/Apr/Jul/Okt). Lewati notifikasi triwulan.");
+            $this->info('Hari ini bukan awal triwulan (1 Jan/Apr/Jul/Okt). Lewati notifikasi triwulan.');
         }
 
-        $this->info("Selesai melaksanakan tugas periodik.");
+        $this->info('Selesai melaksanakan tugas periodik.');
+
         return self::SUCCESS;
     }
 
@@ -85,6 +84,7 @@ class SendPeriodicNotifications extends Command
 
         if ($user) {
             $user->notify(new SystemAlertNotification($pegawai, $subject, $content));
+
             return 'user';
         }
 
@@ -92,6 +92,7 @@ class SendPeriodicNotifications extends Command
         if ($pegawai->email) {
             \Illuminate\Support\Facades\Notification::route('mail', $pegawai->email)
                 ->notify(new SystemAlertNotification($pegawai, $subject, $content));
+
             return 'email';
         }
 
@@ -102,15 +103,16 @@ class SendPeriodicNotifications extends Command
     {
         // FIX: kolom yang ada di notifikasi_rules adalah 'kategori', bukan 'nama_notifikasi'
         $rule = NotifikasiRules::where('kategori', 'Notifikasi Tahunan')->first();
-        if (!$rule || !$rule->is_active) {
+        if (! $rule || ! $rule->is_active) {
             $this->warn("Rule 'Notifikasi Tahunan' tidak ada atau sedang dinonaktifkan.");
+
             return;
         }
 
-        $this->info("Menjalankan notifikasi Tahunan...");
+        $this->info('Menjalankan notifikasi Tahunan...');
         $pegawais = $this->getEligiblePegawai();
         $this->info("Ditemukan {$pegawais->count()} pegawai eligible (Fungsional/Struktural).");
-        
+
         $countUser = 0;
         $countEmail = 0;
         $skipped = 0;
@@ -143,19 +145,20 @@ class SendPeriodicNotifications extends Command
     {
         // FIX: kolom yang ada di notifikasi_rules adalah 'kategori', bukan 'nama_notifikasi'
         $rule = NotifikasiRules::where('kategori', 'Notifikasi Triwulan')->first();
-        if (!$rule || !$rule->is_active) {
+        if (! $rule || ! $rule->is_active) {
             $this->warn("Rule 'Notifikasi Triwulan' tidak ada atau sedang dinonaktifkan.");
+
             return;
         }
 
-        $this->info("Menjalankan notifikasi Triwulan...");
-        
+        $this->info('Menjalankan notifikasi Triwulan...');
+
         // Deadline = Hari terakhir bulan ini
         $deadline = $now->copy()->endOfMonth()->isoFormat('D MMMM Y');
 
         $pegawais = $this->getEligiblePegawai();
         $this->info("Ditemukan {$pegawais->count()} pegawai eligible (Fungsional/Struktural).");
-        
+
         $countUser = 0;
         $countEmail = 0;
         $skipped = 0;

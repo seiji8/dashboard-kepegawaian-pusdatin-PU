@@ -2,23 +2,22 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Console\Command;
-use App\Models\Pegawai;
-use App\Models\DashboardTracker;
-use App\Models\User; // Butuh User untuk kirim notif
-use Illuminate\Support\Facades\Notification;
-use App\Notifications\KgbMendekatiNotification;
-use App\Notifications\SystemAlertNotification;
-use App\Models\NotifikasiRules;
-use Carbon\Carbon;
 use App\Helpers\ActivityLogger;
+use App\Models\DashboardTracker;
+use App\Models\NotifikasiRules;
+use App\Models\Pegawai; // Butuh User untuk kirim notif
+use App\Models\User;
+use App\Notifications\SystemAlertNotification;
+use Carbon\Carbon;
+use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Cache;
-use App\Mail\ManualNotification;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Notification;
 
 class RecalculateTracker extends Command
 {
     protected $signature = 'tracker:run {--force : Paksa kirim notifikasi tanpa cek interval}';
+
     protected $description = 'Hitung ulang status KGB dan Pangkat/Jenjang (berdasarkan Triwulan) serta Kirim Notifikasi';
 
     public function handle()
@@ -32,14 +31,14 @@ class RecalculateTracker extends Command
         if ($deletedMendekati > 0) {
             $this->info("🧹 Membersihkan {$deletedMendekati} tracker lama ber-status 'Mendekati'...");
         }
-        
+
         // --- AMBIL CONFIG RULE DARI DB ---
         $rulePenjadwalan = NotifikasiRules::where('kategori', 'KGB Penjadwalan')->first();
-        $ruleUpload      = NotifikasiRules::where('kategori', 'KGB Upload Dokumen')->first();
+        $ruleUpload = NotifikasiRules::where('kategori', 'KGB Upload Dokumen')->first();
 
         // Default: 60 hari (2 bulan) untuk lead time, 1 hari untuk frekuensi
         $leadCheckDays = $rulePenjadwalan ? $rulePenjadwalan->interval_hari : 60;
-        $freqUploadDays = $ruleUpload ? ($ruleUpload->interval_hari > 0 ? $ruleUpload->interval_hari : 1) : 1; 
+        $freqUploadDays = $ruleUpload ? ($ruleUpload->interval_hari > 0 ? $ruleUpload->interval_hari : 1) : 1;
 
         // CACHE: Muat seluruh isi matriks jf ke memory untuk performa (Fase 3: Big Data Optimized)
         $matriksKamus = Cache::remember('ref_matriks_jf_all', 3600, function () {
@@ -55,7 +54,7 @@ class RecalculateTracker extends Command
 
         // Penanda apakah saat ini adalah awal bulan triwulan
         $isAwalTriwulan = in_array(Carbon::now()->format('m-d'), ['01-01', '04-01', '07-01', '10-01']);
-        $cacheKeyTriwulan = 'notif_triwulan_' . Carbon::now()->format('Y_m');
+        $cacheKeyTriwulan = 'notif_triwulan_'.Carbon::now()->format('Y_m');
 
         $context = [
             'leadCheckDays' => $leadCheckDays,
@@ -66,11 +65,11 @@ class RecalculateTracker extends Command
 
         // Big Data Optimized: Menggunakan chunkById(500) dan eager loading untuk menghindari N+1 Query Problem
         // Service di-instansiasi SEKALI di luar closure untuk efisiensi memori
-        $kgbService = new \App\Services\Tracker\KgbTrackerService();
-        $kpService = new \App\Services\Tracker\KenaikanPangkatService();
-        $kjService = new \App\Services\Tracker\KenaikanJenjangService();
-        $tubelService = new \App\Services\Tracker\TubelService();
-        $diklatService = new \App\Services\Tracker\DiklatService();
+        $kgbService = new \App\Services\Tracker\KgbTrackerService;
+        $kpService = new \App\Services\Tracker\KenaikanPangkatService;
+        $kjService = new \App\Services\Tracker\KenaikanJenjangService;
+        $tubelService = new \App\Services\Tracker\TubelService;
+        $diklatService = new \App\Services\Tracker\DiklatService;
 
         Pegawai::with(['riwayatAngkaKredit' => function ($query) {
             $query->orderBy('tmt_angka_kredit', 'desc');
@@ -96,18 +95,18 @@ class RecalculateTracker extends Command
         $this->newLine();
 
         // --- KIRIM SUMMARY EMAIL KE ADMIN ---
-        
+
         // Ambil semua data usulan yang berstatus 'Usulan' untuk PDF Detail dan Notifikasi Pegawai
         $trackersUsulan = DashboardTracker::with('pegawai')->whereIn('status_saat_ini', ['Usulan', 'Menunggu UKOM'])->get();
-        
+
         $dbTotalUsulan = [];
         $detailUsulan = [];
 
         foreach ($trackersUsulan as $t) {
             $kat = $t->kategori;
-            
+
             // Simpan Rekap Total per Kategori
-            if (!isset($dbTotalUsulan[$kat])) {
+            if (! isset($dbTotalUsulan[$kat])) {
                 $dbTotalUsulan[$kat] = 0;
             }
             $dbTotalUsulan[$kat]++;
@@ -115,51 +114,53 @@ class RecalculateTracker extends Command
             // Simpan detail RINCI (Nama, NIP, Pangkat/Gol, Jabatan, TMT Target, Keterangan) untuk PDF
             $pegawaiInfo = $t->pegawai;
             if ($pegawaiInfo) {
-                $tmtTarget = $t->tanggal_target 
-                    ? Carbon::parse($t->tanggal_target)->format('d-m-Y') 
+                $tmtTarget = $t->tanggal_target
+                    ? Carbon::parse($t->tanggal_target)->format('d-m-Y')
                     : '-';
 
                 $detailUsulan[$kat][] = [
-                    'nama'              => $pegawaiInfo->nama,
-                    'nip'               => $pegawaiInfo->nip,
-                    'pangkat_golongan'  => $pegawaiInfo->pangkat_golongan ?? '-',
-                    'jabatan'           => $pegawaiInfo->jabatan_saat_ini ?? $pegawaiInfo->tipe_jabatan ?? '-',
-                    'tmt_target'        => $tmtTarget,
-                    'keterangan'        => $t->keterangan ?? '-',
+                    'nama' => $pegawaiInfo->nama,
+                    'nip' => $pegawaiInfo->nip,
+                    'pangkat_golongan' => $pegawaiInfo->pangkat_golongan ?? '-',
+                    'jabatan' => $pegawaiInfo->jabatan_saat_ini ?? $pegawaiInfo->tipe_jabatan ?? '-',
+                    'tmt_target' => $tmtTarget,
+                    'keterangan' => $t->keterangan ?? '-',
                 ];
             }
         }
 
-        // Email tetap dikirim saat ada daftarUsulanBaru (walau mungkin semua langsung diproses) 
+        // Email tetap dikirim saat ada daftarUsulanBaru (walau mungkin semua langsung diproses)
         // ATAU saat masih ada tumpukan Usulan di DB
-        if (!empty($daftarUsulanBaru) || !empty($dbTotalUsulan)) {
+        if (! empty($daftarUsulanBaru) || ! empty($dbTotalUsulan)) {
             $admins = User::whereIn('role', ['super_admin', 'admin_pegawai'])->get();
             if ($admins->count() > 0) {
-                $subject = "Daftar Usulan Tersedia Kepegawaian";
+                $subject = 'Daftar Usulan Tersedia Kepegawaian';
                 $messageBody = "Berikut adalah ringkasan total usulan yang perlu diproses saat ini:\n\n";
-                
+
                 // Gunakan dummy pegawai untuk Manual Notification karena struktur Mail\ManualNotification mewajibkan satu pegawai.
                 // Kita buat Dummy objek standar untuk fallback
-                $dummyPegawai = new \stdClass();
-                $dummyPegawai->nama = "Tim Kepegawaian";
+                $dummyPegawai = new \stdClass;
+                $dummyPegawai->nama = 'Tim Kepegawaian';
 
-                if (!empty($dbTotalUsulan)) {
+                if (! empty($dbTotalUsulan)) {
                     $formattedUsulan = [];
                     foreach ($dbTotalUsulan as $kategori => $jumlah) {
                         $namaKategori = str_replace('_', ' ', $kategori);
-                        if ($namaKategori === 'UKOM') $namaKategori = 'Uji Kompetensi';
+                        if ($namaKategori === 'UKOM') {
+                            $namaKategori = 'Uji Kompetensi';
+                        }
                         $formattedUsulan[$namaKategori] = $jumlah;
                     }
-                    
+
                     ksort($formattedUsulan);
-                    
+
                     foreach ($formattedUsulan as $namaKategori => $jumlah) {
                         $messageBody .= "• {$namaKategori}: {$jumlah} usulan\n";
                     }
                 } else {
                     $messageBody .= "Saat ini tidak ada antrean Usulan.\n";
                 }
-                
+
                 // Content khusus untuk Lonceng Database (Lebih ringkas)
                 $dbContent = $messageBody;
 
@@ -167,20 +168,20 @@ class RecalculateTracker extends Command
                 $pdfData = [
                     'summary' => $dbTotalUsulan,
                     'new_usulan' => $daftarUsulanBaru,
-                    'details' => $detailUsulan
+                    'details' => $detailUsulan,
                 ];
 
                 foreach ($admins as $admin) {
-                     /** @var \App\Models\User $admin */
-                     if ($admin->email) {
-                         try {
-                              $admin->notify(new SystemAlertNotification($dummyPegawai, $subject, $messageBody, null, $pdfData));
-                         } catch (\Exception $e) {
-                              \Log::error("Gagal mengirim notifikasi rekap usulan ke Admin {$admin->email}: " . $e->getMessage());
-                         }
-                     }
+                    /** @var \App\Models\User $admin */
+                    if ($admin->email) {
+                        try {
+                            $admin->notify(new SystemAlertNotification($dummyPegawai, $subject, $messageBody, null, $pdfData));
+                        } catch (\Exception $e) {
+                            \Log::error("Gagal mengirim notifikasi rekap usulan ke Admin {$admin->email}: ".$e->getMessage());
+                        }
+                    }
                 }
-                ActivityLogger::logSystem("Mengirim notifikasi rekap usulan baru ke admin (" . count($daftarUsulanBaru) . " usulan)");
+                ActivityLogger::logSystem('Mengirim notifikasi rekap usulan baru ke admin ('.count($daftarUsulanBaru).' usulan)');
 
                 // --- KIRIM EMAIL NOTIFIKASI KE MASING-MASING PEGAWAI ---
                 // Ekstrak pegawai unik dari koleksi $trackersUsulan
@@ -188,15 +189,17 @@ class RecalculateTracker extends Command
 
                 foreach ($trackersUsulan as $tracker) {
                     $pegawai = $tracker->pegawai;
-                    
+
                     // Pastikan pegawai ada, punya email, dan belum dikirimi email pada iterasi ini
-                    if ($pegawai && $pegawai->email && !in_array($pegawai->id_pegawai_api, $notifiedEmployees)) {
-                        
+                    if ($pegawai && $pegawai->email && ! in_array($pegawai->id_pegawai_api, $notifiedEmployees)) {
+
                         $namaKategori = str_replace('_', ' ', $tracker->kategori);
-                        if ($namaKategori === 'UKOM') $namaKategori = 'Uji Kompetensi';
-                        $empSubject = "Pemberitahuan Usulan " . $namaKategori;
-                        
-                        $empMessage = "";
+                        if ($namaKategori === 'UKOM') {
+                            $namaKategori = 'Uji Kompetensi';
+                        }
+                        $empSubject = 'Pemberitahuan Usulan '.$namaKategori;
+
+                        $empMessage = '';
                         $rule = NotifikasiRules::where('kategori', $tracker->kategori)->first();
 
                         if ($rule) {
@@ -228,27 +231,27 @@ class RecalculateTracker extends Command
                         try {
                             // Kirim alert lengkap (Email Biru + Notif Lonceng Database) tanpa PDF
                             $notifiable = User::where('email', $pegawai->email)->first();
-                            if (!$notifiable) {
+                            if (! $notifiable) {
                                 $notifiable = Notification::route('mail', $pegawai->email);
                             }
-                            
+
                             $notifiable->notify(new SystemAlertNotification($pegawai, $empSubject, $empMessage));
-                            
+
                             // Catat ID pegawai agar tidak dikirim email dobel jika dia punya 2 usulan berbeda
                             $notifiedEmployees[] = $pegawai->id_pegawai_api;
                         } catch (\Exception $e) {
-                            \Log::error("Gagal mengirim notifikasi personal ke Pegawai {$pegawai->email}: " . $e->getMessage());
+                            \Log::error("Gagal mengirim notifikasi personal ke Pegawai {$pegawai->email}: ".$e->getMessage());
                         }
                     }
                 }
 
                 if (count($notifiedEmployees) > 0) {
-                    ActivityLogger::logSystem("Mengirim notifikasi personal ke " . count($notifiedEmployees) . " pegawai terkait usulannya.");
+                    ActivityLogger::logSystem('Mengirim notifikasi personal ke '.count($notifiedEmployees).' pegawai terkait usulannya.');
                 }
             }
         }
 
         $this->info('✅ Tracker update & Notifikasi terkirim!');
-        ActivityLogger::logSystem('Perhitungan tracker selesai untuk ' . $count . ' pegawai');
+        ActivityLogger::logSystem('Perhitungan tracker selesai untuk '.$count.' pegawai');
     }
 }
