@@ -1,0 +1,59 @@
+image: lorisleiva/laravel-docker:8.2
+
+stages:
+  - build
+  - test
+  - deploy
+
+# Menyimpan folder cache agar build selanjutnya lebih cepat
+cache:
+  key: ${CI_COMMIT_REF_SLUG}
+  paths:
+    - vendor/
+    - node_modules/
+
+build-job:
+  stage: build
+  script:
+    - echo "Memulai proses Build untuk Laravel..."
+    - composer install --prefer-dist --no-ansi --no-interaction --no-progress --no-scripts
+    - npm install
+    - npm run build
+    - cp .env.example .env
+    - php artisan key:generate
+  artifacts:
+    expire_in: 1 hour
+    paths:
+      - vendor/
+      - node_modules/
+      - public/build/
+      - .env
+
+unit-test-job:
+  stage: test
+  dependencies:
+    - build-job
+  script:
+    - echo "Menjalankan PHPUnit Test..."
+    # Membuat database sqlite in-memory / file untuk testing jika diperlukan
+    - touch database/database.sqlite
+    - php artisan migrate --force
+    - php artisan test
+
+lint-test-job:
+  stage: test
+  dependencies:
+    - build-job
+  script:
+    - echo "Menjalankan Laravel Pint untuk mengecek kerapian kode..."
+    - ./vendor/bin/pint --test
+
+deploy-job:
+  stage: deploy
+  environment: production
+  only:
+    - main # Hanya akan berjalan jika ada push/merge ke branch main
+  script:
+    - echo "Aplikasi siap untuk di-deploy ke server."
+    - echo "(Disini kamu bisa menambahkan script SSH, rsync, atau Git Pull ke server production/Pusdatin)"
+    - echo "Deployment selesai."
