@@ -51,9 +51,16 @@ unit-test-job:
     - composer install --prefer-dist --no-ansi --no-interaction --no-progress --no-scripts
     - Copy-Item .env.example .env
     - php artisan key:generate
-    - New-Item -ItemType File -Force -Path database/database.sqlite
+    # Gunakan MySQL (XAMPP) karena migrations pakai MODIFY COLUMN (tidak support SQLite)
+    - $mysqlExe = "C:\xampp\mysql\bin\mysql.exe"
+    - '& $mysqlExe -u root -e "DROP DATABASE IF EXISTS db_kepegawaian_ci; CREATE DATABASE db_kepegawaian_ci CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"'
+    # Override DB config ke MySQL
+    - (Get-Content .env) -replace 'DB_CONNECTION=sqlite', 'DB_CONNECTION=mysql' | Set-Content .env
+    - Add-Content .env "`nDB_HOST=127.0.0.1`nDB_PORT=3306`nDB_DATABASE=db_kepegawaian_ci`nDB_USERNAME=root`nDB_PASSWORD="
     - php artisan migrate --force
     - php artisan test
+    # Cleanup database CI setelah selesai
+    - '& $mysqlExe -u root -e "DROP DATABASE IF EXISTS db_kepegawaian_ci;"'
 
 lint-test-job:
   stage: test
