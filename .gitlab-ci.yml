@@ -32,6 +32,8 @@ before_script:
 # ─────────────────────────────────────────
 build-job:
   stage: build
+  tags:
+    - notifikasi-kepegawaian-pusdatin  # Pastikan ini sama persis dengan tag yang terdaftar di runner Anda
   script:
     - echo "=== Memulai proses Build untuk Laravel ==="
     - echo "--- Install PHP dependencies ---"
