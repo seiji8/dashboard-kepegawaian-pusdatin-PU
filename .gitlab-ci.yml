@@ -1,31 +1,16 @@
-# Docker executor — menggunakan image PHP resmi dengan Composer & Node.js
-# PHP 8.2, Composer 2.x, Node.js 20.x tersedia di image ini
-
-image: php:8.2-cli
+# Shell Executor di Windows (PowerShell)
+# PHP, Composer, Node.js harus sudah terinstall di mesin runner
+# Runner config: C:\xampp\htdocs\dashboard-kepegawaian-pusdatin-PU\config.toml
 
 stages:
   - build
   - test
   - deploy
 
-# Install dependencies sistem + Composer + Node.js sebelum setiap job
+# Fix Windows MAX_PATH (260 char) limit
 before_script:
-  # Wajib: Noninteractive agar apt-get tidak stuck menunggu input dialog
-  - export DEBIAN_FRONTEND=noninteractive
-  # Install ekstensi PHP yang dibutuhkan Laravel
-  - apt-get update -qq
-  - apt-get install -y -qq --no-install-recommends git curl zip unzip libzip-dev libpng-dev libonig-dev libxml2-dev
-  - docker-php-ext-install pdo pdo_mysql mbstring exif pcntl bcmath gd zip
-  # Install Composer
-  - curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
-  # Install Node.js 20.x + npm
-  - curl -fsSL https://deb.nodesource.com/setup_20.x | bash -
-  - apt-get install -y --no-install-recommends nodejs
-  # Verifikasi versi
-  - php --version
-  - composer --version
-  - node --version
-  - npm --version
+  - git config --global core.longpaths true
+  - git config core.longpaths true
 
 # ─────────────────────────────────────────
 # STAGE: BUILD
@@ -34,6 +19,10 @@ build-job:
   stage: build
   script:
     - echo "=== Memulai proses Build untuk Laravel ==="
+    - echo "PHP version:" ; php --version
+    - echo "Composer version:" ; composer --version
+    - echo "Node version:" ; node --version
+    - echo "NPM version:" ; npm --version
     - echo "--- Install PHP dependencies ---"
     - composer install --prefer-dist --no-ansi --no-interaction --no-progress --no-scripts
     - echo "--- Install Node dependencies ---"
@@ -41,7 +30,7 @@ build-job:
     - echo "--- Build assets (Vite) ---"
     - npm run build
     - echo "--- Setup .env ---"
-    - cp .env.example .env
+    - Copy-Item .env.example .env
     - php artisan key:generate
     - echo "=== Build selesai! ==="
   artifacts:
@@ -60,11 +49,11 @@ unit-test-job:
     - build-job
   script:
     - echo "=== Menjalankan PHPUnit Test ==="
-    - cp .env.example .env
+    - Copy-Item .env.example .env
     - php artisan key:generate
-    - touch database/database.sqlite
-    - export DB_CONNECTION=sqlite
-    - export DB_DATABASE=database/database.sqlite
+    - New-Item -ItemType File -Force -Path database/database.sqlite
+    - $env:DB_CONNECTION = "sqlite"
+    - $env:DB_DATABASE = "database/database.sqlite"
     - php artisan migrate --force
     - php artisan test
 
