@@ -1,6 +1,6 @@
 # Shell Executor di Windows (PowerShell)
-# PHP, Composer, Node.js harus sudah terinstall di mesin runner
 # Runner: #38 (bQU_rLou) — tag: notifikasi-kepegawaian-pusdatin
+# PHP, Composer, Node.js sudah terinstall di mesin runner
 
 stages:
   - build
