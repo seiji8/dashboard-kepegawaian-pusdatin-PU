@@ -10,14 +10,17 @@ stages:
 
 # Install dependencies sistem + Composer + Node.js sebelum setiap job
 before_script:
+  # Wajib: Noninteractive agar apt-get tidak stuck menunggu input dialog
+  - export DEBIAN_FRONTEND=noninteractive
   # Install ekstensi PHP yang dibutuhkan Laravel
-  - apt-get update -qq && apt-get install -y -qq git curl zip unzip libzip-dev libpng-dev libonig-dev libxml2-dev
+  - apt-get update -qq
+  - apt-get install -y -qq --no-install-recommends git curl zip unzip libzip-dev libpng-dev libonig-dev libxml2-dev
   - docker-php-ext-install pdo pdo_mysql mbstring exif pcntl bcmath gd zip
   # Install Composer
   - curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
   # Install Node.js 20.x + npm
   - curl -fsSL https://deb.nodesource.com/setup_20.x | bash -
-  - apt-get install -y nodejs
+  - apt-get install -y --no-install-recommends nodejs
   # Verifikasi versi
   - php --version
   - composer --version
