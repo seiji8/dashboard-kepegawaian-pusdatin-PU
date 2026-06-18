@@ -1,6 +1,6 @@
 # Shell Executor di Windows (PowerShell)
 # PHP, Composer, Node.js harus sudah terinstall di mesin runner
-# Runner config: C:\xampp\htdocs\dashboard-kepegawaian-pusdatin-PU\config.toml
+# Runner: #38 (bQU_rLou) — tag: notifikasi-kepegawaian-pusdatin
 
 stages:
   - build
@@ -17,6 +17,8 @@ before_script:
 # ─────────────────────────────────────────
 build-job:
   stage: build
+  tags:
+    - notifikasi-kepegawaian-pusdatin
   script:
     - echo "=== Memulai proses Build untuk Laravel ==="
     - echo "PHP version:" ; php --version
@@ -45,6 +47,8 @@ build-job:
 # ─────────────────────────────────────────
 unit-test-job:
   stage: test
+  tags:
+    - notifikasi-kepegawaian-pusdatin
   dependencies:
     - build-job
   script:
@@ -59,6 +63,8 @@ unit-test-job:
 
 lint-test-job:
   stage: test
+  tags:
+    - notifikasi-kepegawaian-pusdatin
   dependencies:
     - build-job
   script:
@@ -70,6 +76,8 @@ lint-test-job:
 # ─────────────────────────────────────────
 deploy-job:
   stage: deploy
+  tags:
+    - notifikasi-kepegawaian-pusdatin
   environment: production
   only:
     - main
