@@ -1,26 +1,36 @@
-# Runner: shell executor di Windows (image: diabaikan untuk shell executor)
-# PHP 8.5, Composer 2.x, Node 24.x, NPM 11.x tersedia di runner
+# Docker executor — menggunakan image PHP resmi dengan Composer & Node.js
+# PHP 8.2, Composer 2.x, Node.js 20.x tersedia di image ini
+
+image: php:8.2-cli
 
 stages:
   - build
   - test
   - deploy
 
-# Fix Windows MAX_PATH (260 char) limit - wajib untuk vendor/phpunit path panjang
+# Install dependencies sistem + Composer + Node.js sebelum setiap job
 before_script:
-  - git config --global core.longpaths true
-  - git config core.longpaths true
+  # Install ekstensi PHP yang dibutuhkan Laravel
+  - apt-get update -qq && apt-get install -y -qq git curl zip unzip libzip-dev libpng-dev libonig-dev libxml2-dev
+  - docker-php-ext-install pdo pdo_mysql mbstring exif pcntl bcmath gd zip
+  # Install Composer
+  - curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+  # Install Node.js 20.x + npm
+  - curl -fsSL https://deb.nodesource.com/setup_20.x | bash -
+  - apt-get install -y nodejs
+  # Verifikasi versi
+  - php --version
+  - composer --version
+  - node --version
+  - npm --version
 
-# Caching dinonaktifkan untuk Windows Shell Executor untuk menghindari stuck/hang saat unzip node_modules & vendor
-
+# ─────────────────────────────────────────
+# STAGE: BUILD
+# ─────────────────────────────────────────
 build-job:
   stage: build
   script:
     - echo "=== Memulai proses Build untuk Laravel ==="
-    - echo "PHP version:" && php --version
-    - echo "Composer version:" && composer --version
-    - echo "Node version:" && node --version
-    - echo "NPM version:" && npm --version
     - echo "--- Install PHP dependencies ---"
     - composer install --prefer-dist --no-ansi --no-interaction --no-progress --no-scripts
     - echo "--- Install Node dependencies ---"
@@ -28,39 +38,44 @@ build-job:
     - echo "--- Build assets (Vite) ---"
     - npm run build
     - echo "--- Setup .env ---"
-    - Copy-Item .env.example .env
+    - cp .env.example .env
     - php artisan key:generate
     - echo "=== Build selesai! ==="
-  # Artifacts hanya menyimpan hasil compile (ringan)
   artifacts:
     expire_in: 1 hour
     paths:
       - public/build/
       - .env
+      - vendor/
 
+# ─────────────────────────────────────────
+# STAGE: TEST
+# ─────────────────────────────────────────
 unit-test-job:
   stage: test
   dependencies:
     - build-job
   script:
     - echo "=== Menjalankan PHPUnit Test ==="
-    - composer install --prefer-dist --no-ansi --no-interaction --no-progress --no-scripts
-    - Copy-Item .env.example .env
+    - cp .env.example .env
     - php artisan key:generate
-    - New-Item -ItemType File -Force -Path database/database.sqlite
-    - $env:DB_CONNECTION="sqlite"
-    - $env:DB_DATABASE="database/database.sqlite"
+    - touch database/database.sqlite
+    - export DB_CONNECTION=sqlite
+    - export DB_DATABASE=database/database.sqlite
     - php artisan migrate --force
     - php artisan test
 
 lint-test-job:
   stage: test
-  dependencies: []
+  dependencies:
+    - build-job
   script:
     - echo "=== Menjalankan Laravel Pint ==="
-    - composer install --prefer-dist --no-ansi --no-interaction --no-progress --no-scripts
     - ./vendor/bin/pint --test
 
+# ─────────────────────────────────────────
+# STAGE: DEPLOY
+# ─────────────────────────────────────────
 deploy-job:
   stage: deploy
   environment: production
