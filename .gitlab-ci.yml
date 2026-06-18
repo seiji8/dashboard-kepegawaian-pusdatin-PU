@@ -1,38 +1,59 @@
-# Shell Executor di Windows (PowerShell)
-# Runner: #38 (bQU_rLou) — tag: notifikasi-kepegawaian-pusdatin
-# PHP, Composer, Node.js sudah terinstall di mesin runner
+# Docker Executor — Runner #38 (bQU_rLou)
+# Menggunakan php:8.2-cli sebagai base image
+# Extensions diinstall via install-php-extensions (pre-compiled, jauh lebih cepat dari docker-php-ext-install)
+
+image: php:8.2-cli
 
 stages:
   - build
   - test
   - deploy
 
-# Fix Windows MAX_PATH (260 char) limit
-before_script:
-  - git config --global core.longpaths true
-  - git config core.longpaths true
+variables:
+  DEBIAN_FRONTEND: noninteractive  # Cegah apt-get stuck dialog interaktif
 
 # ─────────────────────────────────────────
-# STAGE: BUILD
+# GLOBAL SETUP: PHP + Composer
+# ─────────────────────────────────────────
+before_script:
+  - apt-get update -qq
+  - apt-get install -y -qq --no-install-recommends curl git unzip zip libpng-dev libonig-dev
+  # Install PHP extensions via tool pre-compiled (LEBIH CEPAT dari docker-php-ext-install)
+  - curl -sSL https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions -o /usr/local/bin/install-php-extensions
+  - chmod +x /usr/local/bin/install-php-extensions
+  - install-php-extensions pdo_mysql mbstring exif pcntl bcmath gd zip intl sqlite3
+  # Install Composer
+  - curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+  - php --version
+  - composer --version
+
+# ─────────────────────────────────────────
+# STAGE: BUILD (PHP + Composer + Node.js)
 # ─────────────────────────────────────────
 build-job:
   stage: build
   tags:
     - notifikasi-kepegawaian-pusdatin
+  before_script:
+    - apt-get update -qq
+    - apt-get install -y -qq --no-install-recommends curl git unzip zip libpng-dev libonig-dev
+    - curl -sSL https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions -o /usr/local/bin/install-php-extensions
+    - chmod +x /usr/local/bin/install-php-extensions
+    - install-php-extensions pdo_mysql mbstring exif pcntl bcmath gd zip intl sqlite3
+    - curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+    # Install Node.js 20.x (hanya dibutuhkan di build-job untuk Vite)
+    - curl -fsSL https://deb.nodesource.com/setup_20.x | bash -
+    - apt-get install -y --no-install-recommends nodejs
+    - php --version && composer --version && node --version && npm --version
   script:
-    - echo "=== Memulai proses Build untuk Laravel ==="
-    - echo "PHP version:" ; php --version
-    - echo "Composer version:" ; composer --version
-    - echo "Node version:" ; node --version
-    - echo "NPM version:" ; npm --version
-    - echo "--- Install PHP dependencies ---"
+    - echo "=== Install PHP dependencies ==="
     - composer install --prefer-dist --no-ansi --no-interaction --no-progress --no-scripts
-    - echo "--- Install Node dependencies ---"
+    - echo "=== Install Node dependencies ==="
     - npm install
-    - echo "--- Build assets (Vite) ---"
+    - echo "=== Build assets (Vite) ==="
     - npm run build
-    - echo "--- Setup .env ---"
-    - Copy-Item .env.example .env
+    - echo "=== Setup .env ==="
+    - cp .env.example .env
     - php artisan key:generate
     - echo "=== Build selesai! ==="
   artifacts:
@@ -53,11 +74,11 @@ unit-test-job:
     - build-job
   script:
     - echo "=== Menjalankan PHPUnit Test ==="
-    - Copy-Item .env.example .env
+    - cp .env.example .env
     - php artisan key:generate
-    - New-Item -ItemType File -Force -Path database/database.sqlite
-    - $env:DB_CONNECTION = "sqlite"
-    - $env:DB_DATABASE = "database/database.sqlite"
+    - touch database/database.sqlite
+    - export DB_CONNECTION=sqlite
+    - export DB_DATABASE=database/database.sqlite
     - php artisan migrate --force
     - php artisan test
 
