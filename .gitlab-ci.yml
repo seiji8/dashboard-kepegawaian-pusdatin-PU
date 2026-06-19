@@ -55,13 +55,15 @@ build-job:
     - echo "=== Setup .env ==="
     - cp .env.example .env
     - php artisan key:generate
+    - echo "=== Compress vendor directory to avoid GitLab artifact timeout ==="
+    - zip -q -r vendor.zip vendor/
     - echo "=== Build selesai! ==="
   artifacts:
     expire_in: 1 hour
     paths:
       - public/build/
       - .env
-      - vendor/
+      - vendor.zip
 
 # ─────────────────────────────────────────
 # STAGE: TEST
@@ -73,6 +75,8 @@ unit-test-job:
   dependencies:
     - build-job
   script:
+    - echo "=== Extract vendor ==="
+    - unzip -q vendor.zip
     - echo "=== Menjalankan PHPUnit Test ==="
     - cp .env.example .env
     - php artisan key:generate
@@ -89,6 +93,8 @@ lint-test-job:
   dependencies:
     - build-job
   script:
+    - echo "=== Extract vendor ==="
+    - unzip -q vendor.zip
     - echo "=== Menjalankan Laravel Pint ==="
     - ./vendor/bin/pint --test
 
